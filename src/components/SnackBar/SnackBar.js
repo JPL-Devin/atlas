@@ -4,24 +4,21 @@ import PropTypes from 'prop-types'
 
 import { setSnackBarText } from '../../core/redux/actions/actions.js'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import Snackbar from '@mui/material/Snackbar'
 import MuiAlert from '@mui/material/Alert'
 
-const useStyles = makeStyles((theme) => ({
-    snackbar: {
-        fontSize: 14,
-        fontWeight: 'bold',
-    },
-}))
+const StyledAlert = styled(MuiAlert)({
+    fontSize: 14,
+    fontWeight: 'bold',
+})
 
 // Just a small bit of anti-pattern so that, when the snackbar fades, it
 // doesn't snap to a no text state
 let afterImage = ''
 
 const SnackBar = (props) => {
-    const c = useStyles()
     const dispatch = useDispatch()
 
     const snackBarText = useSelector((state) => {
@@ -47,15 +44,14 @@ const SnackBar = (props) => {
             autoHideDuration={4000}
             onClose={handleCloseSnackbar}
         >
-            <MuiAlert
-                className={c.snackbar}
+            <StyledAlert
                 elevation={6}
                 variant="filled"
                 onClose={handleCloseSnackbar}
                 severity={snackBarText.severity || 'success'}
             >
                 {snackBarText.text || afterImage}
-            </MuiAlert>
+            </StyledAlert>
         </Snackbar>
     )
 }

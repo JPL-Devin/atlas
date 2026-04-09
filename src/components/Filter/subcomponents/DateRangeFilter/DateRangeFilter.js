@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import PropTypes from 'prop-types'
-
-import clsx from 'clsx'
 
 import Button from '@mui/material/Button'
 
@@ -21,153 +19,87 @@ import MenuItem from '@mui/material/MenuItem'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers'
 
-const useStyles = makeStyles((theme) => ({
-    // DateRangeFilter: {
-    //     width: '100%',
-    //     display: 'flex',
-    //     flexFlow: 'column',
-    // },
-    // notAlone: {
-    //     paddingTop: '10px',
-    //     position: 'relative',
-    // },
-    // title: {
-    //     position: 'absolute',
-    //     left: '50%',
-    //     top: '146px',
-    //     transform: 'translateX(-50%)',
-    //     color: theme.palette.swatches.grey.grey400,
-    // },
-    wrapper: {
-        width: '100%',
-        padding: `4px ${theme.spacing(2)}`,
-        boxSizing: 'border-box',
-    },
-    settings: {
-        width: '100%',
-        height: '0px',
-        overflow: 'hidden',
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey300}`,
-        boxSizing: 'border-box',
-        opacity: '0',
-        transition:
-            'height 0.2s ease-out, opacity 0.2s ease-out, padding 0.2s ease-out, margin 0.2s ease-out',
-    },
-    settingsActive: {
+const WrapperDiv = styled('div')(({ theme }) => ({
+    width: '100%',
+    padding: `4px ${theme.spacing(2)}`,
+    boxSizing: 'border-box',
+}))
+
+const SettingsDiv = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isActive',
+})(({ theme, isActive }) => ({
+    width: '100%',
+    height: '0px',
+    overflow: 'hidden',
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey300}`,
+    boxSizing: 'border-box',
+    opacity: '0',
+    transition:
+        'height 0.2s ease-out, opacity 0.2s ease-out, padding 0.2s ease-out, margin 0.2s ease-out',
+    ...(isActive && {
         height: '66px',
         opacity: '1',
         paddingTop: '8px',
         marginBottom: '8px',
+    }),
+}))
+
+const GapDiv = styled('div')(({ theme }) => ({
+    textAlign: 'center',
+    position: 'relative',
+    top: '-9px',
+    fontWeight: 'bold',
+    fontSize: '12px',
+    color: theme.palette.swatches.grey.grey500,
+}))
+
+const PickerDiv = styled('div')(({ theme }) => ({
+    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+        borderColor: theme.palette.accent.main,
     },
-    // formControl: {
-    //     width: '100%',
-    //     marginBottom: '8px',
-    // },
-    // formHelperText: {
-    //     color: theme.palette.swatches.grey.grey600,
-    //     marginTop: '1px',
-    //     marginLeft: '9px',
-    // },
-    gap: {
-        textAlign: 'center',
-        position: 'relative',
-        top: '-9px',
-        fontWeight: 'bold',
-        fontSize: '12px',
+    '& .MuiFormLabel-root.MuiInputLabel-root': {
+        color: theme.palette.swatches.grey.grey600,
+    },
+}))
+
+const StyledDatePicker = styled(DateTimePicker)(({ theme }) => ({
+    'width': '100%',
+    '& .MuiOutlinedInput-input': {
+        padding: 8,
+    },
+    '& .MuiFormLabel-root': {
+        top: -8,
+        color: 'rgba(0,0,0,0.54)',
+    },
+    '& .MuiFormHelperText-root': {
         color: theme.palette.swatches.grey.grey500,
+        marginLeft: '8px',
     },
-    picker: {
-        //     'display': 'flex',
-        //     'justifyContent': 'space-between',
-        //     '& .MuiOutlinedInput-input': {
-        //         padding: '8px',
-        //     },
-        //     '& .MuiOutlinedInput-adornedEnd': {
-        //         paddingRight: '0px',
-        //     },
-        //     '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-        //         borderColor: theme.palette.accent.main,
-        //     },
-        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: theme.palette.accent.main,
-        },
-        '& .MuiFormLabel-root.MuiInputLabel-root': {
-            color: theme.palette.swatches.grey.grey600,
-        },
+}))
+
+const DatesOutOfOrderDiv = styled('div')(({ theme }) => ({
+    textAlign: 'center',
+    marginTop: '8px',
+    color: theme.palette.swatches.red.red500,
+    fontWeight: 'bold',
+}))
+
+const BottomDiv = styled('div')(({ theme }) => ({
+    marginTop: theme.spacing(2),
+    padding: `0px ${theme.spacing(2)}`,
+    display: 'flex',
+    justifyContent: 'space-between',
+}))
+
+const ClearButton = styled(Button)(({ theme }) => ({
+    'background': theme.palette.swatches.grey.grey500,
+    '&:hover': {
+        background: theme.palette.swatches.red.red500,
     },
-    datePicker: {
-        'width': '100%',
-        '& .MuiOutlinedInput-input': {
-            padding: 8,
-        },
-        '& .MuiFormLabel-root': {
-            top: -8,
-            color: 'rgba(0,0,0,0.54)',
-        },
-        '& .MuiFormHelperText-root': {
-            color: theme.palette.swatches.grey.grey500,
-            marginLeft: '8px',
-        },
-    },
-    // pickerModal: {
-    //     '& .MuiPickersToolbar-toolbar': {
-    //         background: theme.palette.swatches.grey.grey150,
-    //     },
-    //     '& .MuiDialogActions-root': {
-    //         'background': theme.palette.swatches.grey.grey150,
-    //         '& .MuiButton-label': {
-    //             color: theme.palette.text.primary,
-    //         },
-    //     },
-    //     '& .MuiPickersYear-root': {
-    //         height: '30px',
-    //     },
-    //     '& .MuiPickersYear-root:focus': {
-    //         color: theme.palette.text.primary,
-    //     },
-    //     '& .MuiPickersYear-yearSelected': {
-    //         color: theme.palette.accent.main,
-    //     },
-    //     '& .MuiPickersClock-pin': {
-    //         background: theme.palette.swatches.grey.grey800,
-    //     },
-    //     '& .MuiPickersClockPointer-pointer': {
-    //         background: theme.palette.swatches.grey.grey400,
-    //     },
-    //     '& .MuiPickersClockPointer-thumb': {
-    //         borderColor: theme.palette.accent.main,
-    //     },
-    //     '& .MuiPickersClockPointer-noPoint': {
-    //         background: theme.palette.accent.main,
-    //     },
-    //     '& .MuiPickersClockNumber-clockNumberSelected': {
-    //         color: 'white',
-    //     },
-    // },
-    datesOutOfOrder: {
-        textAlign: 'center',
-        marginTop: '8px',
-        color: theme.palette.swatches.red.red500,
-        fontWeight: 'bold',
-    },
-    bottom: {
-        marginTop: theme.spacing(2),
-        padding: `0px ${theme.spacing(2)}`,
-        display: 'flex',
-        justifyContent: 'space-between',
-    },
-    clear: {
-        'background': theme.palette.swatches.grey.grey500,
-        '&:hover': {
-            background: theme.palette.swatches.red.red500,
-        },
-    },
-    submit: {},
 }))
 
 const DateRangeFilter = (props) => {
     const { filterKey, facetId, alone, settingsActive } = props
-    const c = useStyles()
 
     const dispatch = useDispatch()
     let facet = useSelector((state) => {
@@ -274,15 +206,11 @@ const DateRangeFilter = (props) => {
     }
 
     return (
-        <div
-            className={clsx(c.DateRangeFilter, {
-                [c.notAlone]: !alone,
-            })}
-        >
-            {!alone ? <div className={c.title}>{prettify(facetName)}</div> : null}
-            <div className={c.wrapper}>
-                <div className={clsx(c.settings, { [c.settingsActive]: settingsActive })}>
-                    <FormControl className={c.formControl} variant="outlined">
+        <div>
+            {!alone ? <div>{prettify(facetName)}</div> : null}
+            <WrapperDiv>
+                <SettingsDiv isActive={settingsActive}>
+                    <FormControl variant="outlined">
                         <InputLabel htmlFor="outlined-date-format">Date Format</InputLabel>
                         <Select
                             value={dateFormatIdx}
@@ -300,16 +228,15 @@ const DateRangeFilter = (props) => {
                                 )
                             })}
                         </Select>
-                        <FormHelperText className={c.formHelperText}>
+                        <FormHelperText>
                             {`For example, "${formats[dateFormatIdx].example}"`}
                         </FormHelperText>
                     </FormControl>
-                </div>
-                <div className={c.picker}>
+                </SettingsDiv>
+                <PickerDiv>
                     <InputLabel htmlFor="start-date-picker">Start Date</InputLabel>
-                    <DateTimePicker
+                    <StyledDatePicker
                         id={'start-date-picker'}
-                        className={c.datePicker}
                         ampm={false}
                         value={selectedStartDate}
                         onChange={(val, context) => {
@@ -320,10 +247,6 @@ const DateRangeFilter = (props) => {
                         disableFuture={true}
                         minDate={minDate}
                         maxDate={maxDate}
-                        //invalidDateMessage={`Invalid Format. Use ${dateFormat}`}
-                        //DialogProps={{
-                        //    className: c.pickerModal,
-                        //}}
                         slotProps={{
                             textField: {
                                 InputLabelProps: {
@@ -339,13 +262,12 @@ const DateRangeFilter = (props) => {
                             seconds: formats[dateFormatIdx].useTime ? renderTimeViewClock : null,
                         }}
                     />
-                </div>
-                <div className={c.gap}>to</div>
-                <div className={c.picker}>
+                </PickerDiv>
+                <GapDiv>to</GapDiv>
+                <PickerDiv>
                     <InputLabel htmlFor="end-date-picker">End Date</InputLabel>
-                    <DateTimePicker
+                    <StyledDatePicker
                         id={'end-date-picker'}
-                        className={c.datePicker}
                         ampm={false}
                         value={selectedEndDate}
                         onChange={(val, context) => {
@@ -356,10 +278,6 @@ const DateRangeFilter = (props) => {
                         disableFuture={true}
                         minDate={minDate}
                         maxDate={maxDate}
-                        //invalidDateMessage={`Invalid Format. Use ${dateFormat}`}
-                        //DialogProps={{
-                        //    className: c.pickerModal,
-                        //}}
                         slotProps={{
                             textField: {
                                 InputLabelProps: {
@@ -375,23 +293,21 @@ const DateRangeFilter = (props) => {
                             seconds: formats[dateFormatIdx].useTime ? renderTimeViewClock : null,
                         }}
                     />
-                </div>
+                </PickerDiv>
                 {bothDates && selectedStartDate.utc() > selectedEndDate.utc() && (
-                    <div className={c.datesOutOfOrder}>Start Date occurs after End Date!</div>
+                    <DatesOutOfOrderDiv>Start Date occurs after End Date!</DatesOutOfOrderDiv>
                 )}
-            </div>
-            <div className={c.bottom}>
-                <Button
-                    className={c.clear}
+            </WrapperDiv>
+            <BottomDiv>
+                <ClearButton
                     size="small"
                     variant="contained"
                     onClick={handleClear}
                     disabled={selectedStartDate !== null || selectedEndDate !== null}
                 >
                     Clear
-                </Button>
+                </ClearButton>
                 <Button
-                    className={c.submit}
                     size="small"
                     variant="contained"
                     onClick={handleSubmit}
@@ -402,7 +318,7 @@ const DateRangeFilter = (props) => {
                 >
                     Search
                 </Button>
-            </div>
+            </BottomDiv>
         </div>
     )
 }

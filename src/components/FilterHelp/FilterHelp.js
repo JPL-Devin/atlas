@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { makeStyles, withStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import PropTypes from 'prop-types'
 
 import Typography from '@mui/material/Typography'
@@ -13,67 +13,68 @@ import axios from 'axios'
 import { endpoints } from '../../core/constants'
 import { getIn, prettify } from '../../core/utils'
 
-const useStyles = makeStyles((theme) => ({
-    FilterHelp: {
-        fontSize: '16px',
-        lineHeight: '22px',
-    },
-    noDescription: {
-        lineHeight: '20px',
-        fontWeight: 'bold',
-        padding: '6px 10px',
-        textAlign: 'center',
-        fontSize: '18px',
+const FilterHelpRoot = styled('div')({
+    fontSize: '16px',
+    lineHeight: '22px',
+})
+
+const NoDescription = styled(Typography)(({ theme }) => ({
+    lineHeight: '20px',
+    fontWeight: 'bold',
+    padding: '6px 10px',
+    textAlign: 'center',
+    fontSize: '18px',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translateX(-50%) translateY(-50%)',
+    color: theme.palette.swatches.grey.grey400,
+}))
+
+const HelpTitle = styled('div')(({ theme }) => ({
+    'background': theme.palette.swatches.grey.grey50,
+    'fontWeight': 'bold',
+    'padding': '7px 10px 6px 10px',
+    'textAlign': 'center',
+    'fontSize': '18px',
+    'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
+    '& span': {
+        padding: '2px 8px 2px 8px',
         position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translateX(-50%) translateY(-50%)',
-        color: theme.palette.swatches.grey.grey400,
-    },
-    helpTitle: {
-        'background': theme.palette.swatches.grey.grey50,
-        'fontWeight': 'bold',
-        'padding': '7px 10px 6px 10px',
-        'textAlign': 'center',
-        'fontSize': '18px',
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
-        '& span': {
-            padding: '2px 8px 2px 8px',
-            position: 'absolute',
-            left: '0px',
-        },
-    },
-    close: {
-        padding: '7px 8px',
-        position: 'absolute',
-        right: '0px',
-        top: '0px',
-    },
-    helpDescription: {
-        padding: '20px',
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        whiteSpace: 'pre-line',
-    },
-    helpList: {
-        'margin': '0px',
-        'padding': '20px',
-        'listStyleType': 'none',
-        '& li': {
-            marginBottom: '10px',
-        },
-        '& li > div:first-child': {
-            fontWeight: 'bold',
-        },
-        '& li > div:last-child': {
-            marginLeft: '20px',
-        },
+        left: '0px',
     },
 }))
 
+const CloseButton = styled(IconButton)({
+    padding: '7px 8px',
+    position: 'absolute',
+    right: '0px',
+    top: '0px',
+})
+
+const HelpDescription = styled('div')(({ theme }) => ({
+    padding: '20px',
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    whiteSpace: 'pre-line',
+}))
+
+const HelpList = styled('ul')({
+    'margin': '0px',
+    'padding': '20px',
+    'listStyleType': 'none',
+    '& li': {
+        marginBottom: '10px',
+    },
+    '& li > div:first-child': {
+        fontWeight: 'bold',
+    },
+    '& li > div:last-child': {
+        marginLeft: '20px',
+    },
+})
+
 const FilterHelp = (props) => {
     const { filter, filterKey, onClose } = props
-    const c = useStyles()
-
     const [helpData, setHelpData] = useState(null)
 
     useEffect(() => {
@@ -101,17 +102,16 @@ const FilterHelp = (props) => {
         }
 
     return (
-        <div className={c.FilterHelp}>
+        <FilterHelpRoot>
             {finalHelpData ? (
-                generateHelp(finalHelpData, c)
+                generateHelp(finalHelpData)
             ) : (
-                <Typography className={c.noDescription} variant="body2">
+                <NoDescription variant="body2">
                     No Description
-                </Typography>
+                </NoDescription>
             )}
             {typeof onClose === 'function' ? (
-                <IconButton
-                    className={c.close}
+                <CloseButton
                     title="Close"
                     aria-label="close"
                     size="medium"
@@ -120,23 +120,23 @@ const FilterHelp = (props) => {
                     }}
                 >
                     <CloseSharpIcon fontSize="inherit" />
-                </IconButton>
+                </CloseButton>
             ) : null}
-        </div>
+        </FilterHelpRoot>
     )
 }
 
-const generateHelp = (help, c) => {
+const generateHelp = (help) => {
     return (
         <div>
-            <div className={c.helpTitle}>
+            <HelpTitle>
                 <span>
                     <InfoOutlinedIcon fontSize="inherit" />
                 </span>
                 {help.attribute_name}
-            </div>
-            <div className={c.helpDescription}>{help.description}</div>
-            <ul className={c.helpList}>
+            </HelpTitle>
+            <HelpDescription>{help.description}</HelpDescription>
+            <HelpList>
                 {Object.keys(help)
                     .filter(
                         (h) =>
@@ -151,7 +151,7 @@ const generateHelp = (help, c) => {
                             <div>{`${help[h]}`}</div>
                         </li>
                     ))}
-            </ul>
+            </HelpList>
         </div>
     )
 }

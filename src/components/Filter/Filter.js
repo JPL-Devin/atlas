@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { makeStyles, withStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import PropTypes from 'prop-types'
-import clsx from 'clsx'
 
 import {
     setModal,
@@ -37,237 +36,234 @@ import SliderRangeFilter from './subcomponents/SliderRangeFilter/SliderRangeFilt
 import InputRangeFilter from './subcomponents/InputRangeFilter/InputRangeFilter'
 import DateRangeFilter from './subcomponents/DateRangeFilter/DateRangeFilter'
 
-const Accordion = withStyles({
-    root: {
-        'boxShadow': 'none',
-        '&:not(:last-child)': {
-            borderBottom: 0,
-        },
-        '&:before': {
-            display: 'none',
-        },
-        '&.Mui-expanded': {
-            margin: 'auto',
-        },
-        'position': 'inherit',
-        'overflow': 'hidden',
-        'borderRadius': '0 !important',
+const Accordion = styled(MuiAccordion)({
+    'boxShadow': 'none',
+    '&:not(:last-child)': {
+        borderBottom: 0,
     },
-    expanded: {},
-})(MuiAccordion)
+    '&:before': {
+        display: 'none',
+    },
+    '&.Mui-expanded': {
+        margin: 'auto',
+    },
+    'position': 'inherit',
+    'overflow': 'hidden',
+    'borderRadius': '0 !important',
+})
 
-const AccordionSummary = withStyles((theme) => ({
-    root: {
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
-        'height': theme.headHeights[2],
-        'minHeight': theme.headHeights[2],
-        'flexDirection': 'row-reverse',
-        'background': theme.palette.swatches.grey.grey100,
-        'color': theme.palette.text.primary,
-        'boxSizing': 'border-box',
-        'zIndex': 2,
-        'borderLeft': '2px solid rgba(0,0,0,0)',
-        'borderRight': `1px solid ${theme.palette.swatches.grey.grey200}`,
-        'transition': 'unset',
-        'alignItems': 'flex-start',
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey150,
-        },
-        '&.Mui-expanded': {
-            minHeight: theme.headHeights[2],
-            background: theme.palette.swatches.grey.grey150,
-            borderLeft: `4px solid ${theme.palette.swatches.yellow.yellow600}`,
-        },
+const AccordionSummary = styled(MuiAccordionSummary)(({ theme }) => ({
+    'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
+    'height': theme.headHeights[2],
+    'minHeight': theme.headHeights[2],
+    'flexDirection': 'row-reverse',
+    'background': theme.palette.swatches.grey.grey100,
+    'color': theme.palette.text.primary,
+    'boxSizing': 'border-box',
+    'zIndex': 2,
+    'borderLeft': '2px solid rgba(0,0,0,0)',
+    'borderRight': `1px solid ${theme.palette.swatches.grey.grey200}`,
+    'transition': 'unset',
+    'alignItems': 'flex-start',
+    '&:hover': {
+        background: theme.palette.swatches.grey.grey150,
     },
-    content: {
+    '&.Mui-expanded': {
+        minHeight: theme.headHeights[2],
+        background: theme.palette.swatches.grey.grey150,
+        borderLeft: `4px solid ${theme.palette.swatches.yellow.yellow600}`,
+    },
+    '& .MuiAccordionSummary-content': {
         'margin': '4px 0',
         '&.Mui-expanded': {
             height: '100%',
             margin: '4px 0',
         },
     },
-    expandIcon: {
+    '& .MuiAccordionSummary-expandIconWrapper': {
         margin: '0px 0px 0px -12px',
         color: theme.palette.swatches.grey.grey700,
         overflow: 'hidden',
         padding: '9px 12px',
-    },
-    expanded: {},
-    expandIconWrapper: {
         alignItems: 'center',
         height: '100%',
         color: theme.palette.swatches.grey.grey900,
     },
-}))(MuiAccordionSummary)
+}))
 
-const AccordionDetails = withStyles((theme) => ({
-    root: {
-        padding: `${theme.spacing(2)} 0px`,
-        background: theme.palette.swatches.grey.grey0,
-        boxShadow: `inset 2px 2px 3px 0px rgba(0,0,0,0.12)`,
-        flexFlow: 'column',
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        borderLeft: `4px solid ${theme.palette.swatches.yellow.yellow600}`,
-    },
-}))(MuiAccordionDetails)
+const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+    padding: `${theme.spacing(2)} 0px`,
+    background: theme.palette.swatches.grey.grey0,
+    boxShadow: `inset 2px 2px 3px 0px rgba(0,0,0,0.12)`,
+    flexFlow: 'column',
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    borderLeft: `4px solid ${theme.palette.swatches.yellow.yellow600}`,
+}))
 
-const useStyles = makeStyles((theme) => ({
-    Filter: {},
-    title: {
-        fontWeight: 400,
-        lineHeight: '30px',
-        textTransform: 'capitalize',
-        maxWidth: '190px',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        letterSpacing: '0.00938em',
-        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    },
-    header: {
-        flex: 1,
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginLeft: '8px',
-    },
-    headerButtons: {},
-    settingsButton: {
-        'fontSize': 16,
-        'padding': '7px',
-        'color': theme.palette.swatches.grey.grey400,
-        'borderRadius': '3px',
-        'transition': 'color 0.2s ease-out, background 0.2s ease-out',
-        '&:hover': {
-            background: theme.palette.accent.main,
-            color: theme.palette.text.secondary,
-        },
-    },
-    settingsButtonActive: {
+const FilterTitle = styled(Typography)({
+    fontWeight: 400,
+    lineHeight: '30px',
+    textTransform: 'capitalize',
+    maxWidth: '190px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    letterSpacing: '0.00938em',
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+})
+
+const HeaderDiv = styled('div')({
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginLeft: '8px',
+})
+
+const SettingsButton = styled(IconButton, {
+    shouldForwardProp: (prop) => prop !== 'isActive',
+})(({ theme, isActive }) => ({
+    'fontSize': 16,
+    'padding': '7px',
+    'color': theme.palette.swatches.grey.grey400,
+    'borderRadius': '3px',
+    'transition': 'color 0.2s ease-out, background 0.2s ease-out',
+    '&:hover': {
         background: theme.palette.accent.main,
         color: theme.palette.text.secondary,
     },
-    infoButton: {
-        'fontSize': 16,
-        'padding': '7px',
-        'color': theme.palette.swatches.grey.grey400,
-        'borderRadius': '3px',
-        'transition': 'color 0.2s ease-out, background 0.2s ease-out',
-        '&:hover': {
-            background: theme.palette.accent.main,
-            color: theme.palette.text.secondary,
-        },
+    ...(isActive && {
+        background: theme.palette.accent.main,
+        color: theme.palette.text.secondary,
+    }),
+}))
+
+const InfoButton = styled(IconButton)(({ theme }) => ({
+    'fontSize': 16,
+    'padding': '7px',
+    'color': theme.palette.swatches.grey.grey400,
+    'borderRadius': '3px',
+    'transition': 'color 0.2s ease-out, background 0.2s ease-out',
+    '&:hover': {
+        background: theme.palette.accent.main,
+        color: theme.palette.text.secondary,
     },
-    removeButton: {
-        'fontSize': 16,
-        'padding': '7px',
-        'color': theme.palette.swatches.grey.grey400,
-        'borderRadius': '3px',
-        'transition': 'color 0.2s ease-out, background 0.2s ease-out',
-        '&:hover': {
-            background: theme.palette.swatches.red.red500,
-            color: theme.palette.text.secondary,
-        },
+}))
+
+const RemoveButton = styled(IconButton)(({ theme }) => ({
+    'fontSize': 16,
+    'padding': '7px',
+    'color': theme.palette.swatches.grey.grey400,
+    'borderRadius': '3px',
+    'transition': 'color 0.2s ease-out, background 0.2s ease-out',
+    '&:hover': {
+        background: theme.palette.swatches.red.red500,
+        color: theme.palette.text.secondary,
     },
-    clearButton: {
-        'fontSize': 16,
-        'padding': '7px',
-        'color': theme.palette.swatches.grey.grey400,
-        'borderRadius': '3px',
-        'transition': 'color 0.2s ease-out, background 0.2s ease-out',
-        '&:hover': {
-            background: theme.palette.swatches.orange.orange500,
-            color: theme.palette.text.secondary,
-        },
+}))
+
+const ClearButton = styled(IconButton)(({ theme }) => ({
+    'fontSize': 16,
+    'padding': '7px',
+    'color': theme.palette.swatches.grey.grey400,
+    'borderRadius': '3px',
+    'transition': 'color 0.2s ease-out, background 0.2s ease-out',
+    '&:hover': {
+        background: theme.palette.swatches.orange.orange500,
+        color: theme.palette.text.secondary,
     },
-    list: {
-        padding: theme.spacing(1),
-        margin: 0,
-        listStyleType: 'none',
+}))
+
+const CountBadge = styled(Badge)(({ theme }) => ({
+    '& .MuiBadge-badge': {
+        background: theme.palette.swatches.red.red500,
+        color: theme.palette.text.secondary,
+        right: -12,
+        top: 15,
+        border: `2px solid ${theme.palette.swatches.grey.grey100}`,
+        padding: '0px 4px 0px 3px',
     },
-    countBadge: {
-        '& .MuiBadge-badge': {
-            background: theme.palette.swatches.red.red500,
-            color: theme.palette.text.secondary,
-            right: -12,
-            top: 15,
-            border: `2px solid ${theme.palette.swatches.grey.grey100}`,
-            padding: '0px 4px 0px 3px',
-        },
-    },
-    filterDownWrapper: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        position: 'relative',
-        left: '-41px',
-        width: 'calc(100% + 50px)',
-    },
-    filterDown: {
-        'flex': 1,
-        'height': '40px',
-        '& > div': {
-            height: '40px',
-        },
-        '& .MuiFilledInput-input': {
-            paddingTop: '9px',
-        },
-        '& .MuiInputAdornment-positionStart': {
-            marginTop: '3px !important',
-        },
-        '& .MuiFilledInput-underline:after': {
-            borderBottom: `2px solid ${theme.palette.accent.main}`,
-        },
-    },
-    filterDownSubmit: {
-        'height': '40px',
-        'width': '32px',
-        'background': theme.palette.accent.main,
-        'color': theme.palette.text.secondary,
-        'fontSize': '16px',
-        'position': 'absolute',
-        'right': '0px',
-        '&:hover': {
-            background: theme.palette.swatches.blue.blue600,
-        },
-    },
-    filterDownClear: {
-        position: 'absolute',
+}))
+
+const FilterDownWrapper = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    position: 'relative',
+    left: '-41px',
+    width: 'calc(100% + 50px)',
+})
+
+const FilterDownField = styled(TextField)(({ theme }) => ({
+    'flex': 1,
+    'height': '40px',
+    '& > div': {
         height: '40px',
-        width: '38px',
-        right: '32px',
     },
-    filterDownCount: {
-        position: 'absolute',
-        right: '75px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        color: theme.palette.swatches.grey.grey600,
-        padding: '2px 0px',
-        fontSize: '11px',
-        minWidth: '40px',
-        textAlign: 'center',
-        whiteSpace: 'nowrap',
-        pointerEvents: 'none',
+    '& .MuiFilledInput-input': {
+        paddingTop: '9px',
     },
-    accordionHead: {
-        '& > div:first-child': {
-            display: 'flex',
-            flexFlow: 'column',
-            transition: 'unset',
-        },
-        '& > div:first-child > div:first-child': {
-            transition: 'unset',
-        },
+    '& .MuiInputAdornment-positionStart': {
+        marginTop: '3px !important',
     },
-    accordionHeadOpen: {
+    '& .MuiFilledInput-underline:after': {
+        borderBottom: `2px solid ${theme.palette.accent.main}`,
+    },
+}))
+
+const FilterDownSubmit = styled(IconButton)(({ theme }) => ({
+    'height': '40px',
+    'width': '32px',
+    'background': theme.palette.accent.main,
+    'color': theme.palette.text.secondary,
+    'fontSize': '16px',
+    'position': 'absolute',
+    'right': '0px',
+    '&:hover': {
+        background: theme.palette.swatches.blue.blue600,
+    },
+}))
+
+const FilterDownClear = styled(IconButton)({
+    position: 'absolute',
+    height: '40px',
+    width: '38px',
+    right: '32px',
+})
+
+const FilterDownCount = styled('div')(({ theme }) => ({
+    position: 'absolute',
+    right: '75px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    color: theme.palette.swatches.grey.grey600,
+    padding: '2px 0px',
+    fontSize: '11px',
+    minWidth: '40px',
+    textAlign: 'center',
+    whiteSpace: 'nowrap',
+    pointerEvents: 'none',
+}))
+
+const AccordionHead = styled(AccordionSummary, {
+    shouldForwardProp: (prop) => prop !== 'isOpen',
+})(({ isOpen }) => ({
+    '& > div:first-of-type': {
+        display: 'flex',
+        flexFlow: 'column',
+        transition: 'unset',
+    },
+    '& > div:first-of-type > div:first-of-type': {
+        transition: 'unset',
+    },
+    ...(isOpen && {
         'height': '80px',
-        '& > div:first-child': {
+        '& > div:first-of-type': {
             height: '80px',
             margin: '0px !important',
         },
-        '& > div:first-child > div:first-child': {
+        '& > div:first-of-type > div:first-of-type': {
             paddingTop: '4px',
         },
-    },
+    }),
 }))
 
 const getSubFilters = (filter, filterKey, settingsActive) => {
@@ -352,7 +348,6 @@ const getSubFilters = (filter, filterKey, settingsActive) => {
 
 const Filter = (props) => {
     const { filterKey, filter, onExpand, expanded } = props
-    const c = useStyles()
 
     const dispatch = useDispatch()
 
@@ -478,23 +473,21 @@ const Filter = (props) => {
     const filteredResultsDisplay = getFilteredResultsInfo()
 
     return (
-        <div className={c.Filter}>
+        <div>
             <Accordion expanded={expanded}>
-                <AccordionSummary
-                    className={clsx(c.accordionHead, {
-                        [c.accordionHeadOpen]: expanded && isFilterDownOpen,
-                    })}
+                <AccordionHead
+                    isOpen={expanded && isFilterDownOpen}
                     expandIcon={<ExpandMoreIcon />}
                     onClick={onExpand}
                     role=""
                 >
-                    <div className={c.header}>
-                        <Badge className={c.countBadge} badgeContent={count}>
+                    <HeaderDiv>
+                        <CountBadge badgeContent={count}>
                             <Tooltip title={filterKey} arrow placement="right">
-                                <Typography className={c.title}>{friendlyFilterName}</Typography>
+                                <FilterTitle>{friendlyFilterName}</FilterTitle>
                             </Tooltip>
-                        </Badge>
-                        <div className={c.headerButtons}>
+                        </CountBadge>
+                        <div>
                             {/*
                             {expanded && (
                                 <Tooltip title="Settings" arrow>
@@ -513,63 +506,56 @@ const Filter = (props) => {
                             */}
                             {expanded && isListFilter && (
                                 <Tooltip title="Search" arrow>
-                                    <IconButton
-                                        className={clsx(c.settingsButton, {
-                                            [c.settingsButtonActive]: isFilterDownOpen,
-                                        })}
+                                    <SettingsButton
+                                        isActive={isFilterDownOpen}
                                         aria-label={`search ${filterName} options`}
                                         size="small"
                                         onClick={handleFilterDown}
                                     >
                                         <SearchIcon fontSize="inherit" />
-                                    </IconButton>
+                                    </SettingsButton>
                                 </Tooltip>
                             )}
                             <Tooltip title="Info" arrow>
-                                <IconButton
-                                    className={c.infoButton}
+                                <InfoButton
                                     aria-label={`information about ${filterName} filter`}
                                     size="small"
                                     onClick={handleInfo}
                                 >
                                     <InfoOutlinedIcon fontSize="inherit" />
-                                </IconButton>
+                                </InfoButton>
                             </Tooltip>
                             {count > 0 && (
                                 <Tooltip title="Clear All Selections" arrow>
-                                    <IconButton
-                                        className={c.clearButton}
+                                    <ClearButton
                                         aria-label={`clear all selections in ${filterName} filter`}
                                         size="small"
                                         onClick={handleClearSelections}
                                     >
                                         <ClearAllIcon fontSize="inherit" />
-                                    </IconButton>
+                                    </ClearButton>
                                 </Tooltip>
                             )}
                             {!permanent ? (
                                 <Tooltip title="Remove" arrow>
-                                    <IconButton
-                                        className={c.removeButton}
+                                    <RemoveButton
                                         aria-label={`remove ${filterName} filter`}
                                         size="small"
                                         onClick={handleRemove}
                                     >
                                         <DeleteOutlinedIcon fontSize="inherit" />
-                                    </IconButton>
+                                    </RemoveButton>
                                 </Tooltip>
                             ) : null}
                         </div>
-                    </div>
+                    </HeaderDiv>
                     {expanded && isFilterDownOpen && (
-                        <div
-                            className={c.filterDownWrapper}
+                        <FilterDownWrapper
                             onClick={(e) => {
                                 e.stopPropagation()
                             }}
                         >
-                            <TextField
-                                className={c.filterDown}
+                            <FilterDownField
                                 placeholder="Search (regex supported)"
                                 value={filterDownValue}
                                 variant="filled"
@@ -589,10 +575,9 @@ const Filter = (props) => {
                                 }}
                             />
                             {isListFilter && (
-                                <div className={c.filterDownCount}>{filteredResultsDisplay}</div>
+                                <FilterDownCount>{filteredResultsDisplay}</FilterDownCount>
                             )}
-                            <IconButton
-                                className={c.filterDownClear}
+                            <FilterDownClear
                                 aria-label="clear filter down"
                                 onClick={() => {
                                     setFilterDownValue('')
@@ -601,18 +586,17 @@ const Filter = (props) => {
                                 size="large"
                             >
                                 <CloseIcon fontSize="inherit" />
-                            </IconButton>
-                            <IconButton
-                                className={c.filterDownSubmit}
+                            </FilterDownClear>
+                            <FilterDownSubmit
                                 aria-label="submit filter down"
                                 onClick={handleFilterDownSubmit}
                                 size="large"
                             >
                                 <ArrowForwardIcon fontSize="inherit" />
-                            </IconButton>
-                        </div>
+                            </FilterDownSubmit>
+                        </FilterDownWrapper>
                     )}
-                </AccordionSummary>
+                </AccordionHead>
                 <AccordionDetails>{subFilters}</AccordionDetails>
             </Accordion>
         </div>
