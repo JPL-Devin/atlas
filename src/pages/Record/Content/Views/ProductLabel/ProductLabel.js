@@ -293,11 +293,14 @@ const makeTree = (data, filterString) => {
 }
 
 const ProductLabelRoot = styled('div')(({ theme }) => ({
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    overflow: 'hidden',
-    background: theme.palette.swatches.grey.grey0,
+    'width': '100%',
+    'height': '100%',
+    'display': 'flex',
+    'overflow': 'hidden',
+    'background': theme.palette.swatches.grey.grey0,
+    '& .ProductLabel-highlight': {
+        fontWeight: 'bold',
+    },
 }))
 
 const NotFound = styled(Box)(({ theme }) => ({
