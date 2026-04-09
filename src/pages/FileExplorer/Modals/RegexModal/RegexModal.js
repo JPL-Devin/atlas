@@ -898,7 +898,7 @@ const RegexModal = (props) => {
                                 showFirstButton
                                 showLastButton
                             />
-                        </div>
+                        </PaginationWrapper>
                         <ResultCount>
                             {total > 0
                                 ? `${Math.min((page - 1) * pageSize + 1, total)} to ${Math.min(
@@ -906,11 +906,11 @@ const RegexModal = (props) => {
                                       total
                                   )} out of ${total} items`
                                 : '0 items'}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        </ResultCount>
+                    </BottomBar>
+                </BottomSection>
+            </Contents>
+        </RegexModalRoot>
     );
 }
 

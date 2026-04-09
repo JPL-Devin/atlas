@@ -856,8 +856,8 @@ const Column = (props) => {
                                                         )
                                                     }
                                                 })()}
-                                            </Typography>
-                                        </div>
+                                            </VolumeTitle>
+                                        </Flex>
                                         <Flex>
                                             <MenuButton
                                                 key={1}
@@ -962,7 +962,7 @@ const Column = (props) => {
                                     </Flex2>
                                 ) : null}
                             </>
-                        </div>
+                        </FlexBetween>
                         <Flex>
                             {setShowMobilePreview && prevColumn && (
                                 <IconButton

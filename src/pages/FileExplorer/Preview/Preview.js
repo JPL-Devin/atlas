@@ -642,7 +642,7 @@ const Preview = (props) => {
                                 <div>A newer version of this data product is available.</div>
                             </div>
                             <ArrowForwardIcon fontSize="small" />
-                        </div>
+                        </HeaderBanner>
                     ) : null}
                 </Header>
             )}
@@ -931,7 +931,7 @@ const Preview = (props) => {
                                                     >
                                                         <div>Tiny</div>
                                                     </RelatedButton>
-                                                </div>
+                                                </RelatedLinks>
                                             </li>
                                         )}
                                 </RelatedList>
