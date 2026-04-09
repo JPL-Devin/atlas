@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
-import clsx from 'clsx'
 import axios from 'axios'
 
 import {
@@ -47,297 +46,302 @@ import FormControl from '@mui/material/FormControl'
 
 import Image from 'mui-image'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import './Preview.css'
 
-const useStyles = makeStyles((theme) => ({
-    Preview: {
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-        boxSizing: 'border-box',
-        boxShadow: '0px 0px 6px 0px rgba(0,0,0,0.4)',
-        display: 'flex',
-        flexFlow: 'column',
-        background: theme.palette.swatches.grey.grey800,
-        color: theme.palette.swatches.grey.grey150,
-        zIndex: 2,
-    },
-    PreviewMobile: {
+const PreviewRoot = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isMobileView',
+})(({ theme, isMobileView }) => ({
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+    boxSizing: 'border-box',
+    boxShadow: '0px 0px 6px 0px rgba(0,0,0,0.4)',
+    display: 'flex',
+    flexFlow: 'column',
+    background: theme.palette.swatches.grey.grey800,
+    color: theme.palette.swatches.grey.grey150,
+    zIndex: 2,
+    ...(isMobileView && {
         zIndex: 999,
-        display: 'flex',
-        flexFlow: 'column',
         borderLeft: 'none',
-        background: theme.palette.swatches.grey.grey800,
-        color: theme.palette.swatches.grey.grey150,
-    },
-    header: {
-        width: '100%',
-        boxSizing: 'border-box',
-        boxShadow: '0px 1px 2px 0px rgba(0,0,0,0.19)',
-        background: theme.palette.swatches.grey.grey700,
-    },
-    headerMobile: {
-        width: '100%',
+    }),
+}))
+
+const Header = styled('div')(({ theme }) => ({
+    width: '100%',
+    boxSizing: 'border-box',
+    boxShadow: '0px 1px 2px 0px rgba(0,0,0,0.19)',
+    background: theme.palette.swatches.grey.grey700,
+}))
+
+const HeaderMobile = styled('div')(({ theme }) => ({
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    boxSizing: 'border-box',
+    background: theme.palette.swatches.grey.grey700,
+}))
+
+const HeaderBanner = styled('div')(({ theme }) => ({
+    'fontSize': '15px',
+    'padding': '6px',
+    'background': theme.palette.swatches.orange.orange600,
+    'color': 'rgba(0,0,0,0.6)',
+    'fontWeight': 'bold',
+    'display': 'flex',
+    'justifyContent': 'space-between',
+    'cursor': 'pointer',
+    '& > div': {
         display: 'flex',
-        justifyContent: 'center',
-        boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey700,
     },
-    headerTitle: {},
-    headerBanner: {
-        'fontSize': '15px',
-        'padding': '6px',
-        'background': theme.palette.swatches.orange.orange600,
-        'color': 'rgba(0,0,0,0.6)',
-        'fontWeight': 'bold',
+    '& > div > div': {
+        paddingLeft: '5px',
+    },
+}))
+
+const PreviewTitle = styled(Typography)({
+    fontSize: '18px',
+    fontWeight: 'bold',
+    margin: '8px 8px 0px 8px',
+    fontFamily: 'inherit',
+    wordBreak: 'break-all',
+})
+
+const PreviewTitleMobile = styled(Typography)(({ theme }) => ({
+    fontSize: '16px',
+    margin: '0px',
+    fontFamily: 'inherit',
+    lineHeight: `${theme.headHeights[2]}px`,
+}))
+
+const HeaderRight = styled('div')({
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'space-between',
+})
+
+const ActionButton = styled(IconButton)(({ theme }) => ({
+    'width': `${theme.headHeights[2]}px`,
+    'height': `${theme.headHeights[2]}px`,
+    'color': theme.palette.swatches.blue.blue400,
+    '&:hover': {
+        background: 'rgba(255,255,255,0.1)',
+    },
+    '&.Mui-disabled': {
+        color: theme.palette.swatches.grey.grey400,
+        cursor: 'not-allowed',
+    },
+}))
+
+const Body = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isMobileView',
+})(({ isMobileView }) => ({
+    flex: 1,
+    overflowY: 'auto',
+    overflowX: 'hidden',
+}))
+
+const BodyInner = styled('div')({
+    padding: '16px 0px',
+})
+
+const SectionHeading = styled('div')(({ theme }) => ({
+    fontSize: '14px',
+    lineHeight: '30px',
+    color: theme.palette.swatches.yellow.yellow500,
+    textTransform: 'uppercase',
+    padding: '0px 16px 4px 16px',
+}))
+
+const SectionBody = styled('div')({
+    marginBottom: '20px',
+})
+
+const RelatedList = styled('ul')(({ theme }) => ({
+    'listStyleType': 'none',
+    'margin': `4px 0px 0px 0px`,
+    'padding': '0px 16px',
+    '& > li': {
+        lineHeight: '24px',
+        marginBottom: '8px',
+        display: 'flex',
+        justifyContent: 'flex-start',
+    },
+}))
+
+const RelatedGroup = styled('div')(({ theme }) => ({
+    textTransform: 'uppercase',
+    lineHeight: '28px',
+    width: '70px',
+    color: theme.palette.swatches.grey.grey300,
+}))
+
+const RelatedLinks = styled('div')({
+    display: 'flex',
+    justifyContent: 'flex-start',
+    flex: '1',
+})
+
+const RelatedButton = styled(Button)(({ theme }) => ({
+    'background': theme.palette.swatches.grey.grey700,
+    'color': theme.palette.swatches.blue.blue400,
+    'border': `1px solid ${theme.palette.swatches.grey.grey900}`,
+    'marginLeft': '4px',
+    '&:hover': {
+        border: `1px solid ${theme.palette.swatches.grey.grey600}`,
+    },
+    '& .MuiButton-label': {
+        lineHeight: '20px',
+    },
+    '& .MuiButton-endIcon': {
+        marginLeft: '6px',
+    },
+    '& .MuiButton-endIcon > svg': {
+        fontSize: '14px',
+    },
+}))
+
+const PropertiesList = styled('ul')(({ theme }) => ({
+    'listStyleType': 'none',
+    'margin': `0px`,
+    'padding': '0px',
+    '& > li': {
         'display': 'flex',
         'justifyContent': 'space-between',
-        'cursor': 'pointer',
-        '& > div': {
-            display: 'flex',
+        'lineHeight': '24px',
+        'padding': '2px 16px',
+        'transition': 'max-height 0.3s ease-in',
+        'wordBreak': 'break-all',
+        '& > div:last-child': {
+            whiteSpace: 'inherit',
         },
-        '& > div > div': {
-            paddingLeft: '5px',
-        },
     },
-    icon: {
-        fontSize: '24px',
+    '& > li:nth-child(odd)': {
+        background: theme.palette.swatches.grey.grey700,
     },
-    iconMobile: {
-        fontSize: '30px',
-        padding: '5px',
+}))
+
+const PropertyKey = styled('div')(({ theme }) => ({
+    marginRight: '16px',
+    textTransform: 'uppercase',
+    color: theme.palette.swatches.grey.grey300,
+    fontSize: '12px',
+}))
+
+const PropertyValue = styled('div')({
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    textAlign: 'right',
+    flex: '1',
+})
+
+const ImageContainer = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '400px',
+    position: 'relative',
+    cursor: 'pointer',
+    overflow: 'hidden',
+    borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
+}))
+
+const PreviewImageStyled = styled('div')({
+    'overflow': 'hidden',
+    'position': 'static !important',
+    'objectFit': 'cover !important',
+    'transition': 'filter 0.15s ease-in-out !important',
+    '&:hover': {
+        filter: 'brightness(1.25)',
     },
-    title: {
-        fontSize: '18px',
-        fontWeight: 'bold',
-        margin: '8px 8px 0px 8px',
-        fontFamily: 'inherit',
-        wordBreak: 'break-all',
+})
+
+const ImageCover = styled('div')({
+    position: 'absolute',
+    pointerEvents: 'none',
+    top: 0,
+    width: '100%',
+    height: '100%',
+    boxShadow: 'inset 0px 1px 6px 1px rgba(0,0,0,0.16)',
+})
+
+const ImagelessContainer = styled('div')({
+    'width': '100%',
+    'height': '100%',
+    'position': 'relative',
+    '& > div': {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translateX(-50%) translateY(-50%)',
     },
-    titleMobile: {
-        fontSize: '16px',
-        margin: '0px',
-        fontFamily: 'inherit',
-        lineHeight: `${theme.headHeights[2]}px`,
-    },
-    headerRight: {
-        flex: 1,
+})
+
+const NavHeader = styled('div')(({ theme }) => ({
+    'height': `${theme.headHeights[2]}px`,
+    'minHeight': `${theme.headHeights[2]}px`,
+    'background': theme.palette.swatches.grey.grey700,
+    'boxSizing': 'border-box',
+    'display': 'flex',
+    'justifyContent': 'space-between',
+    'borderBottom': `1px solid ${theme.palette.swatches.grey.grey900}`,
+    '& > div': {
         display: 'flex',
         justifyContent: 'space-between',
     },
-    button: {
-        'width': `${theme.headHeights[2]}px`,
-        'height': `${theme.headHeights[2]}px`,
-        'color': theme.palette.swatches.blue.blue400,
-        '&:hover': {
-            background: 'rgba(255,255,255,0.1)',
-        },
-        '&.Mui-disabled': {
-            color: theme.palette.swatches.grey.grey400,
-            cursor: 'not-allowed',
-        },
-    },
-    buttonMobile: {
-        width: `${theme.headHeights[2]}px`,
-        height: `${theme.headHeights[2]}px`,
-    },
-    buttonIcon: {},
-    body: {
+    '& > div:last-child': {
         flex: 1,
-        overflowY: 'auto',
-        overflowX: 'hidden',
     },
-    bodyInner: {
-        padding: '16px 0px',
+}))
+
+const BackButton = styled(IconButton)(({ theme }) => ({
+    lineHeight: '28px',
+    borderRadius: 0,
+    color: theme.palette.swatches.grey.grey150,
+}))
+
+const EmptyPreview = styled('div')(({ theme }) => ({
+    textAlign: 'center',
+    margin: `${theme.spacing(10)} 0px`,
+    color: theme.palette.swatches.grey.grey500,
+    fontSize: '16px',
+}))
+
+const StyledFormControl = styled(FormControl)({
+    minWidth: 125,
+    margin: '5px 0px 3px 8px',
+})
+
+const StyledSelect = styled(Select)(({ theme }) => ({
+    'color': theme.palette.swatches.grey.grey300,
+    'background': theme.palette.swatches.grey.grey800,
+    'borderBottom': `2px solid ${theme.palette.swatches.grey.grey600}`,
+    'paddingLeft': '4px',
+    '& > div:first-child': {
+        padding: '8px 20px 6px 6px',
+        textAlign: 'left',
     },
-    bodyMobile: {},
-    properties: {},
-    heading: {
-        fontSize: '14px',
-        lineHeight: '30px',
-        color: theme.palette.swatches.yellow.yellow500,
-        textTransform: 'uppercase',
-        padding: '0px 16px 4px 16px',
+    '& > svg': {
+        color: '#efefef',
+        top: '4px',
+        right: '2px',
     },
-    sectionBody: {
-        marginBottom: '20px',
-    },
-    relatedList: {
-        'listStyleType': 'none',
-        'margin': `4px 0px 0px 0px`,
-        'padding': '0px 16px',
-        '& > li': {
-            lineHeight: '24px',
-            marginBottom: '8px',
-            display: 'flex',
-            justifyContent: 'flex-start',
-        },
-    },
-    relatedGroup: {
-        textTransform: 'uppercase',
-        lineHeight: '28px',
-        width: '70px',
-        color: theme.palette.swatches.grey.grey300,
-    },
-    relatedLinks: {
-        display: 'flex',
-        justifyContent: 'flex-start',
-        flex: '1',
-    },
-    relatedItem: {},
-    relatedButton: {
-        'background': theme.palette.swatches.grey.grey700,
-        'color': theme.palette.swatches.blue.blue400,
-        'border': `1px solid ${theme.palette.swatches.grey.grey900}`,
-        'marginLeft': '4px',
-        '&:hover': {
-            border: `1px solid ${theme.palette.swatches.grey.grey600}`,
-        },
-        '& .MuiButton-label': {
-            lineHeight: '20px',
-        },
-        '& .MuiButton-endIcon': {
-            marginLeft: '6px',
-        },
-        '& .MuiButton-endIcon > svg': {
-            fontSize: '14px',
-        },
-    },
-    propertiesList: {
-        'listStyleType': 'none',
-        'margin': `0px`,
-        'padding': '0px',
-        '& > li': {
-            'display': 'flex',
-            'justifyContent': 'space-between',
-            'lineHeight': '24px',
-            'padding': '2px 16px',
-            'transition': 'max-height 0.3s ease-in',
-            'wordBreak': 'break-all',
-            '& > div:last-child': {
-                whiteSpace: 'inherit',
-            },
-        },
-        '& > li:nth-child(odd)': {
-            background: theme.palette.swatches.grey.grey700,
-        },
-    },
-    key: {
-        marginRight: '16px',
-        textTransform: 'uppercase',
-        color: theme.palette.swatches.grey.grey300,
-        fontSize: '12px',
-    },
-    value: {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        textAlign: 'right',
-        flex: '1',
-    },
-    image: {
-        width: '100%',
-        height: '400px',
-        position: 'relative',
-        cursor: 'pointer',
-        overflow: 'hidden',
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
-    },
-    previewImage: {
-        'overflow': 'hidden',
-        'position': 'static !important',
-        'objectFit': 'cover !important',
-        'transition': 'filter 0.15s ease-in-out !important',
-        '&:hover': {
-            filter: 'brightness(1.25)',
-        },
-    },
-    imageCover: {
-        position: 'absolute',
-        pointerEvents: 'none',
-        top: 0,
-        width: '100%',
-        height: '100%',
-        boxShadow: 'inset 0px 1px 6px 1px rgba(0,0,0,0.16)',
-    },
-    imageless: {
-        'width': '100%',
-        'height': '100%',
-        'poisition': 'relative',
-        '& > div': {
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translateX(-50%) translateY(-50%)',
-        },
-    },
-    description: {},
-    navHeader: {
-        'height': `${theme.headHeights[2]}px`,
-        'minHeight': `${theme.headHeights[2]}px`,
-        'background': theme.palette.swatches.grey.grey700,
-        'boxSizing': 'border-box',
-        'display': 'flex',
-        'justifyContent': 'space-between',
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey900}`,
-        '& > div': {
-            display: 'flex',
-            justifyContent: 'space-between',
-        },
-        '& > div:last-child': {
-            flex: 1,
-        },
-    },
-    backButton: {
-        lineHeight: '28px',
-        borderRadius: 0,
-        color: theme.palette.swatches.grey.grey150,
-    },
-    emptyPreview: {
-        textAlign: 'center',
-        margin: `${theme.spacing(10)} 0px`,
-        color: theme.palette.swatches.grey.grey500,
-        fontSize: '16px',
-    },
-    formControl: {
-        minWidth: 125,
-        margin: '5px 0px 3px 8px',
-    },
-    select: {
-        'color': theme.palette.swatches.grey.grey300,
-        'background': theme.palette.swatches.grey.grey800,
-        'border-bottom': `2px solid ${theme.palette.swatches.grey.grey600}`,
-        'paddingLeft': '4px',
-        '& > div:first-child': {
-            padding: '8px 20px 6px 6px',
-            textAlign: 'left',
-        },
-        '& > svg': {
-            color: '#efefef',
-            top: '4px',
-            right: '2px',
-        },
-    },
-    versionSelectItem: {},
 }))
 
 const ButtonBar = (props) => {
     const { isMobile, preview, related } = props
-    const c = useStyles()
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
     let iconSize = isMobile ? 'inherit' : 'inherit'
 
     return (
-        <div className={c.buttonBar}>
+        <div>
             <Tooltip title="View" arrow>
                 <span>
-                    <IconButton
-                        className={clsx(c.button, { [c.buttonMobile]: isMobile })}
+                    <ActionButton
                         aria-label="view"
                         disabled={
                             preview.fs_type !== 'file' || related == null || related.uri == null
@@ -348,14 +352,13 @@ const ButtonBar = (props) => {
                         }}
                         size="large"
                     >
-                        <PageviewIcon className={c.buttonIcon} fontSize={iconSize} />
-                    </IconButton>
+                        <PageviewIcon fontSize={iconSize} />
+                    </ActionButton>
                 </span>
             </Tooltip>
             <Tooltip title="Open" arrow>
                 <span>
-                    <IconButton
-                        className={clsx(c.button, { [c.buttonMobile]: isMobile })}
+                    <ActionButton
                         aria-label="open"
                         disabled={preview.fs_type !== 'file'}
                         onClick={() => {
@@ -367,14 +370,13 @@ const ButtonBar = (props) => {
                         }}
                         size="large"
                     >
-                        <LaunchIcon className={c.buttonIcon} fontSize={iconSize} />
-                    </IconButton>
+                        <LaunchIcon fontSize={iconSize} />
+                    </ActionButton>
                 </span>
             </Tooltip>
             <Tooltip title="Download" arrow>
                 <span>
-                    <IconButton
-                        className={clsx(c.button, { [c.buttonMobile]: isMobile })}
+                    <ActionButton
                         aria-label="quick download"
                         disabled={preview.fs_type !== 'file'}
                         onClick={() => {
@@ -387,16 +389,13 @@ const ButtonBar = (props) => {
                         }}
                         size="large"
                     >
-                        <GetAppIcon className={c.buttonIcon} fontSize={iconSize} />
-                    </IconButton>
+                        <GetAppIcon fontSize={iconSize} />
+                    </ActionButton>
                 </span>
             </Tooltip>
             <Tooltip title="Add to Cart" arrow>
                 <span>
-                    <IconButton
-                        className={clsx(c.button, {
-                            [c.buttonMobile]: isMobile,
-                        })}
+                    <ActionButton
                         aria-label="add to cart"
                         disabled={preview.fs_type !== 'file' && preview.fs_type !== 'directory'}
                         onClick={() => {
@@ -413,7 +412,7 @@ const ButtonBar = (props) => {
                         size="large"
                     >
                         <AddShoppingCartIcon size="small" />
-                    </IconButton>
+                    </ActionButton>
                 </span>
             </Tooltip>
         </div>
@@ -423,7 +422,6 @@ const ButtonBar = (props) => {
 const Preview = (props) => {
     const { isMobile, showMobilePreview, setShowMobilePreview, forcedPreview } = props
 
-    const c = useStyles()
     const navigate = useNavigate()
 
     const dispatch = useDispatch()
@@ -562,20 +560,19 @@ const Preview = (props) => {
 
     if (Object.keys(preview).length == 0) {
         return (
-            <div className={c.Preview}>
-                <div className={c.emptyPreview}>No File Object Selected</div>
-            </div>
+            <PreviewRoot>
+                <EmptyPreview>No File Object Selected</EmptyPreview>
+            </PreviewRoot>
         )
     }
 
     return (
-        <div className={clsx(c.Preview, { [c.PreviewMobile]: isMobile, ['fade-in']: isMobile })}>
+        <PreviewRoot isMobileView={isMobile} className={isMobile ? 'fade-in' : undefined}>
             {isMobile && (
                 <>
-                    <div className={clsx(c.navHeader)}>
+                    <NavHeader>
                         <div>
-                            <IconButton
-                                className={c.backButton}
+                            <BackButton
                                 aria-label="back"
                                 onClick={() => {
                                     if (showMobilePreview && setShowMobilePreview)
@@ -592,23 +589,21 @@ const Preview = (props) => {
                                 size="large"
                             >
                                 <ArrowBackIcon fontSize="small" />
-                            </IconButton>
+                            </BackButton>
                         </div>
                         <div>
-                            <Typography
+                            <PreviewTitleMobile
                                 noWrap
-                                className={c.titleMobile}
                                 title={preview.key}
                                 variant="h5"
                             >
                                 {preview.key}
-                            </Typography>
+                            </PreviewTitleMobile>
                         </div>
-                    </div>
+                    </NavHeader>
 
                     {activeVersion != 0 && activeVersion != null && versions.length > 0 ? (
-                        <div
-                            className={c.headerBanner}
+                        <HeaderBanner
                             aria-label="go to latest version"
                             onClick={() => {
                                 dispatch(goToFilexURI(versions[0].uri))
@@ -619,25 +614,24 @@ const Preview = (props) => {
                                 <div>A newer version of this data product is available.</div>
                             </div>
                             <ArrowForwardIcon fontSize="small" />
-                        </div>
+                        </HeaderBanner>
                     ) : null}
                 </>
             )}
             {!isMobile && (
-                <div className={c.header}>
-                    <div className={c.headerTitle}>
+                <Header>
+                    <div>
                         <div>
-                            <Typography className={c.title} title={preview.key} variant="h5">
+                            <PreviewTitle title={preview.key} variant="h5">
                                 {preview.key}
-                            </Typography>
+                            </PreviewTitle>
                         </div>
                     </div>
-                    <div className={c.headerRight}>
+                    <HeaderRight>
                         <ButtonBar preview={preview} related={related} />
-                    </div>
+                    </HeaderRight>
                     {activeVersion != 0 && activeVersion != null && versions.length > 0 ? (
-                        <div
-                            className={c.headerBanner}
+                        <HeaderBanner
                             aria-label="go to latest version"
                             onClick={() => {
                                 dispatch(goToFilexURI(versions[0].uri))
@@ -650,11 +644,10 @@ const Preview = (props) => {
                             <ArrowForwardIcon fontSize="small" />
                         </div>
                     ) : null}
-                </div>
+                </Header>
             )}
-            <div className={clsx(c.body, { [c.bodyMobile]: isMobile })}>
-                <div
-                    className={c.image}
+            <Body isMobileView={isMobile}>
+                <ImageContainer
                     style={imageUrl == 'null' ? { height: '100px' } : {}}
                     onClick={() => {
                         if (imageUrl != null && preview.uri)
@@ -663,7 +656,7 @@ const Preview = (props) => {
                 >
                     {imageUrl != 'null' && hasBrowse !== false ? (
                         <Image
-                            className={c.previewImage}
+                            className="previewImage"
                             wrapperStyle={{
                                 height: '100%',
                                 paddingTop: 'unset',
@@ -683,29 +676,29 @@ const Preview = (props) => {
                             }}
                         />
                     ) : (
-                        <div className={c.imageless}>
+                        <ImagelessContainer>
                             <ProductIcons filename={imageUrl} type={preview.fs_type} />
-                        </div>
+                        </ImagelessContainer>
                     )}
-                    <div className={c.imageCover}></div>
-                </div>
+                    <ImageCover />
+                </ImageContainer>
                 {isMobile && (
-                    <div className={c.headerMobile}>
-                        <div className={c.headerTop}>
+                    <HeaderMobile>
+                        <div>
                             <ButtonBar preview={preview} related={related} isMobile={true} />
                         </div>
-                    </div>
+                    </HeaderMobile>
                 )}
-                <div className={c.bodyInner}>
+                <BodyInner>
                     {/*
                         <div className={c.description}>
-                            <div className={c.heading}>
-                                <Typography noWrap className={c.title2} variant="subtitle2">
+                            <SectionHeading>
+                                <Typography noWrap variant="subtitle2">
                                     Description
                                 </Typography>
                                 <Divider />
                             </div>
-                            <div className={c.sectionBody}>
+                            <SectionBody>
                                 <Typography>
                                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce
                                     volutpat mi tincidunt nisi gravida tincidunt. Pellentesque a mattis
@@ -718,27 +711,26 @@ const Preview = (props) => {
                     */}
 
                     {related && (
-                        <div className={c.related}>
-                            <div className={c.heading}>
-                                <Typography noWrap className={c.title2} variant="subtitle2">
+                        <div>
+                            <SectionHeading>
+                                <Typography noWrap variant="subtitle2">
                                     Related
                                 </Typography>
                                 <Divider />
-                            </div>
-                            <div className={c.sectionBody}>
-                                <ul className={c.relatedList}>
+                            </SectionHeading>
+                            <SectionBody>
+                                <RelatedList>
                                     {getIn(related, 'uri') && (
                                         <li>
-                                            <div className={c.relatedGroup}>Product</div>
+                                            <RelatedGroup>Product</RelatedGroup>
 
-                                            <div className={c.relatedLinks}>
-                                                <div className={c.relatedItem}>
-                                                    <Button
-                                                        className={c.relatedButton}
+                                            <RelatedLinks>
+                                                <div>
+                                                    <RelatedButton
                                                         size="small"
                                                         variant="outlined"
                                                         endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
+                                                            <LaunchIcon />
                                                         }
                                                         onClick={() => {
                                                             const uri = getIn(related, 'uri')
@@ -754,23 +746,22 @@ const Preview = (props) => {
                                                         }}
                                                     >
                                                         {getExtension(getIn(related, 'uri'))}
-                                                    </Button>
+                                                    </RelatedButton>
                                                 </div>
-                                            </div>
+                                            </RelatedLinks>
                                         </li>
                                     )}
                                     {getIn(related, 'gather.pds_archive.related.label.uri') && (
                                         <li>
-                                            <div className={c.relatedGroup}>Label</div>
+                                            <RelatedGroup>Label</RelatedGroup>
 
-                                            <div className={c.relatedLinks}>
-                                                <div className={c.relatedItem}>
-                                                    <Button
-                                                        className={c.relatedButton}
+                                            <RelatedLinks>
+                                                <div>
+                                                    <RelatedButton
                                                         size="small"
                                                         variant="outlined"
                                                         endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
+                                                            <LaunchIcon />
                                                         }
                                                         onClick={() => {
                                                             const uri = getIn(
@@ -794,22 +785,21 @@ const Preview = (props) => {
                                                                 'gather.pds_archive.related.label.uri'
                                                             )
                                                         )}
-                                                    </Button>
+                                                    </RelatedButton>
                                                 </div>
-                                            </div>
+                                            </RelatedLinks>
                                         </li>
                                     )}
                                     {hasBrowse === true &&
                                         getIn(related, 'gather.pds_archive.related.browse.uri') && (
                                             <li>
-                                                <div className={c.relatedGroup}>Browse</div>
-                                                <div className={c.relatedLinks}>
-                                                    <Button
-                                                        className={c.relatedButton}
+                                                <RelatedGroup>Browse</RelatedGroup>
+                                                <RelatedLinks>
+                                                    <RelatedButton
                                                         size="small"
                                                         variant="outlined"
                                                         endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
+                                                            <LaunchIcon />
                                                         }
                                                         onClick={() => {
                                                             const uri = getIn(
@@ -827,14 +817,13 @@ const Preview = (props) => {
                                                                 )
                                                         }}
                                                     >
-                                                        <div className={c.relatedItem}>Full</div>
-                                                    </Button>
-                                                    <Button
-                                                        className={c.relatedButton}
+                                                        <div>Full</div>
+                                                    </RelatedButton>
+                                                    <RelatedButton
                                                         size="small"
                                                         variant="outlined"
                                                         endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
+                                                            <LaunchIcon />
                                                         }
                                                         onClick={() => {
                                                             const uri = getIn(
@@ -856,14 +845,13 @@ const Preview = (props) => {
                                                                 )
                                                         }}
                                                     >
-                                                        <div className={c.relatedItem}>Large</div>
-                                                    </Button>
-                                                    <Button
-                                                        className={c.relatedButton}
+                                                        <div>Large</div>
+                                                    </RelatedButton>
+                                                    <RelatedButton
                                                         size="small"
                                                         variant="outlined"
                                                         endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
+                                                            <LaunchIcon />
                                                         }
                                                         onClick={() => {
                                                             const uri = getIn(
@@ -885,14 +873,13 @@ const Preview = (props) => {
                                                                 )
                                                         }}
                                                     >
-                                                        <div className={c.relatedItem}>Medium</div>
-                                                    </Button>
-                                                    <Button
-                                                        className={c.relatedButton}
+                                                        <div>Medium</div>
+                                                    </RelatedButton>
+                                                    <RelatedButton
                                                         size="small"
                                                         variant="outlined"
                                                         endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
+                                                            <LaunchIcon />
                                                         }
                                                         onClick={() => {
                                                             const uri = getIn(
@@ -914,14 +901,13 @@ const Preview = (props) => {
                                                                 )
                                                         }}
                                                     >
-                                                        <div className={c.relatedItem}>Small</div>
-                                                    </Button>
-                                                    <Button
-                                                        className={c.relatedButton}
+                                                        <div>Small</div>
+                                                    </RelatedButton>
+                                                    <RelatedButton
                                                         size="small"
                                                         variant="outlined"
                                                         endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
+                                                            <LaunchIcon />
                                                         }
                                                         onClick={() => {
                                                             const uri = getIn(
@@ -943,25 +929,25 @@ const Preview = (props) => {
                                                                 )
                                                         }}
                                                     >
-                                                        <div className={c.relatedItem}>Tiny</div>
-                                                    </Button>
+                                                        <div>Tiny</div>
+                                                    </RelatedButton>
                                                 </div>
                                             </li>
                                         )}
-                                </ul>
-                            </div>
+                                </RelatedList>
+                            </SectionBody>
                         </div>
                     )}
 
-                    <div className={c.properties}>
-                        <div className={c.heading}>
-                            <Typography noWrap className={c.title2} variant="subtitle2">
+                    <div>
+                        <SectionHeading>
+                            <Typography noWrap variant="subtitle2">
                                 Properties
                             </Typography>
                             <Divider />
-                        </div>
-                        <div className={c.sectionBody}>
-                            <ul className={c.propertiesList}>
+                        </SectionHeading>
+                        <SectionBody>
+                            <PropertiesList>
                                 {Object.keys(preview)
                                     .sort((a, b) => a.localeCompare(b))
                                     .map((key, idx) => {
@@ -980,12 +966,10 @@ const Preview = (props) => {
                                         ) {
                                             versionSelector = (
                                                 <div>
-                                                    <FormControl
-                                                        className={c.formControl}
+                                                    <StyledFormControl
                                                         size="small"
                                                     >
-                                                        <Select
-                                                            className={c.select}
+                                                        <StyledSelect
                                                             onChange={(e) => {
                                                                 dispatch(
                                                                     goToFilexURI(
@@ -1002,9 +986,6 @@ const Preview = (props) => {
                                                             {versions.map((v, idx) => {
                                                                 return (
                                                                     <MenuItem
-                                                                        className={
-                                                                            c.versionSelectItem
-                                                                        }
                                                                         key={idx}
                                                                         value={idx}
                                                                     >
@@ -1012,34 +993,33 @@ const Preview = (props) => {
                                                                     </MenuItem>
                                                                 )
                                                             })}
-                                                        </Select>
-                                                    </FormControl>
+                                                        </StyledSelect>
+                                                    </StyledFormControl>
                                                 </div>
                                             )
                                         }
                                         return (
                                             <li key={idx}>
-                                                <div className={c.key}>{prettify(key)}</div>
+                                                <PropertyKey>{prettify(key)}</PropertyKey>
                                                 {versionSelector || (
-                                                    <div
-                                                        className={c.value}
+                                                    <PropertyValue
                                                         title={`Click to copy: ${value}`}
                                                         onClick={() => {
                                                             copyToClipboard(value)
                                                         }}
                                                     >
                                                         {value}
-                                                    </div>
+                                                    </PropertyValue>
                                                 )}
                                             </li>
                                         )
                                     })}
-                            </ul>
-                        </div>
+                            </PropertiesList>
+                        </SectionBody>
                     </div>
-                </div>
-            </div>
-        </div>
+                </BodyInner>
+            </Body>
+        </PreviewRoot>
     )
 }
 

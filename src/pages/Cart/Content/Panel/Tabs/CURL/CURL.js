@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import { makeStyles, withStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
-import clsx from 'clsx'
 
 import DownloadingCard from '../../../../../../components/DownloadingCard/DownloadingCard'
 import { setSnackBarText } from '../../../../../../core/redux/actions/actions.js'
@@ -14,62 +13,69 @@ import { CURLCart } from '../../../../../../core/downloaders/CURL'
 
 import Box from '@mui/material/Box'
 
-const useStyles = makeStyles((theme) => ({
-    button1: {
-        height: 30,
-        width: '100%',
-        margin: '7px 0px',
-        background: theme.palette.primary.light,
-    },
-    p: {
-        padding: `${theme.spacing(1.5)} 0px`,
-    },
-    p2: {
-        fontWeight: 'bold',
-        padding: `${theme.spacing(1.5)} 0px`,
-    },
-    p3: {
-        color: theme.palette.swatches.blue.blue900,
-        padding: `${theme.spacing(1.5)} 0px`,
-        fontWeight: 'bold',
-        fontSize: '13px',
-    },
-    pCode: {
-        background: theme.palette.swatches.grey.grey200,
-        padding: theme.spacing(4),
-        fontFamily: 'monospace',
-        marginBottom: '5px',
-    },
-    downloadingButton: {
+const DownloadButton = styled(Button, {
+    shouldForwardProp: (prop) => prop !== 'isDownloading',
+})(({ theme, isDownloading }) => ({
+    height: 30,
+    width: '100%',
+    margin: '7px 0px',
+    background: theme.palette.primary.light,
+    ...(isDownloading && {
         background: theme.palette.swatches.grey.grey300,
         color: theme.palette.text.primary,
         pointerEvents: 'none',
-    },
-    downloading: {
-        bottom: '0px',
-        position: 'sticky',
-        width: '100%',
-        padding: '12px',
-        boxSizing: 'border-box',
-    },
-    error: {
-        display: 'none',
-        fontSize: '16px',
-        padding: '12px',
-        background: theme.palette.swatches.red.red500,
-        color: theme.palette.text.secondary,
-        border: `1px solid ${theme.palette.swatches.red.red600}`,
-        textAlign: 'center',
-    },
-    errorOn: {
+    }),
+}))
+
+const StyledP = styled(Typography)(({ theme }) => ({
+    padding: `${theme.spacing(1.5)} 0px`,
+}))
+
+const StyledP2 = styled(Typography)(({ theme }) => ({
+    fontWeight: 'bold',
+    padding: `${theme.spacing(1.5)} 0px`,
+}))
+
+const StyledP3 = styled(Typography)(({ theme }) => ({
+    color: theme.palette.swatches.blue.blue900,
+    padding: `${theme.spacing(1.5)} 0px`,
+    fontWeight: 'bold',
+    fontSize: '13px',
+}))
+
+const CodeBlock = styled(Typography)(({ theme }) => ({
+    background: theme.palette.swatches.grey.grey200,
+    padding: theme.spacing(4),
+    fontFamily: 'monospace',
+    marginBottom: '5px',
+}))
+
+const DownloadingWrapper = styled('div')({
+    bottom: '0px',
+    position: 'sticky',
+    width: '100%',
+    padding: '12px',
+    boxSizing: 'border-box',
+})
+
+const ErrorMessage = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isVisible',
+})(({ theme, isVisible }) => ({
+    display: 'none',
+    fontSize: '16px',
+    padding: '12px',
+    background: theme.palette.swatches.red.red500,
+    color: theme.palette.text.secondary,
+    border: `1px solid ${theme.palette.swatches.red.red600}`,
+    textAlign: 'center',
+    ...(isVisible && {
         display: 'block',
-    },
+    }),
 }))
 
 function CURLTab(props) {
     const { value, index, selectorRef, selectionCount, ...other } = props
 
-    const c = useStyles()
     const dispatch = useDispatch()
 
     const [isDownloading, setIsDownloading] = useState(false)
@@ -114,10 +120,8 @@ function CURLTab(props) {
                             arrow
                         >
                             <span>
-                                <Button
-                                    className={clsx(c.button1, {
-                                        [c.downloadingButton]: isDownloading,
-                                    })}
+                                <DownloadButton
+                                    isDownloading={isDownloading}
                                     variant="contained"
                                     aria-label="curl download button"
                                     disabled={selectionCount === 0}
@@ -157,71 +161,71 @@ function CURLTab(props) {
                                     {isDownloading
                                         ? 'Download in Progress'
                                         : 'Download CURL Script'}
-                                </Button>
+                                </DownloadButton>
                             </span>
                         </Tooltip>
-                        <Typography className={c.p2}>Download notes:</Typography>
-                        <Typography className={c.p}>
+                        <StyledP2>Download notes:</StyledP2>
+                        <StyledP>
                             The downloaded script will contain a set of pre-configured CURL commands
                             that you can execute on your computer system.
-                        </Typography>
-                        <Typography className={c.p3}>CURL Software:</Typography>
-                        <Typography className={c.p}>
+                        </StyledP>
+                        <StyledP3>CURL Software:</StyledP3>
+                        <StyledP>
                             CURL is software that allows one to download internet content using a
                             command line interface. Availability and installation of CURL varies
                             between operating systems. Please verify that CURL is available for your
                             computer and is installed. <strong>Requires: curl 7.73.0+</strong>
-                        </Typography>
-                        <Typography className={c.p3}>CURL Script File Size Limit:</Typography>
-                        <Typography className={c.p}>
+                        </StyledP>
+                        <StyledP3>CURL Script File Size Limit:</StyledP3>
+                        <StyledP>
                             The downloaded script files max out at 500k lines. Multiple script files
                             may be downloaded to support the entire payload.
-                        </Typography>
-                        <Typography className={c.p3}>Downloaded Products Directory:</Typography>
-                        <Typography className={c.p}>
+                        </StyledP>
+                        <StyledP3>Downloaded Products Directory:</StyledP3>
+                        <StyledP>
                             After script execution, you can find all the downloaded products in a
                             directory named:
-                        </Typography>
-                        <Typography className={c.pCode}>
+                        </StyledP>
+                        <CodeBlock>
                             ./pdsimg-atlas-curl_&#123;datestamp&#125;
-                        </Typography>
-                        <Typography className={c.p}>
+                        </CodeBlock>
+                        <StyledP>
                             This directory will be created in your shell's current working
                             directory. If you are using a Windows machine, you may need to run the
                             script in a Windows Subsystem for Linux (WSL) environment.
-                        </Typography>
-                        <Typography className={c.p2}>Operating System Instructions:</Typography>
-                        <Typography className={c.p3}>Mac / Linux / Windows (WSL):</Typography>
-                        <Typography className={c.p}>
+                        </StyledP>
+                        <StyledP2>Operating System Instructions:</StyledP2>
+                        <StyledP3>Mac / Linux / Windows (WSL):</StyledP3>
+                        <StyledP>
                             After downloading, open a shell window and change directory to the
                             location where the script was downloaded and then execute the
                             "pdsimg-atlas-curl_{datestamp}.sh" script using the following command:
-                        </Typography>
-                        <Typography className={c.pCode}>
+                        </StyledP>
+                        <CodeBlock>
                             source pdsimg-atlas-curl_{datestamp}.sh
-                        </Typography>
+                        </CodeBlock>
 
-                        <Typography className={c.p3}>Windows:</Typography>
-                        <Typography className={c.p}>
+                        <StyledP3>Windows:</StyledP3>
+                        <StyledP>
                             After downloading, open a shell window and change directory to the
                             location where the script was downloaded and then execute the
                             "pdsimg-atlas-curl_{datestamp}.bat" script using the following command:
                             <br />
-                        </Typography>
-                        <Typography className={c.pCode}>
+                        </StyledP>
+                        <CodeBlock>
                             pdsimg-atlas-curl_{datestamp}.bat
-                        </Typography>
-                        <div className={c.downloading}>
-                            <div className={clsx(c.error, { [c.errorOn]: error != null })}>
+                        </CodeBlock>
+                        <DownloadingWrapper>
+                            <ErrorMessage isVisible={error != null}>
                                 {error}
-                            </div>
+                            </ErrorMessage>
                             <DownloadingCard
                                 downloadId={'curl' + downloadId}
                                 status={status}
                                 hidePause={true}
                                 onStop={onStop}
                             />
-                        </div>
+                        </DownloadingWrapper>
                     </Box>
                 </>
             )}
