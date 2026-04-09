@@ -411,9 +411,7 @@ const GridCard = ({ index, data, width }) => {
                                     imageRendering: 'pixelated',
                                     width: '100%',
                                     height: `${gridItemHeight}px`,
-                                }}
-                                style={
-                                    data.type === 'query'
+                                    ...(data.type === 'query'
                                         ? {
                                               left: `-${idx * 16}px`,
                                               borderRight: '1px solid #FFF',
@@ -422,8 +420,8 @@ const GridCard = ({ index, data, width }) => {
                                               }px)`,
                                               boxShadow: '0 1px 5px rgba(0,0,0,0.5)',
                                           }
-                                        : null
-                                }
+                                        : {}),
+                                }}
                                 duration={250}
                                 iconWrapperStyle={{ opacity: 0.6 }}
                                 errorIcon={<ProductIcons filename={imgURL} />}
