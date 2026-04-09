@@ -2,8 +2,7 @@ import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 
 import FiltersPanel from './Panels/FiltersPanel/FiltersPanel'
 import SecondaryPanel from './Panels/SecondaryPanel/SecondaryPanel'
@@ -15,29 +14,29 @@ import EditColumnsModal from './Modals/EditColumnsModal/EditColumnsModal'
 import AdvancedFilterModal from './Modals/AdvancedFilterModal/AdvancedFilterModal'
 import AdvancedFilterReturnModal from './Modals/AdvancedFilterReturnModal/AdvancedFilterReturnModal'
 
-const useStyles = makeStyles((theme) => ({
-    Search: {
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        color: theme.palette.text.primary,
-    },
-    mainWorkspace: {
-        padding: 0,
-        height: '100%',
-    },
-    workspace: {
-        display: 'flex',
-        flex: 1,
-    },
+const SearchRoot = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    color: theme.palette.text.primary,
 }))
+
+const MainWorkspace = styled('div')({
+    padding: 0,
+    height: '100%',
+    display: 'flex',
+    flex: 1,
+})
+
+const Workspace = styled('div')({
+    display: 'flex',
+    flex: 1,
+})
 
 const Search = (props) => {
     useEffect(() => {
         document.title = 'Atlas - Search | PDS-IMG'
     }, [])
-
-    const c = useStyles()
 
     const mobileWorkspace = useSelector((state) => {
         return state.getIn(['workspace', 'mobile'])
@@ -61,31 +60,31 @@ const Search = (props) => {
         }
 
         return (
-            <div className={c.Search}>
-                <div className={c.workspace}>{panel}</div>
+            <SearchRoot>
+                <Workspace>{panel}</Workspace>
                 <AddFilterModal />
                 <FilterHelpModal />
                 <EditColumnsModal />
                 <AdvancedFilterModal />
                 <AdvancedFilterReturnModal />
-            </div>
+            </SearchRoot>
         )
     }
     return (
-        <div className={c.Search}>
-            <div className={`${c.mainWorkspace} ${c.workspace}`}>
+        <SearchRoot>
+            <MainWorkspace>
                 <FiltersPanel />
-                <div className={c.workspace}>
+                <Workspace>
                     <SecondaryPanel />
                     <ResultsPanel />
-                </div>
-            </div>
+                </Workspace>
+            </MainWorkspace>
             <AddFilterModal />
             <FilterHelpModal />
             <EditColumnsModal />
             <AdvancedFilterModal />
             <AdvancedFilterReturnModal />
-        </div>
+        </SearchRoot>
     )
 }
 

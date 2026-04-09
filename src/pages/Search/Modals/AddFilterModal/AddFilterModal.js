@@ -19,67 +19,71 @@ import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
 import FilterTree from './subcomponents/FilterTree/FilterTree'
 
-const useStyles = makeStyles((theme) => ({
-    AddFilterModal: {
-        margin: theme.headHeights[1],
-        height: `calc(100% - ${theme.headHeights[1] * 2}px)`,
-        [theme.breakpoints.down('sm')]: {
-            margin: '6px',
-            height: `calc(100% - 12px)`,
-        },
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+    margin: theme.headHeights[1],
+    height: `calc(100% - ${theme.headHeights[1] * 2}px)`,
+    [theme.breakpoints.down('sm')]: {
+        margin: '6px',
+        height: `calc(100% - 12px)`,
     },
-    contents: {
-        background: theme.palette.primary.main,
-        height: '100%',
-        maxWidth: '1300px',
-    },
-    heading: {
-        height: theme.headHeights[2],
-        boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey150,
-        padding: `0 ${theme.spacing(2)} 0 ${theme.spacing(4)}`,
-    },
-    title: {
-        padding: `${theme.spacing(2.5)} 0`,
-        fontSize: theme.typography.pxToRem(16),
-        fontWeight: 'bold',
-    },
-    content: {
-        padding: '0px',
-        height: `calc(100% - ${theme.headHeights[2]}px)`,
-    },
-    closeIcon: {
-        padding: theme.spacing(1.5),
-        height: '100%',
-        margin: '4px 0px',
-        fontSize: '1.5rem',
-    },
-    flexBetween: {
-        display: 'flex',
-        justifyContent: 'space-between',
-    },
-    addCount: {
-        padding: theme.spacing(1.5),
-        fontSize: '14px',
-        color: theme.palette.swatches.grey.grey800,
-    },
-    addSelected: {
-        backgroundColor: theme.palette.primary.light,
-        padding: '3px 8px',
-        fontSize: '11px',
-        marginRight: '3px',
-    },
+}))
+
+const Contents = styled('div')(({ theme }) => ({
+    background: theme.palette.primary.main,
+    height: '100%',
+    maxWidth: '1300px',
+}))
+
+const Heading = styled(DialogTitle)(({ theme }) => ({
+    height: theme.headHeights[2],
+    boxSizing: 'border-box',
+    background: theme.palette.swatches.grey.grey150,
+    padding: `0 ${theme.spacing(2)} 0 ${theme.spacing(4)}`,
+}))
+
+const Title = styled('div')(({ theme }) => ({
+    padding: `${theme.spacing(2.5)} 0`,
+    fontSize: theme.typography.pxToRem(16),
+    fontWeight: 'bold',
+}))
+
+const Content = styled(DialogContent)(({ theme }) => ({
+    padding: '0px',
+    height: `calc(100% - ${theme.headHeights[2]}px)`,
+}))
+
+const CloseIconButton = styled(IconButton)(({ theme }) => ({
+    padding: theme.spacing(1.5),
+    height: '100%',
+    margin: '4px 0px',
+    fontSize: '1.5rem',
+}))
+
+const FlexBetween = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+})
+
+const AddCount = styled(Typography)(({ theme }) => ({
+    padding: theme.spacing(1.5),
+    fontSize: '14px',
+    color: theme.palette.swatches.grey.grey800,
+}))
+
+const AddSelectedButton = styled(Button)(({ theme }) => ({
+    backgroundColor: theme.palette.primary.light,
+    padding: '3px 8px',
+    fontSize: '11px',
+    marginRight: '3px',
 }))
 
 const AddFilterModal = (props) => {
     const {} = props
-    const c = useStyles()
 
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
@@ -147,48 +151,46 @@ const AddFilterModal = (props) => {
     }
 
     return (
-        <Dialog
-            className={c.AddFilterModal}
+        <StyledDialog
             fullScreen={isMobile}
             open={open}
             onClose={handleClose}
             aria-labelledby="responsive-dialog-title"
             PaperProps={{
-                className: c.contents,
+                component: Contents,
             }}
         >
-            <DialogTitle className={c.heading}>
-                <div className={c.flexBetween}>
-                    <div className={c.title}>Select filter(s) to add to your search</div>
-                    <IconButton
-                        className={c.closeIcon}
+            <Heading>
+                <FlexBetween>
+                    <Title>Select filter(s) to add to your search</Title>
+                    <CloseIconButton
                         title="Close"
                         aria-label="close"
                         onClick={handleClose}
                         size="large"
                     >
                         <CloseSharpIcon fontSize="inherit" />
-                    </IconButton>
-                </div>
-            </DialogTitle>
-            <DialogContent className={c.content}>
+                    </CloseIconButton>
+                </FlexBetween>
+            </Heading>
+            <Content>
                 <FilterTree
                     activeFilterIds={activeFilterIds}
                     addStagedFilter={addStagedFilter}
                     removeStagedFilter={removeStagedFilter}
                 />
-            </DialogContent>
+            </Content>
             <DialogActions>
-                <Typography className={c.addCount}>{`${
+                <AddCount>{`${
                     Object.keys(stagedFiltersToAdd).length
                 } new filter${
                     Object.keys(stagedFiltersToAdd).length === 1 ? '' : 's'
-                } selected`}</Typography>
-                <Button className={c.addSelected} variant="contained" onClick={handleSubmit}>
+                } selected`}</AddCount>
+                <AddSelectedButton variant="contained" onClick={handleSubmit}>
                     Add Selected Filters
-                </Button>
+                </AddSelectedButton>
             </DialogActions>
-        </Dialog>
+        </StyledDialog>
     )
 }
 

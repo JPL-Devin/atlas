@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
-import clsx from 'clsx'
 import Url from 'url-parse'
 
 import {
@@ -30,7 +29,7 @@ import ReactFilterBox, {
 } from './react-filter-box-customized/react-filter-box'
 import './react-filter-box-customized/react-filter-box.css'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 const literals = [
     {
@@ -95,74 +94,73 @@ const literals = [
     },
 ]
 
-const useStyles = makeStyles((theme) => ({
-    AdvancedFilter: {
-        'display': 'flex',
-        'flexFlow': 'column',
-        'height': '100%',
-        'transition': 'width 0.4s ease-out',
-        '& > .react-filter-box': {
-            flex: 1,
-            boxSizing: 'border-box',
-            borderRadius: '0px',
-            border: 'none',
-            padding: '0px',
-            marginBottom: '0px',
-        },
-        '& .react-codemirror2': {
-            height: '100%',
-        },
-        '& .CodeMirror': {
-            height: '100%',
-        },
+const AdvancedFilterRoot = styled('div')({
+    'display': 'flex',
+    'flexFlow': 'column',
+    'height': '100%',
+    'transition': 'width 0.4s ease-out',
+    '& > .react-filter-box': {
+        flex: 1,
+        boxSizing: 'border-box',
+        borderRadius: '0px',
+        border: 'none',
+        padding: '0px',
+        marginBottom: '0px',
     },
-    headerButtons: {
-        height: '40px',
-        position: 'absolute',
-        top: '0px',
-        right: '41px',
-        padding: '6px 0px',
+    '& .react-codemirror2': {
+        height: '100%',
     },
-    headerButtonRun: {
-        'color': 'white',
-        'background': theme.palette.accent.main,
-        'padding': '5px 6px 6px 6px',
-        'borderRadius': '3px',
-        'marginRight': theme.spacing(3),
-        '&:hover': {
-            background: theme.palette.swatches.blue.blue500,
-        },
+    '& .CodeMirror': {
+        height: '100%',
     },
-    headerButtonRunError: {
+})
+
+const HeaderButtons = styled('div')({
+    height: '40px',
+    position: 'absolute',
+    top: '0px',
+    right: '41px',
+    padding: '6px 0px',
+})
+
+const RunButton = styled(IconButton, {
+    shouldForwardProp: (prop) => prop !== 'hasError',
+})(({ theme, hasError }) => ({
+    'color': 'white',
+    'background': theme.palette.accent.main,
+    'padding': '5px 6px 6px 6px',
+    'borderRadius': '3px',
+    'marginRight': theme.spacing(3),
+    '&:hover': {
+        background: theme.palette.swatches.blue.blue500,
+    },
+    ...(hasError && {
         'cursor': 'not-allowed',
         'background': theme.palette.swatches.red.red500,
         '&:hover': {
             background: theme.palette.swatches.red.red500,
         },
-    },
-    headerButtonDidRun: {
-        'background': theme.palette.swatches.grey.grey500,
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey500,
-        },
-    },
-    headerButtonInfo: {
-        padding: '5px 6px 6px 6px',
-        borderRadius: '3px',
-        marginRight: theme.spacing(1),
-    },
-    error: {
-        background: theme.palette.swatches.red.red500,
-        color: 'white',
-        padding: theme.spacing(2),
-        display: 'flex',
-        flexFlow: 'column',
-    },
-    keybindingTooltip: {
-        color: theme.palette.swatches.grey.grey200,
-        fontSize: '12px',
-        marginLeft: theme.spacing(2),
-    },
+    }),
+}))
+
+const InfoButton = styled(IconButton)(({ theme }) => ({
+    padding: '5px 6px 6px 6px',
+    borderRadius: '3px',
+    marginRight: theme.spacing(1),
+}))
+
+const ErrorBar = styled('div')(({ theme }) => ({
+    background: theme.palette.swatches.red.red500,
+    color: 'white',
+    padding: theme.spacing(2),
+    display: 'flex',
+    flexFlow: 'column',
+}))
+
+const KeybindingTooltip = styled('span')(({ theme }) => ({
+    color: theme.palette.swatches.grey.grey200,
+    fontSize: '12px',
+    marginLeft: theme.spacing(2),
 }))
 
 const toHumanFriendlyErrorMessage = (errorMessage) => {
@@ -200,7 +198,6 @@ const toHumanFriendlyErrorMessage = (errorMessage) => {
 }
 
 const AdvancedFilter = (props) => {
-    const c = useStyles()
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
@@ -340,34 +337,31 @@ const AdvancedFilter = (props) => {
     }
 
     return (
-        <div className={c.AdvancedFilter}>
-            <div className={c.headerButtons}>
+        <AdvancedFilterRoot>
+            <HeaderButtons>
                 <Tooltip
                     title={
                         parseError ? (
                             'Fix Errors First'
                         ) : (
                             <>
-                                Run <span className={c.keybindingTooltip}>(Ctrl + Enter)</span>
+                                Run <KeybindingTooltip>(Ctrl + Enter)</KeybindingTooltip>
                             </>
                         )
                     }
                     arrow
                 >
-                    <IconButton
-                        className={clsx(c.headerButtonRun, {
-                            [c.headerButtonRunError]: parseError,
-                        })}
+                    <RunButton
+                        hasError={!!parseError}
                         aria-label="run advanced filter"
                         size="small"
                         onClick={run}
                     >
                         <PlayArrowIcon fontSize="inherit" />
-                    </IconButton>
+                    </RunButton>
                 </Tooltip>
                 <Tooltip title="Info" arrow>
-                    <IconButton
-                        className={c.headerButtonInfo}
+                    <InfoButton
                         aria-label="info for advanced filter"
                         size="small"
                         onClick={() => {
@@ -375,9 +369,9 @@ const AdvancedFilter = (props) => {
                         }}
                     >
                         <InfoIcon fontSize="inherit" />
-                    </IconButton>
+                    </InfoButton>
                 </Tooltip>
-            </div>
+            </HeaderButtons>
             <ReactFilterBox
                 options={options}
                 customRenderCompletionItem={customRenderCompletionItem}
@@ -397,13 +391,13 @@ const AdvancedFilter = (props) => {
             />
             {parseError && (
                 <Tooltip title={parseError.message} arrow>
-                    <div className={c.error}>
+                    <ErrorBar>
                         <span>{`Line ${parseError.location?.start?.line}, Column ${parseError.location?.start?.column}  -  ${parseError.name}:`}</span>
                         <span>{`${toHumanFriendlyErrorMessage(parseError.message)}`}</span>
-                    </div>
+                    </ErrorBar>
                 </Tooltip>
             )}
-        </div>
+        </AdvancedFilterRoot>
     )
 }
 

@@ -21,7 +21,7 @@ import {
 
 import Image from 'mui-image'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import {
     search,
@@ -36,112 +36,103 @@ import ProductIcons from '../../../../../../components/ProductIcons/ProductIcons
 
 const gridItemGap = 10
 
-const useStyles = makeStyles((theme) => ({
-    GridView: {
-        width: '100%',
-        height: '100%',
-        padding: `${gridItemGap}px 0px 0px ${gridItemGap}px`,
-        boxSizing: 'border-box',
-    },
-    content: {
-        height: '100%',
-        overflowX: 'hidden',
-        overflowY: 'auto',
-        opacity: 0,
-        transition: 'opacity 0.4s ease-in-out',
-    },
-    contentVisible: {
+const GridViewRoot = styled('div')({
+    width: '100%',
+    height: '100%',
+    padding: `${gridItemGap}px 0px 0px ${gridItemGap}px`,
+    boxSizing: 'border-box',
+})
+
+const GridContent = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isVisible',
+})(({ isVisible }) => ({
+    height: '100%',
+    overflowX: 'hidden',
+    overflowY: 'auto',
+    opacity: 0,
+    transition: 'opacity 0.4s ease-in-out',
+    ...(isVisible && {
         opacity: 1,
+    }),
+}))
+
+const GridItem = styled('div')(({ theme }) => ({
+    'cursor': 'pointer',
+    'box-shadow': '0 1px 5px rgba(0, 0, 0, 0.5)',
+    'user-select': 'none',
+    'line-height': '0',
+    'overflow': 'hidden',
+    'align-items': 'center',
+    'justify-content': 'center',
+    'display': 'flex',
+    'box-sizing': 'border-box',
+    'border-radius': '3px',
+    'position': 'relative',
+    'width': '100%',
+    'background': `linear-gradient(to bottom, #060606, ${theme.palette.swatches.black.black0})`,
+    '&:hover .selectionIndicator': {
+        boxShadow: `inset 0px 0px 0px 4px ${theme.palette.accent.main}`,
     },
-    contentNone: {},
-    gridItem: {
-        'cursor': 'pointer',
-        'box-shadow': '0 1px 5px rgba(0, 0, 0, 0.5)',
-        'user-select': 'none',
-        'line-height': '0',
-        'overflow': 'hidden',
-        'align-items': 'center',
-        'justify-content': 'center',
-        'display': 'flex',
-        'box-sizing': 'border-box',
-        'border-radius': '3px',
-        'position': 'relative',
-        'width': '100%',
-        'background': `linear-gradient(to bottom, #060606, ${theme.palette.swatches.black.black0})`,
-        '&:hover .selectionIndicator': {
-            boxShadow: `inset 0px 0px 0px 4px ${theme.palette.accent.main}`,
-        },
-        '&:hover .ProductToolbar': {
-            'opacity': 1,
-            '& .ProductToolbarInner': {
-                display: 'flex',
-            },
-            '& .ProductToolbarInCart': {
-                opacity: 0,
-            },
-        },
-    },
-    gridItemImage: {
+    '&:hover .ProductToolbar': {
         'opacity': 1,
-        'background': theme.palette.swatches.black.black0,
-        'object-fit': 'cover !important',
-        'user-select': 'none',
-        'overflow': 'hidden',
-        'text-overflow': 'ellipsis',
-        'image-rendering': 'pixelated',
-        'width': '100%',
+        '& .ProductToolbarInner': {
+            display: 'flex',
+        },
+        '& .ProductToolbarInCart': {
+            opacity: 0,
+        },
     },
-    gridItemToolbar: {
-        'position': 'absolute',
-        'bottom': 0,
-        'left': 0,
-        'width': '100%',
-        'background': 'rgba(0, 0, 0, 0.5)',
-        'line-height': '30px',
-        'white-space': 'nowrap',
-        'overflow': 'hidden',
-        'text-overflow': 'ellipsis',
-        'word-break': 'unset',
-        'font-size': '14px',
-        'text-align': 'center',
-    },
-    selectionIndicator: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-        transition: 'box-shadow 0.2s ease-out',
-    },
-    fileExt: {
-        right: '0px',
-        bottom: '0px',
-        position: 'absolute',
-        background: theme.palette.swatches.grey.grey800,
-        borderRadius: '2px',
-        textTransform: 'uppercase',
-        height: '16px',
-        lineHeight: '16px',
-        color: theme.palette.swatches.grey.grey200,
-        padding: '0px 4px',
-        margin: '4px',
-        fontSize: '10px',
-        fontWeight: 'bold',
-    },
-    hasML: {
-        left: '0px',
-        bottom: '0px',
-        position: 'absolute',
-        background: theme.palette.swatches.orange.orange600,
-        borderRadius: '2px',
-        textTransform: 'uppercase',
-        height: '16px',
-        lineHeight: '16px',
-        color: theme.palette.swatches.grey.grey800,
-        padding: '0px 4px',
-        margin: '4px',
-        fontSize: '10px',
-        fontWeight: 'bold',
-    },
+}))
+
+const GridItemImage = styled(Image)(({ theme }) => ({
+    'opacity': 1,
+    'background': theme.palette.swatches.black.black0,
+    'object-fit': 'cover !important',
+    'user-select': 'none',
+    'overflow': 'hidden',
+    'text-overflow': 'ellipsis',
+    'image-rendering': 'pixelated',
+    'width': '100%',
+}))
+
+const SelectionIndicator = styled('div')({
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none',
+    transition: 'box-shadow 0.2s ease-out',
+})
+
+const FileExt = styled('div')(({ theme }) => ({
+    right: '0px',
+    bottom: '0px',
+    position: 'absolute',
+    background: theme.palette.swatches.grey.grey800,
+    borderRadius: '2px',
+    textTransform: 'uppercase',
+    height: '16px',
+    lineHeight: '16px',
+    color: theme.palette.swatches.grey.grey200,
+    padding: '0px 4px',
+    margin: '4px',
+    fontSize: '10px',
+    fontWeight: 'bold',
+}))
+
+const HasML = styled('div')(({ theme }) => ({
+    left: '0px',
+    bottom: '0px',
+    position: 'absolute',
+    background: theme.palette.swatches.orange.orange600,
+    borderRadius: '2px',
+    textTransform: 'uppercase',
+    height: '16px',
+    lineHeight: '16px',
+    color: theme.palette.swatches.grey.grey800,
+    padding: '0px 4px',
+    margin: '4px',
+    fontSize: '10px',
+    fontWeight: 'bold',
 }))
 
 let lastPage = null
@@ -152,7 +143,6 @@ let allowPageCheck = true
 const GridView = (props) => {
     const { results, paging } = props
 
-    const c = useStyles()
     const dispatch = useDispatch()
 
     const gridItemHeight = useSelector((state) => state.getIn(['gridSize'])) || 192
@@ -245,9 +235,9 @@ const GridView = (props) => {
     })
 
     return (
-        <div className={`${c.GridView} fade-in`} ref={ref}>
-            <div
-                className={`${c.content} ${results.length > 0 ? c.contentVisible : c.contentNone}`}
+        <GridViewRoot className="fade-in" ref={ref}>
+            <GridContent
+                isVisible={results.length > 0}
                 id="GridViewContent"
                 ref={gridContainerRef}
             >
@@ -262,13 +252,12 @@ const GridView = (props) => {
                     overscanBy: 2,
                     render: GridCard,
                 })}
-            </div>
-        </div>
+            </GridContent>
+        </GridViewRoot>
     )
 }
 
 const GridCard = ({ index, data, width }) => {
-    const c = useStyles()
 
     const navigate = useNavigate()
     const s = data._source
@@ -294,12 +283,12 @@ const GridCard = ({ index, data, width }) => {
     const fileName = getIn(s, ES_PATHS.file_name, '')
 
     return (
-        <div
+        <GridItem
             // Index relative to current pages
             result-id={index}
             // Key relative to all pages
             result-key={data.result_key}
-            className={`${c.gridItem} GridViewMasonryItem`}
+            className="GridViewMasonryItem"
             style={{
                 minHeight: `${gridItemHeight}px`,
                 maxHeight: `${gridItemHeight}px`,
@@ -314,8 +303,8 @@ const GridCard = ({ index, data, width }) => {
                 sASet(sAKeys.HOVERED_RESULT, null)
             }}
         >
-            <Image
-                className={`${c.gridItemImage} ResultsPanelImage`}
+            <GridItemImage
+                className="ResultsPanelImage"
                 wrapperStyle={{
                     height: '100%',
                     paddingTop: 'unset',
@@ -337,10 +326,10 @@ const GridCard = ({ index, data, width }) => {
             {MODEL_EXTENSIONS.includes(getExtension(fileName, true)) && (
                 <ProductIcons filename={fileName} />
             )}
-            <div className={c.fileExt}>{getExtension(fileName, true)}</div>
-            {getIn(s, ES_PATHS.ml, false) ? <div className={c.hasML}>ML</div> : null}
-            <div className={`${c.selectionIndicator} selectionIndicator`}></div>
-        </div>
+            <FileExt>{getExtension(fileName, true)}</FileExt>
+            {getIn(s, ES_PATHS.ml, false) ? <HasML>ML</HasML> : null}
+            <SelectionIndicator className="selectionIndicator" />
+        </GridItem>
     )
 }
 
