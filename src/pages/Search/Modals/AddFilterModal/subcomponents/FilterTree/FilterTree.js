@@ -1,9 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
-import clsx from 'clsx'
-
-import { makeStyles, withStyles } from '@mui/styles'
 import { styled } from '@mui/material/styles'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView'
 import { TreeItem, treeItemClasses } from '@mui/x-tree-view/TreeItem'
@@ -71,34 +68,39 @@ const StyledTreeItem = styled(TreeItem)(({ theme }) => ({
 // TODO: Investigation consolidation of StyledTreeItem with FilterTreeLabel
 // The two noted component appear to be redundant, investigate how they can
 // merged to reduce code complexity
-const FilterTreeLabel = withStyles((theme) => ({
-    FilterTreeLabel: {
-        display: 'flex',
-        height: theme.headHeights[3],
-    },
-    checkbox: {
-        borderRadius: 0,
-    },
-    infoIcon: {
-        fontSize: '18px',
-        padding: '12px 7px',
-        color: theme.palette.accent.main,
-    },
-    label: {
-        flex: 1,
-        lineHeight: `${theme.headHeights[3]}px`,
-        paddingLeft: '3px',
-        fontSize: '14px',
-        textTransform: 'none',
-    },
-    labelBefore: {
-        opacity: 0.9,
-    },
-    labelAfter: {
-        fontWeight: 'bold',
-    },
-}))((props) => {
-    const { classes, id, label, active, onCheck, onInfoClick, filterString } = props
+const FilterTreeLabelRoot = styled('div')(({ theme }) => ({
+    display: 'flex',
+    height: theme.headHeights[3],
+}))
+
+const FilterCheckbox = styled(Checkbox)({
+    borderRadius: 0,
+})
+
+const InfoIconButton = styled(IconButton)(({ theme }) => ({
+    fontSize: '18px',
+    padding: '12px 7px',
+    color: theme.palette.accent.main,
+}))
+
+const FilterLabel = styled('span')(({ theme }) => ({
+    flex: 1,
+    lineHeight: `${theme.headHeights[3]}px`,
+    paddingLeft: '3px',
+    fontSize: '14px',
+    textTransform: 'none',
+}))
+
+const LabelBefore = styled('span')({
+    opacity: 0.9,
+})
+
+const LabelAfter = styled('span')({
+    fontWeight: 'bold',
+})
+
+const FilterTreeLabel = (props) => {
+    const { id, label, active, onCheck, onInfoClick, filterString } = props
 
     // Let's split on the last ':' to highlight the relevant portion
     let labelBefore = null
@@ -110,9 +112,8 @@ const FilterTreeLabel = withStyles((theme) => ({
     }
 
     return (
-        <div className={classes.FilterTreeLabel}>
-            <Checkbox
-                className={classes.checkbox}
+        <FilterTreeLabelRoot>
+            <FilterCheckbox
                 color="default"
                 checked={active}
                 size="medium"
@@ -120,36 +121,35 @@ const FilterTreeLabel = withStyles((theme) => ({
                 aria-label="add"
                 onClick={onCheck}
             />
-            <IconButton
-                className={classes.infoIcon}
+            <InfoIconButton
                 title="Info"
                 aria-label="info"
                 size="medium"
                 onClick={onInfoClick}
             >
                 <InfoOutlinedIcon fontSize="inherit" />
-            </IconButton>
-            <span className={classes.label} onClick={onCheck}>
+            </InfoIconButton>
+            <FilterLabel onClick={onCheck}>
                 {labelBefore != null && (
-                    <span className={classes.labelBefore}>
+                    <LabelBefore>
                         <Highlighter
                             searchWords={[filterString]}
                             autoEscape={true}
                             textToHighlight={String(labelBefore)}
                         />
-                    </span>
+                    </LabelBefore>
                 )}
-                <span className={classes.labelAfter}>
+                <LabelAfter>
                     <Highlighter
                         searchWords={[filterString]}
                         autoEscape={true}
                         textToHighlight={String(labelAfter)}
                     />
-                </span>
-            </span>
-        </div>
+                </LabelAfter>
+            </FilterLabel>
+        </FilterTreeLabelRoot>
     )
-})
+}
 
 let shownExpandedIds = []
 // Makes the addFilter tree and does so with respect to the filterString (which subsets the tree)
@@ -317,83 +317,92 @@ const makeTree = (
     return returnValue
 }
 
-const useStyles = makeStyles((theme) => ({
-    FilterTree: {
-        display: 'flex',
-        height: '100%',
-    },
-    left: {
-        flexGrow: 1,
-        overflow: 'hidden',
-        width: '800px',
-        display: 'flex',
-        flexFlow: 'column',
-    },
-    tree: {
-        flex: 1,
-        overflowX: 'hidden',
-        padding: `0 ${theme.spacing(2)} 0 ${theme.spacing(2)}`,
-    },
-    helpOpenLeft: {
+const FilterTreeRoot = styled('div')({
+    display: 'flex',
+    height: '100%',
+})
+
+const Left = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isHelpOpen',
+})(({ isHelpOpen }) => ({
+    flexGrow: 1,
+    overflow: 'hidden',
+    width: '800px',
+    display: 'flex',
+    flexFlow: 'column',
+    ...(isHelpOpen && {
         transition: 'width 0.2s ease-out',
-    },
-    right: {
-        width: '0px',
-        opacity: 0,
-        pointerEvents: 'none',
-        overflowX: 'hidden',
-        padding: '0px',
-        transition: 'width 0.2s ease-out, opacity 0.2s ease-out, padding 0.2s ease-out',
-    },
-    helpOpenRight: {
+    }),
+}))
+
+const Tree = styled(SimpleTreeView)(({ theme }) => ({
+    flex: 1,
+    overflowX: 'hidden',
+    padding: `0 ${theme.spacing(2)} 0 ${theme.spacing(2)}`,
+}))
+
+const RightPanel = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isHelpOpen',
+})(({ theme, isHelpOpen }) => ({
+    width: '0px',
+    opacity: 0,
+    pointerEvents: 'none',
+    overflowX: 'hidden',
+    padding: '0px',
+    transition: 'width 0.2s ease-out, opacity 0.2s ease-out, padding 0.2s ease-out',
+    ...(isHelpOpen && {
         width: '500px',
         minHeight: '100%',
         opacity: 1,
         pointerEvents: 'inherit',
         position: 'relative',
         borderLeft: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    }),
+}))
+
+const Filter = styled('div')({
+    display: 'flex',
+})
+
+const StyledInput = styled(Input)(({ theme }) => ({
+    'width': '100%',
+    'margin': `${theme.spacing(1)} 0 ${theme.spacing(2)} 0`,
+    'padding': `0 ${theme.spacing(2)} 0 ${theme.spacing(2)}`,
+    'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
+    '&:before': {
+        borderBottom: `1px solid rgba(255,255,255,0.2)`,
     },
-    filter: {
-        display: 'flex',
+    '& > input': {
+        padding: '5px 0 6px',
     },
-    input: {
-        'width': '100%',
-        'margin': `${theme.spacing(1)} 0 ${theme.spacing(2)} 0`,
-        'padding': `0 ${theme.spacing(2)} 0 ${theme.spacing(2)}`,
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
-        '&:before': {
-            borderBottom: `1px solid rgba(255,255,255,0.2)`,
-        },
-        '& > input': {
-            padding: '5px 0 6px',
-        },
+}))
+
+const ClearInputButton = styled(Button, {
+    shouldForwardProp: (prop) => prop !== 'isHidden',
+})(({ theme, isHidden }) => ({
+    'color': theme.palette.text.primary,
+    'fontSize': '11px',
+    'lineHeight': '11px',
+    'padding': '4px 7px',
+    'margin': '7px',
+    'height': '21px',
+    'position': 'absolute',
+    'right': 0,
+    'transition': 'opacity 0.2s ease-in-out',
+    '& .MuiButton-endIcon': {
+        marginTop: '-2px',
+        marginLeft: '3px',
     },
-    clearInput: {
-        'color': theme.palette.text.primary,
-        'fontSize': '11px',
-        'lineHeight': '11px',
-        'padding': '4px 7px',
-        'margin': '7px',
-        'height': '21px',
-        'position': 'absolute',
-        'right': 0,
-        'transition': 'opacity 0.2s ease-in-out',
-        '& .MuiButton-endIcon': {
-            marginTop: '-2px',
-            marginLeft: '3px',
-        },
-    },
-    clearInputHidden: {
+    ...(isHidden && {
         opacity: 0,
         pointerEvents: 'none',
-    },
+    }),
 }))
 
 let filterStringTimeout
 
 const FilterTree = (props) => {
     const { activeFilterIds, addStagedFilter, removeStagedFilter } = props
-    const c = useStyles()
 
     const filterRef = useRef()
     const [filterString, setFilterString] = useState('')
@@ -426,15 +435,10 @@ const FilterTree = (props) => {
     if (filterString != null && filterString.length > 0) finalExpandeds = shownExpandedIds
 
     return (
-        <div className={c.FilterTree}>
-            <div
-                className={clsx(c.left, {
-                    [c.helpOpenLeft]: isHelpOpen,
-                })}
-            >
-                <div className={c.filter}>
-                    <Input
-                        className={c.input}
+        <FilterTreeRoot>
+            <Left isHelpOpen={isHelpOpen}>
+                <Filter>
+                    <StyledInput
                         ref={filterRef}
                         placeholder={'Find Filter'}
                         startAdornment={
@@ -450,10 +454,8 @@ const FilterTree = (props) => {
                             }, 400)
                         }}
                     />
-                    <Button
-                        className={clsx(c.clearInput, {
-                            [c.clearInputHidden]: filterString === '',
-                        })}
+                    <ClearInputButton
+                        isHidden={filterString === ''}
                         aria-label="clear filter"
                         size="small"
                         onClick={() => {
@@ -465,9 +467,9 @@ const FilterTree = (props) => {
                         endIcon={<CloseSharpIcon />}
                     >
                         Clear
-                    </Button>
-                </div>
-                <SimpleTreeView className={c.tree} expanded={finalExpandeds}>
+                    </ClearInputButton>
+                </Filter>
+                <Tree expanded={finalExpandeds}>
                     {makeTree(
                         atlasMapping,
                         activeFilterIds,
@@ -477,16 +479,11 @@ const FilterTree = (props) => {
                         setSelected,
                         toggleExpanded
                     )}
-                </SimpleTreeView>
-            </div>
-            <div
-                className={clsx(c.right, {
-                    [c.helpOpenRight]: isHelpOpen,
-                })}
-            >
+                </Tree>
+            </Left>
+            <RightPanel isHelpOpen={isHelpOpen}>
                 {isHelpOpen ? (
                     <FilterHelp
-                        className={c.filterHelp}
                         filter={selected.filter}
                         filterKey={selected.filterKey}
                         onClose={() => {
@@ -497,8 +494,8 @@ const FilterTree = (props) => {
                         }}
                     />
                 ) : null}
-            </div>
-        </div>
+            </RightPanel>
+        </FilterTreeRoot>
     )
 }
 
