@@ -1,5 +1,5 @@
 import React from 'react'
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import Link from '@mui/material/Link'
 import Divider from '@mui/material/Divider'
@@ -7,47 +7,34 @@ import Grid from '@mui/material/Grid'
 import GitHubIcon from '@mui/icons-material/GitHub'
 import SvgIcon from '@mui/material/SvgIcon'
 
-/**
- * Controls css styling for this component using js to css
- */
-const useStyles = makeStyles((theme) => ({
-    root: {
-        'backgroundColor': '#f8f9fa',
-        'width': 800,
-        'maxWidth': 800,
-        'maxHeight': 25,
-        'height': 25,
-        'borderTop': `1px solid ${theme.palette.divider}`,
-        'color': '#343a40',
-        'textAlign': 'center',
-        '& hr': {
-            //margin: theme.spacing(0, 1),
-            height: 25,
-        },
-        '& svg': {
-            margin: theme.spacing(0.25),
-        },
-        '& > *': {
-            maxHeight: 25,
-        },
+const CreditsRoot = styled(Grid)(({ theme }) => ({
+    'backgroundColor': '#f8f9fa',
+    'width': 800,
+    'maxWidth': 800,
+    'maxHeight': 25,
+    'height': 25,
+    'borderTop': `1px solid ${theme.palette.divider}`,
+    'color': '#343a40',
+    'textAlign': 'center',
+    '& hr': {
+        height: 25,
     },
-    link: {
-        fontSize: 12,
-        fontWeight: '600px !important',
+    '& svg': {
+        margin: theme.spacing(0.25),
+    },
+    '& > *': {
+        maxHeight: 25,
     },
 }))
 
 export default function CreditsDisplay() {
-    const classes = useStyles()
-
     return (
         <div>
-            <Grid
+            <CreditsRoot
                 container
                 alignItems="center"
                 alignContent="center"
                 justifyContent="space-evenly"
-                className={classes.root}
                 wrap="nowrap"
             >
                 <Grid item xs={2}>
@@ -121,7 +108,7 @@ export default function CreditsDisplay() {
                         />
                     </Link>
                 </Grid>
-            </Grid>
+            </CreditsRoot>
         </div>
     );
 }

@@ -26,7 +26,6 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
 
-import { makeStyles, withStyles } from '@mui/styles'
 import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
@@ -111,74 +110,68 @@ const StyledTreeItem = styled(StyledTreeGroup)(({theme}) => ({
   }
 }));
 
-// TODO: consolidate StyledTreeItem and FilterTreeLabel into single component
-/*const FilterTreeLabel = styled(StyledTreeItem)(({theme}) => ({
-  label: {
-      'display': 'flex',
-      'justifyContent': 'space-between',
-      'flexWrap': 'wrap',
-      'wordBreak': 'break-all',
-  }
-}));*/
+const FilterTreeLabelRoot = styled('div')({})
 
-const FilterTreeLabel = withStyles((theme) => ({
-    label: {
-        'display': 'flex',
-        'justifyContent': 'space-between',
-        'flexWrap': 'wrap',
-        'wordBreak': 'break-all',
+const FilterTreeLabelInner = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    wordBreak: 'break-all',
+})
+
+const FilterTreeKey = styled('div')(({ theme }) => ({
+    fontSize: '14px',
+    fontWeight: 'bold',
+    [theme.breakpoints.down('md')]: {
+        fontSize: '12px',
     },
-    key: {
-        fontSize: '14px',
-        fontWeight: 'bold',
-        [theme.breakpoints.down('md')]: {
-            fontSize: '12px',
-        },
+}))
+
+const FilterTreeValue = styled('div')(({ theme }) => ({
+    marginLeft: '40px',
+    marginRight: '8px',
+    fontSize: '14px',
+    [theme.breakpoints.down('md')]: {
+        fontSize: '12px',
     },
-    value: {
-        marginLeft: '40px',
-        marginRight: '8px',
-        fontSize: '14px',
-        [theme.breakpoints.down('md')]: {
-            fontSize: '12px',
-        },
+}))
+
+const MoreButton = styled(Button)(({ theme }) => ({
+    'color': '#000000',
+    'position': 'absolute',
+    'top': '9px',
+    'right': '10px',
+    'padding': '2px 10px',
+    'fontSize': '11px',
+    'border': 'none',
+    'background': theme.palette.swatches.grey.grey150,
+    '&:hover': {
+        border: 'none',
+        background: theme.palette.swatches.blue.blue100,
     },
-    highlight: {
-         fontWeight: 'bold',
-    },
-    more: {
-        'color': '#000000',
-         'position': 'absolute',
-         'top': '9px',
-         'right': '10px',
-         'padding': '2px 10px',
-         'fontSize': '11px',
-         'border': 'none',
-         'background': theme.palette.swatches.grey.grey150,
-         '&:hover': {
-            border: 'none',
-             background: theme.palette.swatches.blue.blue100,
-         },
-    },
-}))((props) => {
-    const { classes, id, valueKey, value, filterString } = props
+}))
+
+const highlightClassName = 'ProductLabel-highlight'
+
+function FilterTreeLabel(props) {
+    const { id, valueKey, value, filterString } = props
     const MAX_LENGTH = 256
     const [expanded, setExpanded] = useState(false)
 
     return (
-        <div className={classes.FilterTreeLabel}>
-            <div className={classes.label}>
-                <div className={classes.key}>
+        <FilterTreeLabelRoot>
+            <FilterTreeLabelInner>
+                <FilterTreeKey>
                     <Highlighter
-                        highlightClassName={classes.highlight}
+                        highlightClassName={highlightClassName}
                         searchWords={[filterString]}
                         autoEscape={true}
                         textToHighlight={String(valueKey)}
                     />
-                </div>
-                <div className={classes.value}>
+                </FilterTreeKey>
+                <FilterTreeValue>
                     <Highlighter
-                        highlightClassName={classes.highlight}
+                        highlightClassName={highlightClassName}
                         searchWords={[filterString]}
                         autoEscape={true}
                         textToHighlight={
@@ -189,8 +182,7 @@ const FilterTreeLabel = withStyles((theme) => ({
                         }
                     />
                     {String(value).length > MAX_LENGTH && (
-                        <Button
-                            className={classes.more}
+                        <MoreButton
                             variant="outlined"
                             aria-label="expand/collapse label value"
                             size="small"
@@ -199,15 +191,15 @@ const FilterTreeLabel = withStyles((theme) => ({
                             }}
                         >
                             {expanded ? 'less' : 'more'}
-                        </Button>
+                        </MoreButton>
                     )}
-                </div>
-            </div>
-        </div>
+                </FilterTreeValue>
+            </FilterTreeLabelInner>
+        </FilterTreeLabelRoot>
     )
-})
+}
 
-const makeTree = (data, filterString, classes) => {
+const makeTree = (data, filterString) => {
     // We'll search with a lowercase string
     filterString = filterString.toLowerCase()
 
@@ -254,7 +246,7 @@ const makeTree = (data, filterString, classes) => {
                         key={keyI}
                         label={
                             <Highlighter
-                                highlightClassName={classes.highlight}
+                                highlightClassName={highlightClassName}
                                 searchWords={[filterString]}
                                 autoEscape={true}
                                 textToHighlight={String(iter[i])}
@@ -300,111 +292,106 @@ const makeTree = (data, filterString, classes) => {
     return { tree: depthTraversal(data, 0), numOfKeys: keyI }
 }
 
-const useStyles = makeStyles((theme) => ({
-    ProductLabel: {
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        overflow: 'hidden',
-        background: theme.palette.swatches.grey.grey0,
-    },
-    loading: {
-        position: 'absolute',
-        left: 'calc(50% - 20px)',
-        top: 'calc(50% + 20px)',
-    },
-    notFound: {
-        'position': 'absolute',
-        'left': 'calc(50%)',
-        'top': 'calc(50%)',
-        '& > div': {
-            transform: 'translateX(-50%) translateY(50%)',
-            background: theme.palette.swatches.orange.orange500,
-            padding: '8px 16px',
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '16px',
-            borderRadius: '2px',
-        },
-    },
-    left: {
-        flex: 1,
-    },
-    right: {
-        borderLeft: `1px solid ${theme.palette.swatches.grey.grey150}`,
-        width: '960px',
-        background: theme.palette.swatches.grey.grey100,
-        [theme.breakpoints.down('lg')]: {
-            width: '660px',
-        },
-        [theme.breakpoints.down('md')]: {
-            width: '100%',
-        },
-    },
-    top: {
-        height: `${theme.headHeights[2]}px`,
-        display: 'flex',
-        justifyContent: 'space-between',
-        boxSizing: 'border-box',
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        background: theme.palette.swatches.grey.grey0,
-    },
-    bottom: {
-        overflowX: 'hidden',
-        overflowY: 'auto',
-        height: `calc(100% - ${theme.headHeights[2]}px)`,
-        padding: `4px 8px`,
-        boxSizing: 'border-box',
-    },
-    viewer: {
-        height: '100%',
-        flex: 1,
-    },
-    search: {
-        flex: 1,
-    },
-    input: {
-        width: '100%',
-        'margin': `${theme.spacing(1)} 0 ${theme.spacing(2)} 0`,
-        'padding': `0 0 0 ${theme.spacing(2)}`,
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
-        '&:before': {
-            borderBottom: `1px solid rgba(255,255,255,0.2)`,
-        },
-    },
-    searchCancelButton: {
-        width: `${theme.headHeights[3]}px`,
-        height: `${theme.headHeights[3]}px`,
-        color: theme.palette.swatches.grey.grey800,
-        transition: 'opacity 0.2s ease-out',
-    },
-    highlight: {
+const ProductLabelRoot = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    overflow: 'hidden',
+    background: theme.palette.swatches.grey.grey0,
+}))
+
+const NotFound = styled(Box)(({ theme }) => ({
+    'position': 'absolute',
+    'left': 'calc(50%)',
+    'top': 'calc(50%)',
+    '& > div': {
+        transform: 'translateX(-50%) translateY(50%)',
+        background: theme.palette.swatches.orange.orange500,
+        padding: '8px 16px',
+        color: 'white',
         fontWeight: 'bold',
+        fontSize: '16px',
+        borderRadius: '2px',
     },
-    buttons: {
-        padding: '4px 2px 4px 0px',
+}))
+
+const LeftPanel = styled('div')({
+    flex: 1,
+})
+
+const RightPanel = styled('div')(({ theme }) => ({
+    borderLeft: `1px solid ${theme.palette.swatches.grey.grey150}`,
+    width: '960px',
+    background: theme.palette.swatches.grey.grey100,
+    [theme.breakpoints.down('lg')]: {
+        width: '660px',
     },
-    button1: {
-        height: 30,
-        margin: '0px 3px',
-        color: theme.palette.text.primary,
-        border: "1px solid rgba(0, 0, 0, 0.23)",
-        "&:hover": {
-          border: "1px solid rgba(0, 0, 0, 0.23)",
-          'background': "#0000000a",
-        },
+    [theme.breakpoints.down('md')]: {
+        width: '100%',
     },
-    snackbar: {
-        fontSize: 14,
-        fontWeight: 'bold',
+}))
+
+const TopSection = styled('div')(({ theme }) => ({
+    height: `${theme.headHeights[2]}px`,
+    display: 'flex',
+    justifyContent: 'space-between',
+    boxSizing: 'border-box',
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    background: theme.palette.swatches.grey.grey0,
+}))
+
+const BottomSection = styled('div')(({ theme }) => ({
+    overflowX: 'hidden',
+    overflowY: 'auto',
+    height: `calc(100% - ${theme.headHeights[2]}px)`,
+    padding: '4px 8px',
+    boxSizing: 'border-box',
+}))
+
+const ViewerWrapper = styled('div')({
+    height: '100%',
+    flex: 1,
+})
+
+const SearchWrapper = styled('div')({
+    flex: 1,
+})
+
+const SearchInput = styled(Input)(({ theme }) => ({
+    'width': '100%',
+    'margin': `${theme.spacing(1)} 0 ${theme.spacing(2)} 0`,
+    'padding': `0 0 0 ${theme.spacing(2)}`,
+    'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
+    '&:before': {
+        borderBottom: '1px solid rgba(255,255,255,0.2)',
+    },
+}))
+
+const SearchCancelButton = styled(IconButton)(({ theme }) => ({
+    width: `${theme.headHeights[3]}px`,
+    height: `${theme.headHeights[3]}px`,
+    color: theme.palette.swatches.grey.grey800,
+    transition: 'opacity 0.2s ease-out',
+}))
+
+const ButtonsWrapper = styled('div')({
+    padding: '4px 2px 4px 0px',
+})
+
+const LabelButton = styled(Button)(({ theme }) => ({
+    height: 30,
+    margin: '0px 3px',
+    color: theme.palette.text.primary,
+    border: '1px solid rgba(0, 0, 0, 0.23)',
+    '&:hover': {
+        border: '1px solid rgba(0, 0, 0, 0.23)',
+        background: '#0000000a',
     },
 }))
 
 const ProductLabel = (props) => {
 
     const { recordData } = props
-
-    const c = useStyles()
 
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
@@ -447,33 +434,32 @@ const ProductLabel = (props) => {
 
     if (Object.keys(labelData).length === 0)
         return (
-            <div className={c.ProductLabel}>
-                <Box className={c.notFound}>
+            <ProductLabelRoot>
+                <NotFound>
                     <div>Label Not Found</div>
-                </Box>
-            </div>
+                </NotFound>
+            </ProductLabelRoot>
         )
     else {
-        const labelTree = makeTree(labelData, filterString, c)
+        const labelTree = makeTree(labelData, filterString)
         return (
-            <div className={c.ProductLabel}>
+            <ProductLabelRoot>
                 {!isMobile && (
-                    <div className={c.left}>
-                        <div className={c.viewer}>
+                    <LeftPanel>
+                        <ViewerWrapper>
                             <OpenSeadragonViewer
                                 image={{
                                     src: imgURL,
                                 }}
                                 settings={{ defaultZoomLevel: 0.5, showNavigator: false }}
                             />
-                        </div>
-                    </div>
+                        </ViewerWrapper>
+                    </LeftPanel>
                 )}
-                <div className={c.right}>
-                    <div className={c.top}>
-                        <div className={c.search}>
-                            <Input
-                                className={c.input}
+                <RightPanel>
+                    <TopSection>
+                        <SearchWrapper>
+                            <SearchInput
                                 value={filterString}
                                 placeholder="Search in Label"
                                 startAdornment={
@@ -483,8 +469,7 @@ const ProductLabel = (props) => {
                                 }
                                 endAdornment={
                                   <InputAdornment>
-                                    <IconButton
-                                        className={c.searchCancelButton}
+                                    <SearchCancelButton
                                         aria-label={`clear search`}
                                         size="small"
                                         style={{
@@ -493,17 +478,16 @@ const ProductLabel = (props) => {
                                         onClick={() => setFilterString('')}
                                     >
                                         <CloseIcon />
-                                    </IconButton>
+                                    </SearchCancelButton>
                                   </InputAdornment>
                                 }
                                 onChange={(e) => setFilterString(e.target.value)}
                             />
-                        </div>
+                        </SearchWrapper>
 
                         {!isMobile && (
-                            <div className={c.buttons}>
-                                <Button
-                                    className={c.button1}
+                            <ButtonsWrapper>
+                                <LabelButton
                                     variant="outlined"
                                     aria-label="copy label json button"
                                     size="small"
@@ -518,9 +502,8 @@ const ProductLabel = (props) => {
                                     }}
                                 >
                                     Copy Label JSON
-                                </Button>
-                                <Button
-                                    className={c.button1}
+                                </LabelButton>
+                                <LabelButton
                                     variant="outlined"
                                     aria-label="view raw label button"
                                     size="small"
@@ -528,8 +511,8 @@ const ProductLabel = (props) => {
                                     target="_blank"
                                 >
                                     View Raw Label
-                                </Button>
-                            </div>
+                                </LabelButton>
+                            </ButtonsWrapper>
                         )}
                         {isMobile && (
                             <div>
@@ -556,8 +539,8 @@ const ProductLabel = (props) => {
                                 />
                             </div>
                         )}
-                    </div>
-                    <div className={c.bottom}>
+                    </TopSection>
+                    <BottomSection>
                         <SimpleTreeView
                             defaultExpanded={Array(labelTree.numOfKeys)
                                 .fill()
@@ -565,9 +548,9 @@ const ProductLabel = (props) => {
                         >
                             {labelTree.tree}
                         </SimpleTreeView>
-                    </div>
-                </div>
-            </div>
+                    </BottomSection>
+                </RightPanel>
+            </ProductLabelRoot>
         )
     }
 }
