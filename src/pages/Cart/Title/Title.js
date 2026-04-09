@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import { useNavigate } from 'react-router-dom'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
@@ -15,55 +15,59 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 
 import { removeFromCart, setModal } from '../../../core/redux/actions/actions.js'
 
-const useStyles = makeStyles((theme) => ({
-    Title: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        height: theme.headHeights[1],
-        boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey100,
-        color: theme.palette.text.primary,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-    },
-    left: {
-        display: 'flex',
-        justifyContent: 'space-between',
-    },
-    right: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '4px 8px 4px 4px',
-    },
-    back: {},
-    backButton: {
-        padding: 2,
-        borderRadius: 0,
-    },
-    backIcon: {
-        fontSize: 36,
-        color: theme.palette.text.primary,
-    },
-    name: {
-        margin: `0px ${theme.spacing(1)}`,
-    },
-    nameTitle: {
-        fontSize: 18,
-        lineHeight: '39px',
-        fontWeight: 'bold',
-    },
-    button1: {
-        color: theme.palette.text.secondary,
-        fontSize: '11px',
-        lineHeight: '11px',
-        margin: '3px 3px 3px 3px',
-        background: theme.palette.accent.main,
-    },
+const TitleRoot = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    height: theme.headHeights[1],
+    boxSizing: 'border-box',
+    background: theme.palette.swatches.grey.grey100,
+    color: theme.palette.text.primary,
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+}))
+
+const TitleLeft = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+})
+
+const TitleRight = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '4px 8px 4px 4px',
+})
+
+const BackWrapper = styled('div')({})
+
+const BackButton = styled(IconButton)({
+    padding: 2,
+    borderRadius: 0,
+})
+
+const BackIcon = styled(ChevronLeftIcon)(({ theme }) => ({
+    fontSize: 36,
+    color: theme.palette.text.primary,
+}))
+
+const NameWrapper = styled('div')(({ theme }) => ({
+    margin: `0px ${theme.spacing(1)}`,
+}))
+
+const NameTitle = styled(Typography)({
+    fontSize: 18,
+    lineHeight: '39px',
+    fontWeight: 'bold',
+})
+
+const ActionButton = styled(Button)(({ theme }) => ({
+    color: theme.palette.text.secondary,
+    fontSize: '11px',
+    lineHeight: '11px',
+    margin: '3px 3px 3px 3px',
+    background: theme.palette.accent.main,
 }))
 
 const Title = (props) => {
     const { mobile } = props
-
-    const c = useStyles()
 
     const navigate = useNavigate()
 
@@ -71,39 +75,37 @@ const Title = (props) => {
 
     if (mobile) {
         return (
-            <div className={c.Title}>
+            <TitleRoot>
                 <div className="left"></div>
                 <div className="right"></div>
-            </div>
+            </TitleRoot>
         )
     }
 
     return (
-        <div className={c.Title}>
-            <div className={c.left}>
-                <div className={c.back}>
+        <TitleRoot>
+            <TitleLeft>
+                <BackWrapper>
                     <Tooltip title="Back" arrow>
-                        <IconButton
-                            className={c.backButton}
+                        <BackButton
                             aria-label="return"
                             onClick={() => {
                                 navigate(-1)
                             }}
                             size="large"
                         >
-                            <ChevronLeftIcon className={c.backIcon} />
-                        </IconButton>
+                            <BackIcon />
+                        </BackButton>
                     </Tooltip>
-                </div>
-                <div className={c.name}>
-                    <Typography className={c.nameTitle} variant="h2">
+                </BackWrapper>
+                <NameWrapper>
+                    <NameTitle variant="h2">
                         Bulk Download Cart
-                    </Typography>
-                </div>
-            </div>
-            <div className={c.right}>
-                <Button
-                    className={c.button1}
+                    </NameTitle>
+                </NameWrapper>
+            </TitleLeft>
+            <TitleRight>
+                <ActionButton
                     variant="contained"
                     aria-label="remove selected items button"
                     size="small"
@@ -112,9 +114,8 @@ const Title = (props) => {
                     }
                 >
                     Remove Selected Items
-                </Button>
-                <Button
-                    className={c.button1}
+                </ActionButton>
+                <ActionButton
                     variant="contained"
                     aria-label="empty cart button"
                     size="small"
@@ -123,9 +124,9 @@ const Title = (props) => {
                     }
                 >
                     Empty Cart
-                </Button>
-            </div>
-        </div>
+                </ActionButton>
+            </TitleRight>
+        </TitleRoot>
     )
 }
 

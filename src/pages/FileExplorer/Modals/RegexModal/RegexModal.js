@@ -37,358 +37,382 @@ import SpellcheckIcon from '@mui/icons-material/Spellcheck'
 import Pagination from '@mui/material/Pagination'
 import LinearProgress from '@mui/material/LinearProgress'
 
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
 import { publicUrl, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../core/constants'
 import { streamDownloadFile } from '../../../../core/downloaders/ZipStream.js'
 
-import clsx from 'clsx'
 import ReactMarkdown from 'react-markdown'
 
-const useStyles = makeStyles((theme) => ({
-    RegexModal: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        top: 0,
-        left: 0,
-        background: theme.palette.swatches.grey.grey0,
-        zIndex: 998,
-        boxShadow: 'inset -1px 0px 5px 0px rgba(0,0,0,0.2)',
-    },
-    contents: {
-        width: '100%',
-        height: '100%',
-    },
-    contentsMobile: {
-        background: theme.palette.primary.main,
-        height: '100%',
-    },
-    content: {
-        padding: '20px 40px 8px 40px',
-        height: `calc(100% - ${theme.headHeights[2]}px)`,
-        textAlign: 'center',
-    },
-    closeIcon: {
-        padding: theme.spacing(1.5),
-        height: '100%',
-        margin: '4px 0px',
-    },
-    flexBetween: {
-        display: 'flex',
-        justifyContent: 'space-between',
-    },
-    flexBetween1: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        flex: 1,
-    },
-    flex: {
-        display: 'flex',
-    },
-    top: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        height: '40px',
-        background: theme.palette.swatches.grey.grey0,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey300}`,
-    },
-    closeIcon: {
-        padding: theme.spacing(1.5),
-        margin: '4px',
-    },
-    title: {
-        fontSize: '18px',
-        fontWeight: 'bold',
-        lineHeight: '42px',
+const RegexModalRoot = styled('div')(({ theme }) => ({
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    top: 0,
+    left: 0,
+    background: theme.palette.swatches.grey.grey0,
+    zIndex: 998,
+    boxShadow: 'inset -1px 0px 5px 0px rgba(0,0,0,0.2)',
+}))
+
+const Contents = styled('div')({
+    width: '100%',
+    height: '100%',
+})
+
+const TopBar = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    height: '40px',
+    background: theme.palette.swatches.grey.grey0,
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey300}`,
+}))
+
+const CloseIconButton = styled(IconButton)(({ theme }) => ({
+    padding: theme.spacing(1.5),
+    margin: '4px',
+}))
+
+const ModalTitle = styled(Typography)({
+    fontSize: '18px',
+    fontWeight: 'bold',
+    lineHeight: '42px',
+    textTransform: 'uppercase',
+})
+
+const Subtitle = styled('div')(({ theme }) => ({
+    'padding': '0px 10px',
+    'fontSize': '14px',
+    'lineHeight': '40px',
+    'fontFamily': 'monospace',
+    '& span:first-child': {
+        color: 'darkgoldenrod',
+        fontSize: '12px',
+        fontWeight: 500,
         textTransform: 'uppercase',
+        fontFamily: 'PublicSans',
+        paddingRight: '6px',
     },
-    subtitle: {
-        'padding': '0px 10px',
-        'fontSize': '14px',
-        'lineHeight': '40px',
-        'fontFamily': 'monospace',
-        '& span:first-child': {
-            color: 'darkgoldenrod',
-            fontSize: '12px',
-            fontWeight: 500,
-            textTransform: 'uppercase',
-            fontFamily: 'PublicSans',
-            paddingRight: '6px',
-        },
-        '& span:last-child': {
-            fontWeight: 'bold',
-            fontSize: '16px',
-            color: theme.palette.accent.main,
-        },
+    '& span:last-child': {
+        fontWeight: 'bold',
+        fontSize: '16px',
+        color: theme.palette.accent.main,
     },
-    bottom: {
-        display: 'flex',
-        flexFlow: 'column',
+}))
+
+const BottomSection = styled('div')({
+    display: 'flex',
+    flexFlow: 'column',
+    width: '100%',
+    height: 'calc(100% - 41px)',
+})
+
+const InputSection = styled('div')(({ theme }) => ({
+    width: '100%',
+    background: theme.palette.swatches.grey.grey100,
+    borderBottom: `1px solid ${theme.palette.accent.main}`,
+}))
+
+const InputBar = styled('div')(({ theme }) => ({
+    'height': '40px',
+    'width': '100%',
+    'display': 'flex',
+    '& > div > div:first-child': {
         width: '100%',
-        height: 'calc(100% - 41px)',
+        height: '100%',
     },
-    input: {
+    '& > div > div:first-child > div:first-child': {
         width: '100%',
-        background: theme.palette.swatches.grey.grey100,
-        borderBottom: `1px solid ${theme.palette.accent.main}`,
+        height: '100%',
     },
-    inputBar: {
-        'height': '40px',
-        'width': '100%',
-        'display': 'flex',
-        '& > div > div:first-child': {
-            width: '100%',
-            height: '100%',
-        },
-        '& > div > div:first-child > div:first-child': {
-            width: '100%',
-            height: '100%',
-        },
-        '& input': {
-            width: '100%',
-            padding: '0px 84px 0px 3px',
-            color: theme.palette.accent.main,
-            fontFamily: 'monospace',
-        },
+    '& input': {
+        width: '100%',
+        padding: '0px 84px 0px 3px',
+        color: theme.palette.accent.main,
+        fontFamily: 'monospace',
     },
-    regexSearchInput: {
-        '& input': {
-            fontWeight: 'bold',
-            fontSize: '14px',
-        },
-        '& input::placeholder': {
-            fontWeight: 'initial',
-            fontSize: '14px',
-        },
-        '& .MuiInputAdornment-root': {
-            marginTop: '0px !important',
-        },
-        '& .MuiFilledInput-underline:after': {
-            borderBottom: `2px solid ${theme.palette.accent.main}`,
-        },
+}))
+
+const RegexSearchInput = styled(TextField)(({ theme }) => ({
+    '& input': {
+        fontWeight: 'bold',
+        fontSize: '14px',
     },
-    regexSearchSearch: {
-        padding: '4px 40px',
-        borderRadius: '0px',
-        boxShadow: 'none',
+    '& input::placeholder': {
+        fontWeight: 'initial',
+        fontSize: '14px',
     },
-    helpButton: {
-        height: '40px',
-        width: '40px',
+    '& .MuiInputAdornment-root': {
+        marginTop: '0px !important',
     },
-    help: {
-        'height': '0px',
-        'overflow': 'hidden',
-        'pointerEvents': 'none',
-        'padding': '0px 25%',
-        'transition': 'all 0.2s ease-in-out',
-        'background': theme.palette.swatches.grey.grey0,
-        '& code': {
-            padding: '0px 4px',
-            borderRadius: '2px',
-            background: `rgba(0,0,0,0.07)`,
-            borderBottom: `2px solid ${theme.palette.accent.main}`,
-        },
-        '& p': {
-            fontSize: '16px',
-        },
-        '& li': {
-            fontSize: '16px',
-            lineHeight: '22px',
-            marginBottom: '5px',
-        },
-        '& h2': {
-            color: 'darkgoldenrod',
-        },
-        '& h4 > code': {
-            fontSize: '20px',
-        },
+    '& .MuiFilledInput-underline:after': {
+        borderBottom: `2px solid ${theme.palette.accent.main}`,
     },
-    helpOpen: {
+}))
+
+const RegexSearchButton = styled(Button)({
+    padding: '4px 40px',
+    borderRadius: '0px',
+    boxShadow: 'none',
+})
+
+const HelpButton = styled(IconButton)({
+    height: '40px',
+    width: '40px',
+})
+
+const HelpSection = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isOpen',
+})(({ theme, isOpen }) => ({
+    'height': '0px',
+    'overflow': 'hidden',
+    'pointerEvents': 'none',
+    'padding': '0px 25%',
+    'transition': 'all 0.2s ease-in-out',
+    'background': theme.palette.swatches.grey.grey0,
+    '& code': {
+        padding: '0px 4px',
+        borderRadius: '2px',
+        background: `rgba(0,0,0,0.07)`,
+        borderBottom: `2px solid ${theme.palette.accent.main}`,
+    },
+    '& p': {
+        fontSize: '16px',
+    },
+    '& li': {
+        fontSize: '16px',
+        lineHeight: '22px',
+        marginBottom: '5px',
+    },
+    '& h2': {
+        color: 'darkgoldenrod',
+    },
+    '& h4 > code': {
+        fontSize: '20px',
+    },
+    ...(isOpen && {
         pointerEvents: 'all',
         height: '100%',
         overflowY: 'auto',
         paddingTop: '20px',
         paddingBottom: '20px',
-    },
-    closeHelpIcon: {
-        padding: theme.spacing(1.5),
-        margin: '4px',
-        position: 'absolute',
-        top: '120px',
-        right: '40px',
-        display: 'none',
-    },
-    closeHelpIconOpen: {
+    }),
+}))
+
+const CloseHelpIconButton = styled(IconButton, {
+    shouldForwardProp: (prop) => prop !== 'isOpen',
+})(({ theme, isOpen }) => ({
+    padding: theme.spacing(1.5),
+    margin: '4px',
+    position: 'absolute',
+    top: '120px',
+    right: '40px',
+    display: 'none',
+    ...(isOpen && {
         display: 'block',
+    }),
+}))
+
+const Results = styled('div')({
+    flex: 1,
+    overflowY: 'auto',
+})
+
+const ResultList = styled('ul')({
+    listStyleType: 'none',
+    margin: 0,
+    padding: '2px 0px',
+})
+
+const ListItem = styled('li', {
+    shouldForwardProp: (prop) => !['isActive', 'isLessPadding', 'isMobile'].includes(prop),
+})(({ theme, isActive, isLessPadding, isMobile }) => ({
+    'display': 'flex',
+    'height': '32px',
+    'lineHeight': '32px',
+    'padding': '0px 12px 0px 4px',
+    'marginLeft': theme.spacing(1),
+    'borderRadius': '4px 0px 0px 4px',
+    'cursor': 'pointer',
+    'overflow': 'hidden',
+    'borderBottom': `1px solid ${theme.palette.swatches.grey.grey150}`,
+    '&:hover': {
+        'background': theme.palette.swatches.grey.grey150,
+        '& .listItemButtons': {
+            pointerEvents: 'inherit',
+            opacity: 1,
+        },
     },
-    results: {
+    '& > div:last-child': {
         flex: 1,
-        overflowY: 'auto',
     },
-    list: {
-        listStyleType: 'none',
-        margin: 0,
-        padding: `2px 0px`,
-    },
-    listItem: {
-        'display': 'flex',
-        'height': '32px',
-        'lineHeight': '32px',
-        'padding': `0px 12px 0px 4px`,
-        'marginLeft': theme.spacing(1),
-        'borderRadius': '4px 0px 0px 4px',
-        'cursor': 'pointer',
-        //'transition': 'background 0.1s ease-in',
-        'overflow': 'hidden',
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey150}`,
-        '&:hover': {
-            'background': theme.palette.swatches.grey.grey150,
-            '& .listItemButtons': {
-                pointerEvents: 'inherit',
-                opacity: 1,
-            },
-        },
-        '& > div:last-child': {
-            flex: 1,
-        },
-    },
-    listItemButtons: {
-        lineHeight: '33px',
-        transition: 'opacity 0.2s ease-out',
-        opacity: 0,
-        pointerEvents: 'none',
-    },
-    listItemButtonsActive: {
+    ...(isLessPadding && {
+        paddingRight: '0px',
+    }),
+    ...(isActive && {
+        background: `${theme.palette.accent.main} !important`,
+        color: theme.palette.text.secondary,
+    }),
+    ...(isMobile && {
+        height: `${theme.headHeights[3]}px`,
+        lineHeight: `${theme.headHeights[3]}px`,
+        fontSize: '16px',
+    }),
+}))
+
+const ListItemButtons = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isActive',
+})(({ theme, isActive }) => ({
+    lineHeight: '33px',
+    transition: 'opacity 0.2s ease-out',
+    opacity: 0,
+    pointerEvents: 'none',
+    ...(isActive && {
         'background': theme.palette.accent.main,
         '& button': {
             color: theme.palette.swatches.grey.grey0,
         },
-    },
-    listItemLessPadding: {
-        paddingRight: '0px',
-    },
-    listItemFilter: {
-        justifyContent: 'space-between',
-        padding: `0px ${theme.spacing(2)} 0px 0px`,
-    },
-    liType: {
-        fontSize: '24px',
-        padding: '2px',
-    },
-    liName: {
-        margin: `0px ${theme.spacing(1.5)}`,
-        lineHeight: '32px',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-    },
-    liNameMobile: {
+    }),
+}))
+
+const FlexBetween = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+})
+
+const FlexBetween1 = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    flex: 1,
+})
+
+const Flex = styled('div')({
+    display: 'flex',
+})
+
+const LiType = styled('div')({
+    fontSize: '24px',
+    padding: '2px',
+})
+
+const LiName = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isMobile',
+})(({ theme, isMobile }) => ({
+    margin: `0px ${theme.spacing(1.5)}`,
+    lineHeight: '32px',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    ...(isMobile && {
         lineHeight: `${theme.headHeights[3]}px`,
-    },
-    liSize: {
-        marginRight: '10px',
-        fontSize: '12px',
-        color: theme.palette.swatches.grey.grey500,
-        fontFamily: 'monospace',
-    },
-    liSizeActive: {
+    }),
+}))
+
+const LiSize = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isActive',
+})(({ theme, isActive }) => ({
+    marginRight: '10px',
+    fontSize: '12px',
+    color: theme.palette.swatches.grey.grey500,
+    fontFamily: 'monospace',
+    ...(isActive && {
         color: theme.palette.text.secondary,
-    },
-    listItemActive: {
-        background: `${theme.palette.accent.main} !important`,
-        color: theme.palette.text.secondary,
-    },
-    listItemMobile: {
-        height: `${theme.headHeights[3]}px`,
-        lineHeight: `${theme.headHeights[3]}px`,
-        fontSize: '16px',
-    },
-    button: {
-        padding: '4px 4px 3px 4px',
-        marginTop: '-4px',
-    },
-    bottomBar: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        background: theme.palette.swatches.grey.grey50,
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey300}`,
-        height: '40px',
-        width: '100%',
-    },
-    pagination: {
-        display: 'flex',
-        justifyContent: 'center',
-    },
-    inputWrapper: {
-        width: '100%',
-        height: '100%',
-        position: 'relative',
-    },
-    flags: {
-        position: 'absolute',
-        right: 0,
-        top: 0,
-        display: 'flex',
-    },
-    flagIcon: {
-        'padding': '4px',
-        'margin': '5px',
-        'borderRadius': '4px',
-        'transition': 'all 0.2s ease-in-out',
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey600,
-            color: theme.palette.swatches.grey.grey0,
-        },
-    },
-    flagOn: {
-        background: theme.palette.swatches.grey.grey700,
+    }),
+}))
+
+const ItemButton = styled(IconButton)({
+    padding: '4px 4px 3px 4px',
+    marginTop: '-4px',
+})
+
+const BottomBar = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    background: theme.palette.swatches.grey.grey50,
+    borderTop: `1px solid ${theme.palette.swatches.grey.grey300}`,
+    height: '40px',
+    width: '100%',
+}))
+
+const PaginationWrapper = styled('div')({
+    display: 'flex',
+    justifyContent: 'center',
+})
+
+const InputWrapper = styled('div')({
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+})
+
+const Flags = styled('div')({
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    display: 'flex',
+})
+
+const FlagIconButton = styled(IconButton, {
+    shouldForwardProp: (prop) => prop !== 'isOn',
+})(({ theme, isOn }) => ({
+    'padding': '4px',
+    'margin': '5px',
+    'borderRadius': '4px',
+    'transition': 'all 0.2s ease-in-out',
+    '&:hover': {
+        background: theme.palette.swatches.grey.grey600,
         color: theme.palette.swatches.grey.grey0,
     },
-    resultCount: {
-        lineHeight: '40px',
-        padding: '0px 16px',
-        fontStyle: 'italic',
+    ...(isOn && {
+        background: theme.palette.swatches.grey.grey700,
+        color: theme.palette.swatches.grey.grey0,
+    }),
+}))
+
+const ResultCount = styled('div')({
+    lineHeight: '40px',
+    padding: '0px 16px',
+    fontStyle: 'italic',
+})
+
+const LoadingBar = styled('div')(({ theme }) => ({
+    'position': 'absolute',
+    'width': '100%',
+    '& .MuiLinearProgress-barColorPrimary': {
+        background: theme.palette.swatches.blue.blue500,
     },
-    loading: {
-        'position': 'absolute',
-        'width': '100%',
-        '& .MuiLinearProgress-barColorPrimary': {
-            background: theme.palette.swatches.blue.blue500,
-        },
-        '& > div': {
-            height: '2px !important',
-        },
+    '& > div': {
+        height: '2px !important',
     },
-    noResults: {
-        'position': 'absolute',
-        'top': '50%',
-        'left': '50%',
-        'transform': 'translateX(-50%) translateY(-50%)',
-        'background': theme.palette.swatches.grey.grey700,
-        'color': theme.palette.swatches.grey.grey0,
-        'padding': '10px 20px',
-        'fontSize': '16px',
-        'lineHeight': '24px',
-        'textAlign': 'center',
-        '& div:first-child': {
-            fontWeight: 'bold',
-        },
+}))
+
+const NoResults = styled(Paper)(({ theme }) => ({
+    'position': 'absolute',
+    'top': '50%',
+    'left': '50%',
+    'transform': 'translateX(-50%) translateY(-50%)',
+    'background': theme.palette.swatches.grey.grey700,
+    'color': theme.palette.swatches.grey.grey0,
+    'padding': '10px 20px',
+    'fontSize': '16px',
+    'lineHeight': '24px',
+    'textAlign': 'center',
+    '& div:first-child': {
+        fontWeight: 'bold',
     },
-    addAllCart: {
-        'padding': '4px 12px',
-        'borderRadius': '4px',
-        'boxShadow': 'none',
-        'height': '28px',
-        'margin': '6px 0px',
-        'background': theme.palette.swatches.grey.grey600,
-        'color': theme.palette.swatches.grey.grey0,
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey500,
-        },
+}))
+
+const AddAllCartButton = styled(Button)(({ theme }) => ({
+    'padding': '4px 12px',
+    'borderRadius': '4px',
+    'boxShadow': 'none',
+    'height': '28px',
+    'margin': '6px 0px',
+    'background': theme.palette.swatches.grey.grey600,
+    'color': theme.palette.swatches.grey.grey0,
+    '&:hover': {
+        background: theme.palette.swatches.grey.grey500,
     },
 }))
 
@@ -396,8 +420,6 @@ let regexSearchValue = null
 
 const RegexModal = (props) => {
     const { modal } = props
-    const c = useStyles()
-
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
 
@@ -455,29 +477,27 @@ const RegexModal = (props) => {
 
     if (!open) return null
     return (
-        <div className={c.RegexModal}>
-            <div className={c.contents}>
-                <div className={c.top}>
-                    <div className={c.flex}>
+        <RegexModalRoot>
+            <Contents>
+                <TopBar>
+                    <Flex>
                         <Tooltip title="Help" arrow>
-                            <IconButton
-                                className={c.helpButton}
+                            <HelpButton
                                 aria-label="regex help"
                                 onClick={() => {
                                     setHelpOpen(!helpOpen)
                                 }}
                                 size="large">
                                 <HelpOutlineIcon size="small" />
-                            </IconButton>
+                            </HelpButton>
                         </Tooltip>
-                        <Typography className={c.title} variant="h2">
+                        <ModalTitle variant="h2">
                             URI Regex Search
-                        </Typography>
-                    </div>
+                        </ModalTitle>
+                    </Flex>
 
-                    <div className={c.flex}>
-                        <Button
-                            className={c.addAllCart}
+                    <Flex>
+                        <AddAllCartButton
                             size="small"
                             variant="contained"
                             endIcon={<AddShoppingCartIcon />}
@@ -488,24 +508,22 @@ const RegexModal = (props) => {
                             }}
                         >
                             Add All Results to Cart
-                        </Button>
+                        </AddAllCartButton>
                         <Tooltip title="Close" arrow>
-                            <IconButton
-                                className={c.closeIcon}
+                            <CloseIconButton
                                 aria-label="close"
                                 onClick={handleClose}
                                 size="large">
                                 <CloseSharpIcon fontSize="inherit" />
-                            </IconButton>
+                            </CloseIconButton>
                         </Tooltip>
-                    </div>
-                </div>
-                <div className={c.bottom}>
-                    <div className={c.input}>
-                        <div className={c.inputBar}>
-                            <div className={c.inputWrapper}>
-                                <TextField
-                                    className={c.regexSearchInput}
+                    </Flex>
+                </TopBar>
+                <BottomSection>
+                    <InputSection>
+                        <InputBar>
+                            <InputWrapper>
+                                <RegexSearchInput
                                     placeholder="Enter a Regular Expression"
                                     defaultValue={regexSearchValue}
                                     variant="filled"
@@ -524,24 +542,22 @@ const RegexModal = (props) => {
                                         if (e.keyCode == 13) regexSearch()
                                     }}
                                 />
-                                <div className={c.flags}>
+                                <Flags>
                                     <Tooltip
                                         title={`Case Sensitivity ${
                                             caseSensitive ? '(ON)' : '(OFF)'
                                         }`}
                                         arrow
                                     >
-                                        <IconButton
-                                            className={clsx(c.flagIcon, {
-                                                [c.flagOn]: caseSensitive,
-                                            })}
+                                        <FlagIconButton
+                                            isOn={caseSensitive}
                                             aria-label="toggle case-sensitivity"
                                             onClick={() => {
                                                 setCaseSensitive(!caseSensitive)
                                             }}
                                             size="large">
                                             <SpellcheckIcon fontSize="inherit" />
-                                        </IconButton>
+                                        </FlagIconButton>
                                     </Tooltip>
                                     <Tooltip
                                         title={`Include Directories ${
@@ -549,41 +565,34 @@ const RegexModal = (props) => {
                                         }`}
                                         arrow
                                     >
-                                        <IconButton
-                                            className={clsx(c.flagIcon, {
-                                                [c.flagOn]: includeDirectories,
-                                            })}
+                                        <FlagIconButton
+                                            isOn={includeDirectories}
                                             aria-label="toggle include directories"
                                             onClick={() => {
                                                 setIncludeDirectories(!includeDirectories)
                                             }}
                                             size="large">
                                             <FolderIcon fontSize="inherit" />
-                                        </IconButton>
+                                        </FlagIconButton>
                                     </Tooltip>
-                                </div>
-                            </div>
-                            <Button
-                                className={c.regexSearchSearch}
+                                </Flags>
+                            </InputWrapper>
+                            <RegexSearchButton
                                 size="small"
                                 variant="contained"
                                 endIcon={<ArrowForwardIcon />}
                                 onClick={regexSearch}
                             >
                                 Search
-                            </Button>
-                        </div>
+                            </RegexSearchButton>
+                        </InputBar>
                         {loading ? (
-                            <div className={c.loading}>
+                            <LoadingBar>
                                 <LinearProgress />
-                            </div>
+                            </LoadingBar>
                         ) : null}
-                    </div>
-                    <div
-                        className={clsx(c.help, {
-                            [c.helpOpen]: helpOpen,
-                        })}
-                    >
+                    </InputSection>
+                    <HelpSection isOpen={helpOpen}>
                         <ReactMarkdown linkTarget="_blank">
                             {[
                                 `# Help - Regular Expressions`,
@@ -700,20 +709,18 @@ const RegexModal = (props) => {
                             ].join('\n')}
                         </ReactMarkdown>
                         <Tooltip title="Close Help" arrow>
-                            <IconButton
-                                className={clsx(c.closeHelpIcon, {
-                                    [c.closeHelpIconOpen]: helpOpen,
-                                })}
+                            <CloseHelpIconButton
+                                isOpen={helpOpen}
                                 aria-label="close help"
                                 onClick={() => {
                                     setHelpOpen(false)
                                 }}
                                 size="large">
                                 <CloseSharpIcon fontSize="inherit" />
-                            </IconButton>
+                            </CloseHelpIconButton>
                         </Tooltip>
-                    </div>
-                    <div className={c.results}>
+                    </HelpSection>
+                    <Results>
                         {results && results.length > 0 ? (
                             results.map((r, idx) => {
                                 const s = r._source || {}
@@ -721,11 +728,10 @@ const RegexModal = (props) => {
                                 const pds4_label = s.pds4_label || {}
 
                                 return (
-                                    <li
+                                    <ListItem
                                         key={idx}
-                                        className={clsx(c.listItem, c.listItemLessPadding, {
-                                            [c.listItemActive]: selectedUri === s.uri,
-                                        })}
+                                        isLessPadding
+                                        isActive={selectedUri === s.uri}
                                         onClick={() => {
                                             setSelectedUri(s.uri)
                                             dispatch(
@@ -737,7 +743,7 @@ const RegexModal = (props) => {
                                             )
                                         }}
                                     >
-                                        <div className={c.liType}>
+                                        <LiType>
                                             {getIn(r._source, ES_PATHS.archive.fs_type) ===
                                             'file' ? (
                                                 <>
@@ -752,37 +758,28 @@ const RegexModal = (props) => {
                                             ) : (
                                                 <FolderIcon size="small" />
                                             )}
-                                        </div>
-                                        <div className={c.flexBetween}>
-                                            <div className={c.flexBetween1}>
-                                                <div className={clsx(c.liName)} title={result.name}>
+                                        </LiType>
+                                        <FlexBetween>
+                                            <FlexBetween1>
+                                                <LiName title={result.name}>
                                                     {s.uri.replace(modal.uri, '')}
-                                                </div>
+                                                </LiName>
                                                 {result.fs_type === 'file' && (
-                                                    <div
-                                                        className={clsx(c.liSize, {
-                                                            [c.liSizeActive]: selectedUri === s.uri,
-                                                        })}
+                                                    <LiSize
+                                                        isActive={selectedUri === s.uri}
                                                         title={result.size}
                                                     >
                                                         {humanFileSize(result.size)}
-                                                    </div>
+                                                    </LiSize>
                                                 )}
-                                            </div>
-                                            <div
-                                                className={clsx(
-                                                    c.listItemButtons,
-                                                    'listItemButtons',
-                                                    {
-                                                        [c.listItemButtonsActive]:
-                                                            selectedUri === s.uri,
-                                                    }
-                                                )}
+                                            </FlexBetween1>
+                                            <ListItemButtons
+                                                className="listItemButtons"
+                                                isActive={selectedUri === s.uri}
                                             >
                                                 {getIn(s, ES_PATHS.archive.fs_type) === 'file' ? (
                                                     <Tooltip title="Download" arrow>
-                                                        <IconButton
-                                                            className={clsx(c.button)}
+                                                        <ItemButton
                                                             aria-label="quick download"
                                                             onClick={(e) => {
                                                                 e.stopPropagation()
@@ -801,14 +798,11 @@ const RegexModal = (props) => {
                                                             }}
                                                             size="large">
                                                             <GetAppIcon size="small" />
-                                                        </IconButton>
+                                                        </ItemButton>
                                                     </Tooltip>
                                                 ) : null}
                                                 <Tooltip title="Add to Cart" arrow>
-                                                    <IconButton
-                                                        className={clsx(c.button, {
-                                                            [c.buttonMobile]: isMobile,
-                                                        })}
+                                                    <ItemButton
                                                         aria-label="add to cart"
                                                         onClick={(e) => {
                                                             e.stopPropagation()
@@ -850,22 +844,22 @@ const RegexModal = (props) => {
                                                         }}
                                                         size="large">
                                                         <AddShoppingCartIcon size="small" />
-                                                    </IconButton>
+                                                    </ItemButton>
                                                 </Tooltip>
-                                            </div>
-                                        </div>
-                                    </li>
+                                            </ListItemButtons>
+                                        </FlexBetween>
+                                    </ListItem>
                                 );
                             })
                         ) : !loading ? (
-                            <Paper className={c.noResults}>
+                            <NoResults>
                                 <div>No Results Were Found</div>
                                 <div>Try a different query.</div>
-                            </Paper>
+                            </NoResults>
                         ) : null}
-                    </div>
-                    <div className={c.bottomBar}>
-                        <div className={c.pagination}>
+                    </Results>
+                    <BottomBar>
+                        <PaginationWrapper>
                             <Pagination
                                 count={total > 0 ? Math.ceil(Math.min(10000, total) / pageSize) : 0}
                                 page={parseInt(page)}
@@ -905,7 +899,7 @@ const RegexModal = (props) => {
                                 showLastButton
                             />
                         </div>
-                        <div className={c.resultCount}>
+                        <ResultCount>
                             {total > 0
                                 ? `${Math.min((page - 1) * pageSize + 1, total)} to ${Math.min(
                                       page * pageSize,

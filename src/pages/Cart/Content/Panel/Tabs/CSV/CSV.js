@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import { makeStyles, withStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
-import clsx from 'clsx'
 
 import DownloadingCard from '../../../../../../components/DownloadingCard/DownloadingCard'
 import { setSnackBarText } from '../../../../../../core/redux/actions/actions.js'
@@ -14,62 +13,57 @@ import { CSVCart } from '../../../../../../core/downloaders/CSV'
 
 import Box from '@mui/material/Box'
 
-const useStyles = makeStyles((theme) => ({
-    button1: {
-        height: 30,
-        width: '100%',
-        margin: '7px 0px',
-        background: theme.palette.primary.light,
-    },
-    p: {
-        padding: `${theme.spacing(1.5)} 0px`,
-    },
-    p2: {
-        fontWeight: 'bold',
-        padding: `${theme.spacing(1.5)} 0px`,
-    },
-    p3: {
-        color: theme.palette.swatches.blue.blue900,
-        padding: `${theme.spacing(1.5)} 0px`,
-        fontWeight: 'bold',
-        fontSize: '13px',
-    },
-    pCode: {
-        background: theme.palette.swatches.grey.grey200,
-        padding: theme.spacing(3),
-        fontFamily: 'monospace',
-        marginBottom: '5px',
-    },
-    downloadingButton: {
+const DownloadButton = styled(Button, {
+    shouldForwardProp: (prop) => prop !== 'isDownloading',
+})(({ theme, isDownloading }) => ({
+    height: 30,
+    width: '100%',
+    margin: '7px 0px',
+    background: theme.palette.primary.light,
+    ...(isDownloading && {
         background: theme.palette.swatches.grey.grey300,
         color: theme.palette.text.primary,
         pointerEvents: 'none',
-    },
-    downloading: {
-        bottom: '0px',
-        position: 'sticky',
-        width: '100%',
-        padding: '12px',
-        boxSizing: 'border-box',
-    },
-    error: {
-        display: 'none',
-        fontSize: '16px',
-        padding: '12px',
-        background: theme.palette.swatches.red.red500,
-        color: theme.palette.text.secondary,
-        border: `1px solid ${theme.palette.swatches.red.red600}`,
-        textAlign: 'center',
-    },
-    errorOn: {
+    }),
+}))
+
+const StyledP = styled(Typography)(({ theme }) => ({
+    padding: `${theme.spacing(1.5)} 0px`,
+}))
+
+const CodeBlock = styled(Typography)(({ theme }) => ({
+    background: theme.palette.swatches.grey.grey200,
+    padding: theme.spacing(3),
+    fontFamily: 'monospace',
+    marginBottom: '5px',
+}))
+
+const DownloadingWrapper = styled('div')({
+    bottom: '0px',
+    position: 'sticky',
+    width: '100%',
+    padding: '12px',
+    boxSizing: 'border-box',
+})
+
+const ErrorMessage = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isVisible',
+})(({ theme, isVisible }) => ({
+    display: 'none',
+    fontSize: '16px',
+    padding: '12px',
+    background: theme.palette.swatches.red.red500,
+    color: theme.palette.text.secondary,
+    border: `1px solid ${theme.palette.swatches.red.red600}`,
+    textAlign: 'center',
+    ...(isVisible && {
         display: 'block',
-    },
+    }),
 }))
 
 function CSVTab(props) {
     const { value, index, selectorRef, selectionCount, ...other } = props
 
-    const c = useStyles()
     const dispatch = useDispatch()
 
     const [isDownloading, setIsDownloading] = useState(false)
@@ -114,10 +108,8 @@ function CSVTab(props) {
                             arrow
                         >
                             <span>
-                                <Button
-                                    className={clsx(c.button1, {
-                                        [c.downloadingButton]: isDownloading,
-                                    })}
+                                <DownloadButton
+                                    isDownloading={isDownloading}
                                     variant="contained"
                                     aria-label="csv download button"
                                     disabled={selectionCount === 0}
@@ -155,28 +147,28 @@ function CSVTab(props) {
                                     }}
                                 >
                                     {isDownloading ? 'Download in Progress' : 'Download CSV'}
-                                </Button>
+                                </DownloadButton>
                             </span>
                         </Tooltip>
-                        <Typography className={c.p}>
+                        <StyledP>
                             Downloads a .csv named `./pdsimg-atlas_{datestamp}.csv` with the
                             following header:
-                        </Typography>
-                        <Typography className={c.pCode}>filename,size,uri,download_url</Typography>
-                        <Typography className={c.p}>
+                        </StyledP>
+                        <CodeBlock>filename,size,uri,download_url</CodeBlock>
+                        <StyledP>
                             The downloaded script files max out at 500k lines. Multiple script files
                             may be downloaded to support to entire payload.
-                        </Typography>
+                        </StyledP>
                     </Box>
-                    <div className={c.downloading}>
-                        <div className={clsx(c.error, { [c.errorOn]: error != null })}>{error}</div>
+                    <DownloadingWrapper>
+                        <ErrorMessage isVisible={error != null}>{error}</ErrorMessage>
                         <DownloadingCard
                             downloadId={'csv' + downloadId}
                             status={status}
                             hidePause={true}
                             onStop={onStop}
                         />
-                    </div>
+                    </DownloadingWrapper>
                 </>
             )}
         </div>
