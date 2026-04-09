@@ -25,7 +25,9 @@ import { ES_PATHS } from '../../core/constants.js'
 
 import { streamDownloadFile } from '../../core/downloaders/ZipStream.js'
 
-const CenterTooltip = styled(Tooltip)({
+const CenterTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+))({
     '& .MuiTooltip-tooltip': {
         textAlign: 'center',
     },

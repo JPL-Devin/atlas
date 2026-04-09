@@ -82,12 +82,11 @@ const AccordionSummary = styled(MuiAccordionSummary)(({ theme }) => ({
     },
     '& .MuiAccordionSummary-expandIconWrapper': {
         margin: '0px 0px 0px -12px',
-        color: theme.palette.swatches.grey.grey700,
+        color: theme.palette.swatches.grey.grey900,
         overflow: 'hidden',
         padding: '9px 12px',
         alignItems: 'center',
         height: '100%',
-        color: theme.palette.swatches.grey.grey900,
     },
 }))
 
