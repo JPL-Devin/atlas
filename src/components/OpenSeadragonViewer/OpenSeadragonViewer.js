@@ -3,9 +3,7 @@ import OpenSeadragon from 'openseadragon'
 import 'svg-overlay'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
-
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import IconButton from '@mui/material/IconButton'
 import AddIcon from '@mui/icons-material/Add'
@@ -23,127 +21,140 @@ import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined'
 
 import './OpenSeadragon.css'
 
-const useStyles = makeStyles((theme) => ({
-    OpenSeadragonViewer: {
-        width: '100%',
-        height: '100%',
-        background: theme.palette.swatches.grey.grey800,
-        position: 'relative',
+const OSDRoot = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    background: theme.palette.swatches.grey.grey800,
+    position: 'relative',
+}))
+
+const OSDContainer = styled('div')({
+    width: '100%',
+    height: '100%',
+})
+
+const UIOverlay = styled('div')(({ theme }) => ({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none',
+    padding: theme.spacing(1),
+    boxSizing: 'border-box',
+}))
+
+const TopLeft = styled('div')(({ theme }) => ({
+    paddingTop: theme.spacing(1),
+}))
+
+const TopRight = styled('div')(({ theme }) => ({
+    width: '37px',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    padding: '4px',
+    paddingTop: theme.spacing(2),
+}))
+
+const BottomRight = styled('div')(({ theme }) => ({
+    paddingBottom: theme.spacing(2),
+}))
+
+const OSDButton = styled(IconButton, {
+    shouldForwardProp: (prop) => prop !== 'hasGap' && prop !== 'hasJoiner',
+})(({ theme, hasGap, hasJoiner }) => ({
+    'display': 'block !important',
+    'pointerEvents': 'all',
+    'background': theme.palette.swatches.grey.grey150,
+    'padding': theme.spacing(1),
+    'margin': theme.spacing(0, 1),
+    'borderRadius': 0,
+    '&:hover': {
+        background: theme.palette.swatches.grey.grey200,
     },
-    OpenSeadragonContainer: {
-        width: '100%',
-        height: '100%',
-    },
-    uiOverlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-        padding: theme.spacing(1),
-        boxSizing: 'border-box',
-    },
-    topLeft: {
-        paddingTop: theme.spacing(1),
-    },
-    topRight: {
-        width: '37px',
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        padding: '4px',
-        paddingTop: theme.spacing(2),
-    },
-    bottomRight: {
-        paddingBottom: theme.spacing(2),
-    },
-    button: {
-        'display': 'block !important',
-        'pointerEvents': 'all',
-        'background': theme.palette.swatches.grey.grey150,
-        'padding': theme.spacing(1),
-        'margin': theme.spacing(0, 1),
-        'borderRadius': 0,
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey200,
-        },
-    },
-    gap: {
+    ...(hasGap && {
         marginBottom: theme.spacing(2),
-    },
-    joiner: {
+    }),
+    ...(hasJoiner && {
         borderBottom: '1px solid rgba(0,0,0,0.17)',
-    },
-    openFailedWrapper: {
-        opacity: 0,
-        transition: `0.2s ease-in opacity`,
-        pointerEvents: 'none',
-    },
-    openFailedShown: {
+    }),
+}))
+
+const OpenFailedWrapper = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isShown',
+})(({ isShown }) => ({
+    opacity: 0,
+    transition: `0.2s ease-in opacity`,
+    pointerEvents: 'none',
+    ...(isShown && {
         pointerEvents: 'initial',
         opacity: 1,
-    },
-    status: {
-        'position': 'absolute',
+    }),
+}))
 
-        'background': theme.palette.swatches.grey.grey800,
-        'top': 0,
-        'width': '100%',
-        'height': '100%',
-        'transition': 'all 0.2s ease-out',
-        '& > div': {
-            transition: 'background 0.4s ease-out',
-        },
-        '& > div > div': {
-            transition: 'background 0.4s ease-out',
-        },
+const StatusDiv = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isHidden',
+})(({ theme, isHidden }) => ({
+    'position': 'absolute',
+    'background': theme.palette.swatches.grey.grey800,
+    'top': 0,
+    'width': '100%',
+    'height': '100%',
+    'transition': 'all 0.2s ease-out',
+    '& > div': {
+        transition: 'background 0.4s ease-out',
     },
-    statusHidden: {
+    '& > div > div': {
+        transition: 'background 0.4s ease-out',
+    },
+    ...(isHidden && {
         pointerEvents: 'none',
         opacity: 1,
+    }),
+}))
+
+const StatusPaper = styled(Paper)(({ theme }) => ({
+    'position': 'absolute',
+    'top': '50%',
+    'left': '50%',
+    'transform': 'translateX(-50%) translateY(-50%)',
+    'background': theme.palette.primary.main,
+    'opacity': 0.75,
+    '& > div': {
+        padding: `${theme.spacing(4)} ${theme.spacing(6)}`,
     },
-    statusPaper: {
-        'position': 'absolute',
-        'top': '50%',
-        'left': '50%',
-        'transform': 'translateX(-50%) translateY(-50%)',
-        'background': theme.palette.primary.main,
-        'opacity': 0.75,
-        '& > div': {
-            padding: `${theme.spacing(4)} ${theme.spacing(6)}`,
-        },
+}))
+
+const StatusError = styled('div')(({ theme }) => ({
+    background: theme.palette.accent.main,
+    fontSize: '16px',
+    color: theme.palette.text.secondary,
+    paddingBottom: theme.spacing(0.5),
+}))
+
+const StatusErrorTitle = styled('div')(({ theme }) => ({
+    'display': 'flex',
+    'justifyContent': 'center',
+    'fontSize': '24px',
+    'fontWeight': 'bold',
+    'marginBottom': theme.spacing(1.5),
+    '& > div': {
+        marginLeft: theme.spacing(1.5),
     },
-    statusError: {
-        background: theme.palette.accent.main,
-        fontSize: '16px',
-        color: theme.palette.text.secondary,
-        paddingBottom: theme.spacing(0.5),
-    },
-    statusErrorTitle: {
-        'display': 'flex',
-        'justifyContent': 'center',
-        'fontSize': '24px',
-        'fontWeight': 'bold',
-        'marginBottom': theme.spacing(1.5),
-        '& > div': {
-            marginLeft: theme.spacing(1.5),
-        },
-    },
-    statusErrorMessage: {
-        textAlign: 'center',
-        margin: '0px 5%',
-        maxWidth: '550px',
-        color: theme.palette.swatches.grey.grey100,
-    },
+}))
+
+const StatusErrorMessage = styled('div')(({ theme }) => ({
+    textAlign: 'center',
+    margin: '0px 5%',
+    maxWidth: '550px',
+    color: theme.palette.swatches.grey.grey100,
 }))
 
 const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
     const [viewer, setViewer] = useState(null)
     const [openFailed, setOpenFailed] = useState(false)
     const [svgOverlay, setSvgOverlay] = useState(null)
-
-    const c = useStyles()
 
     settings = settings || {}
 
@@ -225,13 +236,13 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
     }, [viewer])
 
     return (
-        <div className={c.OpenSeadragonViewer}>
-            <div id="openSeadragon" className={c.OpenSeadragonContainer}></div>
-            <div className={c.uiOverlay}>
-                <div className={c.topLeft}>
-                    <IconButton
+        <OSDRoot>
+            <OSDContainer id="openSeadragon"></OSDContainer>
+            <UIOverlay>
+                <TopLeft>
+                    <OSDButton
                         id="osd-home"
-                        className={clsx(c.button, c.joiner)}
+                        hasJoiner
                         title="Home"
                         aria-label="image view home"
                         onClick={() => {
@@ -239,82 +250,80 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                         }}
                         size="large">
                         <HomeIcon fontSize="inherit" />
-                    </IconButton>
-                    <IconButton
+                    </OSDButton>
+                    <OSDButton
                         id="osd-fullscreen"
-                        className={clsx(c.button, c.gap)}
+                        hasGap
                         title="Fullscreen"
                         aria-label="image view fullscreen"
                         size="large">
                         <FullscreenIcon fontSize="inherit" />
-                    </IconButton>
-                    <IconButton
+                    </OSDButton>
+                    <OSDButton
                         id="osd-rotateleft"
-                        className={clsx(c.button, c.joiner)}
+                        hasJoiner
                         title="Rotate Counter-Clockwise"
                         aria-label="image view rotate counter clockwise"
                         size="large">
                         <RotateLeftIcon fontSize="inherit" />
-                    </IconButton>
-                    <IconButton
+                    </OSDButton>
+                    <OSDButton
                         id="osd-rotateright"
-                        className={c.button}
                         title="Rotate Clockwise"
                         aria-label="image view rotate clockwise"
                         size="large">
                         <RotateRightIcon fontSize="inherit" />
-                    </IconButton>
-                </div>
-                <div className={c.topRight}>
+                    </OSDButton>
+                </TopLeft>
+                <TopRight>
                     {onLayers ? (
-                        <IconButton
-                            className={clsx(c.button, c.gap)}
+                        <OSDButton
+                            hasGap
                             title="Layers"
                             aria-label="image view layers"
                             onClick={onLayers}
                             size="large">
                             <LayersIcon fontSize="inherit" />
-                        </IconButton>
+                        </OSDButton>
                     ) : null}
-                </div>
-                <div className={c.bottomRight}>
-                    <IconButton
+                </TopRight>
+                <BottomRight>
+                    <OSDButton
                         id="osd-zoomin"
-                        className={clsx(c.button, c.joiner)}
+                        hasJoiner
                         title="Zoom In"
                         aria-label="image view zoom in"
                         size="large">
                         <AddIcon fontSize="inherit" />
-                    </IconButton>
-                    <IconButton
+                    </OSDButton>
+                    <OSDButton
                         id="osd-zoomout"
-                        className={c.button}
                         title="Zoom Out"
                         aria-label="image view zoom out"
                         size="large">
                         <RemoveIcon fontSize="inherit" />
-                    </IconButton>
-                </div>
-            </div>
-            <div className={clsx(c.openFailedWrapper, { [c.openFailedShown]: openFailed })}>
-                <div className={clsx(c.status, { [c.statusHidden]: !openFailed })}>
-                    <Paper className={c.statusPaper} elevation={2}>
-                        <div className={c.statusError}>
-                            <div className={c.statusErrorTitle}>
+                    </OSDButton>
+                </BottomRight>
+            </UIOverlay>
+            <OpenFailedWrapper isShown={openFailed}>
+                <StatusDiv isHidden={!openFailed}>
+                    <StatusPaper elevation={2}>
+                        <StatusError>
+                            <StatusErrorTitle>
                                 <Tooltip title={''} arrow placement="left-end">
                                     <ErrorOutlineOutlinedIcon fontSize="large" />
                                 </Tooltip>
                                 <div>This product doesn't have a browse image.</div>
-                            </div>
-                            <div className={c.statusErrorMessage}>
+                            </StatusErrorTitle>
+                            <StatusErrorMessage>
                                 You can still view the label, download the source product and add it
                                 to the cart.
-                            </div>
-                        </div>
-                    </Paper>
-                </div>
-            </div>
-        </div>
+                            </StatusErrorMessage>
+                        </StatusError>
+                    </StatusPaper>
+                </StatusDiv>
+            </OpenFailedWrapper>
+        </OSDRoot>
     );
 }
 

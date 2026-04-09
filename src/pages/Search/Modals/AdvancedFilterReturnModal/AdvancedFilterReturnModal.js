@@ -14,72 +14,73 @@ import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-const useStyles = makeStyles((theme) => ({
-    AdvancedFilterReturnModal: {
-        margin: theme.headHeights[1],
-    },
-    contents: {
-        background: theme.palette.primary.main,
-        width: '575px',
-        borderRadius: 0,
-    },
-    contentsMobile: {
-        background: theme.palette.primary.main,
-        height: '100%',
-    },
-    heading: {
-        position: 'relative',
-        boxSizing: 'border-box',
-        padding: `0 ${theme.spacing(2)} 0 ${theme.spacing(4)}`,
-    },
-    title: {
-        width: '100%',
-        padding: `${theme.spacing(2.5)} 0`,
-        margin: `${theme.spacing(3)} 0px ${theme.spacing(1)} 0px`,
-        fontSize: theme.typography.pxToRem(20),
-        fontWeight: 'bold',
-        textAlign: 'center',
-        lineHeight: '32px',
-    },
-    closeIcon: {
-        padding: theme.spacing(1.5),
-        width: theme.headHeights[2],
-        height: theme.headHeights[2],
-        position: 'absolute',
-        top: '0px',
-        right: '0px',
-    },
-    flexBetween: {
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+    margin: theme.headHeights[1],
+}))
+
+const Contents = styled('div')(({ theme }) => ({
+    background: theme.palette.primary.main,
+    width: '575px',
+    borderRadius: 0,
+}))
+
+const ContentsMobile = styled('div')(({ theme }) => ({
+    background: theme.palette.primary.main,
+    height: '100%',
+}))
+
+const Heading = styled(DialogTitle)(({ theme }) => ({
+    position: 'relative',
+    boxSizing: 'border-box',
+    padding: `0 ${theme.spacing(2)} 0 ${theme.spacing(4)}`,
+}))
+
+const Title = styled('div')(({ theme }) => ({
+    width: '100%',
+    padding: `${theme.spacing(2.5)} 0`,
+    margin: `${theme.spacing(3)} 0px ${theme.spacing(1)} 0px`,
+    fontSize: theme.typography.pxToRem(20),
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: '32px',
+}))
+
+const CloseIconButton = styled(IconButton)(({ theme }) => ({
+    padding: theme.spacing(1.5),
+    width: theme.headHeights[2],
+    height: theme.headHeights[2],
+    position: 'absolute',
+    top: '0px',
+    right: '0px',
+}))
+
+const Content = styled(DialogContent)(({ theme }) => ({
+    'padding': `0px ${theme.spacing(8)} ${theme.spacing(2)} ${theme.spacing(8)}`,
+    'height': `calc(100% - ${theme.headHeights[2]}px)`,
+    '& > div': {
         display: 'flex',
         justifyContent: 'space-between',
+        margin: `${theme.spacing(6)} 0px ${theme.spacing(3)} 0px`,
     },
-    content: {
-        'padding': `0px ${theme.spacing(8)} ${theme.spacing(2)} ${theme.spacing(8)}`,
-        'height': `calc(100% - ${theme.headHeights[2]}px)`,
-        '& > div': {
-            display: 'flex',
-            justifyContent: 'space-between',
-            margin: `${theme.spacing(6)} 0px ${theme.spacing(3)} 0px`,
-        },
-        '& > p': {
-            marginTop: '0px',
-            fontSize: '16px',
-        },
+    '& > p': {
+        marginTop: '0px',
+        fontSize: '16px',
     },
-    proceed: {
-        color: theme.palette.text.secondary,
-    },
-    continue: {
-        'color': theme.palette.text.primary,
-        'border': '1px solid rgba(0, 0, 0, 0.23)',
-        '&:hover': {
-            border: '1px solid rgba(0, 0, 0, 0.23)',
-            backgroundColor: 'rgba(0, 0, 0, 0.04)',
-        },
+}))
+
+const ProceedButton = styled(Button)(({ theme }) => ({
+    color: theme.palette.text.secondary,
+}))
+
+const ContinueButton = styled(Button)(({ theme }) => ({
+    'color': theme.palette.text.primary,
+    'border': '1px solid rgba(0, 0, 0, 0.23)',
+    '&:hover': {
+        border: '1px solid rgba(0, 0, 0, 0.23)',
+        backgroundColor: 'rgba(0, 0, 0, 0.04)',
     },
 }))
 
@@ -126,7 +127,6 @@ const getBasicFiltersFromAdvanced = (activeFilters, advancedFiltersExpression, a
 
 const AdvancedFilterReturnModal = (props) => {
     const {} = props
-    const c = useStyles()
 
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
@@ -177,29 +177,27 @@ const AdvancedFilterReturnModal = (props) => {
     }
 
     return (
-        <Dialog
-            className={c.AdvancedFilterReturnModal}
+        <StyledDialog
             fullScreen={isMobile}
             open={open}
             onClose={handleClose}
             aria-labelledby="responsive-dialog-title"
             PaperProps={{
-                className: isMobile ? c.contentsMobile : c.contents,
+                component: isMobile ? ContentsMobile : Contents,
             }}
         >
-            <DialogTitle className={c.heading}>
-                <div className={c.title}>Advanced Search Warning</div>
-                <IconButton
-                    className={c.closeIcon}
+            <Heading>
+                <Title>Advanced Search Warning</Title>
+                <CloseIconButton
                     title="Close"
                     aria-label="close"
                     onClick={handleClose}
                     size="large"
                 >
                     <CloseSharpIcon fontSize="inherit" />
-                </IconButton>
-            </DialogTitle>
-            <DialogContent className={c.content}>
+                </CloseIconButton>
+            </Heading>
+            <Content>
                 <p>
                     The provided advanced search query contains search parameters that cannot be
                     converted to a basic search query at this time.
@@ -209,25 +207,23 @@ const AdvancedFilterReturnModal = (props) => {
                     search.
                 </p>
                 <div>
-                    <Button
-                        className={c.proceed}
+                    <ProceedButton
                         variant="contained"
                         size="small"
                         onClick={handleProceed}
                     >
                         Proceed to Basic Filters
-                    </Button>
-                    <Button
-                        className={c.continue}
+                    </ProceedButton>
+                    <ContinueButton
                         variant="outlined"
                         size="small"
                         onClick={handleClose}
                     >
                         Continue Using Advanced Filters
-                    </Button>
+                    </ContinueButton>
                 </div>
-            </DialogContent>
-        </Dialog>
+            </Content>
+        </StyledDialog>
     )
 }
 

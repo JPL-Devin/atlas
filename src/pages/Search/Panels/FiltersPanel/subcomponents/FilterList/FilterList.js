@@ -6,14 +6,12 @@ import Url from 'url-parse'
 
 import Filter from '../../../../../../components/Filter/Filter'
 import { HASH_PATHS } from '../../../../../../core/constants'
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
-const useStyles = makeStyles((theme) => ({
-    FilterList: {
-        height: '100%',
-        transition: 'width 0.4s ease-out',
-    },
-}))
+const FilterListRoot = styled('div')({
+    height: '100%',
+    transition: 'width 0.4s ease-out',
+})
 
 const getSearchURL = (activeFilters) => {
     let params = []
@@ -73,8 +71,6 @@ const getSearchURL = (activeFilters) => {
 }
 
 const FilterList = (props) => {
-    const c = useStyles()
-
     const navigate = useNavigate()
 
     const [expandedFilter, setExpandedFilter] = useState('_text')
@@ -93,7 +89,7 @@ const FilterList = (props) => {
         return activeFilters[a].order - activeFilters[b].order
     })
     return (
-        <div className={c.FilterList}>
+        <FilterListRoot>
             {sortedActiveFilterKeys.map((filterKey, idx) => {
                 return (
                     <Filter
@@ -107,7 +103,7 @@ const FilterList = (props) => {
                     />
                 )
             })}
-        </div>
+        </FilterListRoot>
     )
 }
 

@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
-
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import IconButton from '@mui/material/IconButton'
 import Checkbox from '@mui/material/Checkbox'
@@ -15,61 +13,67 @@ import Popper from '@mui/material/Popper'
 import MenuItem from '@mui/material/MenuItem'
 import MenuList from '@mui/material/MenuList'
 
-const useStyles = makeStyles((theme) => ({
-    MenuButton: {
-        zIndex: 1200,
-    },
-    button: {
-        'color': theme.palette.swatches.grey.grey500,
-        'width': '40px',
-        'height': '40px',
-        'fontSize': '1.5rem',
-        'background': 'rgba(0,0,0,0)',
-        'transition': 'all 0.2s ease-out',
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey150,
-            color: theme.palette.text.primary,
-        },
-    },
-    open: {
+const MenuButtonRoot = styled('div')({
+    zIndex: 1200,
+})
+
+const StyledIconButton = styled(IconButton, {
+    shouldForwardProp: (prop) => prop !== 'isOpen',
+})(({ theme, isOpen }) => ({
+    'color': theme.palette.swatches.grey.grey500,
+    'width': '40px',
+    'height': '40px',
+    'fontSize': '1.5rem',
+    'background': 'rgba(0,0,0,0)',
+    'transition': 'all 0.2s ease-out',
+    '&:hover': {
         background: theme.palette.swatches.grey.grey150,
         color: theme.palette.text.primary,
     },
-    menu: {
-        background: theme.palette.swatches.grey.grey800,
-        color: theme.palette.text.secondary,
-        marginTop: '4px',
-    },
-    menuli: {
-        'borderLeft': '4px solid rgba(0,0,0,0)',
-        'transition': 'background 0.2s ease-out',
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey700,
-        },
-    },
-    menuliActive: {
-        borderLeft: `4px solid ${theme.palette.swatches.blue.blue500}`,
+    ...(isOpen && {
+        background: theme.palette.swatches.grey.grey150,
+        color: theme.palette.text.primary,
+    }),
+}))
+
+const MenuPaper = styled(Paper)(({ theme }) => ({
+    background: theme.palette.swatches.grey.grey800,
+    color: theme.palette.text.secondary,
+    marginTop: '4px',
+}))
+
+const StyledMenuItem = styled(MenuItem, {
+    shouldForwardProp: (prop) => prop !== 'isActive' && prop !== 'isCheck',
+})(({ theme, isActive, isCheck }) => ({
+    'borderLeft': '4px solid rgba(0,0,0,0)',
+    'transition': 'background 0.2s ease-out',
+    '&:hover': {
         background: theme.palette.swatches.grey.grey700,
     },
-    menuliCheck: {
+    ...(isActive && {
+        borderLeft: `4px solid ${theme.palette.swatches.blue.blue500}`,
+        background: theme.palette.swatches.grey.grey700,
+    }),
+    ...(isCheck && {
         paddingLeft: theme.spacing(2),
-    },
-    hr: {
-        width: '100%',
-        height: '1px',
-        background: theme.palette.swatches.grey.grey600,
-    },
-    checkbox: {
-        'padding': `0px ${theme.spacing(2)} 0px 0px`,
-        '&.Mui-checked': {
-            color: theme.palette.swatches.grey.grey100,
-        },
+    }),
+}))
+
+const HrDiv = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '1px',
+    background: theme.palette.swatches.grey.grey600,
+}))
+
+const StyledCheckbox = styled(Checkbox)(({ theme }) => ({
+    'padding': `0px ${theme.spacing(2)} 0px 0px`,
+    '&.Mui-checked': {
+        color: theme.palette.swatches.grey.grey100,
     },
 }))
 
 const MenuButton = (props) => {
     const { options, active, checkboxIndices, buttonComponent, title, onChange } = props
-    const c = useStyles()
 
     let currentActive = active || null
 
@@ -107,9 +111,9 @@ const MenuButton = (props) => {
     }, [open])
 
     return (
-        <div className={c.MenuButton}>
-            <IconButton
-                className={clsx(c.button, { [c.open]: open })}
+        <MenuButtonRoot>
+            <StyledIconButton
+                isOpen={open}
                 aria-label="menu"
                 ref={anchorRef}
                 aria-controls={open ? 'menu-list-grow' : undefined}
@@ -118,7 +122,7 @@ const MenuButton = (props) => {
                 size="large"
             >
                 {buttonComponent}
-            </IconButton>
+            </StyledIconButton>
             <Popper
                 open={open}
                 anchorEl={anchorRef.current}
@@ -138,7 +142,7 @@ const MenuButton = (props) => {
                                 placement === 'bottom' ? 'center top' : 'center bottom',
                         }}
                     >
-                        <Paper className={c.menu}>
+                        <MenuPaper>
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList
                                     autoFocusItem={open}
@@ -146,28 +150,26 @@ const MenuButton = (props) => {
                                     onKeyDown={handleListKeyDown}
                                 >
                                     {title != null ? (
-                                        <MenuItem key={-1} className={c.menuli} disabled>
+                                        <StyledMenuItem key={-1} disabled>
                                             {title}
-                                        </MenuItem>
+                                        </StyledMenuItem>
                                     ) : null}
                                     {options.map((o, idx) =>
                                         o === '-' ? (
-                                            <div key={idx} className={c.hr}></div>
+                                            <HrDiv key={idx}></HrDiv>
                                         ) : (
-                                            <MenuItem
+                                            <StyledMenuItem
                                                 key={idx}
-                                                className={clsx(c.menuli, {
-                                                    [c.menuliActive]: o === currentActive,
-                                                    [c.menuliCheck]:
-                                                        checkboxIndices &&
-                                                        checkboxIndices.includes(idx),
-                                                })}
+                                                isActive={o === currentActive}
+                                                isCheck={
+                                                    checkboxIndices &&
+                                                    checkboxIndices.includes(idx)
+                                                }
                                                 onClick={(e) => handleClose(e, o, idx)}
                                             >
                                                 {checkboxIndices &&
                                                     checkboxIndices.includes(idx) && (
-                                                        <Checkbox
-                                                            className={c.checkbox}
+                                                        <StyledCheckbox
                                                             color="default"
                                                             checked={o === currentActive}
                                                             aria-label={
@@ -178,16 +180,16 @@ const MenuButton = (props) => {
                                                         />
                                                     )}
                                                 {o}
-                                            </MenuItem>
+                                            </StyledMenuItem>
                                         )
                                     )}
                                 </MenuList>
                             </ClickAwayListener>
-                        </Paper>
+                        </MenuPaper>
                     </Grow>
                 )}
             </Popper>
-        </div>
+        </MenuButtonRoot>
     )
 }
 

@@ -16,53 +16,56 @@ import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-const useStyles = makeStyles((theme) => ({
-    AdvancedFilterModal: {
-        margin: theme.headHeights[1],
-        height: `calc(100% - ${theme.headHeights[1] * 2}px)`,
-    },
-    contents: {
-        background: theme.palette.primary.main,
-        width: '480px',
-        borderRadius: 0,
-    },
-    contentsMobile: {
-        background: theme.palette.primary.main,
-        height: '100%',
-    },
-    heading: {
-        height: theme.headHeights[2],
-        boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey150,
-        padding: `0 ${theme.spacing(2)} 0 ${theme.spacing(4)}`,
-    },
-    title: {
-        padding: `${theme.spacing(2.5)} 0`,
-        fontSize: theme.typography.pxToRem(16),
-        fontWeight: 'bold',
-    },
-    content: {
-        padding: `${theme.spacing(2)} ${theme.spacing(4)}`,
-        height: `calc(100% - ${theme.headHeights[2]}px)`,
-    },
-    closeIcon: {
-        padding: theme.spacing(1.5),
-        height: '100%',
-        margin: '4px 0px',
-    },
-    flexBetween: {
-        display: 'flex',
-        justifyContent: 'space-between',
-    },
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+    margin: theme.headHeights[1],
+    height: `calc(100% - ${theme.headHeights[1] * 2}px)`,
 }))
+
+const Contents = styled('div')(({ theme }) => ({
+    background: theme.palette.primary.main,
+    width: '480px',
+    borderRadius: 0,
+}))
+
+const ContentsMobile = styled('div')(({ theme }) => ({
+    background: theme.palette.primary.main,
+    height: '100%',
+}))
+
+const Heading = styled(DialogTitle)(({ theme }) => ({
+    height: theme.headHeights[2],
+    boxSizing: 'border-box',
+    background: theme.palette.swatches.grey.grey150,
+    padding: `0 ${theme.spacing(2)} 0 ${theme.spacing(4)}`,
+}))
+
+const Title = styled('div')(({ theme }) => ({
+    padding: `${theme.spacing(2.5)} 0`,
+    fontSize: theme.typography.pxToRem(16),
+    fontWeight: 'bold',
+}))
+
+const Content = styled(DialogContent)(({ theme }) => ({
+    padding: `${theme.spacing(2)} ${theme.spacing(4)}`,
+    height: `calc(100% - ${theme.headHeights[2]}px)`,
+}))
+
+const CloseIconButton = styled(IconButton)(({ theme }) => ({
+    padding: theme.spacing(1.5),
+    height: '100%',
+    margin: '4px 0px',
+}))
+
+const FlexBetween = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+})
 
 const AdvancedFilterModal = (props) => {
     const {} = props
-    const c = useStyles()
 
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
@@ -80,33 +83,31 @@ const AdvancedFilterModal = (props) => {
     }
 
     return (
-        <Dialog
-            className={c.AdvancedFilterModal}
+        <StyledDialog
             fullScreen={isMobile}
             open={open}
             onClose={handleClose}
             aria-labelledby="responsive-dialog-title"
             PaperProps={{
-                className: isMobile ? c.contentsMobile : c.contents,
+                component: isMobile ? ContentsMobile : Contents,
             }}
         >
-            <DialogTitle className={c.heading}>
-                <div className={c.flexBetween}>
-                    <div className={c.title}>
+            <Heading>
+                <FlexBetween>
+                    <Title>
                         {modal?.filter?.display_name || modal?.filterKey} Advanced Filter Help
-                    </div>
-                    <IconButton
-                        className={c.closeIcon}
+                    </Title>
+                    <CloseIconButton
                         title="Close"
                         aria-label="close"
                         onClick={handleClose}
                         size="large"
                     >
                         <CloseSharpIcon fontSize="inherit" />
-                    </IconButton>
-                </div>
-            </DialogTitle>
-            <DialogContent className={c.content}>
+                    </CloseIconButton>
+                </FlexBetween>
+            </Heading>
+            <Content>
                 <ReactMarkdown>
                     {[
                         `Atlas' Advanced Filtering uses Elasticsearch's Query String (Apache's Lucene) query syntax:  \n`,
@@ -116,8 +117,8 @@ const AdvancedFilterModal = (props) => {
                         `Autocomplete: *ctrl/cmd + shift*`,
                     ].join('\n')}
                 </ReactMarkdown>
-            </DialogContent>
-        </Dialog>
+            </Content>
+        </StyledDialog>
     )
 }
 

@@ -4,8 +4,7 @@ import PropTypes from 'prop-types'
 import Url from 'url-parse'
 
 import Paper from '@mui/material/Paper'
-import { makeStyles, withStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 
 import Heading from './subcomponents/Heading/Heading'
 import ResultsStatus from './subcomponents/ResultsStatus/ResultsStatus'
@@ -18,87 +17,69 @@ import Tab from '@mui/material/Tab'
 import { search } from '../../../../core/redux/actions/actions.js'
 import { abbreviateNumber } from '../../../../core/utils.js'
 
-const useStyles = makeStyles((theme) => ({
-    ResultsPanel: {
-        height: '100%',
-        transition: 'width 0.4s ease-out',
-        overflow: 'hidden',
-    },
-    contents: {
-        width: '100%', //`calc(100% - ${theme.spacing(2)})`,
-        height: '100%', //`calc(100% - ${theme.spacing(4)})`,
-        margin: 0, //`${theme.spacing(2)} ${theme.spacing(1)}`,
-        display: 'flex',
-        flexFlow: 'column',
-        background: theme.palette.swatches.grey.grey150,
-    },
-    content: {
-        width: '100%',
-        height: `calc(100% - ${theme.headHeights[1] + theme.headHeights[2]}px)`,
-        position: 'relative',
-    },
-    viewSwitch: {
-        'borderRadius': 0,
-        'marginRight': theme.spacing(3),
-        'border': `1px solid ${theme.palette.accent.main}`,
-        '& button': {
-            borderRadius: 0,
-            width: '36px',
-            height: '100%',
-            color: theme.palette.accent.main,
-        },
-    },
-    viewActive: {
-        background: `${theme.palette.accent.main} !important`,
-        color: `${theme.palette.swatches.grey.grey800} !important`,
-    },
-    tabs: {
-        width: '100%',
-        height: theme.headHeights[2],
-        background: theme.palette.swatches.grey.grey100,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        display: 'flex',
-        justifyContent: 'space-between',
-    },
-    footing: {
-        width: '100%',
-        height: theme.headHeights[3],
-        position: 'relative',
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '8px 12px',
-        boxSizing: 'border-box',
-        background: theme.palette.primary.main,
-        display: 'none', //!!!!!!!!!!!!!
-    },
-    numResults: {
-        lineHeight: `${theme.headHeights[2]}px`,
-        padding: '0px 20px',
-        color: theme.palette.swatches.grey.grey700,
-    },
-    maxPage: {
-        marginLeft: theme.spacing(2),
-        lineHeight: '24px',
-        color: theme.palette.swatches.yellow.yellow700,
-    },
-    gradient: {
-        position: 'absolute',
-        left: 0,
-        bottom: '100%',
-        width: '100%',
-        height: '10px',
-        pointerEvents: 'none',
-        background:
-            'linear-gradient(to bottom, rgba(18, 24, 30, 0.1) 0%, rgba(18, 24, 30, 0.5) 100%)',
-    },
-    addQueryCart: {
-        color: theme.palette.text.secondary,
-        fontSize: '11px',
-        lineHeight: '11px',
-        margin: '3px 10px 3px 3px',
-        background: theme.palette.swatches.black.black0,
-    },
+const ResultsPanelRoot = styled('div')({
+    height: '100%',
+    transition: 'width 0.4s ease-out',
+    overflow: 'hidden',
+})
+
+const Contents = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    margin: 0,
+    display: 'flex',
+    flexFlow: 'column',
+    background: theme.palette.swatches.grey.grey150,
 }))
+
+const Content = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: `calc(100% - ${theme.headHeights[1] + theme.headHeights[2]}px)`,
+    position: 'relative',
+}))
+
+const TabsContainer = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: theme.headHeights[2],
+    background: theme.palette.swatches.grey.grey100,
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    display: 'flex',
+    justifyContent: 'space-between',
+}))
+
+const Footing = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: theme.headHeights[3],
+    position: 'relative',
+    display: 'none',
+    justifyContent: 'space-between',
+    padding: '8px 12px',
+    boxSizing: 'border-box',
+    background: theme.palette.primary.main,
+}))
+
+const NumResults = styled('div')(({ theme }) => ({
+    lineHeight: `${theme.headHeights[2]}px`,
+    padding: '0px 20px',
+    color: theme.palette.swatches.grey.grey700,
+}))
+
+const MaxPage = styled('div')(({ theme }) => ({
+    marginLeft: theme.spacing(2),
+    lineHeight: '24px',
+    color: theme.palette.swatches.yellow.yellow700,
+}))
+
+const Gradient = styled('div')({
+    position: 'absolute',
+    left: 0,
+    bottom: '100%',
+    width: '100%',
+    height: '10px',
+    pointerEvents: 'none',
+    background:
+        'linear-gradient(to bottom, rgba(18, 24, 30, 0.1) 0%, rgba(18, 24, 30, 0.5) 100%)',
+})
 
 // HELPERS
 function a11yProps(index) {
@@ -108,9 +89,8 @@ function a11yProps(index) {
     }
 }
 
-const StyledTabs = withStyles((theme) => ({
-    //height: theme.headHeights[2],
-    indicator: {
+const StyledTabs = styled(Tabs)(({ theme }) => ({
+    '& .MuiTabs-indicator': {
         'display': 'flex',
         'justifyContent': 'center',
         'backgroundColor': 'transparent',
@@ -121,19 +101,19 @@ const StyledTabs = withStyles((theme) => ({
             backgroundColor: theme.palette.accent.main,
         },
     },
-}))((props) => <Tabs {...props} TabIndicatorProps={{ children: <span /> }} />)
+}))
 
-const StyledTab = withStyles((theme) => ({
-    root: {
-        'color': theme.palette.text.primary,
-        'fontSize': theme.typography.pxToRem(14),
-        'marginRight': theme.spacing(1),
-        'minWidth': 88,
-        '&:focus': {
-            opacity: 1,
-        },
+const StyledTabsWrapper = (props) => <StyledTabs {...props} TabIndicatorProps={{ children: <span /> }} />
+
+const StyledTab = styled(Tab)(({ theme }) => ({
+    'color': theme.palette.text.primary,
+    'fontSize': theme.typography.pxToRem(14),
+    'marginRight': theme.spacing(1),
+    'minWidth': 88,
+    '&:focus': {
+        opacity: 1,
     },
-}))((props) => <Tab disableRipple {...props} />)
+}))
 
 // Don't rerender for this change
 let firstSearch = false
@@ -143,7 +123,6 @@ const url = new Url(window.location, true)
 const ResultsPanel = (props) => {
     const { mobile } = props
 
-    const c = useStyles()
     const theme = useTheme()
     const dispatch = useDispatch()
 
@@ -189,11 +168,11 @@ const ResultsPanel = (props) => {
     }
 
     return (
-        <div className={c.ResultsPanel} style={style}>
-            <div className={c.contents}>
+        <ResultsPanelRoot style={style}>
+            <Contents>
                 <Heading activeView={activeView} />
-                <div className={c.tabs}>
-                    <StyledTabs
+                <TabsContainer>
+                    <StyledTabsWrapper
                         value={activeViews.indexOf(activeView)}
                         onChange={(e, v) => {
                             setActiveView(activeViews[v])
@@ -201,39 +180,38 @@ const ResultsPanel = (props) => {
                         aria-label="results view tab"
                     >
                         {activeViews.map((v, i) => (
-                            <StyledTab label={v} key={i} {...a11yProps(i)} />
+                            <StyledTab label={v} key={i} disableRipple {...a11yProps(i)} />
                         ))}
-                    </StyledTabs>
+                    </StyledTabsWrapper>
 
-                    <div className={c.numResults}>
+                    <NumResults>
                         {results.length > 0 &&
                             `${abbreviateNumber(results.length)}
                                    of ${abbreviateNumber(paging.total)}`}
-                    </div>
-                </div>
-                <div className={c.content}>
+                    </NumResults>
+                </TabsContainer>
+                <Content>
                     {activeView === 'grid' ? <GridView results={results} paging={paging} /> : null}
                     {activeView === 'list' ? <ListView results={results} paging={paging} /> : null}
                     {activeView === 'table' ? (
                         <TableView results={results} paging={paging} />
                     ) : null}
                     <ResultsStatus />
-                </div>
-                <div className={c.footing}>
-                    <div className={c.left}>
-                        <div
-                            className={c.maxPage}
+                </Content>
+                <Footing>
+                    <div>
+                        <MaxPage
                             style={{ display: paging.page == 99 ? 'inherit' : 'none' }}
                         >
                             - You've hit the end but there's still more! Try narrowing your search
                             on the left.
-                        </div>
+                        </MaxPage>
                     </div>
-                    <div className={c.right}></div>
-                    <div className={c.gradient} />
-                </div>
-            </div>
-        </div>
+                    <div></div>
+                    <Gradient />
+                </Footing>
+            </Contents>
+        </ResultsPanelRoot>
     )
 }
 

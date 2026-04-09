@@ -2,8 +2,7 @@ import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 
 import { getIn, objectArrayIndexOfKeyWithValue } from '../../../core/utils'
 import { ES_PATHS } from '../../../core/constants'
@@ -28,22 +27,20 @@ const VIEW_TABS = [
     //{ id: 'help', component: Help },
 ]
 
-const useStyles = makeStyles((theme) => ({
-    Content: {
-        width: '100%',
-        height: `calc(100% - ${theme.headHeights[1]}px)`,
-        display: 'flex',
-        flexFlow: 'column',
-    },
-    component: {
-        flex: 1,
-        overflowY: 'hidden',
-    },
+const ContentRoot = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: `calc(100% - ${theme.headHeights[1]}px)`,
+    display: 'flex',
+    flexFlow: 'column',
 }))
+
+const ComponentWrapper = styled('div')({
+    flex: 1,
+    overflowY: 'hidden',
+})
 
 const Content = (props) => {
     const { recordData, versions, activeVersion } = props
-    const c = useStyles()
 
     const dispatch = useDispatch()
     const theme = useTheme()
@@ -66,8 +63,7 @@ const Content = (props) => {
     if (VIEW_TABS[viewTabIndex] != null) ViewComponent = VIEW_TABS[viewTabIndex].component
 
     return (
-        <div
-            className={c.Content}
+        <ContentRoot
             style={{
                 height: `calc(100% - ${theme.headHeights[1]}px - ${
                     activeVersion != 0 && activeVersion != null && versions.length > 0 ? 29.5 : 0
@@ -80,14 +76,14 @@ const Content = (props) => {
                     (v) => v.condition == null || getIn(recordData, v.condition) != null
                 ).map((v) => v.id)}
             />
-            <div className={c.component}>
+            <ComponentWrapper>
                 <ViewComponent
                     recordData={recordData}
                     versions={versions}
                     activeVersion={activeVersion}
                 />
-            </div>
-        </div>
+            </ComponentWrapper>
+        </ContentRoot>
     )
 }
 

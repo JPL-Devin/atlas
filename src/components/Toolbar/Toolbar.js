@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
-import clsx from 'clsx'
 import Url from 'url-parse'
 
 import List from '@mui/material/List'
@@ -14,8 +13,7 @@ import Switch from '@mui/material/Switch'
 import Tooltip from '@mui/material/Tooltip'
 
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
@@ -45,96 +43,108 @@ import { getPublicUrl } from '../../core/runtimeConfig'
 
 const drawerWidth = 230
 
-const useStyles = makeStyles((theme) => ({
-    Toolbar: {
-        height: '100%',
-        background: theme.palette.swatches.grey.grey100,
-        color: theme.palette.text.secondary,
-        boxSizing: 'border-box',
-        borderRight: `1px solid ${theme.palette.swatches.grey.grey700}`,
-    },
-    main: {
-        width: theme.headHeights[1],
-        height: '100%',
-        display: 'flex',
-        flexFlow: 'column',
-        justifyContent: 'space-between',
-        background: theme.palette.swatches.grey.grey850,
-        transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-    },
-    mainShift1: {
+const ToolbarRoot = styled('div')(({ theme }) => ({
+    height: '100%',
+    background: theme.palette.swatches.grey.grey100,
+    color: theme.palette.text.secondary,
+    boxSizing: 'border-box',
+    borderRight: `1px solid ${theme.palette.swatches.grey.grey700}`,
+}))
+
+const MainDiv = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'shift',
+})(({ theme, shift }) => ({
+    width: theme.headHeights[1],
+    height: '100%',
+    display: 'flex',
+    flexFlow: 'column',
+    justifyContent: 'space-between',
+    background: theme.palette.swatches.grey.grey850,
+    transition: theme.transitions.create(['margin', 'width'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+    }),
+    ...(shift === 1 && {
         marginLeft: drawerWidth - theme.headHeights[1],
         transition: theme.transitions.create(['margin', 'width'], {
             easing: theme.transitions.easing.easeOut,
             duration: theme.transitions.duration.enteringScreen,
         }),
-    },
-    mainShift2: {
+    }),
+    ...(shift === 2 && {
         width: drawerWidth,
         transition: theme.transitions.create(['margin', 'width'], {
             easing: theme.transitions.easing.easeOut,
             duration: theme.transitions.duration.enteringScreen,
         }),
+    }),
+}))
+
+const TopSection = styled('div')({
+    display: 'flex',
+    flexFlow: 'column',
+})
+
+const BottomSection = styled('div')({
+    display: 'flex',
+    flexFlow: 'column',
+})
+
+const PanelMenu = styled('div')({
+    display: 'flex',
+    flexFlow: 'column',
+})
+
+const drawerPaperStyle = (theme) => ({
+    background: theme.palette.swatches.grey.grey900,
+    width: drawerWidth - theme.headHeights[1],
+    borderRight: `1px solid ${theme.palette.swatches.grey.grey700}`,
+})
+
+const StyledList = styled(List)(({ theme }) => ({
+    'minWidth': 150,
+    'paddingTop': 0,
+    '& a': {
+        height: theme.headHeights[1],
     },
-    top: {
-        display: 'flex',
-        flexFlow: 'column',
+}))
+
+const StyledListItem = styled(ListItem, {
+    shouldForwardProp: (prop) => prop !== 'isNoClick' && prop !== 'isIndented',
+})(({ theme, isNoClick, isIndented }) => ({
+    'padding': 0,
+    'height': theme.headHeights[1],
+    'backgroundColor': 'rgba(0,0,0,0)',
+    '&:hover': {
+        backgroundColor: theme.palette.swatches.grey.grey700,
     },
-    bottom: {
-        display: 'flex',
-        flexFlow: 'column',
-    },
-    panelMenu: {
-        display: 'flex',
-        flexFlow: 'column',
-    },
-    drawer: {
-        background: theme.palette.swatches.grey.grey900,
-        width: drawerWidth - theme.headHeights[1],
-        borderRight: `1px solid ${theme.palette.swatches.grey.grey700}`,
-    },
-    list: {
-        'minWidth': 150,
-        'paddingTop': 0,
-        '& a': {
-            height: theme.headHeights[1],
-        },
-    },
-    listItem: {
-        'padding': 0,
-        'height': theme.headHeights[1],
-        'backgroundColor': 'rgba(0,0,0,0)',
-        '&:hover': {
-            backgroundColor: theme.palette.swatches.grey.grey700,
-        },
-    },
-    listItemNoClick: {
+    ...(isNoClick && {
         pointerEvents: 'none',
         paddingRight: '8px',
-    },
-    listIndent: {
+    }),
+    ...(isIndented && {
         paddingLeft: '14px',
+    }),
+}))
+
+const NavLink = styled('a', {
+    shouldForwardProp: (prop) => prop !== 'isActive',
+})(({ theme, isActive }) => ({
+    'width': '100%',
+    'height': '100% !important',
+    'padding': `9px 0px 9px ${theme.spacing(3)}`,
+    'color': theme.palette.text.secondary,
+    'textDecoration': 'none',
+    'boxSizing': 'border-box',
+    'lineHeight': `${theme.headHeights[1]}px`,
+    'display': 'flex',
+    'justifyContent': 'space-between',
+    'borderLeft': `2px solid rgba(0,0,0,0)`,
+    'borderBottom': `1px solid ${theme.palette.swatches.grey.grey800}`,
+    '& span': {
+        lineHeight: 1,
     },
-    aLink: {
-        'width': '100%',
-        'height': '100% !important',
-        'padding': `9px 0px 9px ${theme.spacing(3)}`,
-        'color': theme.palette.text.secondary,
-        'textDecoration': 'none',
-        'boxSizing': 'border-box',
-        'lineHeight': `${theme.headHeights[1]}px`,
-        'display': 'flex',
-        'justifyContent': 'space-between',
-        'borderLeft': `2px solid rgba(0,0,0,0)`,
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey800}`,
-        '& span': {
-            lineHeight: 1,
-        },
-    },
-    activePath: {
+    ...(isActive && {
         'background': theme.palette.swatches.grey.grey800,
         'borderLeft': `2px solid ${theme.palette.swatches.blue.blue500}`,
         '& svg': {
@@ -144,89 +154,84 @@ const useStyles = makeStyles((theme) => ({
             color: theme.palette.swatches.blue.blue500,
             fontWeight: 'bold',
         },
+    }),
+}))
+
+const StyledDivider = styled(Divider)(({ theme }) => ({
+    background: theme.palette.swatches.grey.grey700,
+}))
+
+const ToolbarButton = styled(IconButton, {
+    shouldForwardProp: (prop) => prop !== 'isActive' && prop !== 'isNav',
+})(({ theme, isActive, isNav }) => ({
+    'width': theme.headHeights[1],
+    'height': theme.headHeights[1],
+    'borderRadius': 0,
+    'fontSize': 18,
+    'color': theme.palette.swatches.grey.grey400,
+    'border': `2px solid transparent`,
+    'transition': 'all 0.2s ease-in-out',
+    '&:hover': {
+        color: theme.palette.swatches.grey.grey300,
     },
-    divider: {
-        background: theme.palette.swatches.grey.grey700,
-    },
-    dividerNonSearch: {
-        background: theme.palette.swatches.grey.grey200,
-    },
-    button: {
-        'width': theme.headHeights[1],
-        'height': theme.headHeights[1],
-        'borderRadius': 0,
-        'fontSize': 18,
-        'color': theme.palette.swatches.grey.grey400,
-        'border': `2px solid transparent`,
-        'transition': 'all 0.2s ease-in-out',
-        '&:hover': {
-            color: theme.palette.swatches.grey.grey300,
-        },
-    },
-    buttonActive: {
+    ...(isActive && {
         color: theme.palette.active.main,
         borderLeft: `2px solid ${theme.palette.active.main}`,
         [theme.breakpoints.down('md')]: {
             background: `${theme.palette.active.main} !important`,
             color: theme.palette.swatches.grey.grey800,
         },
-    },
-    nav: {
+    }),
+    ...(isNav && {
         height: theme.headHeights[1],
         fontSize: 24,
         paddingTop: '4px',
-    },
-    navNonSearch: {
-        'background': theme.palette.swatches.grey.grey100,
-        'borderLeft': `1px solid transparent`,
-        'borderRight': `1px solid ${theme.palette.swatches.grey.grey200}`,
-        'transition': 'all 0.2s ease-in-out',
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey100,
-            color: theme.palette.swatches.grey.grey700,
-        },
-    },
-    optionsName: {
-        whiteSpace: 'nowrap',
-    },
-    optionsItem: {
+    }),
+}))
+
+const OptionsName = styled('div')({
+    whiteSpace: 'nowrap',
+})
+
+const OptionsItem = styled('div')(({ theme }) => ({
+    'display': 'flex',
+    'lineHeight': `${theme.headHeights[1]}px`,
+    '& > span': {
         'display': 'flex',
-        'lineHeight': `${theme.headHeights[1]}px`,
+        'justifyContent': 'space-between',
+        'flex': '1',
         '& > span': {
-            'display': 'flex',
-            'justifyContent': 'space-between',
-            'flex': '1',
-            '& > span': {
-                margin: 12,
-            },
-        },
-        '& .MuiSwitch-track': {
-            background: theme.palette.swatches.grey.grey100,
+            margin: 12,
         },
     },
-    cartLength: {
-        color: theme.palette.text.secondary,
-        background: '#F64137',
-        border: `2px solid ${theme.palette.secondary.main}`,
-        padding: '0px 4px 0px 3px',
-        height: '16px',
-        minWidth: '8px',
-        borderRadius: '12px',
-        textAlign: 'center',
-        lineHeight: '16px',
-        fontSize: '12px',
-        position: 'absolute',
-        margin: '2px',
-        left: '88px',
-        fontFamily: 'sans-serif',
-    },
-    navIcon: {
-        marginRight: '8px',
-        display: 'flex',
-        width: '22px',
-        height: '22px',
+    '& .MuiSwitch-track': {
+        background: theme.palette.swatches.grey.grey100,
     },
 }))
+
+const CartLength = styled('div')(({ theme }) => ({
+    color: theme.palette.text.secondary,
+    background: '#F64137',
+    border: `2px solid ${theme.palette.secondary.main}`,
+    padding: '0px 4px 0px 3px',
+    height: '16px',
+    minWidth: '8px',
+    borderRadius: '12px',
+    textAlign: 'center',
+    lineHeight: '16px',
+    fontSize: '12px',
+    position: 'absolute',
+    margin: '2px',
+    left: '88px',
+    fontFamily: 'sans-serif',
+}))
+
+const NavIcon = styled('div')({
+    marginRight: '8px',
+    display: 'flex',
+    width: '22px',
+    height: '22px',
+})
 
 const drawerItems = [
     {
@@ -297,7 +302,6 @@ const drawerItems = [
 // No need to prepend publicUrl - BrowserRouter's basename handles path prefixing
 
 const Toolbar = (props) => {
-    const c = useStyles()
 
     // the current page we're on
     const location = useLocation()
@@ -338,31 +342,28 @@ const Toolbar = (props) => {
     }
 
     return (
-        <div className={c.Toolbar}>
+        <ToolbarRoot>
             <Drawer
                 anchor={'left'}
                 variant={'persistent'}
                 open={drawer === 1}
                 onClose={toggleDrawer(0)}
-                PaperProps={{ className: c.drawer }}
+                PaperProps={{ sx: (theme) => drawerPaperStyle(theme) }}
             >
-                <List className={c.list}>
+                <StyledList>
                     {drawerItems.map((item, idx) => (
-                        <ListItem
-                            className={clsx(c.listItem, {
-                                [c.listItemNoClick]: item.isHeader,
-                                [c.listIndent]: item.isAtlas || item.isData || item.isPDS,
-                            })}
+                        <StyledListItem
+                            isNoClick={item.isHeader}
+                            isIndented={item.isAtlas || item.isData || item.isPDS}
                             key={idx}
                         >
-                            <a
-                                className={clsx(c.aLink, {
-                                    [c.activePath]:
-                                        item.path === pathRoot ||
-                                        (item.path &&
-                                            item.name != 'Home' &&
-                                            pathRoot.indexOf(item.path) === 0),
-                                })}
+                            <NavLink
+                                isActive={
+                                    item.path === pathRoot ||
+                                    (item.path &&
+                                        item.name != 'Home' &&
+                                        pathRoot.indexOf(item.path) === 0)
+                                }
                                 onClick={(e) => {
                                     if (item.isAtlas && !item.openInNewTab) {
                                         e.preventDefault()
@@ -377,22 +378,22 @@ const Toolbar = (props) => {
                                 rel="noopener"
                             >
                                 {item.name === 'Search Images' && (
-                                    <div className={c.navIcon}>
+                                    <NavIcon>
                                         <ImageSearchIcon />
-                                    </div>
+                                    </NavIcon>
                                 )}
                                 {item.name === 'Browse Archive' && (
-                                    <div className={c.navIcon}>
+                                    <NavIcon>
                                         <AccountTreeIcon />
-                                    </div>
+                                    </NavIcon>
                                 )}
                                 {item.name === 'Cart' && (
-                                    <div className={c.navIcon}>
+                                    <NavIcon>
                                         <ShoppingCartOutlinedIcon />
-                                    </div>
+                                    </NavIcon>
                                 )}
                                 {item.name === 'Documentation' && (
-                                    <div className={c.navIcon}>
+                                    <NavIcon>
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             viewBox="0 0 24 24"
@@ -402,34 +403,29 @@ const Toolbar = (props) => {
                                         >
                                             <path d="M7 7H5A2 2 0 0 0 3 9V17H5V13H7V17H9V9A2 2 0 0 0 7 7M7 11H5V9H7M14 7H10V17H12V13H14A2 2 0 0 0 16 11V9A2 2 0 0 0 14 7M14 11H12V9H14M20 9V15H21V17H17V15H18V9H17V7H21V9Z" />
                                         </svg>
-                                    </div>
+                                    </NavIcon>
                                 )}
                                 {item.isExternal && (
-                                    <div className={c.navIcon}>
+                                    <NavIcon>
                                         <OpenInNewIcon />
-                                    </div>
+                                    </NavIcon>
                                 )}
                                 <ListItemText primary={item.name}> </ListItemText>
                                 {item.showLength && cartLength > 0 ? (
-                                    <div className={c.cartLength}>
+                                    <CartLength>
                                         {cartLength > 99 ? '99+' : cartLength}
-                                    </div>
+                                    </CartLength>
                                 ) : null}
-                            </a>
-                        </ListItem>
+                            </NavLink>
+                        </StyledListItem>
                     ))}
-                </List>
+                </StyledList>
             </Drawer>
-            <div
-                className={clsx(c.main, {
-                    [c.mainShift1]: drawer === 1,
-                    [c.mainShift2]: drawer === 2,
-                })}
-            >
-                <div className={c.top}>
+            <MainDiv shift={drawer}>
+                <TopSection>
                     <Tooltip title="Navigation" arrow placement="right">
-                        <IconButton
-                            className={clsx(c.button, c.nav)}
+                        <ToolbarButton
+                            isNav
                             aria-label="navigation"
                             size="small"
                             onClick={toggleDrawer(drawer === 1 ? 0 : 1)}
@@ -439,16 +435,15 @@ const Toolbar = (props) => {
                             ) : (
                                 <MenuIcon fontSize="inherit" />
                             )}
-                        </IconButton>
+                        </ToolbarButton>
                     </Tooltip>
-                    <Divider className={clsx(c.divider)} />
+                    <StyledDivider />
 
                     {pathRoot === `/archive-explorer` ? (
                         <React.Fragment>
-                            <div className={c.optionsItem}>
+                            <OptionsItem>
                                 <Tooltip title="Reset Path" arrow placement="right">
-                                    <IconButton
-                                        className={c.button}
+                                    <ToolbarButton
                                         aria-label="Reset path"
                                         size="small"
                                         onClick={() => {
@@ -465,18 +460,17 @@ const Toolbar = (props) => {
                                             fontSize="inherit"
                                             style={{ transform: 'rotateY(180deg)' }}
                                         />
-                                    </IconButton>
+                                    </ToolbarButton>
                                 </Tooltip>
-                            </div>
+                            </OptionsItem>
                         </React.Fragment>
                     ) : null}
                     {pathRoot === `/search` ? (
                         <React.Fragment>
-                            <div className={c.panelMenu}>
-                                <div className={c.optionsItem}>
+                            <PanelMenu>
+                                <OptionsItem>
                                     <Tooltip title="Options" arrow placement="right">
-                                        <IconButton
-                                            className={c.button}
+                                        <ToolbarButton
                                             aria-label="options"
                                             size="small"
                                             onClick={toggleDrawer(drawer === 2 ? 0 : 2)}
@@ -486,20 +480,19 @@ const Toolbar = (props) => {
                                             ) : (
                                                 <SettingsIcon fontSize="inherit" />
                                             )}
-                                        </IconButton>
+                                        </ToolbarButton>
                                     </Tooltip>
                                     {drawer === 2 ? (
-                                        <div className={c.optionsName}>Close Settings Menu</div>
+                                        <OptionsName>Close Settings Menu</OptionsName>
                                     ) : null}
-                                </div>
-                                <div className={c.optionsItem}>
+                                </OptionsItem>
+                                <OptionsItem>
                                     <Tooltip title="Filters Panel" arrow placement="right">
-                                        <IconButton
-                                            className={clsx(c.button, {
-                                                [c.buttonActive]: mobile
-                                                    ? mW === 'filters'
-                                                    : w.filters,
-                                            })}
+                                        <ToolbarButton
+                                            isActive={mobile
+                                                ? mW === 'filters'
+                                                : w.filters
+                                            }
                                             aria-label="filters panel"
                                             size="small"
                                             onClick={() => {
@@ -512,11 +505,11 @@ const Toolbar = (props) => {
                                             }}
                                         >
                                             <FilterListIcon fontSize="inherit" />
-                                        </IconButton>
+                                        </ToolbarButton>
                                     </Tooltip>
                                     {drawer === 2 ? (
                                         <span>
-                                            <div className={c.optionsName}>Show Filters</div>
+                                            <OptionsName>Show Filters</OptionsName>
                                             <Switch
                                                 size="small"
                                                 checked={w.filters}
@@ -534,15 +527,14 @@ const Toolbar = (props) => {
                                             />
                                         </span>
                                     ) : null}
-                                </div>
-                                <div className={c.optionsItem}>
+                                </OptionsItem>
+                                <OptionsItem>
                                     <Tooltip title="Map Panel" arrow placement="right">
-                                        <IconButton
-                                            className={clsx(c.button, {
-                                                [c.buttonActive]: mobile
-                                                    ? mW === 'secondary'
-                                                    : w.secondary,
-                                            })}
+                                        <ToolbarButton
+                                            isActive={mobile
+                                                ? mW === 'secondary'
+                                                : w.secondary
+                                            }
                                             aria-label="Map Panel"
                                             size="small"
                                             onClick={() => {
@@ -562,11 +554,11 @@ const Toolbar = (props) => {
                                             }}
                                         >
                                             <MapIcon fontSize="inherit" />
-                                        </IconButton>
+                                        </ToolbarButton>
                                     </Tooltip>
                                     {drawer === 2 ? (
                                         <span>
-                                            <div className={c.optionsName}>Show Map</div>
+                                            <OptionsName>Show Map</OptionsName>
                                             <Switch
                                                 size="small"
                                                 checked={w.secondary}
@@ -590,15 +582,14 @@ const Toolbar = (props) => {
                                             />
                                         </span>
                                     ) : null}
-                                </div>
-                                <div className={c.optionsItem}>
+                                </OptionsItem>
+                                <OptionsItem>
                                     <Tooltip title="Results Panel" arrow placement="right">
-                                        <IconButton
-                                            className={clsx(c.button, {
-                                                [c.buttonActive]: mobile
-                                                    ? mW === 'results'
-                                                    : w.results,
-                                            })}
+                                        <ToolbarButton
+                                            isActive={mobile
+                                                ? mW === 'results'
+                                                : w.results
+                                            }
                                             aria-label="Results Panel"
                                             size="small"
                                             onClick={() => {
@@ -618,11 +609,11 @@ const Toolbar = (props) => {
                                             }}
                                         >
                                             <ViewComfyIcon fontSize="inherit" />
-                                        </IconButton>
+                                        </ToolbarButton>
                                     </Tooltip>
                                     {drawer === 2 ? (
                                         <span>
-                                            <div className={c.optionsName}>Show Results</div>
+                                            <OptionsName>Show Results</OptionsName>
                                             <Switch
                                                 size="small"
                                                 checked={w.results}
@@ -644,13 +635,12 @@ const Toolbar = (props) => {
                                             />
                                         </span>
                                     ) : null}
-                                </div>
-                            </div>
-                            <Divider className={c.divider} />
-                            <div className={c.optionsItem}>
+                                </OptionsItem>
+                            </PanelMenu>
+                            <StyledDivider />
+                            <OptionsItem>
                                 <Tooltip title="Restart Search" arrow placement="right">
-                                    <IconButton
-                                        className={c.button}
+                                    <ToolbarButton
                                         aria-label="Restart search"
                                         size="small"
                                         onClick={() => {
@@ -661,42 +651,41 @@ const Toolbar = (props) => {
                                             fontSize="inherit"
                                             style={{ transform: 'rotateY(180deg)' }}
                                         />
-                                    </IconButton>
+                                    </ToolbarButton>
                                 </Tooltip>
                                 {drawer === 2 ? (
-                                    <div className={c.optionsName}>Reset All Search Settings</div>
+                                    <OptionsName>Reset All Search Settings</OptionsName>
                                 ) : null}
-                            </div>
-                            <Divider className={c.divider} />
+                            </OptionsItem>
+                            <StyledDivider />
                         </React.Fragment>
                     ) : null}
-                </div>
-                <div className={c.bottom}>
-                    <Divider className={c.divider} />
-                    <div className={c.optionsItem}>
+                </TopSection>
+                <BottomSection>
+                    <StyledDivider />
+                    <OptionsItem>
                         <Tooltip title="Help" arrow placement="right">
-                            <IconButton className={c.button} aria-label="help button" size="small">
+                            <ToolbarButton aria-label="help button" size="small">
                                 <HelpOutlineIcon fontSize="inherit" />
-                            </IconButton>
+                            </ToolbarButton>
                         </Tooltip>
-                        {drawer === 2 ? <div className={c.optionsName}>Help</div> : null}
-                    </div>
-                    <div className={c.optionsItem}>
+                        {drawer === 2 ? <OptionsName>Help</OptionsName> : null}
+                    </OptionsItem>
+                    <OptionsItem>
                         <Tooltip title="Info" arrow placement="right">
-                            <IconButton
-                                className={c.button}
+                            <ToolbarButton
                                 aria-label="info button"
                                 size="small"
                                 onClick={() => dispatch(setModal('information'))}
                             >
                                 <InfoOutlinedIcon fontSize="inherit" />
-                            </IconButton>
+                            </ToolbarButton>
                         </Tooltip>
-                        {drawer === 2 ? <div className={c.optionsName}>About Atlas</div> : null}
-                    </div>
-                </div>
-            </div>
-        </div>
+                        {drawer === 2 ? <OptionsName>About Atlas</OptionsName> : null}
+                    </OptionsItem>
+                </BottomSection>
+            </MainDiv>
+        </ToolbarRoot>
     )
 }
 

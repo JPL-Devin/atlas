@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
-import { makeStyles, withStyles } from '@mui/styles'
-
-import clsx from 'clsx'
+import { styled } from '@mui/material/styles'
 
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -19,75 +17,72 @@ import { humanFileSize } from '../../../../core/utils'
 import ProductDownloadSelector from '../../../../components/ProductDownloadSelector/ProductDownloadSelector'
 import DownloadingCard from '../../../../components/DownloadingCard/DownloadingCard'
 
-const useStyles = makeStyles((theme) => ({
-    MobileDownloadBar: {
-        width: `calc(100% - ${theme.headHeights[1] + 1}px)`,
-        position: 'absolute',
-        left: `${theme.headHeights[1] + 1}px`,
-        bottom: '0px',
-        height: `${theme.headHeights[1]}px`,
+const MobileDownloadBarRoot = styled('div')(({ theme }) => ({
+    width: `calc(100% - ${theme.headHeights[1] + 1}px)`,
+    position: 'absolute',
+    left: `${theme.headHeights[1] + 1}px`,
+    bottom: '0px',
+    height: `${theme.headHeights[1]}px`,
+    display: 'flex',
+    flexFlow: 'column',
+    background: theme.palette.swatches.grey.grey200,
+    borderTop: `1px solid ${theme.palette.swatches.grey.grey300}`,
+    zIndex: 1,
+}))
+
+const IntroMessage = styled('div')(({ theme }) => ({
+    lineHeight: '20px',
+    color: theme.palette.text.main,
+    background: theme.palette.swatches.yellow.yellow800,
+    padding: '10px',
+    fontWeight: 'bold',
+    textAlign: 'center',
+}))
+
+const DownloadButton1 = styled(Button)(({ theme }) => ({
+    height: 26,
+    margin: '7px auto',
+    fontSize: '14px',
+    background: theme.palette.accent.main,
+}))
+
+const DownloadButtonWrapper = styled('div')({
+    display: 'flex',
+    justifyContent: 'center',
+})
+
+const DownloadingWrapper = styled('div')({
+    bottom: '0px',
+    position: 'absolute',
+    width: '100%',
+    padding: '12px',
+    boxSizing: 'border-box',
+})
+
+const ErrorBar = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isVisible',
+})(({ theme, isVisible }) => ({
+    display: 'none',
+    fontSize: '16px',
+    padding: '10px',
+    background: theme.palette.swatches.red.red500,
+    color: theme.palette.text.secondary,
+    borderTop: `1px solid ${theme.palette.swatches.red.red600}`,
+    fontWeight: 'bold',
+    ...(isVisible && {
         display: 'flex',
-        flexFlow: 'column',
-        background: theme.palette.swatches.grey.grey200,
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey300}`,
-        zIndex: 1,
-    },
-    introMessage: {
-        lineHeight: '20px',
-        color: theme.palette.text.main,
-        background: theme.palette.swatches.yellow.yellow800,
-        padding: '10px',
-        fontWeight: 'bold',
-        textAlign: 'center',
-    },
-    button1: {
-        height: 26,
-        margin: '7px auto',
-        fontSize: '14px',
-        background: theme.palette.accent.main,
-    },
-    p: {
-        padding: `${theme.spacing(1.5)} 0px`,
-    },
-    downloadButton: {
-        display: 'flex',
-        justifyContent: 'center',
-    },
-    downloadingButton: {
-        background: theme.palette.swatches.grey.grey300,
-        color: theme.palette.text.primary,
-        pointerEvents: 'none',
-    },
-    downloading: {
-        bottom: '0px',
-        position: 'absolute',
-        width: '100%',
-        padding: '12px',
-        boxSizing: 'border-box',
-    },
-    error: {
-        display: 'none',
-        fontSize: '16px',
-        padding: '10px',
-        background: theme.palette.swatches.red.red500,
-        color: theme.palette.text.secondary,
-        borderTop: `1px solid ${theme.palette.swatches.red.red600}`,
-        fontWeight: 'bold',
-    },
-    errorOn: {
-        display: 'flex',
-    },
-    errorClose: {
-        color: theme.palette.text.secondary,
-        position: 'absolute',
-        right: '0px',
-        top: '0px',
-    },
+    }),
+}))
+
+const ErrorCloseButton = styled(IconButton)(({ theme }) => ({
+    color: theme.palette.text.secondary,
+    position: 'absolute',
+    right: '0px',
+    top: '0px',
 }))
 
 const MobileDownloadBar = (props) => {
     const {} = props
-    const c = useStyles()
 
     const [isDownloading, setIsDownloading] = useState(false)
     const [downloadId, setDownloadId] = useState(0)
@@ -109,34 +104,32 @@ const MobileDownloadBar = (props) => {
     }
 
     return (
-        <div className={c.MobileDownloadBar}>
+        <MobileDownloadBarRoot>
             <ProductDownloadSelector
                 ref={selectorRef}
                 hidden={true}
                 forceAllSelected={true}
                 onSummaryReady={onSummaryReady}
             />
-            <div className={clsx(c.error, { [c.errorOn]: error != null })}>
+            <ErrorBar isVisible={error != null}>
                 <div>{error}</div>
-                <IconButton
-                    className={c.errorClose}
+                <ErrorCloseButton
                     aria-label="close error"
                     onClick={() => {
                         setError(null)
                     }}
                     size="large">
                     <CloseIcon />
-                </IconButton>
-            </div>
+                </ErrorCloseButton>
+            </ErrorBar>
             {checkedCart.length === 0 ? (
-                <div className={c.introMessage}>
+                <IntroMessage>
                     <span></span>
                     <div>Select items to download.</div>
-                </div>
+                </IntroMessage>
             ) : !isDownloading ? (
-                <div className={c.downloadButton}>
-                    <Button
-                        className={clsx(c.button1)}
+                <DownloadButtonWrapper>
+                    <DownloadButton1
                         variant="contained"
                         aria-label="browser zip download button"
                         onClick={() => {
@@ -170,10 +163,10 @@ const MobileDownloadBar = (props) => {
                         }}
                     >
                         {`Download ZIP (${humanFileSize(summary.size)})`}
-                    </Button>
-                </div>
+                    </DownloadButton1>
+                </DownloadButtonWrapper>
             ) : (
-                <div className={c.downloading}>
+                <DownloadingWrapper>
                     <DownloadingCard
                         downloadId={downloadId}
                         status={status}
@@ -183,9 +176,9 @@ const MobileDownloadBar = (props) => {
                             setIsDownloading(false)
                         }}
                     />
-                </div>
+                </DownloadingWrapper>
             )}
-        </div>
+        </MobileDownloadBarRoot>
     );
 }
 
