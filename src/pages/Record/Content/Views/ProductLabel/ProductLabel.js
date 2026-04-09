@@ -152,6 +152,7 @@ const MoreButton = styled(Button)(({ theme }) => ({
 }))
 
 const highlightClassName = 'ProductLabel-highlight'
+const highlightStyle = { fontWeight: 'bold' }
 
 function FilterTreeLabel(props) {
     const { id, valueKey, value, filterString } = props
@@ -164,6 +165,7 @@ function FilterTreeLabel(props) {
                 <FilterTreeKey>
                     <Highlighter
                         highlightClassName={highlightClassName}
+                        highlightStyle={highlightStyle}
                         searchWords={[filterString]}
                         autoEscape={true}
                         textToHighlight={String(valueKey)}
@@ -172,6 +174,7 @@ function FilterTreeLabel(props) {
                 <FilterTreeValue>
                     <Highlighter
                         highlightClassName={highlightClassName}
+                        highlightStyle={highlightStyle}
                         searchWords={[filterString]}
                         autoEscape={true}
                         textToHighlight={
@@ -247,6 +250,7 @@ const makeTree = (data, filterString) => {
                         label={
                             <Highlighter
                                 highlightClassName={highlightClassName}
+                                highlightStyle={highlightStyle}
                                 searchWords={[filterString]}
                                 autoEscape={true}
                                 textToHighlight={String(iter[i])}
