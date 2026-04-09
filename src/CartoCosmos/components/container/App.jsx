@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Paper from '@mui/material/Paper'
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import Input from '@mui/material/Input'
@@ -15,105 +15,113 @@ import WellKnownTextInput from '../presentational/WellKnownTextInput.jsx'
 import { useSelector, useDispatch } from 'react-redux'
 import { MISSIONS_TO_BODIES } from '../../../core/constants'
 import { sAKeys, sASet } from '../../../core/redux/actions/subscribableActions'
-import clsx from 'clsx'
 
-/**
- * Controls css styling for this component using js to css
- */
-const useStyles = makeStyles((theme) => ({
-    root: {
-        position: 'relative',
-    },
-    changePlanet: {
-        'position': 'absolute',
-        'top': 10,
-        'left': 10,
-        'zIndex': 1100,
-        'background': 'black',
-        '& .MuiInput-underline:before': {
-            'border-bottom': '1px solid black',
-        },
-    },
-    formControl: {
-        minWidth: 125,
-    },
-    select: {
-        'color': '#efefef',
-        'background': '#000',
+const AppRoot = styled('div')({
+    position: 'relative',
+})
+
+const ChangePlanet = styled('div')({
+    'position': 'absolute',
+    'top': 10,
+    'left': 10,
+    'zIndex': 1100,
+    'background': 'black',
+    '& .MuiInput-underline:before': {
         'border-bottom': '1px solid black',
-        'borderRadius': '3px',
-        '& > div:first-child': {
-            padding: '8px 20px 6px 6px',
-        },
-        '& > svg': {
-            color: '#efefef',
-            top: '4px',
-            right: '2px',
-        },
     },
-    listTitle: {
-        pointerEvents: 'none',
-        display: 'none',
+})
+
+const StyledFormControl = styled(FormControl)({
+    minWidth: 125,
+})
+
+const StyledSelect = styled(Select)({
+    'color': '#efefef',
+    'background': '#000',
+    'border-bottom': '1px solid black',
+    'borderRadius': '3px',
+    '& > div:first-child': {
+        padding: '8px 20px 6px 6px',
     },
-    subheader: {
-        lineHeight: '33px !important',
-        fontSize: '14px !important',
-        color: '#1c67e3',
-        pointerEvents: 'none',
-        minWidth: '180px',
+    '& > svg': {
+        color: '#efefef',
+        top: '4px',
+        right: '2px',
     },
-    indent: {
-        paddingLeft: '48px !important',
-    },
-    bold: {
-        fontWeight: 'bold !important',
-        paddingLeft: '32px !important',
-    },
-    disabled: {
+})
+
+const ListTitle = styled(ListSubheader)({
+    pointerEvents: 'none',
+    display: 'none',
+})
+
+const StyledSubheader = styled(ListSubheader)({
+    lineHeight: '33px !important',
+    fontSize: '14px !important',
+    color: '#1c67e3',
+    pointerEvents: 'none',
+    minWidth: '180px',
+})
+
+const BoldMenuItem = styled(MenuItem, {
+    shouldForwardProp: (prop) => prop !== 'isDisabled',
+})(({ isDisabled }) => ({
+    fontWeight: 'bold !important',
+    paddingLeft: '32px !important',
+    ...(isDisabled && {
         pointerEvents: 'none',
         opacity: 0.4,
         color: 'rgba(0,0,0,0.4) !important',
-    },
-    disabled2: {
-        display: 'none',
-    },
-    autoComplete: {},
-    paper: {
-        height: '100%',
-    },
-    none: {
-        width: '100%',
-        height: '100%',
-        backgroundSize: '18px 18px', //'32px 32px',
-        backgroundImage: `linear-gradient(to right, ${theme.palette.swatches.grey.grey700} 1px, transparent 1px), linear-gradient(to bottom, ${theme.palette.swatches.grey.grey700} 1px, transparent 1px)`,
-        backgroundRepeat: 'repeat',
-    },
-    messageCont: {
-        background: theme.palette.swatches.grey.grey150,
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        transform: 'translateX(-50%) translateY(-50%)',
-        padding: '24px',
-    },
-    message: {
-        fontSize: '16px',
-        fontWeight: 700,
-        textAlign: 'center',
-    },
-    messageChangePlanet: {
-        'display': 'flex',
-        'justifyContent': 'center',
-        'marginTop': '12px',
-        '& .MuiInput-underline:before': {
-            'border-bottom': '1px solid black',
-        },
-    },
+    }),
 }))
 
+const IndentMenuItem = styled(MenuItem, {
+    shouldForwardProp: (prop) => prop !== 'isHidden',
+})(({ isHidden }) => ({
+    paddingLeft: '48px !important',
+    ...(isHidden && {
+        display: 'none',
+    }),
+}))
+
+const StyledPaper = styled(Paper)({
+    height: '100%',
+})
+
+const NoneBackground = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    backgroundSize: '18px 18px',
+    backgroundImage: `linear-gradient(to right, ${theme.palette.swatches.grey.grey700} 1px, transparent 1px), linear-gradient(to bottom, ${theme.palette.swatches.grey.grey700} 1px, transparent 1px)`,
+    backgroundRepeat: 'repeat',
+}))
+
+const MessageContainer = styled(Paper)(({ theme }) => ({
+    background: theme.palette.swatches.grey.grey150,
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    transform: 'translateX(-50%) translateY(-50%)',
+    padding: '24px',
+}))
+
+const MessageText = styled(Typography)({
+    fontSize: '16px',
+    fontWeight: 700,
+    textAlign: 'center',
+})
+
+const MessageChangePlanet = styled('div')({
+    'display': 'flex',
+    'justifyContent': 'center',
+    'marginTop': '12px',
+    '& .MuiInput-underline:before': {
+        'border-bottom': '1px solid black',
+    },
+})
+
 function TargetDropdown(props) {
-    const { className, targetPlanet, handleChange, hasNone, bodyLimits } = props
-    const c = useStyles()
+    const { targetPlanet, handleChange, hasNone, bodyLimits } = props
 
     const structure = {
         planets: {
@@ -186,44 +194,40 @@ function TargetDropdown(props) {
         const items = []
         if (hasNone)
             items.push(
-                <ListSubheader key="none" value="None" className={c.listTitle}>
+                <ListTitle key="none" value="None">
                     Target Bodies
-                </ListSubheader>
+                </ListTitle>
             )
 
         for (let h in structure) {
             items.push(
-                <ListSubheader key={h} className={c.subheader}>
+                <StyledSubheader key={h}>
                     {structure[h].name}
-                </ListSubheader>
+                </StyledSubheader>
             )
             structure[h].children.forEach((child, idx) => {
                 items.push(
-                    <MenuItem
+                    <BoldMenuItem
                         key={`${h}_${idx}`}
                         value={child.name}
-                        className={clsx(c.bold, {
-                            [c.disabled]: !(
-                                bodyLimits == null || bodyLimits.includes(child.name.toLowerCase())
-                            ),
-                        })}
+                        isDisabled={!(
+                            bodyLimits == null || bodyLimits.includes(child.name.toLowerCase())
+                        )}
                     >
                         {child.name}
-                    </MenuItem>
+                    </BoldMenuItem>
                 )
                 child.children.forEach((child2, idx2) => {
                     items.push(
-                        <MenuItem
+                        <IndentMenuItem
                             key={`${h}_${idx}_${idx2}`}
                             value={child2}
-                            className={clsx(c.indent, {
-                                [c.disabled2]: !(
-                                    bodyLimits == null || bodyLimits.includes(child2.toLowerCase())
-                                ),
-                            })}
+                            isHidden={!(
+                                bodyLimits == null || bodyLimits.includes(child2.toLowerCase())
+                            )}
                         >
                             {`${child2 === 'Moon' ? 'The ' : ''}${child2}`}
-                        </MenuItem>
+                        </IndentMenuItem>
                     )
                 })
             })
@@ -233,18 +237,17 @@ function TargetDropdown(props) {
     }
 
     return (
-        <div className={className}>
-            <FormControl className={c.formControl} size="small">
-                <Select
-                    className={c.select}
+        <div>
+            <StyledFormControl size="small">
+                <StyledSelect
                     defaultValue={1}
                     onChange={handleChange}
                     value={targetPlanet}
                     input={<Input id="grouped-select" />}
                 >
                     {constructItems()}
-                </Select>
-            </FormControl>
+                </StyledSelect>
+            </StyledFormControl>
         </div>
     )
 }
@@ -257,7 +260,6 @@ function TargetDropdown(props) {
  * @component
  */
 export default function App(props) {
-    const c = useStyles()
     const dispatch = useDispatch()
 
     const [targetPlanet, setTargetPlanet] = useState('None')
@@ -298,37 +300,39 @@ export default function App(props) {
     }
 
     return (
-        <div className={c.root}>
+        <AppRoot>
             {targetPlanet === 'None' ? (
-                <div className={c.none}>
-                    <Paper className={c.messageCont} elevation={10}>
-                        <Typography className={c.message}>
+                <NoneBackground>
+                    <MessageContainer elevation={10}>
+                        <MessageText>
                             Select a target body to get started
-                        </Typography>
-                        <TargetDropdown
-                            className={c.messageChangePlanet}
-                            targetPlanet={targetPlanet}
-                            handleChange={handleChange}
-                            hasNone={true}
-                            bodyLimits={bodyLimits}
-                        />
-                    </Paper>
-                </div>
+                        </MessageText>
+                        <MessageChangePlanet>
+                            <TargetDropdown
+                                targetPlanet={targetPlanet}
+                                handleChange={handleChange}
+                                hasNone={true}
+                                bodyLimits={bodyLimits}
+                            />
+                        </MessageChangePlanet>
+                    </MessageContainer>
+                </NoneBackground>
             ) : (
                 <React.Fragment>
-                    <TargetDropdown
-                        className={c.changePlanet}
-                        targetPlanet={targetPlanet}
-                        handleChange={handleChange}
-                        bodyLimits={bodyLimits}
-                    />
-                    <Paper className={c.paper} elevation={10}>
+                    <ChangePlanet>
+                        <TargetDropdown
+                            targetPlanet={targetPlanet}
+                            handleChange={handleChange}
+                            bodyLimits={bodyLimits}
+                        />
+                    </ChangePlanet>
+                    <StyledPaper elevation={10}>
                         <ConsoleContainer target={targetPlanet} />
                         <MapContainer target={targetPlanet} firstOpen={props.firstOpen} />
                         <WellKnownTextInput />
-                    </Paper>
+                    </StyledPaper>
                 </React.Fragment>
             )}
-        </div>
+        </AppRoot>
     )
 }

@@ -1,10 +1,8 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import clsx from 'clsx'
 
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import Checkbox from '@mui/material/Checkbox'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
@@ -20,101 +18,113 @@ import {
     copyToClipboard,
 } from '../../../../../../../core/utils.js'
 
-const useStyles = makeStyles((theme) => ({
-    MLLayers: {
-        width: '100%',
-        height: '100%',
-        color: '#666',
-        display: 'flex',
-        flexFlow: 'column',
-    },
-    title: {
-        fontSize: '14px',
-        textTransform: 'uppercase',
-        fontWeight: 600,
-        margin: '0px',
-        padding: '12px 12px 8px 12px',
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-    },
-    subtitle: {
-        fontSize: '13px',
-        fontWeight: 400,
-        margin: '0px',
-        padding: '12px 12px 8px 12px',
-    },
-    layers: {
-        paddingBottom: '4px',
-    },
-    layersUl: {
-        padding: 0,
+const MLLayersRoot = styled('div')({
+    width: '100%',
+    height: '100%',
+    color: '#666',
+    display: 'flex',
+    flexFlow: 'column',
+})
+
+const LayerTitle = styled('h4')(({ theme }) => ({
+    fontSize: '14px',
+    textTransform: 'uppercase',
+    fontWeight: 600,
+    margin: '0px',
+    padding: '12px 12px 8px 12px',
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+}))
+
+const Subtitle = styled('h4')({
+    fontSize: '13px',
+    fontWeight: 400,
+    margin: '0px',
+    padding: '12px 12px 8px 12px',
+})
+
+const LayersSection = styled('div')({
+    paddingBottom: '4px',
+})
+
+const LayersUl = styled('ul')({
+    padding: 0,
+    margin: 0,
+})
+
+const LayersLi = styled('li')({
+    height: '42px',
+    width: '100%',
+    display: 'flex',
+    cursor: 'pointer',
+    transition: 'background 0.2s ease-in-out',
+})
+
+const StyledCheckbox = styled(Checkbox)({
+    padding: '0px 12px',
+})
+
+const Message = styled(Typography, {
+    shouldForwardProp: (prop) => prop !== 'isChecked',
+})(({ isChecked }) => ({
+    fontSize: '14px',
+    fontWeight: 500,
+    lineHeight: '42px',
+    textTransform: 'capitalize',
+    userSelect: 'none',
+}))
+
+const FiltersSection = styled('div')({
+    '& > ul': {
         margin: 0,
+        padding: 0,
     },
-    layersLi: {
-        height: '42px',
-        width: '100%',
-        display: 'flex',
-        cursor: 'pointer',
-        transition: 'background 0.2s ease-in-out',
+})
+
+const SliderWrapper = styled('div')({
+    height: '30px',
+    width: 'calc(100% - 46px)',
+    padding: '4px 23px 4px 23px',
+})
+
+const SliderMarks = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    margin: '-9px -4px 0px -4px',
+    fontSize: '12px',
+})
+
+const InputsWrapper = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: 'calc(100% - 40px)',
+    padding: '0px 20px',
+})
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+    'width': 'calc(50% - 6px)',
+    '& .MuiFormLabel-root': {
+        color: theme.palette.swatches.grey.grey700,
     },
-    checkbox: {
-        padding: '0px 12px',
-    },
-    message: {
-        fontSize: '14px',
-        fontWeight: 500,
-        lineHeight: '42px',
-        textTransform: 'capitalize',
-        userSelect: 'none',
-    },
-    messageChecked: {},
-    filters: {
-        '& > ul': {
-            margin: 0,
-            padding: 0,
-        },
-    },
-    sliderWrapper: {
-        height: '30px',
-        width: 'calc(100% - 46px)',
-        padding: '4px 23px 4px 23px',
-    },
-    sliderMarks: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        margin: '-9px -4px 0px -4px',
-        fontSize: '12px',
-    },
-    inputs: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        width: 'calc(100% - 40px)',
-        padding: '0px 20px',
-    },
-    input: {
-        'width': 'calc(50% - 6px)',
-        '& .MuiFormLabel-root': {
-            color: theme.palette.swatches.grey.grey700,
-        },
-    },
-    topBar: {
-        height: `${theme.headHeights[2]}px`,
-        display: 'flex',
-        justifyContent: 'flex-end',
-        boxSizing: 'border-box',
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        background: theme.palette.swatches.grey.grey0,
-    },
-    button1: {
-        height: 30,
-        margin: '5px',
-        color: theme.palette.text.primary,
-    },
+}))
+
+const TopBar = styled('div')(({ theme }) => ({
+    height: `${theme.headHeights[2]}px`,
+    display: 'flex',
+    justifyContent: 'flex-end',
+    boxSizing: 'border-box',
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    background: theme.palette.swatches.grey.grey0,
+}))
+
+const TopBarButton = styled(Button)(({ theme }) => ({
+    height: 30,
+    margin: '5px',
+    color: theme.palette.text.primary,
 }))
 
 const MLLayers = (props) => {
   
     const { features, classes, onChange } = props
-    const c = useStyles()
     const theme = useTheme()
 
     const dispatch = useDispatch()
@@ -146,10 +156,9 @@ const MLLayers = (props) => {
     }
 
     return (
-        <div className={c.MLLayers}>
-            <div className={c.topBar}>
-                <Button
-                    className={c.button1}
+        <MLLayersRoot>
+            <TopBar>
+                <TopBarButton
                     variant="outlined"
                     aria-label="copy ML features"
                     size="small"
@@ -161,17 +170,16 @@ const MLLayers = (props) => {
                     }}
                 >
                     Copy ML Features JSON
-                </Button>
-            </div>
-            <div className={c.layers}>
-                <h4 className={c.title}>Layers</h4>
-                <ul className={c.layersUl}>
+                </TopBarButton>
+            </TopBar>
+            <LayersSection>
+                <LayerTitle>Layers</LayerTitle>
+                <LayersUl>
                     {Object.keys(classes).map((key, idx) => {
                         const checkedClass = classes[key] || {}
                         const isChecked = checkedClass.on
                         return (
-                            <li
-                                className={c.layersLi}
+                            <LayersLi
                                 style={{
                                     background: isChecked
                                         ? checkedClass.color
@@ -185,31 +193,26 @@ const MLLayers = (props) => {
                                     onChange('classes', nextClasses)
                                 }}
                             >
-                                <Checkbox
-                                    className={c.checkbox}
+                                <StyledCheckbox
                                     color="secondary"
                                     checked={isChecked}
                                     title="Select"
                                     aria-label="select"
                                 />
-                                <Typography
-                                    className={clsx(c.message, {
-                                        [c.messageChecked]: isChecked,
-                                    })}
-                                >
+                                <Message isChecked={isChecked}>
                                     {prettify(key)}
-                                </Typography>
-                            </li>
+                                </Message>
+                            </LayersLi>
                         )
                     })}
-                </ul>
-            </div>
-            <div className={c.filters}>
-                <h4 className={c.title}>Filters</h4>
+                </LayersUl>
+            </LayersSection>
+            <FiltersSection>
+                <LayerTitle>Filters</LayerTitle>
                 <ul>
-                    <li className={c.confidenceFilter}>
-                        <h4 className={c.subtitle}>Confidence</h4>
-                        <div className={c.sliderWrapper}>
+                    <li>
+                        <Subtitle>Confidence</Subtitle>
+                        <SliderWrapper>
                             <Slider
                                 value={normalizedValue}
                                 min={min}
@@ -217,15 +220,14 @@ const MLLayers = (props) => {
                                 step={step}
                                 onChange={handleSliderChange}
                             />
-                            <div className={c.sliderMarks}>
+                            <SliderMarks>
                                 <div>{min}</div>
                                 <div>{max}</div>
-                            </div>
-                        </div>
-                        <div className={c.inputs}>
-                            <TextField
+                            </SliderMarks>
+                        </SliderWrapper>
+                        <InputsWrapper>
+                            <StyledTextField
                                 label="From"
-                                className={c.input}
                                 value={value[0] != null ? value[0] : ''}
                                 margin="dense"
                                 onChange={(e) => {
@@ -238,9 +240,8 @@ const MLLayers = (props) => {
                                     type: 'number',
                                 }}
                             />
-                            <TextField
+                            <StyledTextField
                                 label="To"
-                                className={c.input}
                                 value={value[1] != null ? value[1] : ''}
                                 margin="dense"
                                 onChange={(e) => {
@@ -253,11 +254,11 @@ const MLLayers = (props) => {
                                     type: 'number',
                                 }}
                             />
-                        </div>
+                        </InputsWrapper>
                     </li>
                 </ul>
-            </div>
-        </div>
+            </FiltersSection>
+        </MLLayersRoot>
     )
 }
 
