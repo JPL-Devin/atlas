@@ -2,12 +2,10 @@ import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
-
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { useTheme } from '@mui/material/styles'
-import { makeStyles } from '@mui/styles'
+import { styled, useTheme } from '@mui/material/styles'
 
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import IconButton from '@mui/material/IconButton'
@@ -33,97 +31,93 @@ import {
     setSnackBarText,
 } from '../../../../../../core/redux/actions/actions.js'
 
-const useStyles = makeStyles((theme) => ({
-    Heading: {
-        width: '100%',
-        height: theme.headHeights[1],
-        display: 'flex',
-        justifyContent: 'space-between',
-        boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey100,
-    },
-    title: {
-        fontSize: '16px',
-        fontWeight: 500,
-        lineHeight: '34px',
-        whiteSpace: 'nowrap',
-        padding: '4px 0px 4px 12px',
-        color: theme.palette.text.primary,
-    },
-    left: {
-        display: 'flex',
-    },
-    middle: {
-        flex: 1,
-        padding: '4px 12px',
-    },
-    right: {
-        display: 'flex',
-        justifyContent: 'space-between',
-    },
-    rotateButton: {
-        'width': theme.headHeights[1],
-        'height': theme.headHeights[1],
-        '& svg': {
-            borderRadius: '50%',
-            transform: `rotateZ(${window.atlasGlobal.imageRotation}deg)`,
-            background:
-                window.atlasGlobal.imageRotation === 0
-                    ? 'inherit'
-                    : theme.palette.swatches.grey.grey150,
-            color: window.atlasGlobal.imageRotation === 0 ? 'rgba(0,0,0,0.54)' : 'black',
-        },
-    },
-    gridSize: {
-        'height': '26px',
-        'background': theme.palette.swatches.grey.grey100,
-        'margin': '6px 4px',
-        'borderRadius': '4px',
-        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
-        '& > button:not(:last-child)': {
-            borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        },
-    },
-    gridSizeButton: {
-        'color': theme.palette.swatches.grey.grey300,
-        'padding': '3px 6px 2px 6px',
-        'transition': 'color 0.2s ease-out, background 0.2s ease-out',
-        '&:hover': {
-            color: theme.palette.text.primary,
-            background: theme.palette.swatches.grey.grey150,
-        },
-    },
-    gridSizeActive: {
-        background: theme.palette.swatches.grey.grey150,
-        color: theme.palette.text.primary,
-    },
-    button1: {
-        color: theme.palette.text.secondary,
-        fontSize: '11px',
-        lineHeight: '11px',
-        margin: '7px 3px',
-        background: theme.palette.accent.main,
-    },
-    button2: {
-        'color': theme.palette.text.secondary,
-        'fontSize': '11px',
-        'lineHeight': '11px',
-        'margin': '7px 3px',
-        'background': theme.palette.swatches.red.red500,
-        '&:hover': {
-            color: theme.palette.text.secondary,
-            background: theme.palette.swatches.red.red400,
-        },
-    },
-    menuButton: {
-        fontSize: '21px',
+const HeadingRoot = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: theme.headHeights[1],
+    display: 'flex',
+    justifyContent: 'space-between',
+    boxSizing: 'border-box',
+    background: theme.palette.swatches.grey.grey100,
+}))
+
+const Title = styled('div')(({ theme }) => ({
+    fontSize: '16px',
+    fontWeight: 500,
+    lineHeight: '34px',
+    whiteSpace: 'nowrap',
+    padding: '4px 0px 4px 12px',
+    color: theme.palette.text.primary,
+}))
+
+
+const RotateButton = styled(IconButton)(({ theme }) => ({
+    'width': theme.headHeights[1],
+    'height': theme.headHeights[1],
+    '& svg': {
+        borderRadius: '50%',
+        transform: `rotateZ(${window.atlasGlobal.imageRotation}deg)`,
+        background:
+            window.atlasGlobal.imageRotation === 0
+                ? 'inherit'
+                : theme.palette.swatches.grey.grey150,
+        color: window.atlasGlobal.imageRotation === 0 ? 'rgba(0,0,0,0.54)' : 'black',
     },
 }))
+
+const GridSizeGroup = styled('div')(({ theme }) => ({
+    'height': '26px',
+    'background': theme.palette.swatches.grey.grey100,
+    'margin': '6px 4px',
+    'borderRadius': '4px',
+    'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
+    '& > button:not(:last-child)': {
+        borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    },
+}))
+
+const GridSizeButton = styled(IconButton, {
+    shouldForwardProp: (prop) => prop !== 'isActive',
+})(({ theme, isActive }) => ({
+    'color': theme.palette.swatches.grey.grey300,
+    'padding': '3px 6px 2px 6px',
+    'transition': 'color 0.2s ease-out, background 0.2s ease-out',
+    '&:hover': {
+        color: theme.palette.text.primary,
+        background: theme.palette.swatches.grey.grey150,
+    },
+    ...(isActive && {
+        background: theme.palette.swatches.grey.grey150,
+        color: theme.palette.text.primary,
+    }),
+}))
+
+const ActionButton = styled(Button)(({ theme }) => ({
+    color: theme.palette.text.secondary,
+    fontSize: '11px',
+    lineHeight: '11px',
+    margin: '7px 3px',
+    background: theme.palette.accent.main,
+}))
+
+const ActionButtonDanger = styled(Button)(({ theme }) => ({
+    'color': theme.palette.text.secondary,
+    'fontSize': '11px',
+    'lineHeight': '11px',
+    'margin': '7px 3px',
+    'background': theme.palette.swatches.red.red500,
+    '&:hover': {
+        color: theme.palette.text.secondary,
+        background: theme.palette.swatches.red.red400,
+    },
+}))
+
+const MenuButtonIcon = styled(MoreVertIcon)({
+    fontSize: '21px',
+})
 
 const Heading = (props) => {
     const { activeView } = props
 
-    const c = useStyles()
     const dispatch = useDispatch()
 
     const theme = useTheme()
@@ -155,20 +149,18 @@ const Heading = (props) => {
     }
 
     return (
-        <div className={c.Heading}>
-            <div className={c.left}>
-                <div className={c.title}>Results</div>
-            </div>
-            <div className={c.middle}>{filterType === 'basic' && <ChippedFilters />}</div>
-            <div className={c.right}>
+        <HeadingRoot>
+            <Box sx={{ display: 'flex' }}>
+                <Title>Results</Title>
+            </Box>
+            <Box sx={{ flex: 1, padding: '4px 12px' }}>{filterType === 'basic' && <ChippedFilters />}</Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <ResultsSorter />
                 {activeView === 'grid' && !isMobile && (
-                    <div className={c.gridSize}>
+                    <GridSizeGroup>
                         <Tooltip title="Small Grid Images" arrow>
-                            <IconButton
-                                className={clsx(c.gridSizeButton, {
-                                    [c.gridSizeActive]: gridSize === gridSizes[0],
-                                })}
+                            <GridSizeButton
+                                isActive={gridSize === gridSizes[0]}
                                 aria-label="small image size"
                                 size="small"
                                 onClick={() => {
@@ -176,13 +168,11 @@ const Heading = (props) => {
                                 }}
                             >
                                 <PhotoSizeSelectSmallIcon />
-                            </IconButton>
+                            </GridSizeButton>
                         </Tooltip>
                         <Tooltip title="Medium Grid Images" arrow>
-                            <IconButton
-                                className={clsx(c.gridSizeButton, {
-                                    [c.gridSizeActive]: gridSize === gridSizes[1],
-                                })}
+                            <GridSizeButton
+                                isActive={gridSize === gridSizes[1]}
                                 aria-label="medium image size"
                                 size="small"
                                 onClick={() => {
@@ -190,13 +180,11 @@ const Heading = (props) => {
                                 }}
                             >
                                 <PhotoSizeSelectLargeIcon />
-                            </IconButton>
+                            </GridSizeButton>
                         </Tooltip>
                         <Tooltip title="Large Grid Images" arrow>
-                            <IconButton
-                                className={clsx(c.gridSizeButton, {
-                                    [c.gridSizeActive]: gridSize === gridSizes[2],
-                                })}
+                            <GridSizeButton
+                                isActive={gridSize === gridSizes[2]}
                                 aria-label="large image size"
                                 size="small"
                                 onClick={() => {
@@ -204,33 +192,31 @@ const Heading = (props) => {
                                 }}
                             >
                                 <PhotoSizeSelectActualIcon />
-                            </IconButton>
+                            </GridSizeButton>
                         </Tooltip>
-                    </div>
+                    </GridSizeGroup>
                 )}
                 {activeView === 'grid' && !isMobile && (
                     <Tooltip title="Rotate Images 90°" arrow>
-                        <IconButton
-                            className={c.rotateButton}
+                        <RotateButton
                             id="ResultsPanelRotateButton"
                             aria-label="rotate images"
                             size="small"
                             onClick={rotate90}
                         >
                             <RotateRightIcon />
-                        </IconButton>
+                        </RotateButton>
                     </Tooltip>
                 )}
                 {activeView === 'table' && !isMobile && (
-                    <Button
-                        className={c.button1}
+                    <ActionButton
                         variant="contained"
                         aria-label="edits columns"
                         size="small"
                         onClick={() => dispatch(setModal('editColumns'))}
                     >
                         Edit Columns
-                    </Button>
+                    </ActionButton>
                 )}
                 <Tooltip
                     title={
@@ -240,36 +226,35 @@ const Heading = (props) => {
                     }
                     arrow
                 >
-                    <Button
-                        className={resultKeysChecked.length > 0 ? c.button2 : c.button1}
-                        variant="contained"
-                        aria-label={
-                            resultKeysChecked.length > 0
-                                ? 'add selected results to cart'
-                                : 'add all query results to cart'
-                        }
-                        size="small"
-                        onClick={() => {
-                            if (resultKeysChecked.length > 0) {
+                    {resultKeysChecked.length > 0 ? (
+                        <ActionButtonDanger
+                            variant="contained"
+                            aria-label="add selected results to cart"
+                            size="small"
+                            onClick={() => {
                                 dispatch(addToCart('image', 'checkedResults'))
                                 dispatch(
                                     setSnackBarText('Added Selected Items to Cart!', 'success')
                                 )
-                            } else {
+                            }}
+                            endIcon={<AddShoppingCartIcon size="small" />}
+                        >
+                            {isMobile ? 'Add Selected' : 'Add Selected to Cart'}
+                        </ActionButtonDanger>
+                    ) : (
+                        <ActionButton
+                            variant="contained"
+                            aria-label="add all query results to cart"
+                            size="small"
+                            onClick={() => {
                                 dispatch(addToCart('query', 'lastQuery'))
                                 dispatch(setSnackBarText('Added Query to Cart!', 'success'))
-                            }
-                        }}
-                        endIcon={<AddShoppingCartIcon size="small" />}
-                    >
-                        {isMobile
-                            ? resultKeysChecked.length > 0
-                                ? 'Add Selected'
-                                : 'Add All'
-                            : resultKeysChecked.length > 0
-                            ? 'Add Selected to Cart'
-                            : 'Add All to Cart'}
-                    </Button>
+                            }}
+                            endIcon={<AddShoppingCartIcon size="small" />}
+                        >
+                            {isMobile ? 'Add All' : 'Add All to Cart'}
+                        </ActionButton>
+                    )}
                 </Tooltip>
                 <MenuButton
                     options={
@@ -302,7 +287,7 @@ const Heading = (props) => {
                                   'Rotate Images 90°',
                               ]
                     }
-                    buttonComponent={<MoreVertIcon className={c.menuButton} />}
+                    buttonComponent={<MenuButtonIcon />}
                     onChange={(option, idx) => {
                         switch (option) {
                             case 'Add Selected Results to Cart':
@@ -339,8 +324,8 @@ const Heading = (props) => {
                         }
                     }}
                 />
-            </div>
-        </div>
+            </Box>
+        </HeadingRoot>
     )
 }
 

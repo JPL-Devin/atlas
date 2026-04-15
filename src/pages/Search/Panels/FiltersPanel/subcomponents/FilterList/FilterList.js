@@ -6,25 +6,24 @@ import Url from 'url-parse'
 
 import Filter from '../../../../../../components/Filter/Filter'
 import { HASH_PATHS } from '../../../../../../core/constants'
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
-const useStyles = makeStyles((theme) => ({
-    FilterList: {
-        height: '100%',
-        transition: 'width 0.4s ease-out',
-    },
-    groupHeader: {
-        padding: '5px 16px 5px',
-        fontSize: '11px',
-        fontWeight: 700,
-        lineHeight: '13px',
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey300}`,
-        color: theme.palette.swatches.blue.blue900,
-        background: theme.palette.swatches.grey.grey150,
-    },
+const GroupHeader = styled('div')(({ theme }) => ({
+    padding: '5px 16px 5px',
+    fontSize: '11px',
+    fontWeight: 700,
+    lineHeight: '13px',
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey300}`,
+    color: theme.palette.swatches.blue.blue900,
+    background: theme.palette.swatches.grey.grey150,
 }))
+
+const FilterListRoot = styled('div')({
+    height: '100%',
+    transition: 'width 0.4s ease-out',
+})
 
 const getGroupKey = (key) => {
     if (key === '_text') return null
@@ -113,8 +112,6 @@ const getSearchURL = (activeFilters) => {
 }
 
 const FilterList = (props) => {
-    const c = useStyles()
-
     const navigate = useNavigate()
 
     const [expandedFilter, setExpandedFilter] = useState('_text')
@@ -165,17 +162,17 @@ const FilterList = (props) => {
     )
 
     return (
-        <div className={c.FilterList}>
+        <FilterListRoot>
             {textKey && renderFilter(textKey)}
             {sortedGroups.map((group) => (
                 <div key={group}>
-                    <div className={c.groupHeader}>
+                    <GroupHeader>
                         {GROUP_DISPLAY_NAMES[group] ?? group.replace(/_/g, ' ')}
-                    </div>
+                    </GroupHeader>
                     {groupedKeys[group].map(renderFilter)}
                 </div>
             ))}
-        </div>
+        </FilterListRoot>
     )
 }
 

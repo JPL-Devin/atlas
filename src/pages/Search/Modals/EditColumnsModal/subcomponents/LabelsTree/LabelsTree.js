@@ -2,11 +2,8 @@ import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 
-import { makeStyles, withStyles } from '@mui/styles'
-import { styled } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView'
-import { TreeItem, treeItemClasses } from '@mui/x-tree-view/TreeItem'
-import { useTheme } from '@mui/material/styles'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
@@ -23,6 +20,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { List, arrayMove, arrayRemove } from 'react-movable'
 
 import { isObject } from '../../../../../../core/utils'
+import { StyledTreeGroup, StyledTreeItem, InfoIconButton } from '../../../../../../components/shared/TreeComponents'
 
 function TransitionComponent(props) {
     const style = useSpring({
@@ -44,53 +42,24 @@ TransitionComponent.propTypes = {
     in: PropTypes.bool,
 }
 
-const StyledTreeGroup = styled(TreeItem)(({ theme }) => ({
-    minHeight: theme.headHeights[3],
-    textTransform: 'uppercase',
-    paddingLeft: '6px',
-    [`& .${treeItemClasses.content}`]: {
-        height: theme.headHeights[3],
-        flex: 1,
-        justifyContent: 'left',
-        alignItems: 'center',
-        [`&.${treeItemClasses.selected}:hover`]: {
-            backgroundColor: 'rgba(0, 0, 0, 0.04)',
-        },
-    },
-}))
-
-const StyledTreeItem = styled(TreeItem)(({ theme }) => ({
+const LabelsTreeLabelRoot = styled('div')(({ theme }) => ({
+    display: 'flex',
     height: theme.headHeights[3],
-    marginLeft: '-20px',
-    [`& > div > .${treeItemClasses.label}`]: {
-        padding: '0px',
-    },
 }))
 
-const LabelsTreeLabel = withStyles((theme) => ({
-    LabelsTreeLabel: {
-        display: 'flex',
-        height: theme.headHeights[3],
-    },
-    checkbox: {},
-    infoIcon: {
-        fontSize: '18px',
-        padding: '12px 7px',
-        color: theme.palette.accent.main,
-    },
-    label: {
-        flex: 1,
-        lineHeight: `${theme.headHeights[3]}px`,
-        paddingLeft: '3px',
-        fontSize: '14px',
-        textTransform: 'none',
-    },
-}))((props) => {
-    const { classes, id, label, active, onCheck, onInfoClick } = props
+const LabelText = styled('span')(({ theme }) => ({
+    flex: 1,
+    lineHeight: `${theme.headHeights[3]}px`,
+    paddingLeft: '3px',
+    fontSize: '14px',
+    textTransform: 'none',
+}))
+
+const LabelsTreeLabel = (props) => {
+    const { id, label, active, onCheck, onInfoClick } = props
     return (
-        <div className={classes.LabelsTreeLabel}>
+        <LabelsTreeLabelRoot>
             <Checkbox
-                className={classes.checkbox}
                 color="default"
                 checked={active}
                 size="medium"
@@ -98,21 +67,20 @@ const LabelsTreeLabel = withStyles((theme) => ({
                 aria-label="add"
                 onClick={onCheck}
             />
-            <IconButton
-                className={classes.infoIcon}
+            <InfoIconButton
                 title="Info"
                 aria-label="info"
                 size="medium"
                 onClick={onInfoClick}
             >
                 <InfoOutlinedIcon fontSize="inherit" />
-            </IconButton>
-            <span className={classes.label} onClick={onCheck}>
+            </InfoIconButton>
+            <LabelText onClick={onCheck}>
                 {label}
-            </span>
-        </div>
+            </LabelText>
+        </LabelsTreeLabelRoot>
     )
-})
+}
 
 let shownExpandedIds = []
 
@@ -283,83 +251,88 @@ const makeTree = (mapping, activeColumnFields, filterString, setSelected, addRem
     return depthTraversal(source, 0, '')
 }
 
-const useStyles = makeStyles((theme) => ({
-    LabelsTree: {
-        display: 'flex',
-        height: '100%',
-        [theme.breakpoints.down('sm')]: {
-            flexFlow: 'column',
-        },
-    },
-    left: {
-        flexGrow: 1,
-        overflowX: 'hidden',
-        width: '300px',
-        transition: 'width 0.2s ease-out',
-        display: 'flex',
+const LabelsTreeRoot = styled('div')(({ theme }) => ({
+    display: 'flex',
+    height: '100%',
+    [theme.breakpoints.down('sm')]: {
         flexFlow: 'column',
-        [theme.breakpoints.down('sm')]: {
-            width: '100%',
-        },
     },
-    leftTop: {
-        paddingTop: '1px',
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey150}`,
+}))
+
+const Left = styled('div')(({ theme }) => ({
+    flexGrow: 1,
+    overflowX: 'hidden',
+    width: '300px',
+    transition: 'width 0.2s ease-out',
+    display: 'flex',
+    flexFlow: 'column',
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
     },
-    leftBottom: {
-        flex: 1,
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        padding: `${theme.spacing(1)} ${theme.spacing(2)}`,
+}))
+
+const LeftTop = styled('div')(({ theme }) => ({
+    paddingTop: '1px',
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey150}`,
+}))
+
+const LeftBottom = styled('div')(({ theme }) => ({
+    flex: 1,
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    padding: `${theme.spacing(1)} ${theme.spacing(2)}`,
+}))
+
+const Right = styled('div')(({ theme }) => ({
+    overflowX: 'hidden',
+    padding: '0px',
+    transition: 'width 0.2s ease-out, opacity 0.2s ease-out, padding 0.2s ease-out',
+    width: '300px',
+    minHeight: '100%',
+    opacity: 1,
+    pointerEvents: 'inherit',
+    borderLeft: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    [theme.breakpoints.down('sm')]: {
+        minHeight: 'unset',
+        maxHeight: '40%',
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey600}`,
+        width: 'calc(100% - 1px)',
     },
-    right: {
-        overflowX: 'hidden',
-        padding: '0px',
-        transition: 'width 0.2s ease-out, opacity 0.2s ease-out, padding 0.2s ease-out',
-        width: '300px',
-        minHeight: '100%',
-        opacity: 1,
-        pointerEvents: 'inherit',
-        borderLeft: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        [theme.breakpoints.down('sm')]: {
-            minHeight: 'unset',
-            maxHeight: '40%',
-            borderTop: `1px solid ${theme.palette.swatches.grey.grey600}`,
-            width: 'calc(100% - 1px)',
-        },
+}))
+
+const StyledInput = styled(Input)(({ theme }) => ({
+    'width': '100%',
+    'padding': `${theme.spacing(1)} ${theme.spacing(2)}`,
+    '&:before': {
+        borderBottom: `1px solid rgba(255,255,255,0.2)`,
     },
-    input: {
-        'width': '100%',
-        'padding': `${theme.spacing(1)} ${theme.spacing(2)}`,
-        '&:before': {
-            borderBottom: `1px solid rgba(255,255,255,0.2)`,
-        },
-    },
-    listUl: { margin: 0 },
-    listLi: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        height: '40px',
-        padding: '0px 8px 0px 0px',
-        listStyleType: 'none',
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        transition: 'background 0.2s ease-out, box-shadow 0.2s ease-out',
-        zIndex: 20000,
-    },
-    deleteButton: {
-        'width': '40px',
-        'height': '40px',
-        'color': theme.palette.swatches.grey.grey300,
-        'transition': 'color 0.2s ease-out',
-        '&:hover': {
-            color: theme.palette.swatches.red.red500,
-        },
+}))
+
+const ListUl = styled('ul')({ margin: 0 })
+
+const ListLi = styled('li')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    height: '40px',
+    padding: '0px 8px 0px 0px',
+    listStyleType: 'none',
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    transition: 'background 0.2s ease-out, box-shadow 0.2s ease-out',
+    zIndex: 20000,
+}))
+
+const DeleteButton = styled(IconButton)(({ theme }) => ({
+    'width': '40px',
+    'height': '40px',
+    'color': theme.palette.swatches.grey.grey300,
+    'transition': 'color 0.2s ease-out',
+    '&:hover': {
+        color: theme.palette.swatches.red.red500,
     },
 }))
 
 const LabelsTree = (props) => {
     const { columns, setColumns } = props
-    const c = useStyles()
     const theme = useTheme()
 
     const [filterString, setFilterString] = useState('')
@@ -383,11 +356,10 @@ const LabelsTree = (props) => {
     }
 
     return (
-        <div className={c.LabelsTree}>
-            <div className={c.left}>
-                <div className={c.leftTop}>
-                    <Input
-                        className={c.input}
+        <LabelsTreeRoot>
+            <Left>
+                <LeftTop>
+                    <StyledInput
                         placeholder={'Find Filter'}
                         startAdornment={
                             <InputAdornment position="start">
@@ -398,8 +370,8 @@ const LabelsTree = (props) => {
                             setFilterString(e.target.value)
                         }}
                     />
-                </div>
-                <div className={c.leftBottom}>
+                </LeftTop>
+                <LeftBottom>
                     <SimpleTreeView>
                         {makeTree(
                             atlasMapping, //firstResult?._source,
@@ -409,17 +381,16 @@ const LabelsTree = (props) => {
                             addRemoveColumn
                         )}
                     </SimpleTreeView>
-                </div>
-            </div>
-            <div className={c.right}>
+                </LeftBottom>
+            </Left>
+            <Right>
                 <List
                     values={columns}
                     onChange={({ oldIndex, newIndex }) =>
                         setColumns(arrayMove(columns, oldIndex, newIndex))
                     }
                     renderList={({ children, props, isDragged }) => (
-                        <ul
-                            className={c.listUl}
+                        <ListUl
                             {...props}
                             style={{
                                 padding: 0,
@@ -427,11 +398,10 @@ const LabelsTree = (props) => {
                             }}
                         >
                             {children}
-                        </ul>
+                        </ListUl>
                     )}
                     renderItem={({ value, props, isDragged, isSelected }) => (
-                        <li
-                            className={c.listLi}
+                        <ListLi
                             {...props}
                             style={{
                                 ...props.style,
@@ -459,8 +429,7 @@ const LabelsTree = (props) => {
                             </div>
                             <div>
                                 <Tooltip title="Remove Label" arrow placement="right">
-                                    <IconButton
-                                        className={c.deleteButton}
+                                    <DeleteButton
                                         aria-label={`remove label ${value}`}
                                         size="small"
                                         onClick={() => {
@@ -468,14 +437,14 @@ const LabelsTree = (props) => {
                                         }}
                                     >
                                         <DeleteIcon />
-                                    </IconButton>
+                                    </DeleteButton>
                                 </Tooltip>
                             </div>
-                        </li>
+                        </ListLi>
                     )}
                 />
-            </div>
-        </div>
+            </Right>
+        </LabelsTreeRoot>
     )
 }
 

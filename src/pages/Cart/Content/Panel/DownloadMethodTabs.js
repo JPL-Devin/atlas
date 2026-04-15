@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -14,70 +14,69 @@ import CURLTab from './Tabs/CURL/CURL'
 import WGETTab from './Tabs/WGET/WGET'
 import CSVTab from './Tabs/CSV/CSV'
 import TXTTab from './Tabs/TXT/TXT'
-import clsx from 'clsx'
-
-const useStyles = makeStyles((theme) => ({
-    root: {
-        padding: `${theme.spacing(2)} ${theme.spacing(3)}`,
-        background: theme.palette.swatches.grey.grey100,
-    },
-    title: {
-        fontSize: '16px',
-        fontWeight: 'bold',
-        marginBottom: theme.spacing(3),
-    },
-    radioGroupContainer: {
-        width: '100%',
-        boxSizing: 'border-box',
-    },
-    radioGroup: {
-        gap: theme.spacing(1),
-    },
-    radioOption: {
-        'border': `1px solid ${theme.palette.swatches.grey.grey300}`,
-        'borderRadius': '4px',
-        'padding': theme.spacing(1.5),
-        'margin': 0,
-        'marginBottom': theme.spacing(1),
-        'transition': 'all 0.2s',
-        '&:hover:not(.selected)': {
-            'borderColor': theme.palette.swatches.grey.grey500,
-            '& .MuiRadio-root': {
-                color: theme.palette.swatches.grey.grey500,
-            },
-        },
-        '&.selected': {
-            border: `1px solid ${theme.palette.accent.main}`,
-        },
-    },
-    radioLabelContent: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: theme.spacing(0.5),
-    },
-    radioTitle: {
-        fontSize: '14px',
-        fontWeight: 'bold',
-        color: theme.palette.common.black,
-    },
-    radioDescription: {
-        fontSize: '12px',
-        color: theme.palette.swatches.grey.grey800,
-        lineHeight: '1.4',
-    },
-    tabPanels: {
-        position: 'relative',
-        padding: 0,
-    },
-    borderBottom: {
+const RootSection = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'withBorderBottom',
+})(({ theme, withBorderBottom }) => ({
+    padding: `${theme.spacing(2)} ${theme.spacing(3)}`,
+    background: theme.palette.swatches.grey.grey100,
+    ...(withBorderBottom && {
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-    },
-    radio: {
-        'color': theme.palette.swatches.grey.grey300,
-        'transition': 'color 0.2s',
-        '&.Mui-checked': {
-            color: theme.palette.accent.main,
+    }),
+}))
+
+const SectionTitle = styled(Typography)(({ theme }) => ({
+    fontSize: '16px',
+    fontWeight: 'bold',
+    marginBottom: theme.spacing(3),
+}))
+
+const StyledRadioGroup = styled(RadioGroup)(({ theme }) => ({
+    gap: theme.spacing(1),
+}))
+
+const RadioOption = styled(FormControlLabel, {
+    shouldForwardProp: (prop) => prop !== 'isSelected',
+})(({ theme, isSelected }) => ({
+    'border': `1px solid ${theme.palette.swatches.grey.grey300}`,
+    'borderRadius': '4px',
+    'padding': theme.spacing(1.5),
+    'margin': 0,
+    'marginBottom': theme.spacing(1),
+    'transition': 'all 0.2s',
+    '&:hover:not(.selected)': {
+        'borderColor': theme.palette.swatches.grey.grey500,
+        '& .MuiRadio-root': {
+            color: theme.palette.swatches.grey.grey500,
         },
+    },
+    ...(isSelected && {
+        border: `1px solid ${theme.palette.accent.main}`,
+    }),
+}))
+
+const RadioLabelContent = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(0.5),
+}))
+
+const RadioTitle = styled(Typography)(({ theme }) => ({
+    fontSize: '14px',
+    fontWeight: 'bold',
+    color: theme.palette.common.black,
+}))
+
+const RadioDescription = styled(Typography)(({ theme }) => ({
+    fontSize: '12px',
+    color: theme.palette.swatches.grey.grey800,
+    lineHeight: '1.4',
+}))
+
+const StyledRadio = styled(Radio)(({ theme }) => ({
+    'color': theme.palette.swatches.grey.grey300,
+    'transition': 'color 0.2s',
+    '&.Mui-checked': {
+        color: theme.palette.accent.main,
     },
 }))
 
@@ -87,8 +86,6 @@ const DownloadMethodTabs = ({
     selectorRef,
     selectionCount,
 }) => {
-    const c = useStyles()
-
     const methods = [
         {
             value: 0,
@@ -124,11 +121,11 @@ const DownloadMethodTabs = ({
 
     return (
         <>
-            <div className={clsx(c.root, c.borderBottom)}>
-                <Typography className={c.title}>2. Select a download method:</Typography>
-                <div className={c.radioGroupContainer}>
+            <RootSection withBorderBottom>
+                <SectionTitle>2. Select a download method:</SectionTitle>
+                <Box sx={{ width: '100%', boxSizing: 'border-box' }}>
                     <FormControl component="fieldset" fullWidth>
-                        <RadioGroup
+                        <StyledRadioGroup
                             aria-label="cart download method selection"
                             value={
                                 selectedDownloadMethodIndex !== null
@@ -136,38 +133,36 @@ const DownloadMethodTabs = ({
                                     : ''
                             }
                             onChange={handleRadioChange}
-                            className={c.radioGroup}
                         >
                             {methods.map((method) => (
-                                <FormControlLabel
+                                <RadioOption
                                     key={method.value}
                                     value={method.value}
-                                    className={clsx(c.radioOption, {
-                                        selected: selectedDownloadMethodIndex === method.value,
-                                    })}
-                                    control={<Radio className={c.radio} />}
+                                    isSelected={selectedDownloadMethodIndex === method.value}
+                                    className={selectedDownloadMethodIndex === method.value ? 'selected' : ''}
+                                    control={<StyledRadio />}
                                     label={
-                                        <Box className={c.radioLabelContent}>
-                                            <Typography className={c.radioTitle}>
+                                        <RadioLabelContent>
+                                            <RadioTitle>
                                                 {method.title}
-                                            </Typography>
+                                            </RadioTitle>
                                             {method.description && (
-                                                <Typography className={c.radioDescription}>
+                                                <RadioDescription>
                                                     {method.description}
-                                                </Typography>
+                                                </RadioDescription>
                                             )}
-                                        </Box>
+                                        </RadioLabelContent>
                                     }
                                 />
                             ))}
-                        </RadioGroup>
+                        </StyledRadioGroup>
                     </FormControl>
-                </div>
-            </div>
+                </Box>
+            </RootSection>
             {selectedDownloadMethodIndex !== null && (
-                <div className={clsx(c.root)}>
-                    <Typography className={c.title}>3. Download your products:</Typography>
-                    <div className={c.tabPanels}>
+                <RootSection>
+                    <SectionTitle>3. Download your products:</SectionTitle>
+                    <Box sx={{ position: 'relative', padding: 0 }}>
                         <BrowserTab
                             value={selectedDownloadMethodIndex}
                             index={0}
@@ -198,8 +193,8 @@ const DownloadMethodTabs = ({
                             selectorRef={selectorRef}
                             selectionCount={selectionCount}
                         />
-                    </div>
-                </div>
+                    </Box>
+                </RootSection>
             )}
         </>
     )

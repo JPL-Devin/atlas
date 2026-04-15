@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
 
-import clsx from 'clsx'
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
@@ -12,74 +11,74 @@ import MenuItem from '@mui/material/MenuItem'
 import MenuList from '@mui/material/MenuList'
 import Checkbox from '@mui/material/Checkbox'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
+import Box from '@mui/material/Box'
 
-const useStyles = makeStyles((theme) => ({
-    SplitButton: {
-        'borderRadius': '2px',
-        '& > .MuiButton-root': {
-            background: theme.palette.swatches.grey.grey0,
-        },
-        '& .MuiButtonGroup-groupedOutlinedHorizontal:not(:last-child)': {
-            borderRight: '2px solid rgba(23, 23, 27, 0.5) !important',
-        },
+const SplitButtonGroup = styled(ButtonGroup, {
+    shouldForwardProp: (prop) => prop !== 'isContained',
+})(({ theme, isContained }) => ({
+    'borderRadius': '2px',
+    '& > .MuiButton-root': {
+        background: theme.palette.swatches.grey.grey0,
     },
-    contained: {
+    '& .MuiButtonGroup-groupedOutlinedHorizontal:not(:last-child)': {
+        borderRight: '2px solid rgba(23, 23, 27, 0.5) !important',
+    },
+    ...(isContained && {
         'border': 'none',
         'borderRadius': '2px',
         '& > .MuiButton-root': {
             background: theme.palette.accent.main,
             border: 'none',
         },
+    }),
+}))
+
+const ArrowButton = styled(Button)({
+    padding: '4px 0px',
+    minWidth: '33px',
+    borderLeft: `1px solid rgba(255,255,255,0.4) !important`,
+})
+
+const StyledPopper = styled(Popper)({
+    zIndex: 3000,
+    marginTop: '5px',
+})
+
+const StyledMenuList = styled(MenuList)(({ theme }) => ({
+    background: theme.palette.swatches.grey.grey800,
+    color: theme.palette.text.secondary,
+    borderRadius: '3px',
+}))
+
+const StyledMenuItem = styled(MenuItem, {
+    shouldForwardProp: (prop) => prop !== 'isActive',
+})(({ theme, isActive }) => ({
+    'display': 'flex',
+    'justifyContent': 'space-between',
+    'borderLeft': '4px solid rgba(0,0,0,0)',
+    'transition': 'background 0.2s ease-out',
+    '&:hover': {
+        background: theme.palette.swatches.grey.grey700,
     },
-    arrow: {
-        padding: '4px 0px',
-        minWidth: '33px',
-        borderLeft: `1px solid rgba(255,255,255,0.4) !important`,
-    },
-    popper: {
-        zIndex: 3000,
-        marginTop: '5px',
-    },
-    menu: {
-        background: theme.palette.swatches.grey.grey800,
-        color: theme.palette.text.secondary,
-        borderRadius: '3px',
-    },
-    menuli: {
-        'display': 'flex',
-        'justifyContent': 'space-between',
-        'borderLeft': '4px solid rgba(0,0,0,0)',
-        'transition': 'background 0.2s ease-out',
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey700,
-        },
-    },
-    menuliLeft: {
-        display: 'flex',
-    },
-    menuliSubname: {
-        opacity: 0.7,
-        marginLeft: '24px',
-    },
-    menuliActive: {
+    ...(isActive && {
         borderLeft: `4px solid ${theme.palette.swatches.blue.blue500}`,
         background: `${theme.palette.swatches.grey.grey700} !important`,
-    },
-    delimitedPath: {
-        opacity: 0.7,
-        lineHeight: '27px',
-    },
-    menuName: {
-        lineHeight: '27px',
-    },
-    menuNameBold: {
-        fontWeight: 'bold',
-    },
-    checkbox: {
-        marginRight: '4px',
-    },
+    }),
 }))
+
+const MenuName = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isBold',
+})(({ isBold }) => ({
+    lineHeight: '27px',
+    ...(isBold && {
+        fontWeight: 'bold',
+    }),
+}))
+
+const StyledCheckbox = styled(Checkbox)({
+    marginRight: '4px',
+})
 
 // items is [{ name: 'My Items' }, { ... }]
 
@@ -97,8 +96,6 @@ export default function SplitButton(props) {
         truncateDelimiter,
         variant,
     } = props
-
-    const c = useStyles()
 
     const [open, setOpen] = useState(false)
     const anchorRef = useRef(null)
@@ -163,10 +160,9 @@ export default function SplitButton(props) {
 
     return (
         <>
-            <ButtonGroup
-                className={clsx(c.SplitButton, className, {
-                    [c.contained]: variant != 'outlined',
-                })}
+            <SplitButtonGroup
+                className={className}
+                isContained={variant != 'outlined'}
                 variant={variant || 'contained'}
                 color="secondary"
                 size="small"
@@ -175,8 +171,7 @@ export default function SplitButton(props) {
                 <Button startIcon={startIcon} onClick={handleClick}>
                     {name}
                 </Button>
-                <Button
-                    className={c.arrow}
+                <ArrowButton
                     color="secondary"
                     size="small"
                     aria-controls={open ? 'split-button-menu' : undefined}
@@ -187,10 +182,9 @@ export default function SplitButton(props) {
                     ref={anchorRef}
                 >
                     <ArrowDropDownIcon />
-                </Button>
-            </ButtonGroup>
-            <Popper
-                className={c.popper}
+                </ArrowButton>
+            </SplitButtonGroup>
+            <StyledPopper
                 open={open}
                 anchorEl={anchorRef.current}
                 placement="bottom-end"
@@ -207,7 +201,7 @@ export default function SplitButton(props) {
                     >
                         <Paper>
                             <ClickAwayListener onClickAway={handleClose}>
-                                <MenuList className={c.menu}>
+                                <StyledMenuList>
                                     {items.map((item, index) => {
                                         let delimitedName
                                         let delimitedPath
@@ -219,13 +213,12 @@ export default function SplitButton(props) {
                                             }
                                         }
                                         return (
-                                            <MenuItem
+                                            <StyledMenuItem
                                                 key={index}
-                                                className={clsx(c.menuli, {
-                                                    [c.menuliActive]:
-                                                        index === selectedIndex &&
-                                                        type !== 'checklist',
-                                                })}
+                                                isActive={
+                                                    index === selectedIndex &&
+                                                    type !== 'checklist'
+                                                }
                                                 selected={
                                                     index === selectedIndex && type !== 'checklist'
                                                 }
@@ -233,10 +226,9 @@ export default function SplitButton(props) {
                                                     handleMenuItemClick(event, index)
                                                 }
                                             >
-                                                <div className={c.menuliLeft}>
+                                                <Box sx={{ display: 'flex' }}>
                                                     {type === 'checklist' && (
-                                                        <Checkbox
-                                                            className={c.checkbox}
+                                                        <StyledCheckbox
                                                             color="default"
                                                             checked={checkedIndices.includes(index)}
                                                             size="medium"
@@ -244,39 +236,38 @@ export default function SplitButton(props) {
                                                     )}
                                                     {delimitedPath && delimitedName ? (
                                                         <>
-                                                            <div className={c.delimitedPath}>
+                                                            <Box sx={{ opacity: 0.7, lineHeight: '27px' }}>
                                                                 {delimitedPath}
-                                                            </div>
-                                                            <div className={c.menuName}>
+                                                            </Box>
+                                                            <MenuName>
                                                                 {delimitedName}
-                                                            </div>
+                                                            </MenuName>
                                                         </>
                                                     ) : (
-                                                        <div
-                                                            className={clsx(c.menuName, {
-                                                                [c.menuNameBold]:
-                                                                    type !== 'checklist' ||
-                                                                    checkedIndices.includes(index),
-                                                            })}
+                                                        <MenuName
+                                                            isBold={
+                                                                type !== 'checklist' ||
+                                                                checkedIndices.includes(index)
+                                                            }
                                                         >
                                                             {item.name}
-                                                        </div>
+                                                        </MenuName>
                                                     )}
-                                                </div>
+                                                </Box>
                                                 {item.subname != null && (
-                                                    <div className={c.menuliSubname}>
+                                                    <Box sx={{ opacity: 0.7, marginLeft: '24px' }}>
                                                         {item.subname}
-                                                    </div>
+                                                    </Box>
                                                 )}
-                                            </MenuItem>
+                                            </StyledMenuItem>
                                         )
                                     })}
-                                </MenuList>
+                                </StyledMenuList>
                             </ClickAwayListener>
                         </Paper>
                     </Grow>
                 )}
-            </Popper>
+            </StyledPopper>
         </>
     )
 }

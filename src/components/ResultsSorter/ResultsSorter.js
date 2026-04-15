@@ -8,36 +8,35 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 
 import { setResultSorting } from '../../core/redux/actions/actions.js'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import { Typography } from '@mui/material'
 
-const useStyles = makeStyles((theme) => ({
-    ResultsSorter: {
-        height: '26px',
-        marginLeft: '4px',
-        margin: '7px 5px',
+const ResultsSorterRoot = styled('div')({
+    height: '26px',
+    marginLeft: '4px',
+    margin: '7px 5px',
+})
+
+const Label = styled(Typography)({
+    lineHeight: '26px',
+    paddingRight: '4px',
+    fontSize: '10px',
+    textTransform: 'uppercase',
+    fontWeight: 'bold',
+})
+
+const FlexDiv = styled('div')({
+    'display': 'flex',
+    '& > svg': {
+        paddingTop: '2px',
     },
-    label: {
-        lineHeight: '26px',
-        paddingRight: '4px',
-        fontSize: '10px',
-        textTransform: 'uppercase',
-        fontWeight: 'bold',
-    },
-    flex: {
-        'display': 'flex',
-        '& > svg': {
-            paddingTop: '2px',
-        },
-    },
-}))
+})
 
 // items is [{ name: 'My Items' }, { ... }]
 
 export default function ResultsSorter(props) {
     const {} = props
 
-    const c = useStyles()
     const dispatch = useDispatch()
 
     const activeFilters = useSelector((state) => {
@@ -86,33 +85,34 @@ export default function ResultsSorter(props) {
     }
 
     return (
-        <SplitButton
-            className={c.ResultsSorter}
-            startIcon={
-                resultSorting.direction === 'desc' ? (
-                    <div className={c.flex}>
-                        <Typography className={c.label}>Sort</Typography>
-                        <ArrowDownwardIcon />
-                    </div>
-                ) : (
-                    <div className={c.flex}>
-                        <Typography className={c.label}>Sort</Typography>
-                        <ArrowUpwardIcon />
-                    </div>
-                )
-            }
-            truncateDelimiter="."
-            items={items}
-            variant="outlined"
-            forceIndex={selectedIndex}
-            onChange={(item, index) => {
-                dispatch(setResultSorting(item.name))
-            }}
-            onClick={() => {
-                dispatch(
-                    setResultSorting(null, resultSorting.direction === 'desc' ? 'asc' : 'desc')
-                )
-            }}
-        />
+        <ResultsSorterRoot>
+            <SplitButton
+                startIcon={
+                    resultSorting.direction === 'desc' ? (
+                        <FlexDiv>
+                            <Label>Sort</Label>
+                            <ArrowDownwardIcon />
+                        </FlexDiv>
+                    ) : (
+                        <FlexDiv>
+                            <Label>Sort</Label>
+                            <ArrowUpwardIcon />
+                        </FlexDiv>
+                    )
+                }
+                truncateDelimiter="."
+                items={items}
+                variant="outlined"
+                forceIndex={selectedIndex}
+                onChange={(item, index) => {
+                    dispatch(setResultSorting(item.name))
+                }}
+                onClick={() => {
+                    dispatch(
+                        setResultSorting(null, resultSorting.direction === 'desc' ? 'asc' : 'desc')
+                    )
+                }}
+            />
+        </ResultsSorterRoot>
     )
 }

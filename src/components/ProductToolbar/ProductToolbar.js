@@ -1,9 +1,7 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import clsx from 'clsx'
-
-import { makeStyles, withStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import IconButton from '@mui/material/IconButton'
 import Checkbox from '@mui/material/Checkbox'
@@ -27,40 +25,43 @@ import { ES_PATHS } from '../../core/constants.js'
 
 import { streamDownloadFile } from '../../core/downloaders/ZipStream.js'
 
-const CenterTooltip = withStyles((theme) => ({
-    tooltip: {
+const CenterTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+))({
+    '& .MuiTooltip-tooltip': {
         textAlign: 'center',
     },
-}))(Tooltip)
+})
 
 const toolbarHeight = 32
 
-const useStyles = makeStyles((theme) => ({
-    ProductToolbar: {
-        height: `${toolbarHeight}px`,
-        width: '100%',
-        boxSizing: 'border-box',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        opacity: 0,
-        zIndex: 2,
-        transition: 'opacity 0.2s ease-out',
-        [theme.breakpoints.down('lg')]: {
-            'opacity': '1 !important',
-            '& .ProductToolbarInner': {
-                display: 'flex !important',
-                background: `${theme.palette.swatches.grey.grey800} !important`,
-            },
+const ProductToolbarRoot = styled('div', {
+    shouldForwardProp: (prop) =>
+        prop !== 'isNoHover' && prop !== 'isActive' && prop !== 'isCarted',
+})(({ theme, isNoHover, isActive, isCarted }) => ({
+    height: `${toolbarHeight}px`,
+    width: '100%',
+    boxSizing: 'border-box',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    opacity: 0,
+    zIndex: 2,
+    transition: 'opacity 0.2s ease-out',
+    [theme.breakpoints.down('lg')]: {
+        'opacity': '1 !important',
+        '& .ProductToolbarInner': {
+            display: 'flex !important',
+            background: `${theme.palette.swatches.grey.grey800} !important`,
         },
     },
-    noHover: {
+    ...(isNoHover && {
         opacity: '1',
-    },
-    toolbarActive: {
+    }),
+    ...(isActive && {
         opacity: '1 !important',
-    },
-    toolbarCarted: {
+    }),
+    ...(isCarted && {
         'opacity': '1 !important',
         'background': 'transparent',
         '& .ProductToolbarInner': {
@@ -69,86 +70,97 @@ const useStyles = makeStyles((theme) => ({
         '& .ProductToolbarInCart': {
             opacity: '1',
         },
-    },
-    inner: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        background: theme.palette.accent.main,
-        width: '100%',
-    },
-    noHoverInner: {
+    }),
+}))
+
+const InnerDiv = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isNoHover',
+})(({ theme, isNoHover }) => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    background: theme.palette.accent.main,
+    width: '100%',
+    ...(isNoHover && {
         background: 'unset',
+    }),
+}))
+
+const InCartIcon = styled(ShoppingCartIcon)(({ theme }) => ({
+    pointerEvents: 'none',
+    color: theme.palette.swatches.red.red500,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    height: 21,
+    width: 21,
+    padding: '5px',
+    opacity: 0,
+}))
+
+const StyledCheckbox = styled(Checkbox, {
+    shouldForwardProp: (prop) =>
+        prop !== 'isNoHover' && prop !== 'isCheckedStyle',
+})(({ theme, isNoHover, isCheckedStyle }) => ({
+    'padding': '5px',
+    'color': theme.palette.swatches.grey.grey50,
+    'transition': 'background 0.2s ease-out, color 0.2s ease-out',
+    '&:hover': {
+        background: 'rgba(0,0,0,0.2)',
+        color: 'white',
     },
-    inCart: {
-        pointerEvents: 'none',
-        color: theme.palette.swatches.red.red500,
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        height: 21,
-        width: 21,
-        padding: '5px',
-        opacity: 0,
+    'borderRadius': '0px',
+    '& .MuiTouchRipple-child': {
+        borderRadius: 'inherit',
     },
-    checkbox: {
-        'padding': '5px',
-        'color': theme.palette.swatches.grey.grey50,
-        'transition': 'background 0.2s ease-out, color 0.2s ease-out',
-        '&:hover': {
-            background: 'rgba(0,0,0,0.2)',
-            color: 'white',
-        },
-        'borderRadius': '0px',
-        '& .MuiTouchRipple-child': {
-            borderRadius: 'inherit',
-        },
-    },
-    noHoverCheckbox: {
+    ...(isNoHover && {
         'color': theme.palette.swatches.grey.grey300,
         '&:hover': {
             background: 'rgba(0,0,0,0.05)',
             color: theme.palette.swatches.grey.grey800,
         },
-    },
-    checkboxChecked: {
+    }),
+    ...(isCheckedStyle && {
         'background': theme.palette.swatches.red.red500,
         'color': `${theme.palette.text.secondary} !important`,
         '&:hover': {
             background: `${theme.palette.swatches.red.red500} !important`,
         },
+    }),
+}))
+
+const ActionButton = styled(IconButton, {
+    shouldForwardProp: (prop) =>
+        prop !== 'isNoHover' && prop !== 'isInCartStyle' && prop !== 'isNoHoverCart',
+})(({ theme, isNoHover, isInCartStyle, isNoHoverCart }) => ({
+    'height': `${toolbarHeight}px`,
+    'width': `${toolbarHeight}px`,
+    'color': theme.palette.swatches.grey.grey50,
+    'transition': 'background 0.2s ease-out, color 0.2s ease-out',
+    '&:hover': {
+        background: 'rgba(0,0,0,0.2)',
+        color: 'white',
     },
-    button1: {
-        'height': `${toolbarHeight}px`,
-        'width': `${toolbarHeight}px`,
-        'color': theme.palette.swatches.grey.grey50,
-        'transition': 'background 0.2s ease-out, color 0.2s ease-out',
-        '&:hover': {
-            background: 'rgba(0,0,0,0.2)',
-            color: 'white',
-        },
-    },
-    noHoverButton: {
+    ...(isNoHover && {
         'color': theme.palette.swatches.grey.grey300,
         '&:hover': {
             background: 'rgba(0,0,0,0.05)',
             color: theme.palette.swatches.grey.grey800,
         },
-    },
-    isInCartButton: {
+    }),
+    ...(isInCartStyle && {
         color: theme.palette.swatches.red.red500,
-    },
-    noHoverButtonCart: {
+    }),
+    ...(isNoHoverCart && {
         'color': theme.palette.swatches.red.red500,
         '&:hover': {
             background: theme.palette.swatches.red.red500,
             color: theme.palette.swatches.grey.grey0,
         },
-    },
+    }),
 }))
 
 const ProductToolbar = (props) => {
     const { result, noHover, isCart, cartIndex } = props
-    const c = useStyles()
 
     const dispatch = useDispatch()
 
@@ -181,27 +193,22 @@ const ProductToolbar = (props) => {
     const isChecked = isCart ? result.checked || false : keysChecked.includes(result.result_key)
 
     return (
-        <div
-            className={clsx(c.ProductToolbar, {
-                ProductToolbar: !isChecked,
-                [c.noHover]: noHover,
-                [c.toolbarActive]: isChecked,
-                [c.toolbarCarted]: !isChecked && isInCart && !noHover,
-            })}
+        <ProductToolbarRoot
+            className={!isChecked ? 'ProductToolbar' : undefined}
+            isNoHover={noHover}
+            isActive={isChecked}
+            isCarted={!isChecked && isInCart && !noHover}
             onClick={(e) => {
                 e.stopPropagation()
             }}
         >
-            <div
-                className={clsx(c.inner, 'ProductToolbarInner', {
-                    [c.noHoverInner]: noHover,
-                })}
+            <InnerDiv
+                className="ProductToolbarInner"
+                isNoHover={noHover}
             >
-                <Checkbox
-                    className={clsx(c.checkbox, {
-                        [c.noHoverCheckbox]: noHover,
-                        [c.checkboxChecked]: isChecked,
-                    })}
+                <StyledCheckbox
+                    isNoHover={noHover}
+                    isCheckedStyle={isChecked}
                     checked={isChecked || false}
                     onClick={(e) => {
                         isCart
@@ -216,10 +223,8 @@ const ProductToolbar = (props) => {
                         enterDelay={400}
                         arrow
                     >
-                        <IconButton
-                            className={clsx(c.button1, {
-                                [c.noHoverButton]: noHover,
-                            })}
+                        <ActionButton
+                            isNoHover={noHover}
                             aria-label="download product"
                             size="small"
                             onClick={() => {
@@ -229,7 +234,7 @@ const ProductToolbar = (props) => {
                             }}
                         >
                             <GetAppIcon />
-                        </IconButton>
+                        </ActionButton>
                     </CenterTooltip>
                 ) : null}
                 <Tooltip
@@ -238,12 +243,10 @@ const ProductToolbar = (props) => {
                     enterDelay={400}
                     arrow
                 >
-                    <IconButton
-                        className={clsx(c.button1, {
-                            [c.noHoverButton]: noHover,
-                            [c.isInCartButton]: isInCart,
-                            [c.noHoverButtonCart]: noHover && isInCart,
-                        })}
+                    <ActionButton
+                        isNoHover={noHover}
+                        isInCartStyle={isInCart}
+                        isNoHoverCart={noHover && isInCart}
                         aria-label={isInCart ? 'remove from cart' : 'add to cart'}
                         size="small"
                         onClick={() => {
@@ -277,11 +280,11 @@ const ProductToolbar = (props) => {
                         }}
                     >
                         {isInCart ? <RemoveShoppingCartIcon /> : <AddShoppingCartIcon />}
-                    </IconButton>
+                    </ActionButton>
                 </Tooltip>
-            </div>
-            {!isCart && <ShoppingCartIcon className={clsx(c.inCart, 'ProductToolbarInCart')} />}
-        </div>
+            </InnerDiv>
+            {!isCart && <InCartIcon className="ProductToolbarInCart" />}
+        </ProductToolbarRoot>
     )
 }
 

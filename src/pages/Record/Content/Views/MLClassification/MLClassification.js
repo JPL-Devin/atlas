@@ -2,10 +2,8 @@ import React from 'react'
 import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import clsx from 'clsx'
 
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
 import { getIn, getPDSUrl, getRedirectedUrl, prettify } from '../../../../../core/utils.js'
@@ -15,50 +13,51 @@ import { ES_PATHS } from '../../../../../core/constants.js'
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import MLLayers from './subcomponents/MLLayers/MLLayers'
 
-const useStyles = makeStyles((theme) => ({
-    MLClassification: {
+const MLClassificationRoot = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    color: '#666',
+    display: 'flex',
+    background: theme.palette.swatches.grey.grey800,
+    [theme.breakpoints.down('md')]: {
+        flexFlow: 'column',
+    },
+}))
+
+const ViewerWrapper = styled('div')(({ theme }) => ({
+    height: '100%',
+    flex: 1,
+    [theme.breakpoints.down('md')]: {
+        minHeight: '60%',
+        flex: 'unset',
+        height: 'unset',
+    },
+}))
+
+const LayersPanel = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'layersOpen',
+})(({ theme, layersOpen }) => ({
+    width: 0,
+    height: '100%',
+    boxSizing: 'border-box',
+    overflowY: 'auto',
+    background: theme.palette.swatches.grey.grey100,
+    [theme.breakpoints.down('md')]: {
         width: '100%',
-        height: '100%',
-        color: '#666',
-        display: 'flex',
-        background: theme.palette.swatches.grey.grey800,
-        [theme.breakpoints.down('md')]: {
-            flexFlow: 'column',
-        },
+        borderLeft: 'none',
+        borderTop: `2px solid ${theme.palette.swatches.grey.grey200}`,
     },
-    viewer: {
-        height: '100%',
-        flex: 1,
-        [theme.breakpoints.down('md')]: {
-            minHeight: '60%',
-            flex: 'unset',
-            height: 'unset',
-        },
-    },
-    layers: {
-        width: 0,
-        height: '100%',
-        boxSizing: 'border-box',
-        overflowY: 'auto',
-        background: theme.palette.swatches.grey.grey100,
-        [theme.breakpoints.down('md')]: {
-            width: '100%',
-            borderLeft: 'none',
-            borderTop: `2px solid ${theme.palette.swatches.grey.grey200}`,
-        },
-        transition: 'width 0.2s ease-in-out',
-    },
-    layersOpen: {
+    transition: 'width 0.2s ease-in-out',
+    ...(layersOpen && {
         width: '300px',
         [theme.breakpoints.down('md')]: {
             width: '100%',
         },
-    },
+    }),
 }))
 
 const MLClassification = (props) => {
     const { recordData } = props
-    const c = useStyles()
 
     const dispatch = useDispatch()
 
@@ -150,8 +149,8 @@ const MLClassification = (props) => {
     }
 
     return (
-        <div className={c.MLClassification}>
-            <div className={c.viewer}>
+        <MLClassificationRoot>
+            <ViewerWrapper>
                 {features != null ? (
                     <OpenSeadragonViewer
                         image={{
@@ -164,12 +163,8 @@ const MLClassification = (props) => {
                         features={featuresOn}
                     />
                 ) : null}
-            </div>
-            <div
-                className={clsx(c.layers, {
-                    [c.layersOpen]: layersOpen,
-                })}
-            >
+            </ViewerWrapper>
+            <LayersPanel layersOpen={layersOpen}>
                 <MLLayers
                     features={features}
                     classes={checkedClasses}
@@ -185,8 +180,8 @@ const MLClassification = (props) => {
                         }
                     }}
                 />
-            </div>
-        </div>
+            </LayersPanel>
+        </MLClassificationRoot>
     )
 }
 

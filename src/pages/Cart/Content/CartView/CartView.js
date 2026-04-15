@@ -8,8 +8,6 @@ import {
     MODEL_EXTENSIONS,
 } from '../../../../core/constants'
 
-import clsx from 'clsx'
-
 import { useResizeDetector } from 'react-resize-detector'
 import { useScroller } from 'mini-virtual-list'
 import {
@@ -22,7 +20,7 @@ import {
 
 import Image from 'mui-image'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
@@ -31,6 +29,7 @@ import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutl
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import FolderIcon from '@mui/icons-material/Folder'
 import ImageIcon from '@mui/icons-material/Image'
+import Box from '@mui/material/Box'
 
 import { setRecordData, setSnackBarText } from '../../../../core/redux/actions/actions'
 
@@ -49,183 +48,187 @@ import ProductIcons from '../../../../components/ProductIcons/ProductIcons'
 const gridItemHeight = 170
 const gridItemGap = 10
 
-const useStyles = makeStyles((theme) => ({
-    CartView: {
-        width: '100%',
-        height: '100%',
-        padding: `${gridItemGap}px 0px 0px ${gridItemGap}px`,
-        boxSizing: 'border-box',
-        position: 'relative',
-        background: theme.palette.swatches.grey.grey100,
+const CartViewRoot = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    padding: `${gridItemGap}px 0px 0px ${gridItemGap}px`,
+    boxSizing: 'border-box',
+    position: 'relative',
+    background: theme.palette.swatches.grey.grey100,
+}))
+
+const ContentWrapper = styled('div')({
+    height: '100%',
+    overflowX: 'hidden',
+    overflowY: 'auto',
+})
+
+const GridItem = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'noBackground',
+})(({ theme, noBackground }) => ({
+    'cursor': 'pointer',
+    'userSelect': 'none',
+    'lineHeight': '0',
+    'minHeight': `${gridItemHeight}px`,
+    'maxHeight': `${gridItemHeight}px`,
+    'overflow': 'hidden',
+    'alignItems': 'center',
+    'justifyContent': 'center',
+    'display': 'flex',
+    'boxSizing': 'border-box',
+    'borderRadius': '4px',
+    'position': 'relative',
+    'width': '100%',
+    'background': `linear-gradient(to bottom, #060606, ${theme.palette.swatches.black.black0})`,
+    '&:hover .selectionIndicator': {
+        boxShadow: `inset 0px 0px 0px 4px ${theme.palette.accent.main}`,
     },
-    content: {
-        height: '100%',
-        overflowX: 'hidden',
-        overflowY: 'auto',
-    },
-    gridItem: {
-        'cursor': 'pointer',
-        //'box-shadow': '0 1px 5px rgba(0, 0, 0, 0.5)',
-        'user-select': 'none',
-        'line-height': '0',
-        'min-height': `${gridItemHeight}px`,
-        'max-height': `${gridItemHeight}px`,
-        'overflow': 'hidden',
-        'align-items': 'center',
-        'justify-content': 'center',
-        'display': 'flex',
-        'box-sizing': 'border-box',
-        'border-radius': '4px',
-        'position': 'relative',
-        'width': '100%',
-        'background': `linear-gradient(to bottom, #060606, ${theme.palette.swatches.black.black0})`,
-        '&:hover .selectionIndicator': {
-            boxShadow: `inset 0px 0px 0px 4px ${theme.palette.accent.main}`,
-        },
-        '&:hover .ProductToolbar': {
-            'opacity': 1,
-            '& .ProductToolbarInner': {
-                display: 'flex',
-            },
-            '& .ProductToolbarInCart': {
-                opacity: 0,
-            },
-        },
-        '& .mui-image-wrapper': {
-            height: '100%',
-            paddingTop: 'unset',
-            background: '#192028',
-        },
-    },
-    gridItemDirectory: {
-        '& svg': {
-            marginTop: '26px',
-            fontSize: '194px',
-        },
-    },
-    gridItemFile: {
-        '& svg': {
-            marginTop: '26px',
-            fontSize: '153px',
-        },
-    },
-    gridItemImage: {
+    '&:hover .ProductToolbar': {
         'opacity': 1,
-        'background': theme.palette.swatches.black.black0,
-        'object-fit': 'cover !important',
-        'user-select': 'none',
-        'overflow': 'hidden',
-        'text-overflow': 'ellipsis',
-        'image-rendering': 'pixelated',
-        'width': '100%',
-        'height': `${gridItemHeight}px`,
+        '& .ProductToolbarInner': {
+            display: 'flex',
+        },
+        '& .ProductToolbarInCart': {
+            opacity: 0,
+        },
     },
-    name: {
-        color: theme.palette.text.secondary,
-        borderRadius: '3px',
-        bottom: '56px',
-        height: '20px',
-        padding: '0px 5px',
-        boxSizing: 'inherit',
-        fontSize: '14px',
-        lineHeight: '21px',
-        position: 'absolute',
-        background: theme.palette.swatches.black.black0,
-        pointerEvents: 'none',
-        maxWidth: '100%',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-    },
-    nameRegex: {
-        padding: '7px',
-        color: theme.palette.text.secondary,
-        fontFamily: 'monospace',
-        overflow: 'hidden',
-        position: 'absolute',
-        fontSize: '14px',
-        maxWidth: '100%',
-        lineHeight: '21px',
-        whiteSpace: 'normal',
-        borderRadius: '3px',
-        wordBreak: 'break-all',
-        textOverflow: 'ellipsis',
-        pointerEvents: 'none',
-        maxHeight: '102px',
-    },
-    titleRegex: {
-        position: 'absolute',
-        top: '18px',
-        left: '0px',
-        width: '100%',
-        textAlign: 'center',
-        fontWeight: 'bold',
-        color: 'darkgoldenrod',
-    },
-    info: {
-        color: theme.palette.text.secondary,
-        position: 'absolute',
-        bottom: '5px',
-        left: '5px',
-        mixBlendMode: 'difference',
-    },
-    selectionIndicator: {
-        position: 'absolute',
-        width: '100%',
+    '& .mui-image-wrapper': {
         height: '100%',
-        pointerEvents: 'none',
-        transition: 'box-shadow 0.2s ease-out',
+        paddingTop: 'unset',
+        background: '#192028',
     },
-    queryCount: {
-        'zIndex': 2,
-        'position': 'absolute',
-        'right': '7px',
-        'bottom': '7px',
-        'fontSize': '12px',
-        'height': '22px',
-        'lineHeight': '22px',
-        'padding': '0px 6px',
-        'fontWeight': 'bold',
-        'borderRadius': '3px',
-        'color': theme.palette.text.secondary,
-        'background': theme.palette.accent.main,
-        'box-shadow': '0 1px 3px rgba(0, 0, 0, 0.25)',
-    },
-    emptyContainer: {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translateX(-50%) translateY(-50%)',
-        width: '30%',
-        minWidth: '300px',
-        padding: theme.spacing(4),
-    },
-    emptyMessage: {
-        width: '100%',
-        textAlign: 'center',
-        fontSize: '20px',
-        marginBottom: theme.spacing(1),
-    },
-    emptyButtons: {
-        display: 'flex',
-        justifyContent: 'center',
-    },
-    button1: {
-        height: 30,
-        margin: '7px 3px',
-        background: theme.palette.primary.light,
-    },
-    noBackground: {
+    ...(noBackground && {
         background: 'none',
+    }),
+}))
+
+const GridItemDirectoryWrapper = styled('div')({
+    '& svg': {
+        marginTop: '26px',
+        fontSize: '194px',
     },
-    errorIcon: {
-        fontSize: '42px',
+})
+
+const GridItemFileWrapper = styled('div')({
+    '& svg': {
+        marginTop: '26px',
+        fontSize: '153px',
     },
+})
+
+const GridItemImageStyled = styled('img')(({ theme }) => ({
+    opacity: 1,
+    background: theme.palette.swatches.black.black0,
+    objectFit: 'cover !important',
+    userSelect: 'none',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    imageRendering: 'pixelated',
+    width: '100%',
+    height: `${gridItemHeight}px`,
+}))
+
+const NameLabel = styled('div')(({ theme }) => ({
+    color: theme.palette.text.secondary,
+    borderRadius: '3px',
+    bottom: '56px',
+    height: '20px',
+    padding: '0px 5px',
+    boxSizing: 'inherit',
+    fontSize: '14px',
+    lineHeight: '21px',
+    position: 'absolute',
+    background: theme.palette.swatches.black.black0,
+    pointerEvents: 'none',
+    maxWidth: '100%',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+}))
+
+const NameRegexLabel = styled('div')(({ theme }) => ({
+    padding: '7px',
+    color: theme.palette.text.secondary,
+    fontFamily: 'monospace',
+    overflow: 'hidden',
+    position: 'absolute',
+    fontSize: '14px',
+    maxWidth: '100%',
+    lineHeight: '21px',
+    whiteSpace: 'normal',
+    borderRadius: '3px',
+    wordBreak: 'break-all',
+    textOverflow: 'ellipsis',
+    pointerEvents: 'none',
+    maxHeight: '102px',
+}))
+
+const TitleRegex = styled('div')({
+    position: 'absolute',
+    top: '18px',
+    left: '0px',
+    width: '100%',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: 'darkgoldenrod',
+})
+
+const InfoButton = styled('div')(({ theme }) => ({
+    color: theme.palette.text.secondary,
+    position: 'absolute',
+    bottom: '5px',
+    left: '5px',
+    mixBlendMode: 'difference',
+}))
+
+const SelectionIndicator = styled('div')({
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none',
+    transition: 'box-shadow 0.2s ease-out',
+})
+
+const QueryCount = styled('div')(({ theme }) => ({
+    zIndex: 2,
+    position: 'absolute',
+    right: '7px',
+    bottom: '7px',
+    fontSize: '12px',
+    height: '22px',
+    lineHeight: '22px',
+    padding: '0px 6px',
+    fontWeight: 'bold',
+    borderRadius: '3px',
+    color: theme.palette.text.secondary,
+    background: theme.palette.accent.main,
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.25)',
+}))
+
+const EmptyContainer = styled('div')(({ theme }) => ({
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translateX(-50%) translateY(-50%)',
+    width: '30%',
+    minWidth: '300px',
+    padding: theme.spacing(4),
+}))
+
+const EmptyMessage = styled(Typography)(({ theme }) => ({
+    width: '100%',
+    textAlign: 'center',
+    fontSize: '20px',
+    marginBottom: theme.spacing(1),
+}))
+
+const ActionButton = styled(Button)(({ theme }) => ({
+    height: 30,
+    margin: '7px 3px',
+    background: theme.palette.primary.light,
 }))
 
 const CartView = (props) => {
-    const c = useStyles()
-
     const navigate = useNavigate()
 
     const cart = useSelector((state) => {
@@ -253,8 +256,8 @@ const CartView = (props) => {
     })
 
     return (
-        <div className={`${c.CartView} fade-in`} ref={ref}>
-            <div className={c.content} id="CartViewContent" ref={gridContainerRef}>
+        <CartViewRoot className="fade-in" ref={ref}>
+            <ContentWrapper id="CartViewContent" ref={gridContainerRef}>
                 {useMasonry({
                     id: 'CartViewMasonry',
                     positioner,
@@ -266,15 +269,14 @@ const CartView = (props) => {
                     overscanBy: 3,
                     render: GridCard,
                 })}
-            </div>
+            </ContentWrapper>
             {cart.length == 0 ? (
-                <div className={c.emptyContainer}>
-                    <Typography className={c.emptyMessage} variant="h3">
+                <EmptyContainer>
+                    <EmptyMessage variant="h3">
                         Your Cart's Empty
-                    </Typography>
-                    <div className={c.emptyButtons}>
-                        <Button
-                            className={c.button1}
+                    </EmptyMessage>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <ActionButton
                             variant="contained"
                             aria-label="search images button"
                             size="small"
@@ -283,10 +285,9 @@ const CartView = (props) => {
                             }}
                         >
                             Search Images
-                        </Button>
+                        </ActionButton>
 
-                        <Button
-                            className={c.button1}
+                        <ActionButton
                             variant="contained"
                             aria-label="search files button"
                             size="small"
@@ -295,17 +296,15 @@ const CartView = (props) => {
                             }}
                         >
                             Search Files
-                        </Button>
-                    </div>
-                </div>
+                        </ActionButton>
+                    </Box>
+                </EmptyContainer>
             ) : null}
-        </div>
+        </CartViewRoot>
     )
 }
 
 const GridCard = ({ index, data, width }) => {
-    const c = useStyles()
-
     const dispatch = useDispatch()
     const navigate = useNavigate()
     data.item = data.item || {}
@@ -347,12 +346,11 @@ const GridCard = ({ index, data, width }) => {
 
     const release_id = getIn(data, 'item.release_id', null)
     return (
-        <div
+        <GridItem
             cart-index={index}
             key={index}
-            className={clsx(c.gridItem, 'CartViewMasonryItem', {
-                [c.noBackground]: data.type === 'directory' || data.type === 'file',
-            })}
+            className="CartViewMasonryItem"
+            noBackground={data.type === 'directory' || data.type === 'file'}
             style={data.type === 'query' ? { background: 'none' } : null}
             onClick={() => {
                 // Only navigate for query and image types
@@ -368,7 +366,7 @@ const GridCard = ({ index, data, width }) => {
             }}
         >
             {data.type === 'directory' ? (
-                <div className={c.gridItemDirectory}>
+                <GridItemDirectoryWrapper>
                     {isBundleOrVolume(data.item?.uri) ? (
                         <svg
                             style={{
@@ -386,12 +384,12 @@ const GridCard = ({ index, data, width }) => {
                     ) : (
                         <FolderIcon />
                     )}
-                </div>
+                </GridItemDirectoryWrapper>
             ) : null}
             {data.type === 'file' ? (
-                <div className={c.gridItemFile}>
+                <GridItemFileWrapper>
                     <InsertDriveFileOutlinedIcon />
-                </div>
+                </GridItemFileWrapper>
             ) : null}
             {images &&
                 images.map((image, idx) => {
@@ -399,9 +397,17 @@ const GridCard = ({ index, data, width }) => {
                     return (
                         <React.Fragment key={idx}>
                             <Image
-                                className={c.gridItemImage}
-                                style={
-                                    data.type === 'query'
+                                className="gridItemImage"
+                                style={{
+                                    opacity: 1,
+                                    objectFit: 'cover',
+                                    userSelect: 'none',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    imageRendering: 'pixelated',
+                                    width: '100%',
+                                    height: `${gridItemHeight}px`,
+                                    ...(data.type === 'query'
                                         ? {
                                               left: `-${idx * 16}px`,
                                               borderRight: '1px solid #FFF',
@@ -410,8 +416,8 @@ const GridCard = ({ index, data, width }) => {
                                               }px)`,
                                               boxShadow: '0 1px 5px rgba(0,0,0,0.5)',
                                           }
-                                        : null
-                                }
+                                        : {}),
+                                }}
                                 duration={250}
                                 iconWrapperStyle={{ opacity: 0.6 }}
                                 errorIcon={<ProductIcons filename={imgURL} />}
@@ -427,20 +433,20 @@ const GridCard = ({ index, data, width }) => {
                     )
                 })}
             {data.item.total ? (
-                <div className={c.queryCount}>{`${abbreviateNumber(data.item.total)}`}</div>
+                <QueryCount>{`${abbreviateNumber(data.item.total)}`}</QueryCount>
             ) : null}
             <ProductToolbar result={data} isCart={true} cartIndex={index} />
             {data.type === 'directory' || data.type === 'file' ? (
-                <div className={c.name}>{`${
+                <NameLabel>{`${
                     data.type === 'directory' && isBundleOrVolume(data.item?.uri)
                         ? getBundleVolumeName(data.item?.uri)
                         : getFilename(data.item?.uri)
-                }${data.type === 'directory' ? '/' : ''}`}</div>
+                }${data.type === 'directory' ? '/' : ''}`}</NameLabel>
             ) : null}
             {data.type === 'regex' ? (
                 <>
-                    <div className={c.titleRegex}>{`RegEx`}</div>
-                    <div className={c.nameRegex}>{`${getIn(data.item, [
+                    <TitleRegex>{`RegEx`}</TitleRegex>
+                    <NameRegexLabel>{`${getIn(data.item, [
                         'query',
                         'bool',
                         'must',
@@ -448,14 +454,13 @@ const GridCard = ({ index, data, width }) => {
                         'regexp',
                         'uri',
                         'value',
-                    ])}`}</div>
+                    ])}`}</NameRegexLabel>
                 </>
             ) : null}
-            <div className={`${c.selectionIndicator} selectionIndicator`}></div>
+            <SelectionIndicator className="selectionIndicator" />
 
             <Tooltip title={<pre style={{ margin: '3px 0px' }}>{title}</pre>} arrow>
-                <div
-                    className={c.info}
+                <InfoButton
                     onClick={(e) => {
                         e.stopPropagation()
                         copyToClipboard(title)
@@ -463,9 +468,9 @@ const GridCard = ({ index, data, width }) => {
                     }}
                 >
                     <InfoOutlinedIcon />
-                </div>
+                </InfoButton>
             </Tooltip>
-        </div>
+        </GridItem>
     )
 }
 

@@ -1,12 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import { makeStyles, withStyles } from '@mui/styles'
-
-import clsx from 'clsx'
-
 import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Tooltip from '@mui/material/Tooltip'
 
@@ -14,47 +9,10 @@ import { ZipStreamCart } from '../../../../../../core/downloaders/ZipStream'
 import { setSnackBarText } from '../../../../../../core/redux/actions/actions.js'
 
 import DownloadingCard from '../../../../../../components/DownloadingCard/DownloadingCard'
-
-const useStyles = makeStyles((theme) => ({
-    button1: {
-        height: 30,
-        width: '100%',
-        margin: '7px 0px',
-        background: theme.palette.primary.light,
-    },
-    p: {
-        padding: `${theme.spacing(1.5)} 0px`,
-    },
-    downloadingButton: {
-        background: theme.palette.swatches.grey.grey300,
-        color: theme.palette.text.primary,
-        pointerEvents: 'none',
-    },
-    downloading: {
-        bottom: '0px',
-        position: 'sticky',
-        width: '100%',
-        padding: '12px',
-        boxSizing: 'border-box',
-    },
-    error: {
-        display: 'none',
-        fontSize: '16px',
-        padding: '12px',
-        background: theme.palette.swatches.red.red500,
-        color: theme.palette.text.secondary,
-        border: `1px solid ${theme.palette.swatches.red.red600}`,
-        textAlign: 'center',
-    },
-    errorOn: {
-        display: 'block',
-    },
-}))
+import { DownloadButton, DownloadingWrapper, ErrorMessage } from '../../../../../../components/shared/CartDownloadComponents'
 
 function BrowserTab(props) {
     const { value, index, selectorRef, selectionCount, ...other } = props
-
-    const c = useStyles()
 
     const [isDownloading, setIsDownloading] = useState(false)
     const [downloadId, setDownloadId] = useState(0)
@@ -98,10 +56,8 @@ function BrowserTab(props) {
                             arrow
                         >
                             <span>
-                                <Button
-                                    className={clsx(c.button1, {
-                                        [c.downloadingButton]: isDownloading,
-                                    })}
+                                <DownloadButton
+                                    isDownloading={isDownloading}
                                     variant="contained"
                                     aria-label="browser zip download button"
                                     disabled={selectionCount === 0}
@@ -136,19 +92,19 @@ function BrowserTab(props) {
                                     }}
                                 >
                                     {isDownloading ? 'Download in Progress' : 'Download ZIP'}
-                                </Button>
+                                </DownloadButton>
                             </span>
                         </Tooltip>
                     </Box>
-                    <div className={c.downloading}>
-                        <div className={clsx(c.error, { [c.errorOn]: error != null })}>{error}</div>
+                    <DownloadingWrapper>
+                        <ErrorMessage isVisible={error != null}>{error}</ErrorMessage>
                         <DownloadingCard
                             downloadId={'zip' + downloadId}
                             status={status}
                             controller={zipController}
                             controllerType="zip"
                         />
-                    </div>
+                    </DownloadingWrapper>
                 </>
             )}
         </div>

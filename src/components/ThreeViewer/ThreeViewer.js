@@ -2,9 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import OpenSeadragon from 'openseadragon'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
-
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import Paper from '@mui/material/Paper'
 
 import { getExtension, getPDSUrl, getRedirectedUrl } from '../../core/utils'
@@ -19,47 +17,47 @@ import './Three.css'
 
 let objloader
 
-const useStyles = makeStyles((theme) => ({
-    ThreeViewer: {
-        width: '100%',
-        height: '100%',
-        background: theme.palette.swatches.grey.grey50,
-        position: 'relative',
-    },
-    ThreeContainer: {
-        width: '100% !important',
-        height: '100% !important',
-    },
-    loading: {
-        textAlign: 'center',
-        color: 'white',
-        fontSize: '14px',
-        fontWeight: 'bold',
-        letterSpacing: '1px',
-        opacity: 1,
-        transition: 'opacity 0.6s ease-out',
-    },
-    paper: {
-        'position': 'absolute',
-        'top': '50%',
-        'left': '50%',
-        'width': '170px',
-        'height': '48px',
-        'transform': 'translateX(-50%) translateY(-50%)',
-        'background': theme.palette.accent.main,
-        'fontSize': '16px',
-        'color': theme.palette.text.secondary,
-        'paddingBottom': theme.spacing(0.5),
-        'pointerEvents': 'none',
-        'transition': 'opacity 1s ease-out',
-        '& > div': {
-            padding: `${theme.spacing(4)} ${theme.spacing(6)}`,
-        },
+const ThreeViewerRoot = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    background: theme.palette.swatches.grey.grey50,
+    position: 'relative',
+}))
+
+const ThreeCanvas = styled('canvas')({
+    width: '100% !important',
+    height: '100% !important',
+})
+
+const LoadingDiv = styled('div')({
+    textAlign: 'center',
+    color: 'white',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    letterSpacing: '1px',
+    opacity: 1,
+    transition: 'opacity 0.6s ease-out',
+})
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+    'position': 'absolute',
+    'top': '50%',
+    'left': '50%',
+    'width': '170px',
+    'height': '48px',
+    'transform': 'translateX(-50%) translateY(-50%)',
+    'background': theme.palette.accent.main,
+    'fontSize': '16px',
+    'color': theme.palette.text.secondary,
+    'paddingBottom': theme.spacing(0.5),
+    'pointerEvents': 'none',
+    'transition': 'opacity 1s ease-out',
+    '& > div': {
+        padding: `${theme.spacing(4)} ${theme.spacing(6)}`,
     },
 }))
 
 const ThreeViewer = ({ url, release_id, supplemental, settings }) => {
-    const c = useStyles()
 
     supplemental = supplemental || []
 
@@ -203,12 +201,12 @@ const ThreeViewer = ({ url, release_id, supplemental, settings }) => {
     }, [])
 
     return (
-        <div className={c.ThreeViewer}>
-            <canvas id="three" className={c.ThreeContainer} ref={canvas}></canvas>
-            <Paper className={c.paper} elevation={2} ref={paperRef}>
-                <div className={c.loading} ref={loading}></div>
-            </Paper>
-        </div>
+        <ThreeViewerRoot>
+            <ThreeCanvas id="three" ref={canvas}></ThreeCanvas>
+            <StyledPaper elevation={2} ref={paperRef}>
+                <LoadingDiv ref={loading}></LoadingDiv>
+            </StyledPaper>
+        </ThreeViewerRoot>
     )
 }
 

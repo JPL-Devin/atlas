@@ -21,7 +21,7 @@ import {
 
 import Image from 'mui-image'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import {
     search,
@@ -39,124 +39,117 @@ const listItemHeight = 243
 const listItemWidth = 520
 const listItemGap = 8
 
-const useStyles = makeStyles((theme) => ({
-    ListView: {
-        width: '100%',
-        height: '100%',
-        padding: `${listItemGap}px 0px 0px ${listItemGap}px`,
-        boxSizing: 'border-box',
+const ListViewRoot = styled('div')({
+    width: '100%',
+    height: '100%',
+    padding: `${listItemGap}px 0px 0px ${listItemGap}px`,
+    boxSizing: 'border-box',
+})
+
+const ListContent = styled('div')({
+    height: '100%',
+    overflowX: 'hidden',
+    overflowY: 'auto',
+})
+
+const ListItemRoot = styled('div')(({ theme }) => ({
+    'cursor': 'pointer',
+    'box-shadow': '0 1px 5px rgba(0, 0, 0, 0.5)',
+    'min-height': `${listItemHeight}px`,
+    'max-height': `${listItemHeight}px`,
+    'overflow': 'hidden',
+    'justify-content': 'space-between',
+    'display': 'flex',
+    'box-sizing': 'border-box',
+    'border-radius': '3px',
+    'position': 'relative',
+    'width': '100%',
+    'background': `linear-gradient(to bottom, #060606, ${theme.palette.swatches.black.black0}) !important`,
+    '&:hover .selectionIndicator': {
+        boxShadow: `inset 0px 0px 0px 4px ${theme.palette.swatches.blue.blue800}`,
     },
-    content: {
-        height: '100%',
-        overflowX: 'hidden',
-        overflowY: 'auto',
-    },
-    listItem: {
-        'cursor': 'pointer',
-        'box-shadow': '0 1px 5px rgba(0, 0, 0, 0.5)',
-        'min-height': `${listItemHeight}px`,
-        'max-height': `${listItemHeight}px`,
-        'overflow': 'hidden',
-        'justify-content': 'space-between',
-        'display': 'flex',
-        'box-sizing': 'border-box',
-        'border-radius': '3px',
-        'position': 'relative',
-        'width': '100%',
-        'background': `linear-gradient(to bottom, #060606, ${theme.palette.swatches.black.black0}) !important`,
-        '&:hover .selectionIndicator': {
-            boxShadow: `inset 0px 0px 0px 4px ${theme.palette.swatches.blue.blue800}`,
-        },
-        '&:hover .ProductToolbar': {
-            'opacity': 1,
-            '& .ProductToolbarInner': {
-                display: 'flex',
-            },
-            '& .ProductToolbarInCart': {
-                opacity: 0,
-            },
-        },
-    },
-    listItemLeft: {
-        position: 'relative',
-        width: `${listItemHeight}px`,
-        height: `${listItemHeight}px`,
-    },
-    listItemRight: {
-        flex: 1,
-        padding: `${listItemGap}px 0px`,
-        overflowY: 'auto',
-        background: theme.palette.secondary.main,
-    },
-    listItemImage: {
+    '&:hover .ProductToolbar': {
         'opacity': 1,
-        'object-fit': 'cover !important',
-        'user-select': 'none',
-        'overflow': 'hidden',
-        'text-overflow': 'ellipsis',
-        'image-rendering': 'pixelated',
-        'width': `${listItemHeight}px !important`,
-        'height': `${listItemHeight}px !important`,
-        'transition': 'all 0.2s ease-in',
-        'position': 'static !important',
-        'background': `linear-gradient(to bottom, #060606, ${theme.palette.swatches.black.black0}) !important`,
-    },
-    listItemTitle: {
-        fontSize: '15px',
-        lineHeight: '20px',
-        color: theme.palette.swatches.yellow.yellow500,
-        wordBreak: 'break-all',
-        padding: `0px ${listItemGap}px`,
-    },
-    listItemTime: {
-        fontSize: '12px',
-        lineHeight: '15px',
-        color: theme.palette.swatches.blue.blue100,
-        padding: `0px ${listItemGap}px`,
-        marginBottom: theme.spacing(1),
-    },
-    listItemProperty: {
-        'display': 'flex',
-        'justifyContent': 'space-between',
-        'padding': `0px ${listItemGap}px`,
-        'borderTop': '1px solid rgba(255, 255, 255, 0.2)',
-        '& > div:first-child': {
-            fontSize: '12px',
-            lineHeight: '20px',
-            color: theme.palette.swatches.grey.grey200,
-            marginRight: '4px',
+        '& .ProductToolbarInner': {
+            display: 'flex',
         },
-        '& > div:last-child': {
-            fontSize: '14px',
-            height: '20px',
-            lineHeight: '20px',
-            color: theme.palette.text.secondary,
-            whiteSpace: 'nowrap',
-            textOverflow: 'ellipsis',
-            overflow: 'hidden',
+        '& .ProductToolbarInCart': {
+            opacity: 0,
         },
-    },
-    listItemToolbar: {
-        'position': 'absolute',
-        'bottom': 0,
-        'left': 0,
-        'width': '100%',
-        'background': 'rgba(0, 0, 0, 0.5)',
-        'line-height': '30px',
-        'white-space': 'nowrap',
-        'overflow': 'hidden',
-        'text-overflow': 'ellipsis',
-        'word-break': 'unset',
-        'font-size': '14px',
-        'text-align': 'center',
-    },
-    selectionIndicator: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
     },
 }))
+
+const ListItemLeft = styled('div')({
+    position: 'relative',
+    width: `${listItemHeight}px`,
+    height: `${listItemHeight}px`,
+})
+
+const ListItemRight = styled('div')(({ theme }) => ({
+    flex: 1,
+    padding: `${listItemGap}px 0px`,
+    overflowY: 'auto',
+    background: theme.palette.secondary.main,
+}))
+
+const ListItemImage = styled(Image)(({ theme }) => ({
+    'opacity': 1,
+    'object-fit': 'cover !important',
+    'user-select': 'none',
+    'overflow': 'hidden',
+    'text-overflow': 'ellipsis',
+    'image-rendering': 'pixelated',
+    'width': `${listItemHeight}px !important`,
+    'height': `${listItemHeight}px !important`,
+    'transition': 'all 0.2s ease-in',
+    'position': 'static !important',
+    'background': `linear-gradient(to bottom, #060606, ${theme.palette.swatches.black.black0}) !important`,
+}))
+
+const ListItemTitle = styled('div')(({ theme }) => ({
+    fontSize: '15px',
+    lineHeight: '20px',
+    color: theme.palette.swatches.yellow.yellow500,
+    wordBreak: 'break-all',
+    padding: `0px ${listItemGap}px`,
+}))
+
+const ListItemTime = styled('div')(({ theme }) => ({
+    fontSize: '12px',
+    lineHeight: '15px',
+    color: theme.palette.swatches.blue.blue100,
+    padding: `0px ${listItemGap}px`,
+    marginBottom: theme.spacing(1),
+}))
+
+const ListItemProperty = styled('div')(({ theme }) => ({
+    'display': 'flex',
+    'justifyContent': 'space-between',
+    'padding': `0px ${listItemGap}px`,
+    'borderTop': '1px solid rgba(255, 255, 255, 0.2)',
+    '& > div:first-child': {
+        fontSize: '12px',
+        lineHeight: '20px',
+        color: theme.palette.swatches.grey.grey200,
+        marginRight: '4px',
+    },
+    '& > div:last-child': {
+        fontSize: '14px',
+        height: '20px',
+        lineHeight: '20px',
+        color: theme.palette.text.secondary,
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+    },
+}))
+
+const SelectionIndicator = styled('div')({
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none',
+})
 
 let page = 0
 let itemLength = 0
@@ -166,7 +159,6 @@ let allowPageCheck = true
 const ListView = (props) => {
     const { results, paging } = props
 
-    const c = useStyles()
     const dispatch = useDispatch()
 
     const resultsPerPage = paging.resultsPerPage
@@ -281,8 +273,8 @@ const ListView = (props) => {
     })
 
     return (
-        <div className={`${c.ListView} fade-in`} ref={ref}>
-            <div className={c.content} id="ListViewContent" ref={listContainerRef}>
+        <ListViewRoot className="fade-in" ref={ref}>
+            <ListContent id="ListViewContent" ref={listContainerRef}>
                 {useMasonry({
                     id: 'ListViewMasonry',
                     positioner,
@@ -294,13 +286,12 @@ const ListView = (props) => {
                     overscanBy: 6,
                     render: ListCard,
                 })}
-            </div>
-        </div>
+            </ListContent>
+        </ListViewRoot>
     )
 }
 
 const ListCard = ({ index, data, width }) => {
-    const c = useStyles()
     const s = data._source
 
     const navigate = useNavigate()
@@ -325,12 +316,11 @@ const ListCard = ({ index, data, width }) => {
     const target = getIn(s, ES_PATHS.target, [])
 
     return (
-        <div
+        <ListItemRoot
             // Index relative to current pages
             result-id={index}
             // Key relative to all pages
             result-key={data.result_key}
-            className={c.listItem}
             onClick={() => {
                 navigate(`${HASH_PATHS.record}?uri=${getIn(s, ES_PATHS.source)}`)
             }}
@@ -341,9 +331,9 @@ const ListCard = ({ index, data, width }) => {
                 sASet(sAKeys.HOVERED_RESULT, null)
             }}
         >
-            <div className={c.listItemLeft}>
-                <Image
-                    className={`${c.listItemImage} ResultsPanelImage ListViewImage`}
+            <ListItemLeft>
+                <ListItemImage
+                    className="ResultsPanelImage ListViewImage"
                     wrapperStyle={{
                         height: '100%',
                         paddingTop: 'unset',
@@ -364,54 +354,54 @@ const ListCard = ({ index, data, width }) => {
                 {MODEL_EXTENSIONS.includes(getExtension(fileName, true)) && (
                     <ProductIcons filename={fileName} />
                 )}
-            </div>
-            <div className={c.listItemRight}>
-                <div className={c.listItemTitle}>{getIn(s, ES_PATHS.file_name)}</div>
-                <div className={c.listItemTime}>{getIn(s, ES_PATHS.start_time)}</div>
+            </ListItemLeft>
+            <ListItemRight>
+                <ListItemTitle>{getIn(s, ES_PATHS.file_name)}</ListItemTitle>
+                <ListItemTime>{getIn(s, ES_PATHS.start_time)}</ListItemTime>
 
-                <div className={c.listItemProperty}>
+                <ListItemProperty>
                     <div>Mission:</div>
                     <div>{getIn(s, ES_PATHS.mission)}</div>
-                </div>
-                <div className={c.listItemProperty}>
+                </ListItemProperty>
+                <ListItemProperty>
                     <div>Spacecraft:</div>
                     <div>{getIn(s, ES_PATHS.spacecraft)}</div>
-                </div>
-                <div className={c.listItemProperty}>
+                </ListItemProperty>
+                <ListItemProperty>
                     <div>Instrument:</div>
                     <div>{getIn(s, ES_PATHS.instrument)}</div>
-                </div>
-                <div className={c.listItemProperty}>
+                </ListItemProperty>
+                <ListItemProperty>
                     <div>Product Type:</div>
                     <div>{getIn(s, ES_PATHS.product_type)}</div>
-                </div>
-                <div className={c.listItemProperty}>
+                </ListItemProperty>
+                <ListItemProperty>
                     <div>Targets:</div>
                     <div>{Array.isArray(target) ? target.join(', ') : target}</div>
-                </div>
-                <div className={c.listItemProperty}>
+                </ListItemProperty>
+                <ListItemProperty>
                     <div>{pds_standard === 'pds4' ? 'Bundle:' : 'Volume:'}</div>
                     <div>
                         {pds_standard === 'pds4'
                             ? getIn(s, ES_PATHS.pds_archive.bundle_id)
                             : getIn(s, ES_PATHS.pds_archive.volume_id)}
                     </div>
-                </div>
-                <div className={c.listItemProperty}>
+                </ListItemProperty>
+                <ListItemProperty>
                     <div>{pds_standard === 'pds4' ? 'Collection:' : 'Dataset Id:'}</div>
                     <div>
                         {pds_standard === 'pds4'
                             ? getIn(s, ES_PATHS.pds_archive.collection_id)
                             : getIn(s, ES_PATHS.pds_archive.data_set_id)}
                     </div>
-                </div>
-                <div className={c.listItemProperty}>
+                </ListItemProperty>
+                <ListItemProperty>
                     <div>Size:</div>
                     <div>{humanFileSize(getIn(s, ES_PATHS.archive.size))}</div>
-                </div>
-            </div>
-            <div className={`${c.selectionIndicator} selectionIndicator`}></div>
-        </div>
+                </ListItemProperty>
+            </ListItemRight>
+            <SelectionIndicator className="selectionIndicator" />
+        </ListItemRoot>
     )
 }
 

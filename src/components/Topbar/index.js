@@ -3,11 +3,9 @@ import { useSelector } from 'react-redux'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 
-import clsx from 'clsx'
-
+import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
@@ -28,142 +26,132 @@ const getNASALogoUrl = () => {
     return `${publicUrl}/${relativePath}`
 }
 
-const useStyles = makeStyles((theme) => ({
-    Topbar: {
-        height: theme.headHeights[1],
-        width: '100%',
+const TopbarRoot = styled('div')(({ theme }) => ({
+    height: theme.headHeights[1],
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+    background: theme.palette.swatches.grey.grey100,
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+}))
+
+const LeftSection = styled('div')(({ theme }) => ({
+    display: 'flex',
+    marginLeft: theme.spacing(1.5),
+}))
+
+
+const LogoDiv = styled('div')(({ theme }) => ({
+    width: theme.headHeights[1],
+    height: theme.headHeights[1],
+    padding: 4,
+    boxSizing: 'border-box',
+}))
+
+const Logo = styled('img')({
+    width: 32,
+    height: 32,
+})
+
+const AppTitle = styled('div')({
+    'display': 'flex',
+    'flexFlow': 'column',
+    '& > div:last-child': {
         display: 'flex',
-        justifyContent: 'space-between',
-        background: theme.palette.swatches.grey.grey100,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        marginTop: '-5px',
     },
-    left: {
-        display: 'flex',
-        marginLeft: theme.spacing(1.5),
-    },
-    right: {
-        display: 'flex',
-    },
-    logoDiv: {
-        width: theme.headHeights[1],
-        height: theme.headHeights[1],
-        padding: 4,
-        boxSizing: 'border-box',
-    },
-    logo: {
-        width: 32,
-        height: 32,
-    },
-    nodeTitle: {
-        color: 'black',
-    },
-    appTitle: {
-        'display': 'flex',
-        'flexFlow': 'column',
-        '& > div:last-child': {
-            display: 'flex',
-            marginTop: '-5px',
-        },
-    },
-    node: {
-        'color': `${theme.palette.swatches.grey.grey500} !important`,
-        'fontWeight': 400,
-        'fontSize': 11,
-        'margin': 0,
-        'padding': `0px ${theme.spacing(1)}`,
-        'lineHeight': '22px',
-        'textTransform': 'uppercase',
-        'textDecoration': 'none !important',
-        '& > div': {
-            display: 'flex',
-        },
-        '& > div > a:first-child': {
-            textDecoration: 'none !important',
-            fontWeight: 'bold',
-            marginRight: '3px',
-            color: 'darkgoldenrod !important',
-        },
-        '& > div > a:last-child': {
-            textDecoration: 'none !important',
-            color: `${theme.palette.swatches.grey.grey500} !important`,
-        },
-        '& > div > a:hover': {
-            textDecoration: 'underline !important',
-        },
-    },
-    appNameDiv: {
+})
+
+const NodeH3 = styled('h3')(({ theme }) => ({
+    'color': `${theme.palette.swatches.grey.grey500} !important`,
+    'fontWeight': 400,
+    'fontSize': 11,
+    'margin': 0,
+    'padding': `0px ${theme.spacing(1)}`,
+    'lineHeight': '22px',
+    'textTransform': 'uppercase',
+    'textDecoration': 'none !important',
+    '& > div': {
         display: 'flex',
     },
-    appName: {
+    '& > div > a:first-child': {
+        textDecoration: 'none !important',
+        fontWeight: 'bold',
+        marginRight: '3px',
+        color: 'darkgoldenrod !important',
+    },
+    '& > div > a:last-child': {
+        textDecoration: 'none !important',
+        color: `${theme.palette.swatches.grey.grey500} !important`,
+    },
+    '& > div > a:hover': {
+        textDecoration: 'underline !important',
+    },
+}))
+
+const AppName = styled('h1')(({ theme }) => ({
+    color: theme.palette.text.primary,
+    fontWeight: 700,
+    fontSize: 14,
+    margin: 0,
+    padding: `0px ${theme.spacing(0.5)}`,
+    lineHeight: '22px',
+}))
+
+const TitleDivider = styled('div')(({ theme }) => ({
+    color: theme.palette.swatches.grey.grey500,
+    fontWeight: 500,
+    fontSize: 14,
+    margin: 0,
+    padding: `0px 3px 0px 2px`,
+    lineHeight: '22px',
+}))
+
+const AppPage = styled('h2')(({ theme }) => ({
+    color: 'darkgoldenrod',
+    fontSize: 14,
+    letterSpacing: '1px',
+    margin: 0,
+    padding: `0px ${theme.spacing(0.5)}`,
+    lineHeight: '22px',
+    textTransform: 'uppercase',
+}))
+
+const NavButton = styled(IconButton, {
+    shouldForwardProp: (prop) => prop !== 'isActive',
+})(({ theme, isActive }) => ({
+    'width': theme.headHeights[1],
+    'height': theme.headHeights[1],
+    'borderRadius': 0,
+    'fontSize': 20,
+    'color': theme.palette.text.muted,
+    'transition': 'color 0.2s ease-out',
+    'borderTop': `2px solid transparent`,
+    'borderBottom': `2px solid transparent`,
+    '&:hover': {
         color: theme.palette.text.primary,
-        fontWeight: 700,
-        fontSize: 14,
-        margin: 0,
-        padding: `0px ${theme.spacing(0.5)}`,
-        lineHeight: '22px',
     },
-    titleDivider: {
-        color: theme.palette.swatches.grey.grey500,
-        fontWeight: 500,
-        fontSize: 14,
-        margin: 0,
-        padding: `0px 3px 0px 2px`,
-        lineHeight: '22px',
-    },
-    appPage: {
-        color: 'darkgoldenrod',
-        fontSize: 14,
-        letterSpacing: '1px',
-        margin: 0,
-        padding: `0px ${theme.spacing(0.5)}`,
-        lineHeight: '22px',
-        textTransform: 'uppercase',
-    },
-    dividerV1: {
-        background: theme.palette.swatches.grey.grey600,
-        margin: `${theme.spacing(0.5)} ${theme.spacing(2)}`,
-    },
-    dividerV2: {
-        background: theme.palette.swatches.grey.grey600,
-        margin: theme.spacing(0.5),
-    },
-    dividerH: {
-        background: theme.palette.swatches.grey.grey600,
-    },
-    button: {
-        'width': theme.headHeights[1],
-        'height': theme.headHeights[1],
-        'borderRadius': 0,
-        'fontSize': 20,
-        'color': theme.palette.text.muted,
-        'transition': 'color 0.2s ease-out',
-        'borderTop': `2px solid transparent`,
-        'borderBottom': `2px solid transparent`,
-        '&:hover': {
-            color: theme.palette.text.primary,
-        },
-    },
-    buttonActive: {
+    ...(isActive && {
         color: theme.palette.swatches.blue.blue500,
         background: 'rgba(0,0,0,0.05)',
         borderBottom: `2px solid ${theme.palette.swatches.blue.blue500}`,
-    },
-    cartBadge: {
-        '& .MuiBadge-badge': {
-            background: theme.palette.swatches.red.red500,
-            color: theme.palette.text.secondary,
-            right: 4,
-            top: 1,
-            border: `1px solid ${theme.palette.swatches.grey.grey100}`,
-            padding: '0px 3px 0px 3px',
-            height: '16px',
-            minWidth: '16px;',
-        },
+    }),
+}))
+
+const CartBadge = styled(Badge)(({ theme }) => ({
+    '& .MuiBadge-badge': {
+        background: theme.palette.swatches.red.red500,
+        color: theme.palette.text.secondary,
+        right: 4,
+        top: 1,
+        border: `1px solid ${theme.palette.swatches.grey.grey100}`,
+        padding: '0px 3px 0px 3px',
+        height: '16px',
+        minWidth: '16px;',
     },
 }))
 
 const Topbar = () => {
-    const c = useStyles()
 
     const location = useLocation()
     const navigate = useNavigate()
@@ -194,14 +182,14 @@ const Topbar = () => {
     }
 
     return (
-        <div className={c.Topbar}>
-            <div className={c.left}>
-                <div className={c.logoDiv}>
-                    <img className={c.logo} src={getNASALogoUrl()} alt="NASA logo" />
-                </div>
-                <div className={c.appTitle}>
-                    <div className={c.nodeDiv}>
-                        <h3 className={c.node}>
+        <TopbarRoot>
+            <LeftSection>
+                <LogoDiv>
+                    <Logo src={getNASALogoUrl()} alt="NASA logo" />
+                </LogoDiv>
+                <AppTitle>
+                    <div>
+                        <NodeH3>
                             {isMobileXs ? (
                                 'PDSIMG'
                             ) : (
@@ -212,27 +200,26 @@ const Topbar = () => {
                                     </a>
                                 </div>
                             )}
-                        </h3>
+                        </NodeH3>
                     </div>
                     <div>
-                        <div className={c.appNameDiv}>
-                            <h1 className={c.appName}>ATLAS</h1>
-                        </div>
+                        <Box sx={{ display: 'flex' }}>
+                            <AppName>ATLAS</AppName>
+                        </Box>
                         {pageName && (
                             <>
-                                <div className={c.titleDivider}>/</div>
-                                <div className={c.appPageDiv}>
-                                    <h2 className={c.appPage}>{pageName}</h2>
+                                <TitleDivider>/</TitleDivider>
+                                <div>
+                                    <AppPage>{pageName}</AppPage>
                                 </div>
                             </>
                         )}
                     </div>
-                </div>
-            </div>
-            <div className={c.right}>
+                </AppTitle>
+            </LeftSection>
+            <Box sx={{ display: 'flex' }}>
                 <Tooltip title="API Documentation" arrow placement="bottom">
-                    <IconButton
-                        className={clsx(c.button)}
+                    <NavButton
                         aria-label="go to api documentation"
                         onClick={() => {
                             window.open(`${publicUrl}${HASH_PATHS.apiDocumentation}`, '_blank').focus()
@@ -246,13 +233,11 @@ const Topbar = () => {
                         >
                             <path d="M7 7H5A2 2 0 0 0 3 9V17H5V13H7V17H9V9A2 2 0 0 0 7 7M7 11H5V9H7M14 7H10V17H12V13H14A2 2 0 0 0 16 11V9A2 2 0 0 0 14 7M14 11H12V9H14M20 9V15H21V17H17V15H18V9H17V7H21V9Z" />
                         </svg>
-                    </IconButton>
+                    </NavButton>
                 </Tooltip>
                 <Tooltip title="Image Search" arrow placement="bottom">
-                    <IconButton
-                        className={clsx(c.button, {
-                            [c.buttonActive]: pageName === 'Image Search',
-                        })}
+                    <NavButton
+                        isActive={pageName === 'Image Search'}
                         aria-label="go to image search"
                         onClick={() => {
                             navigate(HASH_PATHS.search)
@@ -260,14 +245,12 @@ const Topbar = () => {
                         size="large"
                     >
                         <ImageSearchIcon fontSize="inherit" />
-                    </IconButton>
+                    </NavButton>
                 </Tooltip>
 
                 <Tooltip title="Archive Explorer" arrow placement="bottom">
-                    <IconButton
-                        className={clsx(c.button, {
-                            [c.buttonActive]: pageName === 'Archive Explorer',
-                        })}
+                    <NavButton
+                        isActive={pageName === 'Archive Explorer'}
                         aria-label="go to archive explorer"
                         onClick={() => {
                             navigate(HASH_PATHS.fileExplorer)
@@ -275,25 +258,25 @@ const Topbar = () => {
                         size="large"
                     >
                         <AccountTreeIcon fontSize="inherit" />
-                    </IconButton>
+                    </NavButton>
                 </Tooltip>
 
                 <Tooltip title="Cart" arrow placement="bottom">
-                    <IconButton
-                        className={clsx(c.button, { [c.buttonActive]: pageName === 'Cart' })}
+                    <NavButton
+                        isActive={pageName === 'Cart'}
                         aria-label="go to cart"
                         onClick={() => {
                             navigate(HASH_PATHS.cart)
                         }}
                         size="large"
                     >
-                        <Badge className={c.cartBadge} badgeContent={cartLength}>
+                        <CartBadge badgeContent={cartLength}>
                             <ShoppingCartOutlinedIcon fontSize="inherit" />
-                        </Badge>
-                    </IconButton>
+                        </CartBadge>
+                    </NavButton>
                 </Tooltip>
-            </div>
-        </div>
+            </Box>
+        </TopbarRoot>
     )
 }
 
