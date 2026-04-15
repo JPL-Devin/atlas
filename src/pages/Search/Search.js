@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { styled, useTheme } from '@mui/material/styles'
+import Box from '@mui/material/Box'
 
 import FiltersPanel from './Panels/FiltersPanel/FiltersPanel'
 import SecondaryPanel from './Panels/SecondaryPanel/SecondaryPanel'
@@ -24,11 +25,6 @@ const SearchRoot = styled('div')(({ theme }) => ({
 const MainWorkspace = styled('div')({
     padding: 0,
     height: '100%',
-    display: 'flex',
-    flex: 1,
-})
-
-const Workspace = styled('div')({
     display: 'flex',
     flex: 1,
 })
@@ -61,7 +57,7 @@ const Search = (props) => {
 
         return (
             <SearchRoot>
-                <Workspace>{panel}</Workspace>
+                <Box sx={{ display: 'flex', flex: 1 }}>{panel}</Box>
                 <AddFilterModal />
                 <FilterHelpModal />
                 <EditColumnsModal />
@@ -74,10 +70,10 @@ const Search = (props) => {
         <SearchRoot>
             <MainWorkspace>
                 <FiltersPanel />
-                <Workspace>
+                <Box sx={{ display: 'flex', flex: 1 }}>
                     <SecondaryPanel />
                     <ResultsPanel />
-                </Workspace>
+                </Box>
             </MainWorkspace>
             <AddFilterModal />
             <FilterHelpModal />

@@ -21,14 +21,13 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 
 import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 import SendSharpIcon from '@mui/icons-material/SendSharp'
+import Box from '@mui/material/Box'
 
 const Contents = styled('div')({
     borderRadius: '4px',
     width: 760,
     overflow: 'hidden',
 })
-
-const ContentsMobile = styled('div')({})
 
 const Content = styled(DialogContent)({
     padding: 0,
@@ -128,18 +127,9 @@ const StyledTextarea = styled('textarea')({
     fontFamily: 'sans-serif',
 })
 
-const Bottom = styled('div')({
-    padding: '8px 0px',
-})
-
 const Footer = styled(DialogActions)({
     padding: '8px 16px',
     background: '#E7E7E7',
-})
-
-const FooterLeft = styled('div')({
-    fontSize: '12px',
-    paddingRight: '6px',
 })
 
 const SendButton = styled(Button)({
@@ -174,11 +164,6 @@ const Link = styled('li')({
         textDecoration: 'none',
     },
     'margin': '4px 0px',
-})
-
-const SentCont = styled('div')({
-    textAlign: 'center',
-    marginBottom: '14px',
 })
 
 const SentIcon = styled(SendSharpIcon)({
@@ -273,7 +258,7 @@ const Feedback = ({ open, verify, handleClose, links, site_key, logoUrl }) => {
             onClose={handleClose}
             aria-labelledby="responsive-dialog-title"
             PaperProps={{
-                component: isMobile ? ContentsMobile : Contents,
+                component: isMobile ? 'div' : Contents,
             }}
         >
             <Content>
@@ -333,18 +318,18 @@ const Feedback = ({ open, verify, handleClose, links, site_key, logoUrl }) => {
                     </Form>
                 ) : (
                     <Submitted>
-                        <SentCont>
+                        <Box sx={{ textAlign: 'center', marginBottom: '14px' }}>
                             <SentIcon />
                             <SentMessage>
                                 Your message is on its way.
                             </SentMessage>
-                        </SentCont>
+                        </Box>
                         <SubmittedMessage>
                             Thank you for making the PDS a better site. If you provided an email
                             address, a PDS representative will get back to you as soon as possible.
                         </SubmittedMessage>
                         {links && links.length > 0 && (
-                            <Bottom>
+                            <Box sx={{ padding: '8px 0px' }}>
                                 <Typography>
                                     In the meantime, you may find the following links helpful:
                                 </Typography>
@@ -355,7 +340,7 @@ const Feedback = ({ open, verify, handleClose, links, site_key, logoUrl }) => {
                                         </Link>
                                     ))}
                                 </StyledUl>
-                            </Bottom>
+                            </Box>
                         )}
                     </Submitted>
                 )}
@@ -363,7 +348,7 @@ const Feedback = ({ open, verify, handleClose, links, site_key, logoUrl }) => {
             <Footer>
                 {!submitted ? (
                     <>
-                        <FooterLeft>
+                        <Box sx={{ fontSize: '12px', paddingRight: '6px' }}>
                             This site is protected by reCAPTCHA and the Google{' '}
                             <a href="https://policies.google.com/privacy" target="_blank">
                                 Privacy Policy
@@ -373,7 +358,7 @@ const Feedback = ({ open, verify, handleClose, links, site_key, logoUrl }) => {
                                 Terms of Service
                             </a>{' '}
                             apply.
-                        </FooterLeft>
+                        </Box>
                         <div>
                             <SendButton
                                 onClick={submit}
@@ -385,7 +370,7 @@ const Feedback = ({ open, verify, handleClose, links, site_key, logoUrl }) => {
                     </>
                 ) : (
                     <>
-                        <FooterLeft></FooterLeft>
+                        <Box sx={{ fontSize: '12px', paddingRight: '6px' }}></Box>
                         <div>
                             <SendButton
                                 onClick={handleClose}

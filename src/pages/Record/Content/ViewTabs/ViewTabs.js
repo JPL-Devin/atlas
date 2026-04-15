@@ -14,7 +14,7 @@ const ViewTabsRoot = styled('div')(({ theme }) => ({
     boxSizing: 'border-box',
     background: theme.palette.swatches.grey.grey100,
     borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-    color: theme.palette.text.main,
+    color: theme.palette.text.primary,
 }))
 
 // HELPERS
@@ -40,7 +40,7 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
 }))
 
 const StyledTab = styled(Tab)(({ theme }) => ({
-    'color': theme.palette.text.main,
+    'color': theme.palette.text.primary,
     'fontSize': theme.typography.pxToRem(14),
     'marginRight': theme.spacing(1),
     'minWidth': 88,

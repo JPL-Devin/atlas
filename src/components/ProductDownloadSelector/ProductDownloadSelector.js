@@ -16,6 +16,7 @@ import { Typography } from '@mui/material'
 import Checkbox from '@mui/material/Checkbox'
 
 import WarningIcon from '@mui/icons-material/Warning'
+import Box from '@mui/material/Box'
 
 const RootDiv = styled('div', {
     shouldForwardProp: (prop) => prop !== 'hidden',
@@ -46,22 +47,6 @@ const ItemDiv = styled('div')({
     },
     'lineHeight': '27px',
     'cursor': 'pointer',
-})
-
-const LabelDiv = styled('div')({
-    lineHeight: '27px',
-})
-
-const TotalDiv = styled('div')({
-    fontStyle: 'italic',
-})
-
-const TotalTitleDiv = styled('div')({
-    fontWeight: 'bold',
-})
-
-const SizeDiv = styled('div')({
-    fontWeight: 'bold',
 })
 
 const SummaryDiv = styled('div')({
@@ -219,10 +204,10 @@ const ProductDownloadSelector = forwardRef((props, ref) => {
             </Title>
             <div>{makeSelectors(listState, onCheck)}</div>
             <SummaryDiv>
-                <TotalTitleDiv>Total:&nbsp;</TotalTitleDiv>
-                <TotalDiv>{summary.total} items</TotalDiv>
+                <Box sx={{ fontWeight: 'bold' }}>Total:&nbsp;</Box>
+                <Box sx={{ fontStyle: 'italic' }}>{summary.total} items</Box>
                 <div>&nbsp;|&nbsp;</div>
-                <SizeDiv>{humanFileSize(summary.size)}</SizeDiv>
+                <Box sx={{ fontWeight: 'bold' }}>{humanFileSize(summary.size)}</Box>
             </SummaryDiv>
             {summary.total > MAX_BULK_DOWNLOAD_COUNT && (
                 <SizeWarning>
@@ -263,12 +248,12 @@ function makeSelectors(state, onCheck) {
                                 checked={p.checked}
                                 size="medium"
                             />
-                            <LabelDiv>{p.name}</LabelDiv>
+                            <Box sx={{ lineHeight: '27px' }}>{p.name}</Box>
                         </div>
                         <div>
-                            <TotalDiv>{p.total} items</TotalDiv>
+                            <Box sx={{ fontStyle: 'italic' }}>{p.total} items</Box>
                             <div>&nbsp;|&nbsp;</div>
-                            <SizeDiv>{humanFileSize(p.size)}</SizeDiv>
+                            <Box sx={{ fontWeight: 'bold' }}>{humanFileSize(p.size)}</Box>
                         </div>
                     </ItemDiv>
                 )

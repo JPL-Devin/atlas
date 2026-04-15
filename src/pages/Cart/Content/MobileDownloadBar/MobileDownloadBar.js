@@ -32,7 +32,7 @@ const MobileDownloadBarRoot = styled('div')(({ theme }) => ({
 
 const IntroMessage = styled('div')(({ theme }) => ({
     lineHeight: '20px',
-    color: theme.palette.text.main,
+    color: theme.palette.text.primary,
     background: theme.palette.swatches.yellow.yellow800,
     padding: '10px',
     fontWeight: 'bold',
@@ -45,11 +45,6 @@ const DownloadButton1 = styled(Button)(({ theme }) => ({
     fontSize: '14px',
     background: theme.palette.accent.main,
 }))
-
-const DownloadButtonWrapper = styled('div')({
-    display: 'flex',
-    justifyContent: 'center',
-})
 
 const DownloadingWrapper = styled('div')({
     bottom: '0px',
@@ -128,7 +123,7 @@ const MobileDownloadBar = (props) => {
                     <div>Select items to download.</div>
                 </IntroMessage>
             ) : !isDownloading ? (
-                <DownloadButtonWrapper>
+                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                     <DownloadButton1
                         variant="contained"
                         aria-label="browser zip download button"
@@ -164,7 +159,7 @@ const MobileDownloadBar = (props) => {
                     >
                         {`Download ZIP (${humanFileSize(summary.size)})`}
                     </DownloadButton1>
-                </DownloadButtonWrapper>
+                </Box>
             ) : (
                 <DownloadingWrapper>
                     <DownloadingCard

@@ -7,16 +7,12 @@ import IconButton from '@mui/material/IconButton'
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import CloseSharpIcon from '@mui/icons-material/CloseSharp'
+import Box from '@mui/material/Box'
 
 import axios from 'axios'
 
 import { endpoints } from '../../core/constants'
 import { getIn, prettify } from '../../core/utils'
-
-const FilterHelpRoot = styled('div')({
-    fontSize: '16px',
-    lineHeight: '22px',
-})
 
 const NoDescription = styled(Typography)(({ theme }) => ({
     lineHeight: '20px',
@@ -102,7 +98,7 @@ const FilterHelp = (props) => {
         }
 
     return (
-        <FilterHelpRoot>
+        <Box sx={{ fontSize: '16px', lineHeight: '22px' }}>
             {finalHelpData ? (
                 generateHelp(finalHelpData)
             ) : (
@@ -122,7 +118,7 @@ const FilterHelp = (props) => {
                     <CloseSharpIcon fontSize="inherit" />
                 </CloseButton>
             ) : null}
-        </FilterHelpRoot>
+        </Box>
     )
 }
 

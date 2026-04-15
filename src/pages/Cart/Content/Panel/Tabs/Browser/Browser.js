@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import { styled } from '@mui/material/styles'
-
 import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Tooltip from '@mui/material/Tooltip'
 
@@ -12,43 +9,7 @@ import { ZipStreamCart } from '../../../../../../core/downloaders/ZipStream'
 import { setSnackBarText } from '../../../../../../core/redux/actions/actions.js'
 
 import DownloadingCard from '../../../../../../components/DownloadingCard/DownloadingCard'
-
-const DownloadButton = styled(Button, {
-    shouldForwardProp: (prop) => prop !== 'isDownloading',
-})(({ theme, isDownloading }) => ({
-    height: 30,
-    width: '100%',
-    margin: '7px 0px',
-    background: theme.palette.primary.light,
-    ...(isDownloading && {
-        background: theme.palette.swatches.grey.grey300,
-        color: theme.palette.text.primary,
-        pointerEvents: 'none',
-    }),
-}))
-
-const DownloadingWrapper = styled('div')({
-    bottom: '0px',
-    position: 'sticky',
-    width: '100%',
-    padding: '12px',
-    boxSizing: 'border-box',
-})
-
-const ErrorMessage = styled('div', {
-    shouldForwardProp: (prop) => prop !== 'isVisible',
-})(({ theme, isVisible }) => ({
-    display: 'none',
-    fontSize: '16px',
-    padding: '12px',
-    background: theme.palette.swatches.red.red500,
-    color: theme.palette.text.secondary,
-    border: `1px solid ${theme.palette.swatches.red.red600}`,
-    textAlign: 'center',
-    ...(isVisible && {
-        display: 'block',
-    }),
-}))
+import { DownloadButton, DownloadingWrapper, ErrorMessage } from '../../../../../../components/shared/CartDownloadComponents'
 
 function BrowserTab(props) {
     const { value, index, selectorRef, selectionCount, ...other } = props

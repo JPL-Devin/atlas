@@ -12,6 +12,7 @@ import MenuList from '@mui/material/MenuList'
 import Checkbox from '@mui/material/Checkbox'
 
 import { styled } from '@mui/material/styles'
+import Box from '@mui/material/Box'
 
 const SplitButtonGroup = styled(ButtonGroup, {
     shouldForwardProp: (prop) => prop !== 'isContained',
@@ -65,20 +66,6 @@ const StyledMenuItem = styled(MenuItem, {
         background: `${theme.palette.swatches.grey.grey700} !important`,
     }),
 }))
-
-const MenuItemLeft = styled('div')({
-    display: 'flex',
-})
-
-const MenuItemSubname = styled('div')({
-    opacity: 0.7,
-    marginLeft: '24px',
-})
-
-const DelimitedPath = styled('div')({
-    opacity: 0.7,
-    lineHeight: '27px',
-})
 
 const MenuName = styled('div', {
     shouldForwardProp: (prop) => prop !== 'isBold',
@@ -239,7 +226,7 @@ export default function SplitButton(props) {
                                                     handleMenuItemClick(event, index)
                                                 }
                                             >
-                                                <MenuItemLeft>
+                                                <Box sx={{ display: 'flex' }}>
                                                     {type === 'checklist' && (
                                                         <StyledCheckbox
                                                             color="default"
@@ -249,9 +236,9 @@ export default function SplitButton(props) {
                                                     )}
                                                     {delimitedPath && delimitedName ? (
                                                         <>
-                                                            <DelimitedPath>
+                                                            <Box sx={{ opacity: 0.7, lineHeight: '27px' }}>
                                                                 {delimitedPath}
-                                                            </DelimitedPath>
+                                                            </Box>
                                                             <MenuName>
                                                                 {delimitedName}
                                                             </MenuName>
@@ -266,11 +253,11 @@ export default function SplitButton(props) {
                                                             {item.name}
                                                         </MenuName>
                                                     )}
-                                                </MenuItemLeft>
+                                                </Box>
                                                 {item.subname != null && (
-                                                    <MenuItemSubname>
+                                                    <Box sx={{ opacity: 0.7, marginLeft: '24px' }}>
                                                         {item.subname}
-                                                    </MenuItemSubname>
+                                                    </Box>
                                                 )}
                                             </StyledMenuItem>
                                         )

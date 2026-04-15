@@ -30,11 +30,6 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
     marginBottom: theme.spacing(3),
 }))
 
-const RadioGroupContainer = styled('div')({
-    width: '100%',
-    boxSizing: 'border-box',
-})
-
 const StyledRadioGroup = styled(RadioGroup)(({ theme }) => ({
     gap: theme.spacing(1),
 }))
@@ -76,11 +71,6 @@ const RadioDescription = styled(Typography)(({ theme }) => ({
     color: theme.palette.swatches.grey.grey800,
     lineHeight: '1.4',
 }))
-
-const TabPanels = styled('div')({
-    position: 'relative',
-    padding: 0,
-})
 
 const StyledRadio = styled(Radio)(({ theme }) => ({
     'color': theme.palette.swatches.grey.grey300,
@@ -133,7 +123,7 @@ const DownloadMethodTabs = ({
         <>
             <RootSection withBorderBottom>
                 <SectionTitle>2. Select a download method:</SectionTitle>
-                <RadioGroupContainer>
+                <Box sx={{ width: '100%', boxSizing: 'border-box' }}>
                     <FormControl component="fieldset" fullWidth>
                         <StyledRadioGroup
                             aria-label="cart download method selection"
@@ -167,12 +157,12 @@ const DownloadMethodTabs = ({
                             ))}
                         </StyledRadioGroup>
                     </FormControl>
-                </RadioGroupContainer>
+                </Box>
             </RootSection>
             {selectedDownloadMethodIndex !== null && (
                 <RootSection>
                     <SectionTitle>3. Download your products:</SectionTitle>
-                    <TabPanels>
+                    <Box sx={{ position: 'relative', padding: 0 }}>
                         <BrowserTab
                             value={selectedDownloadMethodIndex}
                             index={0}
@@ -203,7 +193,7 @@ const DownloadMethodTabs = ({
                             selectorRef={selectorRef}
                             selectionCount={selectionCount}
                         />
-                    </TabPanels>
+                    </Box>
                 </RootSection>
             )}
         </>

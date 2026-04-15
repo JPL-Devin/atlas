@@ -7,11 +7,7 @@ import Url from 'url-parse'
 import Filter from '../../../../../../components/Filter/Filter'
 import { HASH_PATHS } from '../../../../../../core/constants'
 import { styled } from '@mui/material/styles'
-
-const FilterListRoot = styled('div')({
-    height: '100%',
-    transition: 'width 0.4s ease-out',
-})
+import Box from '@mui/material/Box'
 
 const getSearchURL = (activeFilters) => {
     let params = []
@@ -89,7 +85,7 @@ const FilterList = (props) => {
         return activeFilters[a].order - activeFilters[b].order
     })
     return (
-        <FilterListRoot>
+        <Box sx={{ height: '100%', transition: 'width 0.4s ease-out' }}>
             {sortedActiveFilterKeys.map((filterKey, idx) => {
                 return (
                     <Filter
@@ -103,7 +99,7 @@ const FilterList = (props) => {
                     />
                 )
             })}
-        </FilterListRoot>
+        </Box>
     )
 }
 

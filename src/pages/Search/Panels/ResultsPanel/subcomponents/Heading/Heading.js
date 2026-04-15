@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { styled, useTheme } from '@mui/material/styles'
 
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import IconButton from '@mui/material/IconButton'
@@ -48,19 +49,6 @@ const Title = styled('div')(({ theme }) => ({
     color: theme.palette.text.primary,
 }))
 
-const LeftSection = styled('div')({
-    display: 'flex',
-})
-
-const MiddleSection = styled('div')({
-    flex: 1,
-    padding: '4px 12px',
-})
-
-const RightSection = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-})
 
 const RotateButton = styled(IconButton)(({ theme }) => ({
     'width': theme.headHeights[1],
@@ -162,11 +150,11 @@ const Heading = (props) => {
 
     return (
         <HeadingRoot>
-            <LeftSection>
+            <Box sx={{ display: 'flex' }}>
                 <Title>Results</Title>
-            </LeftSection>
-            <MiddleSection>{filterType === 'basic' && <ChippedFilters />}</MiddleSection>
-            <RightSection>
+            </Box>
+            <Box sx={{ flex: 1, padding: '4px 12px' }}>{filterType === 'basic' && <ChippedFilters />}</Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <ResultsSorter />
                 {activeView === 'grid' && !isMobile && (
                     <GridSizeGroup>
@@ -336,7 +324,7 @@ const Heading = (props) => {
                         }
                     }}
                 />
-            </RightSection>
+            </Box>
         </HeadingRoot>
     )
 }

@@ -29,6 +29,7 @@ import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutl
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import FolderIcon from '@mui/icons-material/Folder'
 import ImageIcon from '@mui/icons-material/Image'
+import Box from '@mui/material/Box'
 
 import { setRecordData, setSnackBarText } from '../../../../core/redux/actions/actions'
 
@@ -221,11 +222,6 @@ const EmptyMessage = styled(Typography)(({ theme }) => ({
     marginBottom: theme.spacing(1),
 }))
 
-const EmptyButtons = styled('div')({
-    display: 'flex',
-    justifyContent: 'center',
-})
-
 const ActionButton = styled(Button)(({ theme }) => ({
     height: 30,
     margin: '7px 3px',
@@ -279,7 +275,7 @@ const CartView = (props) => {
                     <EmptyMessage variant="h3">
                         Your Cart's Empty
                     </EmptyMessage>
-                    <EmptyButtons>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                         <ActionButton
                             variant="contained"
                             aria-label="search images button"
@@ -301,7 +297,7 @@ const CartView = (props) => {
                         >
                             Search Files
                         </ActionButton>
-                    </EmptyButtons>
+                    </Box>
                 </EmptyContainer>
             ) : null}
         </CartViewRoot>

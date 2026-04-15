@@ -13,11 +13,13 @@ import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 
 import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import Box from '@mui/material/Box'
 
 import NASALogoPath from '../../../../media/images/nasa-logo.svg'
 import { getPublicUrl } from '../../../../core/runtimeConfig'
 
 import { publicUrl } from '../../../../core/constants'
+import { ContentsMobile } from '../../../../components/shared/ModalComponents'
 
 // Construct runtime-aware logo URL
 const getNASALogoUrl = () => {
@@ -37,11 +39,6 @@ const Contents = styled('div')(({ theme }) => ({
     background: theme.palette.primary.main,
     width: '960px',
     maxWidth: '960px',
-}))
-
-const ContentsMobile = styled('div')(({ theme }) => ({
-    background: theme.palette.primary.main,
-    height: '100%',
 }))
 
 const Content = styled(DialogContent)(({ theme }) => ({
@@ -105,10 +102,6 @@ const Title = styled(Typography)(({ theme }) => ({
     lineHeight: '28px',
     textTransform: 'uppercase',
 }))
-
-const Description = styled('div')({
-    textAlign: 'justify',
-})
 
 const Message = styled('div')(({ theme }) => ({
     margin: `${theme.spacing(4)} 0px`,
@@ -197,7 +190,7 @@ const InformationModal = (props) => {
                     </CloseIconButton>
                 </div>
                 <div>
-                    <Description>
+                    <Box sx={{ textAlign: 'justify' }}>
                         <Typography>
                             The Cartography and Imaging Sciences Node of the Planetary Data System
                             provides a set of applications under the name, "Atlas". These
@@ -211,7 +204,7 @@ const InformationModal = (props) => {
                             </ALink>{' '}
                             section of our home page.
                         </Typography>
-                    </Description>
+                    </Box>
                     <Message>
                         <Typography>
                             If you have questions, want to share feedback, or need support,{' '}

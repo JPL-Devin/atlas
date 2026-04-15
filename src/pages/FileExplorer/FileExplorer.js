@@ -14,6 +14,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { styled, useTheme } from '@mui/material/styles'
 
 import SortIcon from '@mui/icons-material/Sort'
+import Box from '@mui/material/Box'
 
 import Draggable from 'react-draggable'
 
@@ -65,11 +66,6 @@ const LeftPanel = styled('div', {
         flex: 1,
     }),
 }))
-
-const RightWrapper = styled('div')({
-    display: 'flex',
-    position: 'relative',
-})
 
 const RightPanel = styled('div')({
     width: `${initialPreviewWidth}px`,
@@ -216,7 +212,7 @@ const FileExplorer = (props) => {
                     />
                     <RegexModal modal={modal} />
                 </LeftPanel>
-                <RightWrapper>
+                <Box sx={{ display: 'flex', position: 'relative' }}>
                     <Draggable
                         axis="x"
                         defaultPosition={{ x: 0, y: 0 }}
@@ -250,7 +246,7 @@ const FileExplorer = (props) => {
                     <RightPanel ref={rightRef}>
                         <Preview />
                     </RightPanel>
-                </RightWrapper>
+                </Box>
             </ContentArea>
         </FileExplorerRoot>
     )

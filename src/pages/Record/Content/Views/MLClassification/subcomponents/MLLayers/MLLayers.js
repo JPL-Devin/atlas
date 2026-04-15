@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import Slider from '@mui/material/Slider'
 import Button from '@mui/material/Button'
+import Box from '@mui/material/Box'
 
 import { setSnackBarText } from '../../../../../../../core/redux/actions/actions'
 import {
@@ -40,10 +41,6 @@ const Subtitle = styled('h4')({
     fontWeight: 400,
     margin: '0px',
     padding: '12px 12px 8px 12px',
-})
-
-const LayersSection = styled('div')({
-    paddingBottom: '4px',
 })
 
 const LayersUl = styled('ul')({
@@ -172,7 +169,7 @@ const MLLayers = (props) => {
                     Copy ML Features JSON
                 </TopBarButton>
             </TopBar>
-            <LayersSection>
+            <Box sx={{ paddingBottom: '4px' }}>
                 <LayerTitle>Layers</LayerTitle>
                 <LayersUl>
                     {Object.keys(classes).map((key, idx) => {
@@ -206,7 +203,7 @@ const MLLayers = (props) => {
                         )
                     })}
                 </LayersUl>
-            </LayersSection>
+            </Box>
             <FiltersSection>
                 <LayerTitle>Filters</LayerTitle>
                 <ul>

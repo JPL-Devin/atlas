@@ -9,6 +9,7 @@ import moment from 'moment'
 
 import { setFieldState } from '../../../../core/redux/actions/actions.js'
 import { getIn, prettify } from '../../../../core/utils.js'
+import { ClearButton , BottomDiv } from '../../../shared/FilterComponents'
 
 import InputLabel from '@mui/material/InputLabel'
 import FormHelperText from '@mui/material/FormHelperText'
@@ -84,19 +85,6 @@ const DatesOutOfOrderDiv = styled('div')(({ theme }) => ({
     fontWeight: 'bold',
 }))
 
-const BottomDiv = styled('div')(({ theme }) => ({
-    marginTop: theme.spacing(2),
-    padding: `0px ${theme.spacing(2)}`,
-    display: 'flex',
-    justifyContent: 'space-between',
-}))
-
-const ClearButton = styled(Button)(({ theme }) => ({
-    'background': theme.palette.swatches.grey.grey500,
-    '&:hover': {
-        background: theme.palette.swatches.red.red500,
-    },
-}))
 
 const DateRangeFilter = (props) => {
     const { filterKey, facetId, alone, settingsActive } = props
@@ -298,7 +286,7 @@ const DateRangeFilter = (props) => {
                     <DatesOutOfOrderDiv>Start Date occurs after End Date!</DatesOutOfOrderDiv>
                 )}
             </WrapperDiv>
-            <BottomDiv>
+            <BottomDiv sx={{ padding: (theme) => `0px ${theme.spacing(2)}`, display: 'flex', justifyContent: 'space-between' }}>
                 <ClearButton
                     size="small"
                     variant="contained"

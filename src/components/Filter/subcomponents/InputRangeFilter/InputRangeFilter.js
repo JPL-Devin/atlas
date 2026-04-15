@@ -4,10 +4,10 @@ import { styled } from '@mui/material/styles'
 import PropTypes from 'prop-types'
 
 import Input from '@mui/material/Input'
-import Button from '@mui/material/Button'
 
 import { setFieldState } from '../../../../core/redux/actions/actions.js'
 import { getIn } from '../../../../core/utils.js'
+import { ClearButton, SubmitButton, BottomDiv } from '../../../shared/FilterComponents'
 
 const InputRangeFilterRoot = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -20,22 +20,6 @@ const StyledInput = styled(Input)(({ theme }) => ({
     marginBottom: theme.spacing(2),
     paddingLeft: theme.spacing(2),
 }))
-
-const BottomDiv = styled('div')(({ theme }) => ({
-    marginTop: theme.spacing(2),
-}))
-
-const ClearButton = styled(Button)(({ theme }) => ({
-    'background': theme.palette.swatches.grey.grey500,
-    '&:hover': {
-        background: theme.palette.swatches.red.red500,
-    },
-}))
-
-const SubmitButton = styled(Button)({
-    width: '80px',
-    float: 'right',
-})
 
 const OutOfOrderDiv = styled('div')(({ theme }) => ({
     textAlign: 'center',

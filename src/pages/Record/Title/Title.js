@@ -20,14 +20,14 @@ import SplitButton from '../../../components/SplitButton/SplitButton'
 
 import { styled } from '@mui/material/styles'
 
-import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import { BackButton, BackIcon } from '../../../components/shared/PageComponents'
 import LinkIcon from '@mui/icons-material/Link'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
+import Box from '@mui/material/Box'
 
 const TitleRoot = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -38,28 +38,12 @@ const TitleRoot = styled('div')(({ theme }) => ({
     color: theme.palette.text.primary,
 }))
 
-const LeftSection = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-})
-
 const RightSection = styled('div')({
     display: 'flex',
     justifyContent: 'space-between',
     padding: '2px 8px 4px 4px',
 })
 
-const BackWrapper = styled('div')({})
-
-const BackButton = styled(IconButton)({
-    padding: 2,
-    borderRadius: 0,
-})
-
-const BackIcon = styled(ChevronLeftIcon)(({ theme }) => ({
-    fontSize: 36,
-    color: theme.palette.text.primary,
-}))
 
 const NameWrapper = styled('div')(({ theme }) => ({
     margin: `0px ${theme.spacing(1)}`,
@@ -71,7 +55,6 @@ const NameTitle = styled(Typography)(({ theme }) => ({
     fontWeight: 'bold',
 }))
 
-const CopyLinkWrapper = styled('div')({})
 
 const CopyButton = styled(IconButton)({
     'padding': 10,
@@ -174,39 +157,35 @@ const Title = (props) => {
 
     return (
         <TitleRoot>
-            <LeftSection>
-                <BackWrapper>
-                    <Tooltip title={back == 'page' ? 'Back' : 'Back to Search'} arrow>
-                        <BackButton
-                            aria-label={back === 'page' ? 'go back a page' : 'return to search'}
-                            onClick={() => {
-                                if (back === 'page') navigate(-1)
-                                else navigate(HASH_PATHS.search)
-                            }}
-                            size="large">
-                            <BackIcon />
-                        </BackButton>
-                    </Tooltip>
-                </BackWrapper>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Tooltip title={back == 'page' ? 'Back' : 'Back to Search'} arrow>
+                    <BackButton
+                        aria-label={back === 'page' ? 'go back a page' : 'return to search'}
+                        onClick={() => {
+                            if (back === 'page') navigate(-1)
+                            else navigate(HASH_PATHS.search)
+                        }}
+                        size="large">
+                        <BackIcon />
+                    </BackButton>
+                </Tooltip>
                 <NameWrapper>
                     <NameTitle variant="h2">
                         {getIn(recordData, ES_PATHS.file_name, '--')}
                     </NameTitle>
                 </NameWrapper>
-                <CopyLinkWrapper>
-                    <Tooltip title="Copy Link" arrow>
-                        <CopyButton
-                            aria-label="copy link to record page"
-                            onClick={() => {
-                                copyToClipboard(window.location.href)
-                                handleOpenSnackbar('Copied URL to clipboard!')
-                            }}
-                            size="large">
-                            <CopyIcon />
-                        </CopyButton>
-                    </Tooltip>
-                </CopyLinkWrapper>
-            </LeftSection>
+                <Tooltip title="Copy Link" arrow>
+                    <CopyButton
+                        aria-label="copy link to record page"
+                        onClick={() => {
+                            copyToClipboard(window.location.href)
+                            handleOpenSnackbar('Copied URL to clipboard!')
+                        }}
+                        size="large">
+                        <CopyIcon />
+                    </CopyButton>
+                </Tooltip>
+            </Box>
             <RightSection>
                 <StyledSplitButton
                     forceName="Download"

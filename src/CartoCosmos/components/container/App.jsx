@@ -10,15 +10,12 @@ import Typography from '@mui/material/Typography'
 import ConsoleContainer from './ConsoleContainer.jsx'
 import MapContainer from './MapContainer.jsx'
 import ListSubheader from '@mui/material/ListSubheader'
+import Box from '@mui/material/Box'
 import WellKnownTextInput from '../presentational/WellKnownTextInput.jsx'
 
 import { useSelector, useDispatch } from 'react-redux'
 import { MISSIONS_TO_BODIES } from '../../../core/constants'
 import { sAKeys, sASet } from '../../../core/redux/actions/subscribableActions'
-
-const AppRoot = styled('div')({
-    position: 'relative',
-})
 
 const ChangePlanet = styled('div')({
     'position': 'absolute',
@@ -300,7 +297,7 @@ export default function App(props) {
     }
 
     return (
-        <AppRoot>
+        <Box sx={{ position: 'relative' }}>
             {targetPlanet === 'None' ? (
                 <NoneBackground>
                     <MessageContainer elevation={10}>
@@ -333,6 +330,6 @@ export default function App(props) {
                     </StyledPaper>
                 </React.Fragment>
             )}
-        </AppRoot>
+        </Box>
     )
 }

@@ -13,6 +13,7 @@ import Switch from '@mui/material/Switch'
 import Tooltip from '@mui/material/Tooltip'
 
 import useMediaQuery from '@mui/material/useMediaQuery'
+import Box from '@mui/material/Box'
 import { styled, useTheme } from '@mui/material/styles'
 
 import MenuIcon from '@mui/icons-material/Menu'
@@ -80,20 +81,6 @@ const MainDiv = styled('div', {
     }),
 }))
 
-const TopSection = styled('div')({
-    display: 'flex',
-    flexFlow: 'column',
-})
-
-const BottomSection = styled('div')({
-    display: 'flex',
-    flexFlow: 'column',
-})
-
-const PanelMenu = styled('div')({
-    display: 'flex',
-    flexFlow: 'column',
-})
 
 const drawerPaperStyle = (theme) => ({
     background: theme.palette.swatches.grey.grey900,
@@ -189,9 +176,6 @@ const ToolbarButton = styled(IconButton, {
     }),
 }))
 
-const OptionsName = styled('div')({
-    whiteSpace: 'nowrap',
-})
 
 const OptionsItem = styled('div')(({ theme }) => ({
     'display': 'flex',
@@ -422,7 +406,7 @@ const Toolbar = (props) => {
                 </StyledList>
             </Drawer>
             <MainDiv shift={drawer}>
-                <TopSection>
+                <Box sx={{ display: 'flex', flexFlow: 'column' }}>
                     <Tooltip title="Navigation" arrow placement="right">
                         <ToolbarButton
                             isNav
@@ -467,7 +451,7 @@ const Toolbar = (props) => {
                     ) : null}
                     {pathRoot === `/search` ? (
                         <React.Fragment>
-                            <PanelMenu>
+                            <Box sx={{ display: 'flex', flexFlow: 'column' }}>
                                 <OptionsItem>
                                     <Tooltip title="Options" arrow placement="right">
                                         <ToolbarButton
@@ -483,7 +467,7 @@ const Toolbar = (props) => {
                                         </ToolbarButton>
                                     </Tooltip>
                                     {drawer === 2 ? (
-                                        <OptionsName>Close Settings Menu</OptionsName>
+                                        <Box sx={{ whiteSpace: 'nowrap' }}>Close Settings Menu</Box>
                                     ) : null}
                                 </OptionsItem>
                                 <OptionsItem>
@@ -509,7 +493,7 @@ const Toolbar = (props) => {
                                     </Tooltip>
                                     {drawer === 2 ? (
                                         <span>
-                                            <OptionsName>Show Filters</OptionsName>
+                                            <Box sx={{ whiteSpace: 'nowrap' }}>Show Filters</Box>
                                             <Switch
                                                 size="small"
                                                 checked={w.filters}
@@ -558,7 +542,7 @@ const Toolbar = (props) => {
                                     </Tooltip>
                                     {drawer === 2 ? (
                                         <span>
-                                            <OptionsName>Show Map</OptionsName>
+                                            <Box sx={{ whiteSpace: 'nowrap' }}>Show Map</Box>
                                             <Switch
                                                 size="small"
                                                 checked={w.secondary}
@@ -613,7 +597,7 @@ const Toolbar = (props) => {
                                     </Tooltip>
                                     {drawer === 2 ? (
                                         <span>
-                                            <OptionsName>Show Results</OptionsName>
+                                            <Box sx={{ whiteSpace: 'nowrap' }}>Show Results</Box>
                                             <Switch
                                                 size="small"
                                                 checked={w.results}
@@ -636,7 +620,7 @@ const Toolbar = (props) => {
                                         </span>
                                     ) : null}
                                 </OptionsItem>
-                            </PanelMenu>
+                            </Box>
                             <StyledDivider />
                             <OptionsItem>
                                 <Tooltip title="Restart Search" arrow placement="right">
@@ -654,14 +638,14 @@ const Toolbar = (props) => {
                                     </ToolbarButton>
                                 </Tooltip>
                                 {drawer === 2 ? (
-                                    <OptionsName>Reset All Search Settings</OptionsName>
+                                    <Box sx={{ whiteSpace: 'nowrap' }}>Reset All Search Settings</Box>
                                 ) : null}
                             </OptionsItem>
                             <StyledDivider />
                         </React.Fragment>
                     ) : null}
-                </TopSection>
-                <BottomSection>
+                </Box>
+                <Box sx={{ display: 'flex', flexFlow: 'column' }}>
                     <StyledDivider />
                     <OptionsItem>
                         <Tooltip title="Help" arrow placement="right">
@@ -669,7 +653,7 @@ const Toolbar = (props) => {
                                 <HelpOutlineIcon fontSize="inherit" />
                             </ToolbarButton>
                         </Tooltip>
-                        {drawer === 2 ? <OptionsName>Help</OptionsName> : null}
+                        {drawer === 2 ? <Box sx={{ whiteSpace: 'nowrap' }}>Help</Box> : null}
                     </OptionsItem>
                     <OptionsItem>
                         <Tooltip title="Info" arrow placement="right">
@@ -681,9 +665,9 @@ const Toolbar = (props) => {
                                 <InfoOutlinedIcon fontSize="inherit" />
                             </ToolbarButton>
                         </Tooltip>
-                        {drawer === 2 ? <OptionsName>About Atlas</OptionsName> : null}
+                        {drawer === 2 ? <Box sx={{ whiteSpace: 'nowrap' }}>About Atlas</Box> : null}
                     </OptionsItem>
-                </BottomSection>
+                </Box>
             </MainDiv>
         </ToolbarRoot>
     )

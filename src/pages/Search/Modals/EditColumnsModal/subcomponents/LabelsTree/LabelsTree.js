@@ -2,10 +2,8 @@ import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 
-import { styled } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView'
-import { TreeItem, treeItemClasses } from '@mui/x-tree-view/TreeItem'
-import { useTheme } from '@mui/material/styles'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
@@ -22,6 +20,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { List, arrayMove, arrayRemove } from 'react-movable'
 
 import { isObject } from '../../../../../../core/utils'
+import { StyledTreeGroup, StyledTreeItem, InfoIconButton } from '../../../../../../components/shared/TreeComponents'
 
 function TransitionComponent(props) {
     const style = useSpring({
@@ -43,38 +42,9 @@ TransitionComponent.propTypes = {
     in: PropTypes.bool,
 }
 
-const StyledTreeGroup = styled(TreeItem)(({ theme }) => ({
-    minHeight: theme.headHeights[3],
-    textTransform: 'uppercase',
-    paddingLeft: '6px',
-    [`& .${treeItemClasses.content}`]: {
-        height: theme.headHeights[3],
-        flex: 1,
-        justifyContent: 'left',
-        alignItems: 'center',
-        [`&.${treeItemClasses.selected}:hover`]: {
-            backgroundColor: 'rgba(0, 0, 0, 0.04)',
-        },
-    },
-}))
-
-const StyledTreeItem = styled(TreeItem)(({ theme }) => ({
-    height: theme.headHeights[3],
-    marginLeft: '-20px',
-    [`& > div > .${treeItemClasses.label}`]: {
-        padding: '0px',
-    },
-}))
-
 const LabelsTreeLabelRoot = styled('div')(({ theme }) => ({
     display: 'flex',
     height: theme.headHeights[3],
-}))
-
-const InfoIconButton = styled(IconButton)(({ theme }) => ({
-    fontSize: '18px',
-    padding: '12px 7px',
-    color: theme.palette.accent.main,
 }))
 
 const LabelText = styled('span')(({ theme }) => ({

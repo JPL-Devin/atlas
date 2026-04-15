@@ -52,7 +52,7 @@ const IntroMessage = styled('div')(({ theme }) => ({
     'transform': 'translateY(-50%)',
     'lineHeight': '20px',
     'fontSize': '16px',
-    'color': theme.palette.text.main,
+    'color': theme.palette.text.primary,
     'background': theme.palette.swatches.yellow.yellow700,
     'margin': theme.spacing(4),
     'padding': theme.spacing(4),

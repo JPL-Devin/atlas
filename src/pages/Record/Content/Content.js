@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
 import { styled, useTheme } from '@mui/material/styles'
+import Box from '@mui/material/Box'
 
 import { getIn, objectArrayIndexOfKeyWithValue } from '../../../core/utils'
 import { ES_PATHS } from '../../../core/constants'
@@ -33,11 +34,6 @@ const ContentRoot = styled('div')(({ theme }) => ({
     display: 'flex',
     flexFlow: 'column',
 }))
-
-const ComponentWrapper = styled('div')({
-    flex: 1,
-    overflowY: 'hidden',
-})
 
 const Content = (props) => {
     const { recordData, versions, activeVersion } = props
@@ -76,13 +72,13 @@ const Content = (props) => {
                     (v) => v.condition == null || getIn(recordData, v.condition) != null
                 ).map((v) => v.id)}
             />
-            <ComponentWrapper>
+            <Box sx={{ flex: 1, overflowY: 'hidden' }}>
                 <ViewComponent
                     recordData={recordData}
                     versions={versions}
                     activeVersion={activeVersion}
                 />
-            </ComponentWrapper>
+            </Box>
         </ContentRoot>
     )
 }

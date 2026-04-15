@@ -8,6 +8,7 @@ import {
     copyToClipboardAction,
 } from '../../../../core/redux/actions/actions.js'
 
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
@@ -41,11 +42,6 @@ const Contents = styled('div')({
     flexFlow: 'column',
 })
 
-const FilterContent = styled('div')({
-    overflowY: 'auto',
-    flex: 1,
-})
-
 const FilterHeading = styled('div')(({ theme }) => ({
     width: '100%',
     height: theme.headHeights[1],
@@ -64,10 +60,6 @@ const FilterTitle = styled('div')(({ theme }) => ({
     color: theme.palette.text.primary,
     whiteSpace: 'nowrap',
 }))
-
-const RightSection = styled('div')({
-    display: 'flex',
-})
 
 const AddFilterButton = styled(Button)(({ theme }) => ({
     'color': theme.palette.text.secondary,
@@ -149,7 +141,7 @@ const FiltersPanel = (props) => {
                     <div>
                         <FilterTitle>{FILTER_TYPES[filterType]}</FilterTitle>
                     </div>
-                    <RightSection>
+                    <Box sx={{ display: 'flex' }}>
                         {filterType === 'basic' && (
                             <AddFilterButton
                                 aria-label="add filter"
@@ -178,9 +170,10 @@ const FiltersPanel = (props) => {
                                 onChange={handleMenuChange}
                             />
                         </ButtonMore>
-                    </RightSection>
+                    </Box>
                 </FilterHeading>
-                <FilterContent
+                <Box
+                    sx={{ overflowY: 'auto', flex: 1 }}
                     onScroll={(e) => {
                         const scrollTop = e.target.scrollTop
 
@@ -214,7 +207,7 @@ const FiltersPanel = (props) => {
                     }}
                 >
                     {filterType === 'advanced' ? <AdvancedFilter /> : <FilterList />}
-                </FilterContent>
+                </Box>
             </Contents>
         </FiltersPanelRoot>
     )

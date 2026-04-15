@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { styled, useTheme } from '@mui/material/styles'
 
+import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
@@ -39,9 +40,6 @@ const LeftSection = styled('div')(({ theme }) => ({
     marginLeft: theme.spacing(1.5),
 }))
 
-const RightSection = styled('div')({
-    display: 'flex',
-})
 
 const LogoDiv = styled('div')(({ theme }) => ({
     width: theme.headHeights[1],
@@ -90,10 +88,6 @@ const NodeH3 = styled('h3')(({ theme }) => ({
         textDecoration: 'underline !important',
     },
 }))
-
-const AppNameDiv = styled('div')({
-    display: 'flex',
-})
 
 const AppName = styled('h1')(({ theme }) => ({
     color: theme.palette.text.primary,
@@ -209,9 +203,9 @@ const Topbar = () => {
                         </NodeH3>
                     </div>
                     <div>
-                        <AppNameDiv>
+                        <Box sx={{ display: 'flex' }}>
                             <AppName>ATLAS</AppName>
-                        </AppNameDiv>
+                        </Box>
                         {pageName && (
                             <>
                                 <TitleDivider>/</TitleDivider>
@@ -223,7 +217,7 @@ const Topbar = () => {
                     </div>
                 </AppTitle>
             </LeftSection>
-            <RightSection>
+            <Box sx={{ display: 'flex' }}>
                 <Tooltip title="API Documentation" arrow placement="bottom">
                     <NavButton
                         aria-label="go to api documentation"
@@ -281,7 +275,7 @@ const Topbar = () => {
                         </CartBadge>
                     </NavButton>
                 </Tooltip>
-            </RightSection>
+            </Box>
         </TopbarRoot>
     )
 }

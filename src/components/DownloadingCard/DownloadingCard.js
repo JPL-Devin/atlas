@@ -11,6 +11,7 @@ import LinearProgress from '@mui/material/LinearProgress'
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayIcon from '@mui/icons-material/PlayArrow'
 import StopIcon from '@mui/icons-material/Stop'
+import Box from '@mui/material/Box'
 
 import { abbreviateNumber } from '../../core/utils.js'
 
@@ -65,19 +66,6 @@ const StatusCount = styled('div')({
     '&:hover': {
         opacity: 1,
     },
-})
-
-const StatusMiddle = styled('div')({
-    textAlign: 'center',
-})
-
-const StatusElapsed = styled('div')({
-    fontSize: 14,
-    marginTop: '7px',
-})
-
-const StatusRemaining = styled('div')({
-    fontSize: 14,
 })
 
 const StatusRight = styled('div', {
@@ -241,14 +229,14 @@ function DownloadingCard(props) {
                         )}`}
                     </StatusCount>
                 </StatusLeft>
-                <StatusMiddle>
-                    <StatusElapsed>{`Elapsed: ${moment
+                <Box sx={{ textAlign: 'center' }}>
+                    <Box sx={{ fontSize: 14, marginTop: '7px' }}>{`Elapsed: ${moment
                         .utc(moment.duration(status.overall.elapsedTime).as('milliseconds'))
-                        .format('HH:mm:ss')}`}</StatusElapsed>
-                    <StatusRemaining>{`Remaining: ${
+                        .format('HH:mm:ss')}`}</Box>
+                    <Box sx={{ fontSize: 14 }}>{`Remaining: ${
                         remaining == 'Invalid date' ? 'Calculating' : remaining
-                    }`}</StatusRemaining>
-                </StatusMiddle>
+                    }`}</Box>
+                </Box>
                 <StatusRight
                     isDone={mode === modes.done || mode === modes.stopped}
                     isHidden={hideActions === true}

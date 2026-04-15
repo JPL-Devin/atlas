@@ -17,6 +17,8 @@ import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
+import { ContentsMobile } from '../../../../components/shared/ModalComponents'
+
 const StyledDialog = styled(Dialog)(({ theme }) => ({
     margin: theme.headHeights[1],
 }))
@@ -25,11 +27,6 @@ const Contents = styled('div')(({ theme }) => ({
     background: theme.palette.primary.main,
     width: '575px',
     borderRadius: 0,
-}))
-
-const ContentsMobile = styled('div')(({ theme }) => ({
-    background: theme.palette.primary.main,
-    height: '100%',
 }))
 
 const Heading = styled(DialogTitle)(({ theme }) => ({

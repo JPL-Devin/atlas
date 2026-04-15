@@ -18,6 +18,7 @@ import Paper from '@mui/material/Paper'
 import Tooltip from '@mui/material/Tooltip'
 
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined'
+import Box from '@mui/material/Box'
 
 import './OpenSeadragon.css'
 
@@ -27,11 +28,6 @@ const OSDRoot = styled('div')(({ theme }) => ({
     background: theme.palette.swatches.grey.grey800,
     position: 'relative',
 }))
-
-const OSDContainer = styled('div')({
-    width: '100%',
-    height: '100%',
-})
 
 const UIOverlay = styled('div')(({ theme }) => ({
     position: 'absolute',
@@ -237,7 +233,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
 
     return (
         <OSDRoot>
-            <OSDContainer id="openSeadragon"></OSDContainer>
+            <Box sx={{ width: '100%', height: '100%' }} id="openSeadragon"></Box>
             <UIOverlay>
                 <TopLeft>
                     <OSDButton

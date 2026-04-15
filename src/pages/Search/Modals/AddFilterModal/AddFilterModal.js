@@ -23,6 +23,7 @@ import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
 import FilterTree from './subcomponents/FilterTree/FilterTree'
+import { Heading, ModalTitle as Title, CloseIconButton as BaseCloseIconButton, FlexBetween } from '../../../../components/shared/ModalComponents'
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
     margin: theme.headHeights[1],
@@ -39,34 +40,13 @@ const Contents = styled('div')(({ theme }) => ({
     maxWidth: '1300px',
 }))
 
-const Heading = styled(DialogTitle)(({ theme }) => ({
-    height: theme.headHeights[2],
-    boxSizing: 'border-box',
-    background: theme.palette.swatches.grey.grey150,
-    padding: `0 ${theme.spacing(2)} 0 ${theme.spacing(4)}`,
-}))
-
-const Title = styled('div')(({ theme }) => ({
-    padding: `${theme.spacing(2.5)} 0`,
-    fontSize: theme.typography.pxToRem(16),
-    fontWeight: 'bold',
-}))
-
 const Content = styled(DialogContent)(({ theme }) => ({
     padding: '0px',
     height: `calc(100% - ${theme.headHeights[2]}px)`,
 }))
 
-const CloseIconButton = styled(IconButton)(({ theme }) => ({
-    padding: theme.spacing(1.5),
-    height: '100%',
-    margin: '4px 0px',
+const CloseIconButton = styled(BaseCloseIconButton)({
     fontSize: '1.5rem',
-}))
-
-const FlexBetween = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
 })
 
 const AddCount = styled(Typography)(({ theme }) => ({

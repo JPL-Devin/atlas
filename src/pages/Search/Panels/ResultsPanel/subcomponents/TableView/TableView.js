@@ -34,6 +34,7 @@ import ProductIcons from '../../../../../../components/ProductIcons/ProductIcons
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ImageIcon from '@mui/icons-material/Image'
+import Box from '@mui/material/Box'
 
 import BrowseImage from '../../../../../../components/BrowseImage/BrowseImage.js'
 
@@ -190,10 +191,6 @@ const CellHeader = styled('div')(({ theme }) => ({
         },
     },
 }))
-
-const CellHeaderContent = styled('div')({
-    display: 'flex',
-})
 
 const CellHeaderName = styled('div')({
     overflow: 'hidden',
@@ -477,7 +474,7 @@ const makeHeader = (cols, columnWidths, setColumnWidths, resultSorting, setSort)
                             width: columnWidths[index],
                         }}
                     >
-                        <CellHeaderContent>
+                        <Box sx={{ display: 'flex' }}>
                             <CellHeaderName title={colField}>
                                 {col.name || col.path[col.path.length - 1]}
                             </CellHeaderName>
@@ -507,7 +504,7 @@ const makeHeader = (cols, columnWidths, setColumnWidths, resultSorting, setSort)
                                     </SortButton>
                                 </Tooltip>
                             </div>
-                        </CellHeaderContent>
+                        </Box>
                         <Draggable
                             nodeRef={nodeRef}
                             axis="x"

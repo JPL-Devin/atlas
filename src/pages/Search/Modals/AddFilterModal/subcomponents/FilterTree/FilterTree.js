@@ -3,9 +3,8 @@ import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import { styled } from '@mui/material/styles'
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView'
-import { TreeItem, treeItemClasses } from '@mui/x-tree-view/TreeItem'
+import { treeItemClasses } from '@mui/x-tree-view/TreeItem'
 import Collapse from '@mui/material/Collapse'
-import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import Input from '@mui/material/Input'
@@ -15,11 +14,13 @@ import { useSpring, animated } from '@react-spring/web'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import CloseSharpIcon from '@mui/icons-material/CloseSharp'
+import Box from '@mui/material/Box'
 
 import Highlighter from 'react-highlight-words'
 
 import { isObject } from '../../../../../../core/utils'
 import FilterHelp from '../../../../../../components/FilterHelp/FilterHelp'
+import { StyledTreeGroup, StyledTreeItem as BaseStyledTreeItem, InfoIconButton } from '../../../../../../components/shared/TreeComponents'
 
 function TransitionComponent(props) {
     const style = useSpring({
@@ -41,29 +42,9 @@ TransitionComponent.propTypes = {
     in: PropTypes.bool,
 }
 
-const StyledTreeGroup = styled(TreeItem)(({ theme }) => ({
-    minHeight: theme.headHeights[3],
+const StyledTreeItem = styled(BaseStyledTreeItem)({
     textTransform: 'uppercase',
-    paddingLeft: '6px',
-    [`& .${treeItemClasses.content}`]: {
-        height: theme.headHeights[3],
-        flex: 1,
-        justifyContent: 'left',
-        alignItems: 'center',
-        [`&.${treeItemClasses.selected}:hover`]: {
-            backgroundColor: 'rgba(0, 0, 0, 0.04)',
-        },
-    },
-}))
-
-const StyledTreeItem = styled(TreeItem)(({ theme }) => ({
-    height: theme.headHeights[3],
-    marginLeft: '-20px',
-    textTransform: 'uppercase',
-    [`& > div > .${treeItemClasses.label}`]: {
-        padding: '0px',
-    },
-}))
+})
 
 // TODO: Investigation consolidation of StyledTreeItem with FilterTreeLabel
 // The two noted component appear to be redundant, investigate how they can
@@ -76,12 +57,6 @@ const FilterTreeLabelRoot = styled('div')(({ theme }) => ({
 const FilterCheckbox = styled(Checkbox)({
     borderRadius: 0,
 })
-
-const InfoIconButton = styled(IconButton)(({ theme }) => ({
-    fontSize: '18px',
-    padding: '12px 7px',
-    color: theme.palette.accent.main,
-}))
 
 const FilterLabel = styled('span')(({ theme }) => ({
     flex: 1,
@@ -317,11 +292,6 @@ const makeTree = (
     return returnValue
 }
 
-const FilterTreeRoot = styled('div')({
-    display: 'flex',
-    height: '100%',
-})
-
 const Left = styled('div', {
     shouldForwardProp: (prop) => prop !== 'isHelpOpen',
 })(({ isHelpOpen }) => ({
@@ -359,10 +329,6 @@ const RightPanel = styled('div', {
         borderLeft: `1px solid ${theme.palette.swatches.grey.grey200}`,
     }),
 }))
-
-const Filter = styled('div')({
-    display: 'flex',
-})
 
 const StyledInput = styled(Input)(({ theme }) => ({
     'width': '100%',
@@ -435,9 +401,9 @@ const FilterTree = (props) => {
     if (filterString != null && filterString.length > 0) finalExpandeds = shownExpandedIds
 
     return (
-        <FilterTreeRoot>
+        <Box sx={{ display: 'flex', height: '100%' }}>
             <Left isHelpOpen={isHelpOpen}>
-                <Filter>
+                <Box sx={{ display: 'flex' }}>
                     <StyledInput
                         ref={filterRef}
                         placeholder={'Find Filter'}
@@ -468,7 +434,7 @@ const FilterTree = (props) => {
                     >
                         Clear
                     </ClearInputButton>
-                </Filter>
+                </Box>
                 <Tree expanded={finalExpandeds}>
                     {makeTree(
                         atlasMapping,
@@ -495,7 +461,7 @@ const FilterTree = (props) => {
                     />
                 ) : null}
             </RightPanel>
-        </FilterTreeRoot>
+        </Box>
     )
 }
 

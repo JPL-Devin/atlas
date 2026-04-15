@@ -94,7 +94,7 @@ const StyledFormControl = styled(FormControl)({
 const StyledSelect = styled(Select)(({ theme }) => ({
     'color': theme.palette.swatches.grey.grey300,
     'background': theme.palette.swatches.grey.grey800,
-    'border-bottom': `2px solid ${theme.palette.swatches.grey.grey600}`,
+    'borderBottom': `2px solid ${theme.palette.swatches.grey.grey600}`,
     'paddingLeft': '4px',
     '& > div:first-of-type': {
         padding: '8px 20px 6px 6px',

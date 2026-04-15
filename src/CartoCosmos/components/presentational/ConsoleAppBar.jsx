@@ -8,11 +8,7 @@ import Toolbar from '@mui/material/Toolbar'
 import Grid from '@mui/material/Grid'
 import { styled } from '@mui/material/styles'
 import Divider from '@mui/material/Divider'
-
-const AppBarRoot = styled('div')({
-    height: 100,
-    width: '100%',
-})
+import Box from '@mui/material/Box'
 
 const StyledAppBar = styled(AppBar)({
     background: '#f8f9fa',
@@ -38,7 +34,7 @@ const StyledGrid = styled(Grid)({
  */
 export default function ConsoleAppBar(props) {
     return (
-        <AppBarRoot id="consoleToolbarParent">
+        <Box sx={{ height: 100, width: '100%' }} id="consoleToolbarParent">
             <StyledAppBar
                 position="static"
                 color="inherit"
@@ -69,6 +65,6 @@ export default function ConsoleAppBar(props) {
                     </StyledGrid>
                 </StyledToolbar>
             </StyledAppBar>
-        </AppBarRoot>
+        </Box>
     );
 }

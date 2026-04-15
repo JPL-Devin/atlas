@@ -110,7 +110,6 @@ const StyledTreeItem = styled(StyledTreeGroup)(({theme}) => ({
   }
 }));
 
-const FilterTreeLabelRoot = styled('div')({})
 
 const FilterTreeLabelInner = styled('div')({
     display: 'flex',
@@ -160,7 +159,7 @@ function FilterTreeLabel(props) {
     const [expanded, setExpanded] = useState(false)
 
     return (
-        <FilterTreeLabelRoot>
+        <div>
             <FilterTreeLabelInner>
                 <FilterTreeKey>
                     <Highlighter
@@ -198,7 +197,7 @@ function FilterTreeLabel(props) {
                     )}
                 </FilterTreeValue>
             </FilterTreeLabelInner>
-        </FilterTreeLabelRoot>
+        </div>
     )
 }
 
@@ -322,10 +321,6 @@ const NotFound = styled(Box)(({ theme }) => ({
     },
 }))
 
-const LeftPanel = styled('div')({
-    flex: 1,
-})
-
 const RightPanel = styled('div')(({ theme }) => ({
     borderLeft: `1px solid ${theme.palette.swatches.grey.grey150}`,
     width: '960px',
@@ -355,15 +350,6 @@ const BottomSection = styled('div')(({ theme }) => ({
     boxSizing: 'border-box',
 }))
 
-const ViewerWrapper = styled('div')({
-    height: '100%',
-    flex: 1,
-})
-
-const SearchWrapper = styled('div')({
-    flex: 1,
-})
-
 const SearchInput = styled(Input)(({ theme }) => ({
     'width': '100%',
     'margin': `${theme.spacing(1)} 0 ${theme.spacing(2)} 0`,
@@ -380,10 +366,6 @@ const SearchCancelButton = styled(IconButton)(({ theme }) => ({
     color: theme.palette.swatches.grey.grey800,
     transition: 'opacity 0.2s ease-out',
 }))
-
-const ButtonsWrapper = styled('div')({
-    padding: '4px 2px 4px 0px',
-})
 
 const LabelButton = styled(Button)(({ theme }) => ({
     height: 30,
@@ -452,20 +434,20 @@ const ProductLabel = (props) => {
         return (
             <ProductLabelRoot>
                 {!isMobile && (
-                    <LeftPanel>
-                        <ViewerWrapper>
+                    <Box sx={{ flex: 1 }}>
+                        <Box sx={{ height: '100%', flex: 1 }}>
                             <OpenSeadragonViewer
                                 image={{
                                     src: imgURL,
                                 }}
                                 settings={{ defaultZoomLevel: 0.5, showNavigator: false }}
                             />
-                        </ViewerWrapper>
-                    </LeftPanel>
+                        </Box>
+                    </Box>
                 )}
                 <RightPanel>
                     <TopSection>
-                        <SearchWrapper>
+                        <Box sx={{ flex: 1 }}>
                             <SearchInput
                                 value={filterString}
                                 placeholder="Search in Label"
@@ -490,10 +472,10 @@ const ProductLabel = (props) => {
                                 }
                                 onChange={(e) => setFilterString(e.target.value)}
                             />
-                        </SearchWrapper>
+                        </Box>
 
                         {!isMobile && (
-                            <ButtonsWrapper>
+                            <Box sx={{ padding: '4px 2px 4px 0px' }}>
                                 <LabelButton
                                     variant="outlined"
                                     aria-label="copy label json button"
@@ -519,7 +501,7 @@ const ProductLabel = (props) => {
                                 >
                                     View Raw Label
                                 </LabelButton>
-                            </ButtonsWrapper>
+                            </Box>
                         )}
                         {isMobile && (
                             <div>

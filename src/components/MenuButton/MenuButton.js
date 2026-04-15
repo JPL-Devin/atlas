@@ -12,10 +12,7 @@ import Paper from '@mui/material/Paper'
 import Popper from '@mui/material/Popper'
 import MenuItem from '@mui/material/MenuItem'
 import MenuList from '@mui/material/MenuList'
-
-const MenuButtonRoot = styled('div')({
-    zIndex: 1200,
-})
+import Box from '@mui/material/Box'
 
 const StyledIconButton = styled(IconButton, {
     shouldForwardProp: (prop) => prop !== 'isOpen',
@@ -111,7 +108,7 @@ const MenuButton = (props) => {
     }, [open])
 
     return (
-        <MenuButtonRoot>
+        <Box sx={{ zIndex: 1200 }}>
             <StyledIconButton
                 isOpen={open}
                 aria-label="menu"
@@ -189,7 +186,7 @@ const MenuButton = (props) => {
                     </Grow>
                 )}
             </Popper>
-        </MenuButtonRoot>
+        </Box>
     )
 }
 

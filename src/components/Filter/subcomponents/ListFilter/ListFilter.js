@@ -6,14 +6,11 @@ import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
 import Checkbox from '@mui/material/Checkbox'
+import Box from '@mui/material/Box'
 
 import { setFieldState } from '../../../../core/redux/actions/actions.js'
 import { DISPLAY_NAME_MAPPINGS } from '../../../../core/constants.js'
 import { getIn } from '../../../../core/utils.js'
-
-const ListFilterRoot = styled('div')({
-    flex: '1',
-})
 
 const StyledList = styled('ul')({
     padding: 0,
@@ -51,10 +48,6 @@ const LabelSpan = styled('span')({
     marginLeft: '8px',
 })
 
-const NameDiv = styled('div')({
-    padding: '0px 2px',
-})
-
 const CountDiv = styled('div')(({ theme }) => ({
     padding: '0px 2px',
     fontSize: 12,
@@ -84,7 +77,7 @@ const ListFilter = (props) => {
     facet = facet ? facet.toJS() : {}
 
     return (
-        <ListFilterRoot>
+        <Box sx={{ flex: '1' }}>
             <StyledList>
                 {facet.fields ? (
                     facet.fields.map((field, idx) => (
@@ -107,11 +100,11 @@ const ListFilter = (props) => {
                                 aria-label="select"
                             />
                             <LabelSpan>
-                                <NameDiv>
+                                <Box sx={{ padding: '0px 2px' }}>
                                     {DISPLAY_NAME_MAPPINGS[field.key]
                                         ? DISPLAY_NAME_MAPPINGS[field.key]
                                         : field.key}
-                                </NameDiv>
+                                </Box>
                                 <CountDiv>({field.doc_count})</CountDiv>
                             </LabelSpan>
                         </ListItem>
@@ -123,7 +116,7 @@ const ListFilter = (props) => {
                     <MoreResultsLi>Only showing the first 500 results.</MoreResultsLi>
                 )}
             </StyledList>
-        </ListFilterRoot>
+        </Box>
     )
 }
 

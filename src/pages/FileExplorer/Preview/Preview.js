@@ -28,7 +28,6 @@ import ProductIcons from '../../../components/ProductIcons/ProductIcons'
 
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Button from '@mui/material/Button'
 
@@ -46,289 +45,38 @@ import FormControl from '@mui/material/FormControl'
 
 import Image from 'mui-image'
 
-import { styled } from '@mui/material/styles'
+import Box from '@mui/material/Box'
 
 import './Preview.css'
 
-const PreviewRoot = styled('div', {
-    shouldForwardProp: (prop) => prop !== 'isMobileView',
-})(({ theme, isMobileView }) => ({
-    width: '100%',
-    height: '100%',
-    overflow: 'hidden',
-    boxSizing: 'border-box',
-    boxShadow: '0px 0px 6px 0px rgba(0,0,0,0.4)',
-    display: 'flex',
-    flexFlow: 'column',
-    background: theme.palette.swatches.grey.grey800,
-    color: theme.palette.swatches.grey.grey150,
-    zIndex: 2,
-    ...(isMobileView && {
-        zIndex: 999,
-        borderLeft: 'none',
-    }),
-}))
-
-const Header = styled('div')(({ theme }) => ({
-    width: '100%',
-    boxSizing: 'border-box',
-    boxShadow: '0px 1px 2px 0px rgba(0,0,0,0.19)',
-    background: theme.palette.swatches.grey.grey700,
-}))
-
-const HeaderMobile = styled('div')(({ theme }) => ({
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    boxSizing: 'border-box',
-    background: theme.palette.swatches.grey.grey700,
-}))
-
-const HeaderBanner = styled('div')(({ theme }) => ({
-    'fontSize': '15px',
-    'padding': '6px',
-    'background': theme.palette.swatches.orange.orange600,
-    'color': 'rgba(0,0,0,0.6)',
-    'fontWeight': 'bold',
-    'display': 'flex',
-    'justifyContent': 'space-between',
-    'cursor': 'pointer',
-    '& > div': {
-        display: 'flex',
-    },
-    '& > div > div': {
-        paddingLeft: '5px',
-    },
-}))
-
-const PreviewTitle = styled(Typography)({
-    fontSize: '18px',
-    fontWeight: 'bold',
-    margin: '8px 8px 0px 8px',
-    fontFamily: 'inherit',
-    wordBreak: 'break-all',
-})
-
-const PreviewTitleMobile = styled(Typography)(({ theme }) => ({
-    fontSize: '16px',
-    margin: '0px',
-    fontFamily: 'inherit',
-    lineHeight: `${theme.headHeights[2]}px`,
-}))
-
-const HeaderRight = styled('div')({
-    flex: 1,
-    display: 'flex',
-    justifyContent: 'space-between',
-})
-
-const ActionButton = styled(IconButton)(({ theme }) => ({
-    'width': `${theme.headHeights[2]}px`,
-    'height': `${theme.headHeights[2]}px`,
-    'color': theme.palette.swatches.blue.blue400,
-    '&:hover': {
-        background: 'rgba(255,255,255,0.1)',
-    },
-    '&.Mui-disabled': {
-        color: theme.palette.swatches.grey.grey400,
-        cursor: 'not-allowed',
-    },
-}))
-
-const Body = styled('div', {
-    shouldForwardProp: (prop) => prop !== 'isMobileView',
-})(({ isMobileView }) => ({
-    flex: 1,
-    overflowY: 'auto',
-    overflowX: 'hidden',
-}))
-
-const BodyInner = styled('div')({
-    padding: '16px 0px',
-})
-
-const SectionHeading = styled('div')(({ theme }) => ({
-    fontSize: '14px',
-    lineHeight: '30px',
-    color: theme.palette.swatches.yellow.yellow500,
-    textTransform: 'uppercase',
-    padding: '0px 16px 4px 16px',
-}))
-
-const SectionBody = styled('div')({
-    marginBottom: '20px',
-})
-
-const RelatedList = styled('ul')(({ theme }) => ({
-    'listStyleType': 'none',
-    'margin': `4px 0px 0px 0px`,
-    'padding': '0px 16px',
-    '& > li': {
-        lineHeight: '24px',
-        marginBottom: '8px',
-        display: 'flex',
-        justifyContent: 'flex-start',
-    },
-}))
-
-const RelatedGroup = styled('div')(({ theme }) => ({
-    textTransform: 'uppercase',
-    lineHeight: '28px',
-    width: '70px',
-    color: theme.palette.swatches.grey.grey300,
-}))
-
-const RelatedLinks = styled('div')({
-    display: 'flex',
-    justifyContent: 'flex-start',
-    flex: '1',
-})
-
-const RelatedButton = styled(Button)(({ theme }) => ({
-    'background': theme.palette.swatches.grey.grey700,
-    'color': theme.palette.swatches.blue.blue400,
-    'border': `1px solid ${theme.palette.swatches.grey.grey900}`,
-    'marginLeft': '4px',
-    '&:hover': {
-        border: `1px solid ${theme.palette.swatches.grey.grey600}`,
-    },
-    '& .MuiButton-label': {
-        lineHeight: '20px',
-    },
-    '& .MuiButton-endIcon': {
-        marginLeft: '6px',
-    },
-    '& .MuiButton-endIcon > svg': {
-        fontSize: '14px',
-    },
-}))
-
-const PropertiesList = styled('ul')(({ theme }) => ({
-    'listStyleType': 'none',
-    'margin': `0px`,
-    'padding': '0px',
-    '& > li': {
-        'display': 'flex',
-        'justifyContent': 'space-between',
-        'lineHeight': '24px',
-        'padding': '2px 16px',
-        'transition': 'max-height 0.3s ease-in',
-        'wordBreak': 'break-all',
-        '& > div:last-child': {
-            whiteSpace: 'inherit',
-        },
-    },
-    '& > li:nth-child(odd)': {
-        background: theme.palette.swatches.grey.grey700,
-    },
-}))
-
-const PropertyKey = styled('div')(({ theme }) => ({
-    marginRight: '16px',
-    textTransform: 'uppercase',
-    color: theme.palette.swatches.grey.grey300,
-    fontSize: '12px',
-}))
-
-const PropertyValue = styled('div')({
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    textAlign: 'right',
-    flex: '1',
-})
-
-const ImageContainer = styled('div')(({ theme }) => ({
-    width: '100%',
-    height: '400px',
-    position: 'relative',
-    cursor: 'pointer',
-    overflow: 'hidden',
-    borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
-    borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
-}))
-
-const PreviewImageStyled = styled('div')({
-    'overflow': 'hidden',
-    'position': 'static !important',
-    'objectFit': 'cover !important',
-    'transition': 'filter 0.15s ease-in-out !important',
-    '&:hover': {
-        filter: 'brightness(1.25)',
-    },
-})
-
-const ImageCover = styled('div')({
-    position: 'absolute',
-    pointerEvents: 'none',
-    top: 0,
-    width: '100%',
-    height: '100%',
-    boxShadow: 'inset 0px 1px 6px 1px rgba(0,0,0,0.16)',
-})
-
-const ImagelessContainer = styled('div')({
-    'width': '100%',
-    'height': '100%',
-    'position': 'relative',
-    '& > div': {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translateX(-50%) translateY(-50%)',
-    },
-})
-
-const NavHeader = styled('div')(({ theme }) => ({
-    'height': `${theme.headHeights[2]}px`,
-    'minHeight': `${theme.headHeights[2]}px`,
-    'background': theme.palette.swatches.grey.grey700,
-    'boxSizing': 'border-box',
-    'display': 'flex',
-    'justifyContent': 'space-between',
-    'borderBottom': `1px solid ${theme.palette.swatches.grey.grey900}`,
-    '& > div': {
-        display: 'flex',
-        justifyContent: 'space-between',
-    },
-    '& > div:last-child': {
-        flex: 1,
-    },
-}))
-
-const BackButton = styled(IconButton)(({ theme }) => ({
-    lineHeight: '28px',
-    borderRadius: 0,
-    color: theme.palette.swatches.grey.grey150,
-}))
-
-const EmptyPreview = styled('div')(({ theme }) => ({
-    textAlign: 'center',
-    margin: `${theme.spacing(10)} 0px`,
-    color: theme.palette.swatches.grey.grey500,
-    fontSize: '16px',
-}))
-
-const StyledFormControl = styled(FormControl)({
-    minWidth: 125,
-    margin: '5px 0px 3px 8px',
-})
-
-const StyledSelect = styled(Select)(({ theme }) => ({
-    'color': theme.palette.swatches.grey.grey300,
-    'background': theme.palette.swatches.grey.grey800,
-    'borderBottom': `2px solid ${theme.palette.swatches.grey.grey600}`,
-    'paddingLeft': '4px',
-    '& > div:first-child': {
-        padding: '8px 20px 6px 6px',
-        textAlign: 'left',
-    },
-    '& > svg': {
-        color: '#efefef',
-        top: '4px',
-        right: '2px',
-    },
-}))
+import {
+    PreviewRoot,
+    Header,
+    HeaderMobile,
+    HeaderBanner,
+    PreviewTitle,
+    PreviewTitleMobile,
+    HeaderRight,
+    ActionButton,
+    Body,
+    SectionHeading,
+    RelatedList,
+    RelatedGroup,
+    RelatedLinks,
+    RelatedButton,
+    PropertiesList,
+    PropertyKey,
+    PropertyValue,
+    ImageContainer,
+    PreviewImageStyled,
+    ImageCover,
+    ImagelessContainer,
+    NavHeader,
+    BackButton,
+    EmptyPreview,
+    StyledFormControl,
+    StyledSelect,
+} from './Preview.styles'
 
 const ButtonBar = (props) => {
     const { isMobile, preview, related } = props
@@ -689,7 +437,7 @@ const Preview = (props) => {
                         </div>
                     </HeaderMobile>
                 )}
-                <BodyInner>
+                <Box sx={{ padding: '16px 0px' }}>
                     {/*
                         <div className={c.description}>
                             <SectionHeading>
@@ -698,7 +446,7 @@ const Preview = (props) => {
                                 </Typography>
                                 <Divider />
                             </div>
-                            <SectionBody>
+                            <Box sx={{ marginBottom: '20px' }}>
                                 <Typography>
                                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce
                                     volutpat mi tincidunt nisi gravida tincidunt. Pellentesque a mattis
@@ -718,7 +466,7 @@ const Preview = (props) => {
                                 </Typography>
                                 <Divider />
                             </SectionHeading>
-                            <SectionBody>
+                            <Box sx={{ marginBottom: '20px' }}>
                                 <RelatedList>
                                     {getIn(related, 'uri') && (
                                         <li>
@@ -935,7 +683,7 @@ const Preview = (props) => {
                                             </li>
                                         )}
                                 </RelatedList>
-                            </SectionBody>
+                            </Box>
                         </div>
                     )}
 
@@ -946,7 +694,7 @@ const Preview = (props) => {
                             </Typography>
                             <Divider />
                         </SectionHeading>
-                        <SectionBody>
+                        <Box sx={{ marginBottom: '20px' }}>
                             <PropertiesList>
                                 {Object.keys(preview)
                                     .sort((a, b) => a.localeCompare(b))
@@ -1015,9 +763,9 @@ const Preview = (props) => {
                                         )
                                     })}
                             </PropertiesList>
-                        </SectionBody>
+                        </Box>
                     </div>
-                </BodyInner>
+                </Box>
             </Body>
         </PreviewRoot>
     )

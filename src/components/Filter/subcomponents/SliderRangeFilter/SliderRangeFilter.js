@@ -4,14 +4,15 @@ import { styled } from '@mui/material/styles'
 import PropTypes from 'prop-types'
 
 import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
 
 import MiniHistogram from '../../../MiniHistogram/MiniHistogram'
 
 import { setFieldState } from '../../../../core/redux/actions/actions.js'
 import { getIn, prettify, abbreviateNumber } from '../../../../core/utils.js'
+import { ClearButton, SubmitButton, BottomDiv } from '../../../shared/FilterComponents'
 
 import Slider from '@mui/material/Slider'
+import Box from '@mui/material/Box'
 
 const SliderRangeFilterRoot = styled('div', {
     shouldForwardProp: (prop) => prop !== 'isNotAlone',
@@ -32,10 +33,6 @@ const TitleDiv = styled('div')(({ theme }) => ({
     transform: 'translateX(-50%)',
     color: theme.palette.swatches.grey.grey400,
 }))
-
-const HistogramWrapper = styled('div')({
-    margin: '8px 18px 0px 18px',
-})
 
 const SliderWrapper = styled('div')({
     height: '30px',
@@ -65,22 +62,6 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
     },
 }))
 
-const BottomDiv = styled('div')(({ theme }) => ({
-    marginTop: theme.spacing(2),
-    padding: `0px ${theme.spacing(2)}`,
-}))
-
-const ClearButton = styled(Button)(({ theme }) => ({
-    'background': theme.palette.swatches.grey.grey500,
-    '&:hover': {
-        background: theme.palette.swatches.red.red500,
-    },
-}))
-
-const SubmitButton = styled(Button)({
-    width: '80px',
-    float: 'right',
-})
 
 const SliderRangeFilter = (props) => {
     const { filterKey, facetId, alone, settingsActive } = props
@@ -165,14 +146,14 @@ const SliderRangeFilter = (props) => {
     return (
         <SliderRangeFilterRoot isNotAlone={!alone}>
             {!alone ? <TitleDiv>{prettify(facetName)}</TitleDiv> : null}
-            <HistogramWrapper>
+            <Box sx={{ margin: '8px 18px 0px 18px' }}>
                 <MiniHistogram
                     buckets={facet.fields}
                     height={100}
                     selectedRange={normalizedValue}
                     outliers={outliers}
                 />
-            </HistogramWrapper>
+            </Box>
             <SliderWrapper>
                 <Slider
                     value={normalizedValue}
@@ -216,7 +197,7 @@ const SliderRangeFilter = (props) => {
                     }}
                 />
             </InputsDiv>
-            <BottomDiv>
+            <BottomDiv sx={{ padding: (theme) => `0px ${theme.spacing(2)}` }}>
                 <ClearButton
                     size="small"
                     variant="contained"
