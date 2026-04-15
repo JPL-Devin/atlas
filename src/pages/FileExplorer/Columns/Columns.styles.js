@@ -5,6 +5,9 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import SortIcon from '@mui/icons-material/Sort'
 
+const minColumnWidth = 220
+const DEPRECATED_COLOR = '#834325'
+
 export const ColumnsRoot = styled('div', {
     shouldForwardProp: (prop) => !['isMobileView', 'hasModalOver'].includes(prop),
 })(({ theme, isMobileView, hasModalOver }) => ({
