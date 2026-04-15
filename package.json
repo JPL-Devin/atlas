@@ -18,9 +18,12 @@
     "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider node scripts/start-dev.js",
     "start:prod": "cross-env NODE_OPTIONS=--openssl-legacy-provider node scripts/start-prod.js",
     "build": "cross-env NODE_OPTIONS=\"--openssl-legacy-provider --max-old-space-size=4096\" node scripts/build.js",
+    "build:eslint": "cross-env ESLINT_WEBPACK=true NODE_OPTIONS=\"--openssl-legacy-provider --max-old-space-size=4096\" node scripts/build.js",
     "analyze": "node scripts/start.js --analyze",
     "test": "node scripts/test.js",
-    "docs": "jsdoc -c jsdoc.conf.json"
+    "docs": "jsdoc -c jsdoc.conf.json",
+    "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
+    "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix"
   },
   "dependencies": {
     "@babel/runtime": "^7.28.2",
@@ -33,7 +36,7 @@
     "@react-spring/web": "^10.0.1",
     "@typescript-eslint/eslint-plugin": "^8.46.4",
     "@typescript-eslint/parser": "^8.46.4",
-    "axios": "^1.13.2",
+    "axios": "^1.15.0",
     "body-parser": "^1.20.4",
     "camelcase": "^5.3.1",
     "chart.js": "^4.5.0",
@@ -71,7 +74,7 @@
     "react-highlight-words": "^0.21.0",
     "react-icons": "^3.11.0",
     "react-intersection-observer": "^8.34.0",
-    "react-markdown": "^8.0.7",
+    "react-markdown": "^10.1.0",
     "react-movable": "^3.4.1",
     "react-redux": "^7.2.9",
     "react-resize-detector": "^12.1.0",
@@ -80,20 +83,18 @@
     "react-virtualized": "^9.22.6",
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
+    "rehype-external-links": "^3.0.0",
     "resolve": "^1.22.10",
     "resolve-url-loader": "^5.0.0",
     "semver": "^7.7.3",
     "streamsaver": "^2.0.6",
-    "styled-components": "^5.3.11",
+    "styled-components": "^6.4.0",
     "svg-overlay": "git+https://git@github.com/openseadragon/svg-overlay.git",
     "three": "^0.150.1",
     "url-parse": "^1.5.10",
     "uuid": "^11.1.0",
     "viewerjs": "^1.11.7",
     "wicket": "^1.3.8"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   },
   "browserslist": {
     "production": [
@@ -163,8 +164,7 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.28.0",
-    "@babel/register": "^7.27.1",
+    "@babel/core": "^7.29.0",
     "@svgr/webpack": "^8.1.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
@@ -176,7 +176,7 @@
     "@types/webpack-bundle-analyzer": "^4.7.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^30.0.5",
-    "babel-loader": "^10.0.0",
+    "babel-loader": "^10.1.1",
     "babel-plugin-named-asset-import": "^0.3.8",
     "babel-preset-react-app": "^10.1.0",
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
@@ -189,7 +189,8 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-webpack-plugin": "^4.2.0",
+    "eslint-webpack-plugin": "^6.0.0",
+    "globals": "^16.5.0",
     "html-webpack-plugin": "^5.6.3",
     "html2pug": "^4.0.0",
     "jest": "^30.2.0",
@@ -197,22 +198,24 @@
     "jest-resolve": "^30.2.0",
     "jest-watch-typeahead": "^3.0.1",
     "mini-css-extract-plugin": "^2.9.2",
+    "postcss": "^8.5.9",
     "postcss-flexbugs-fixes": "^4.2.1",
-    "postcss-loader": "^3.0.0",
+    "postcss-loader": "^8.2.1",
     "postcss-normalize": "^8.0.1",
     "postcss-preset-env": "^6.7.2",
     "prettier": "^2.8.8",
     "react-dev-utils": "^12.0.1",
     "sass-loader": "^8.0.2",
     "style-loader": "^4.0.0",
-    "terser-webpack-plugin": "^5.3.14",
+    "terser-webpack-plugin": "^5.4.0",
     "ts-pnp": "^1.2.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.58.1",
     "url": "^0.11.4",
     "webpack": "^5.102.1",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2",
-    "webpack-manifest-plugin": "^5.0.1"
+    "webpack-manifest-plugin": "^6.0.1"
   }
 }

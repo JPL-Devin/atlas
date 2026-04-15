@@ -80,9 +80,10 @@ const ListFilter = (props) => {
         <Box sx={{ flex: '1' }}>
             <StyledList>
                 {facet.fields ? (
-                    facet.fields.map((field, idx) => (
+                    facet.fields
+                        .filter((field) => field.doc_count > 0)
+                        .map((field, idx) => (
                         <ListItem
-                            isZero={field.doc_count === 0}
                             key={idx}
                             onClick={() => {
                                 dispatch(

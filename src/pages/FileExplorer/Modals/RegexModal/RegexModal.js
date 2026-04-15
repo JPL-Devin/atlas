@@ -42,6 +42,7 @@ import { publicUrl, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../core/constant
 import { streamDownloadFile } from '../../../../core/downloaders/ZipStream.js'
 
 import ReactMarkdown from 'react-markdown'
+import rehypeExternalLinks from 'rehype-external-links'
 
 import {
     RegexModalRoot,
@@ -253,7 +254,9 @@ const RegexModal = (props) => {
                         ) : null}
                     </InputSection>
                     <HelpSection isOpen={helpOpen}>
-                        <ReactMarkdown linkTarget="_blank">
+                        <ReactMarkdown
+                            rehypePlugins={[[rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }]]}
+                        >
                             {[
                                 `# Help - Regular Expressions`,
                                 `A regular expression (regex) is a way to match patterns in data using placeholder characters, called operators.`,

@@ -531,9 +531,10 @@ const ProductLabel = (props) => {
                     </TopSection>
                     <BottomSection>
                         <SimpleTreeView
-                            defaultExpanded={Array(labelTree.numOfKeys)
+                            defaultExpandedItems={Array(labelTree.numOfKeys)
                                 .fill()
-                                .map((x, i) => String(i))}
+                                .map((x, i) => String(i))
+                            }
                         >
                             {labelTree.tree}
                         </SimpleTreeView>

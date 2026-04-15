@@ -23,6 +23,7 @@ import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
+import Chip from '@mui/material/Chip'
 
 import { BackButton, BackIcon } from '../../../components/shared/PageComponents'
 import LinkIcon from '@mui/icons-material/Link'
@@ -91,6 +92,24 @@ const AddToCartButton = styled(IconButton)(({ theme }) => ({
     color: theme.palette.accent.main,
 }))
 
+const MlChip = styled(Chip)(({ theme }) => ({
+    'height': '24px',
+    'marginLeft': theme.spacing(1),
+    'background': theme.palette.swatches.orange.orange600,
+    'color': theme.palette.swatches.grey.grey800,
+    'fontWeight': 'bold',
+    'fontSize': '11px',
+    '& .MuiChip-label': {
+        padding: '0px 8px',
+    },
+}))
+
+const MlChipsContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(0.5),
+}))
+
 const Title = (props) => {
     const { mobile, recordData } = props
 
@@ -131,6 +150,24 @@ const Title = (props) => {
     if (ml_classification_related.label)
         related.ml_classifier_label = ml_classification_related.label
 
+    // Extract unique ML classifications from ES data
+    const mlClassifications = []
+    const classificationsArray = getIn(recordData, ES_PATHS.ml_classifications, [])
+    if (Array.isArray(classificationsArray) && classificationsArray.length > 0) {
+        const uniqueClasses = new Set()
+        classificationsArray.forEach((classification) => {
+            const className = classification.class
+            const confidence = classification.confidence
+            // Only include classes with confidence > 0.5
+            if (className && confidence > 0.5 && !uniqueClasses.has(className)) {
+                uniqueClasses.add(className)
+                mlClassifications.push({ class: className, confidence: confidence })
+            }
+        })
+        // Sort by confidence descending
+        mlClassifications.sort((a, b) => b.confidence - a.confidence)
+    }
+
     sortRelatedKeys(Object.keys(related)).forEach((key) => {
         const uri = key === 'src' ? getIn(recordData, ES_PATHS.source) : related[key].uri
         const size = humanFileSize(related[key].size)
@@ -170,9 +207,19 @@ const Title = (props) => {
                     </BackButton>
                 </Tooltip>
                 <NameWrapper>
-                    <NameTitle variant="h2">
-                        {getIn(recordData, ES_PATHS.file_name, '--')}
-                    </NameTitle>
+                    <MlChipsContainer>
+                        <NameTitle variant="h2">
+                            {getIn(recordData, ES_PATHS.file_name, '--')}
+                        </NameTitle>
+                        {mlClassifications.length > 0 &&
+                            mlClassifications.map((classification, idx) => (
+                                <MlChip
+                                    key={idx}
+                                    label={`ML - ${classification.class}`}
+                                    size="small"
+                                />
+                            ))}
+                    </MlChipsContainer>
                 </NameWrapper>
                 <Tooltip title="Copy Link" arrow>
                     <CopyButton
