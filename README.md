@@ -72,9 +72,12 @@ npm install
 npm start
 ```
 
-The API listens on `http://localhost:3001` by default. The repo-root `.env`
-is configured so `npm run start` against the React app talks to this local
-API instead of the public Elasticsearch proxy.
+The API listens on `http://localhost:3001` by default. The repo-root
+`.env.development` (auto-loaded by `npm run start`) is configured so the
+React dev server talks to this local API instead of the public Elasticsearch
+proxy. The production `.env` (used by `npm run build`) is left pointing at
+the existing AWS API Gateway proxy so production builds keep working until a
+deployed instance of this API is wired in.
 
 ### Endpoints
 

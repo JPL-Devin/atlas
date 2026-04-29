@@ -94,12 +94,21 @@ docker run --rm -p 3001:3001 --env-file api/.env atlas-api
 
 ## Pointing the React app at this API
 
-In the repo-root `.env`, set:
+The repo's webpack env loader (`config/env.js`) follows the standard CRA
+priority order:
 
 ```
-REACT_APP_DOMAIN = "http://localhost:3001/api"
+.env.development.local -> .env.development -> .env.local -> .env
 ```
 
-The existing frontend will continue to work because `POST /api/search`
-accepts the raw Elasticsearch DSL bodies it produces today; the typed REST
-endpoints can be adopted incrementally.
+so the repo-root `.env.development` (auto-loaded by `npm run start`)
+already points the dev server at `http://localhost:3001/api` while the
+production `.env` is left pointing at the AWS API Gateway proxy. To
+override locally without touching either file, create
+`.env.development.local`.
+
+The existing frontend continues to work because `POST /api/search`
+accepts the raw Elasticsearch DSL bodies it produces today (and forwards
+the `scroll` query parameter so the bulk download flows in
+`src/core/downloaders/*` continue to drive scroll pagination); the typed
+REST endpoints can be adopted incrementally.

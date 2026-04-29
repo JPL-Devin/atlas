@@ -71,7 +71,9 @@ function buildTxtList(records) {
 function escapeCsvCell(value) {
     if (value === null || value === undefined) return ''
     const str = String(value)
-    if (/[",\n]/.test(str)) {
+    // RFC 4180: any field containing ", a comma, or a line break (LF or CR)
+    // must be enclosed in double quotes.
+    if (/[",\n\r]/.test(str)) {
         return `"${str.replace(/"/g, '""')}"`
     }
     return str
