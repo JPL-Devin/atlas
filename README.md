@@ -54,6 +54,44 @@
 
 ---
 
+## Backend API (`api/`)
+
+Atlas IV ships with a Node.js / Express REST API in [`api/`](api/) that sits
+between the React frontend and Elasticsearch. It replaces the previous direct
+calls from the browser to a public Elasticsearch proxy with a typed,
+versionable HTTP surface where authentication and authorization can be added
+later.
+
+### Run it locally
+
+```bash
+cd api
+cp .env.example .env
+# Edit .env to point ELASTICSEARCH_URL at your cluster.
+npm install
+npm start
+```
+
+The API listens on `http://localhost:3001` by default. The repo-root `.env`
+is configured so `npm run start` against the React app talks to this local
+API instead of the public Elasticsearch proxy.
+
+### Endpoints
+
+| Method | Path                  | Description                                                         |
+| ------ | --------------------- | ------------------------------------------------------------------- |
+| GET    | `/api/search`         | Typed search with filters, paging, and bounding-box geo filtering.  |
+| POST   | `/api/search`         | Pass-through for raw Elasticsearch DSL bodies.                      |
+| POST   | `/api/search/scroll`  | Initialise / continue / clear scroll & PIT pagination.              |
+| GET    | `/api/record/:id`     | Fetch a single product document by its Elasticsearch `_id`.         |
+| GET    | `/api/missions`       | List supported missions and their associated planets / moons.       |
+| GET    | `/api/archive`        | List archive entries under a parent URI (PDS bundle/collection).    |
+| POST   | `/api/cart/download`  | Generate a `curl`/`wget`/`csv`/`txt`/`zip` artifact from cart IDs.  |
+
+See [`api/README.md`](api/README.md) for full configuration and usage details.
+
+---
+
 ## Contributing
 
 Check out our contributing guide [here.](CONTRIBUTING.md)

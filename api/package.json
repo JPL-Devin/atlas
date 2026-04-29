@@ -1,0 +1,21 @@
+{
+    "name": "atlas-api",
+    "version": "1.0.0",
+    "description": "Atlas IV REST API layer between the React frontend and Elasticsearch.",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "dev": "node --watch server.js",
+        "lint": "eslint \"**/*.js\""
+    },
+    "engines": {
+        "node": ">=20.13.1"
+    },
+    "dependencies": {
+        "@elastic/elasticsearch": "^8.15.0",
+        "cors": "^2.8.5",
+        "dotenv": "^17.2.1",
+        "express": "^4.21.2",
+        "helmet": "^8.0.0"
+    }
+}
