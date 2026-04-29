@@ -39,6 +39,7 @@ function getClient() {
  * @param {object} [options]
  * @param {string} [options.index] - Override the default index.
  * @param {string} [options.filterPath] - Comma-separated filter_path string.
+ * @param {string} [options.scroll] - When set, initialise a scroll context with this keep-alive (e.g. "1m").
  * @returns {Promise<object>} The raw Elasticsearch response body.
  */
 async function search(body, options = {}) {
@@ -49,6 +50,9 @@ async function search(body, options = {}) {
     }
     if (options.filterPath) {
         params.filter_path = options.filterPath
+    }
+    if (options.scroll) {
+        params.scroll = options.scroll
     }
     const response = await client.search(params)
     return response.body || response

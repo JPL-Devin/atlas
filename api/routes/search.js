@@ -53,13 +53,18 @@ router.get(
  * Accept a raw Elasticsearch DSL body for advanced clients that need to issue
  * full DSL queries (this preserves backward compatibility with the existing
  * frontend's DSL builder while we migrate to the typed REST endpoints).
+ *
+ * Forwards the `filter_path` and `scroll` query parameters to Elasticsearch so
+ * that scroll-based pagination flows (used by the bulk download generators in
+ * `src/core/downloaders/*`) continue to receive a `_scroll_id` in the response.
  */
 router.post(
     '/',
     asyncHandler(async (req, res) => {
         const dsl = req.body || {}
         const filterPath = req.query.filter_path || undefined
-        const response = await elasticsearch.search(dsl, { filterPath })
+        const scroll = req.query.scroll || undefined
+        const response = await elasticsearch.search(dsl, { filterPath, scroll })
         res.json(response)
     })
 )
@@ -111,13 +116,10 @@ router.post(
         if (body.dsl) {
             const size = clampInt(body.dsl.size, { min: 1, max: 1000, fallback: 100 })
             const dslWithScrollSettings = { ...body.dsl, size }
-            const client = elasticsearch.getClient()
-            const response = await client.search({
-                index: undefined,
+            const response = await elasticsearch.search(dslWithScrollSettings, {
                 scroll: body.scroll || '1m',
-                body: dslWithScrollSettings,
             })
-            res.json(response.body || response)
+            res.json(response)
             return
         }
 
