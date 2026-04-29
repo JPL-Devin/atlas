@@ -26,6 +26,14 @@ const FORMAT_EXTENSIONS = {
     zip: 'zip',
 }
 
+// Wrap a value in POSIX single quotes so it is interpreted literally by the
+// shell. Embedded single quotes are escaped via the standard `'\''` sequence.
+// This prevents shell-special characters in PDS URIs/filenames (such as `$`,
+// backticks, `!`) from being interpreted when the generated script runs.
+function shellQuote(value) {
+    return `'${String(value).replace(/'/g, "'\\''")}'`
+}
+
 function buildCurlScript(records) {
     const lines = ['#!/usr/bin/env bash', 'set -euo pipefail', '']
     for (const record of records) {
@@ -33,9 +41,9 @@ function buildCurlScript(records) {
         if (!uri) continue
         const fileName = record.fileName || ''
         if (fileName) {
-            lines.push(`curl -L -o ${JSON.stringify(fileName)} ${JSON.stringify(uri)}`)
+            lines.push(`curl -L -o ${shellQuote(fileName)} ${shellQuote(uri)}`)
         } else {
-            lines.push(`curl -L -O ${JSON.stringify(uri)}`)
+            lines.push(`curl -L -O ${shellQuote(uri)}`)
         }
     }
     return `${lines.join('\n')}\n`
@@ -48,9 +56,9 @@ function buildWgetScript(records) {
         if (!uri) continue
         const fileName = record.fileName || ''
         if (fileName) {
-            lines.push(`wget -O ${JSON.stringify(fileName)} ${JSON.stringify(uri)}`)
+            lines.push(`wget -O ${shellQuote(fileName)} ${shellQuote(uri)}`)
         } else {
-            lines.push(`wget ${JSON.stringify(uri)}`)
+            lines.push(`wget ${shellQuote(uri)}`)
         }
     }
     return `${lines.join('\n')}\n`

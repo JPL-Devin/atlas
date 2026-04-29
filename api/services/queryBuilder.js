@@ -17,6 +17,19 @@ const FIELD_PATHS = {
     productId: 'gather.pds_archive.product_id',
 }
 
+// Allow-list of fields that callers may sort the typed search by, mapped to
+// the underlying Elasticsearch field path. Keeps `GET /api/search` from
+// exposing arbitrary field traversal through `sortField`.
+const SORT_FIELDS = {
+    startTime: FIELD_PATHS.startTime,
+    mission: FIELD_PATHS.mission,
+    instrument: FIELD_PATHS.instrument,
+    target: FIELD_PATHS.target,
+    spacecraft: FIELD_PATHS.spacecraft,
+    productType: FIELD_PATHS.productType,
+    productId: FIELD_PATHS.productId,
+}
+
 function asArray(value) {
     if (value === undefined || value === null) return []
     if (Array.isArray(value)) return value
@@ -136,10 +149,11 @@ function buildSearchBody(params = {}) {
         query,
     }
 
-    if (params.sortField) {
+    if (params.sortField && Object.prototype.hasOwnProperty.call(SORT_FIELDS, params.sortField)) {
+        const esField = SORT_FIELDS[params.sortField]
         body.sort = [
             {
-                [params.sortField]: { order: params.sortOrder === 'asc' ? 'asc' : 'desc' },
+                [esField]: { order: params.sortOrder === 'asc' ? 'asc' : 'desc' },
             },
         ]
     }
@@ -183,6 +197,7 @@ function buildArchiveBody(params = {}) {
 
 module.exports = {
     FIELD_PATHS,
+    SORT_FIELDS,
     buildSearchBody,
     buildArchiveBody,
     asArray,
