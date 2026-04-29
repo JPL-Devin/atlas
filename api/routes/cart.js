@@ -110,15 +110,25 @@ function flattenRecord(hit) {
     }
 }
 
+// Stay under Elasticsearch's default `index.max_result_window` (10_000) so the
+// cart endpoint keeps working even when MAX_BULK_DOWNLOAD_COUNT is configured
+// higher than that.
+const ES_LOOKUP_CHUNK_SIZE = 10_000
+
 async function fetchRecordsByIds(ids) {
-    const body = {
-        size: ids.length,
-        track_total_hits: false,
-        query: { ids: { values: ids } },
+    const records = []
+    for (let i = 0; i < ids.length; i += ES_LOOKUP_CHUNK_SIZE) {
+        const chunk = ids.slice(i, i + ES_LOOKUP_CHUNK_SIZE)
+        const body = {
+            size: chunk.length,
+            track_total_hits: false,
+            query: { ids: { values: chunk } },
+        }
+        const response = await elasticsearch.search(body)
+        const hits = (response.hits && response.hits.hits) || []
+        for (const hit of hits) records.push(flattenRecord(hit))
     }
-    const response = await elasticsearch.search(body)
-    const hits = (response.hits && response.hits.hits) || []
-    return hits.map(flattenRecord)
+    return records
 }
 
 /**
