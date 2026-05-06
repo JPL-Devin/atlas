@@ -49,6 +49,10 @@ export default defineConfig({
         {
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
+            // The cross-browser folder targets the firefox project. Don't
+            // double-run those specs on chromium — the canonical chromium
+            // suite already covers per-route SPA-shell smoke.
+            testIgnore: /cross-browser/,
         },
         {
             name: 'firefox',

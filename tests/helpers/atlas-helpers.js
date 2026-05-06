@@ -12,9 +12,16 @@ export function getBaseURL() {
  * Wait for the Atlas SPA shell to be ready. Atlas does not have a database
  * or a "Reference-Mission" gate like MMGIS, so we just wait for networkidle
  * and verify the body has rendered some content.
+ *
+ * Atlas talks to a live PDS Elasticsearch endpoint. When that endpoint is
+ * slow or unreachable (which is common in CI / sandboxed environments),
+ * `networkidle` may never fire because requests stay in-flight or are
+ * aborted past the navigation timeout. We swallow that timeout so callers
+ * reliably reach their assertions — `filterCriticalJsErrors` is what
+ * actually distinguishes "expected upstream noise" from "real regression".
  */
 export async function waitForAppReady(page, { timeout = DEFAULT_NAVIGATION_TIMEOUT } = {}) {
-    await page.waitForLoadState('networkidle', { timeout })
+    await page.waitForLoadState('networkidle', { timeout }).catch(() => {})
     const hasContent = await page.evaluate(() => document.body && document.body.innerHTML.length > 0)
     return hasContent
 }

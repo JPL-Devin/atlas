@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { navigateToSearch } from '../../helpers/atlas-helpers.js'
+import { navigateToSearch, filterCriticalJsErrors } from '../../helpers/atlas-helpers.js'
 
 /**
  * Mobile workspace switching.
@@ -49,16 +49,7 @@ test.describe('Mobile - workspace switching', () => {
 
         // Filter network/Redux noise that's expected when the API is
         // unreachable; assert nothing else crashed.
-        const critical = errors.filter(
-            (m) =>
-                !m.includes('Failed to fetch') &&
-                !m.includes('NetworkError') &&
-                !m.includes('Cannot read properties of undefined') &&
-                !m.includes('Cannot set properties of null') &&
-                !m.includes('Cannot set properties of undefined') &&
-                !m.includes('toJS is not a function'),
-        )
-        expect(critical).toEqual([])
+        expect(filterCriticalJsErrors(errors)).toEqual([])
     })
 
     test('on mobile, the navigation hamburger remains visible', async ({ page }) => {
@@ -74,14 +65,6 @@ test.describe('Mobile - workspace switching', () => {
         await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
 
         await expect(page.locator('body')).toBeVisible()
-        const critical = errors.filter(
-            (m) =>
-                !m.includes('Failed to fetch') &&
-                !m.includes('NetworkError') &&
-                !m.includes('Cannot read properties of undefined') &&
-                !m.includes('Cannot set properties of null') &&
-                !m.includes('toJS is not a function'),
-        )
-        expect(critical).toEqual([])
+        expect(filterCriticalJsErrors(errors)).toEqual([])
     })
 })

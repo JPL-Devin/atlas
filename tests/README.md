@@ -26,7 +26,11 @@ tests/
 │   │   ├── results-panel.spec.js           # ResultsPanel rendering
 │   │   ├── results-view-modes.spec.js      # grid/list/table tabs + image size + rotate
 │   │   ├── modals.spec.js                  # Information / Add Filter / Edit Columns / Feedback
+│   │   ├── advanced-filter.spec.js         # Basic ↔ Advanced Filters menu + warning modal
 │   │   ├── snackbar.spec.js                # "Added to Cart!" snackbar lifecycle
+│   │   ├── empty-state.spec.js             # Zero-result state ("No Records Found")
+│   │   ├── api-error.spec.js               # 500 / network failure on /_search
+│   │   ├── refresh-preservation.spec.js    # Hard reload preserves URL state
 │   │   └── url-state.spec.js               # /search?... and /record?uri=... round-tripping
 │   ├── record/
 │   │   ├── record-page.spec.js             # /record route
@@ -56,8 +60,10 @@ tests/
 │   ├── mobile/
 │   │   ├── responsive.spec.js              # Mobile viewport (375x667)
 │   │   └── workspace-switching.spec.js     # Mobile filter/map/results panel switching
-│   └── security/
-│       └── headers.spec.js                 # HSTS, x-powered-by, CSP, server hdr
+│   ├── security/
+│   │   └── headers.spec.js                 # HSTS, x-powered-by, CSP, server hdr
+│   └── cross-browser/
+│       └── smoke.spec.js                   # Firefox project smoke (per-route shell + drawer)
 ├── helpers/
 │   └── atlas-helpers.js             # Navigation helpers + JS-error filter
 ├── fixtures/
