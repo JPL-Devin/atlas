@@ -17,6 +17,15 @@ import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-hel
  * `.leaflet-container` is the canonical class Leaflet sets on its
  * root container. It's not a hashed JSS class — Leaflet sets it
  * itself in `leaflet.css`, so it's stable across builds.
+ *
+ * The CartoCosmos `<App>` component (src/CartoCosmos/components/
+ * container/App.jsx) starts with `targetPlanet = 'None'` and only
+ * mounts the Leaflet `<MapContainer>` once a target body is picked
+ * (either via the dropdown or auto-picked from `activeMissions`).
+ * In the test environment, `activeMissions` may not auto-select a
+ * body in time, so the test explicitly picks Mars from the
+ * `TargetDropdown` MUI `<Select>` to deterministically force the
+ * Leaflet mount.
  */
 
 test.describe('Search - secondary (map) panel', () => {
@@ -39,6 +48,20 @@ test.describe('Search - secondary (map) panel', () => {
         await expect(page.getByText('Map', { exact: true })).toBeVisible({
             timeout: 20_000,
         })
+
+        // The TargetDropdown <Select> is the only MUI Select on the
+        // /search page that accepts planet/moon names. If no target
+        // is picked yet, the CartoCosmos shell shows "Select a target
+        // body to get started" and Leaflet never mounts. Explicitly
+        // pick Mars so the test doesn't depend on activeMissions
+        // auto-selecting.
+        const targetSelect = page.locator('.MuiSelect-select').first()
+        await expect(targetSelect).toBeVisible({ timeout: 20_000 })
+        await targetSelect.click()
+
+        // The dropdown listbox is rendered in a portal. Pick "Mars"
+        // (a well-supported PDS body that's always non-disabled).
+        await page.getByRole('option', { name: 'Mars', exact: true }).click()
 
         // Leaflet writes `.leaflet-container` on its root <div>.
         await expect(page.locator('.leaflet-container').first()).toBeVisible({
