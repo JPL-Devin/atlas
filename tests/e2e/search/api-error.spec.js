@@ -4,15 +4,28 @@ import { waitForAppReady } from '../../helpers/atlas-helpers.js'
 /**
  * API error / network failure handling.
  *
- * Atlas talks to a live PDS Elasticsearch endpoint. The suite filters
- * "Failed to fetch" / "Cannot read properties of undefined" downstream
- * crashes by default (see filterCriticalJsErrors in atlas-helpers.js).
- * What we actually want to verify here is that:
+ * Atlas (the web client) and its data backend are independent services
+ * that happen to share a domain in production:
  *
- *   1. Forcing the upstream API to return 5xx does not white-screen
+ *   - Atlas SPA      : https://pds-imaging.jpl.nasa.gov/tools/atlas/*
+ *   - Search proxy   : https://pds-imaging.jpl.nasa.gov/api/...
+ *                      → API Gateway → Lambda → OpenSearch
+ *   - Archive (FileX): https://pds-imaging.jpl.nasa.gov/archive/*
+ *
+ * The SPA hits the search proxy on `/api/search/atlas/_search` for
+ * both the main /search route and the /archive-explorer route
+ * (different filters, same endpoint). Any of API Gateway / Lambda
+ * cold-start / OpenSearch can fail independently of Atlas itself.
+ *
+ * The suite filters "Failed to fetch" / "Cannot read properties of
+ * undefined" downstream crashes by default (see
+ * `filterCriticalJsErrors` in `atlas-helpers.js`). What we actually
+ * want to verify here is that:
+ *
+ *   1. Forcing the search proxy to return 5xx does not white-screen
  *      the SPA shell. The Toolbar / Topbar must remain interactive.
  *   2. The user can still navigate to other routes (/cart,
- *      /archive-explorer) even while /search's API is failing.
+ *      /archive-explorer) even while /search's data path is failing.
  *
  * We deliberately *don't* assert against `filterCriticalJsErrors`
  * here — that helper is built around exactly the network/Redux noise
@@ -20,7 +33,9 @@ import { waitForAppReady } from '../../helpers/atlas-helpers.js'
  */
 
 test.describe('Search - API error handling', () => {
-    test('forcing _search to 500 does not white-screen the SPA shell', async ({ page }) => {
+    test('forcing the search proxy to 500 does not white-screen the SPA shell', async ({
+        page,
+    }) => {
         await page.route(/_search/, async (route) => {
             await route.fulfill({
                 status: 500,
@@ -44,7 +59,9 @@ test.describe('Search - API error handling', () => {
         expect(bodyHasContent).toBeTruthy()
     })
 
-    test('user can still navigate to /cart while /search API is failing', async ({ page }) => {
+    test('user can still navigate to /cart while the search proxy is failing', async ({
+        page,
+    }) => {
         await page.route(/_search/, async (route) => {
             await route.fulfill({
                 status: 500,
@@ -66,7 +83,9 @@ test.describe('Search - API error handling', () => {
         await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
     })
 
-    test('forcing _search to a network error does not crash the SPA shell', async ({ page }) => {
+    test('forcing the search proxy to a network error does not crash the SPA shell', async ({
+        page,
+    }) => {
         // Simulate a hard network failure (DNS / connection reset).
         await page.route(/_search/, async (route) => {
             await route.abort('failed')
@@ -77,5 +96,30 @@ test.describe('Search - API error handling', () => {
 
         await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
         await expect(page.getByRole('button', { name: /go to cart/i })).toBeVisible()
+    })
+
+    test('forcing the search proxy to 500 does not white-screen /archive-explorer', async ({
+        page,
+    }) => {
+        // /archive-explorer hits the same `/api/search/atlas/_search`
+        // endpoint as /search (with different filters), so this also
+        // exercises the FileExplorer's resilience to the search proxy
+        // being unhealthy.
+        await page.route(/_search/, async (route) => {
+            await route.fulfill({
+                status: 500,
+                contentType: 'application/json',
+                body: JSON.stringify({ error: 'forced 500 for test', status: 500 }),
+            })
+        })
+
+        await page.goto('/archive-explorer', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
+        const bodyHasContent = await page.evaluate(
+            () => document.body && document.body.innerHTML.length > 100,
+        )
+        expect(bodyHasContent).toBeTruthy()
     })
 })

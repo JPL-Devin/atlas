@@ -9,9 +9,11 @@ import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-hel
  * (resultsStatuses.NONE in
  * `src/pages/Search/Panels/ResultsPanel/subcomponents/ResultsStatus/ResultsStatus.js`).
  *
- * We force this state deterministically by intercepting the
- * Elasticsearch _search response and rewriting it to a zero-hits
- * payload — that way the test does not depend on the live PDS API
+ * Atlas talks to a search proxy at `/api/search/atlas/_search` (which
+ * itself fans out via API Gateway → Lambda → OpenSearch). We force
+ * the zero-result state deterministically by intercepting that
+ * endpoint and rewriting the response to a zero-hits payload — that
+ * way the test does not depend on the live PDS service chain
  * behaving any particular way.
  */
 
