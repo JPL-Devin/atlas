@@ -33,6 +33,12 @@ test.describe('Performance - long session memory', () => {
             'performance.memory is Chromium-only',
         )
 
+        // Register the pageerror listener BEFORE any navigations
+        // so it actually catches errors thrown during the burn-in
+        // and the 50-navigation main loop.
+        const errors = []
+        page.on('pageerror', (e) => errors.push(e.message))
+
         // Burn-in nav so the SPA gets warm, JIT'd, and any first-load
         // caches populated. Snapshot baseline heap *after* burn-in.
         // Use domcontentloaded only — no networkidle — so the loop
@@ -72,8 +78,6 @@ test.describe('Performance - long session memory', () => {
             `Heap grew from ${baselineHeap} to ${finalHeap} (×${growthRatio.toFixed(2)}) over ${NAV_COUNT} navigations`,
         ).toBeLessThan(4)
 
-        const errors = []
-        page.on('pageerror', (e) => errors.push(e.message))
         expect(filterCriticalJsErrors(errors)).toEqual([])
     })
 })

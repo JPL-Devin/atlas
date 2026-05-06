@@ -57,8 +57,7 @@ test.describe('Cart - localStorage corruption recovery', () => {
             })
 
             // No critical JS errors fired during recovery.
-            const critical = errors.filter((m) => /TypeError|ReferenceError|SyntaxError/.test(m))
-            expect(critical).toEqual([])
+            expect(filterCriticalJsErrors(errors)).toEqual([])
         })
     }
 })
