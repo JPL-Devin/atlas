@@ -22,35 +22,19 @@ test.describe('Mobile Responsive Behavior', () => {
         await expect(body).toBeVisible()
     })
 
-    test('mobile layout shows a single panel (not all three side-by-side)', async ({ page }) => {
+    test('Toolbar navigation hamburger remains visible on mobile', async ({ page }) => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
+        await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
+    })
 
-        // On mobile, only one of {filters, secondary, results} is rendered
-        // at a time. Count visible panels.
-        const visiblePanelCount = await page.evaluate(() => {
-            const panelKeys = ['filterspanel', 'secondarypanel', 'resultspanel']
-            const all = Array.from(document.querySelectorAll('[class]'))
-            const visiblePanels = new Set()
-            for (const el of all) {
-                const cn = (el.className.toString() || '').toLowerCase()
-                for (const key of panelKeys) {
-                    if (cn.includes(key)) {
-                        const r = el.getBoundingClientRect()
-                        if (r.width > 0 && r.height > 0) {
-                            visiblePanels.add(key)
-                        }
-                    }
-                }
-            }
-            return visiblePanels.size
-        })
-
-        // The mobile Search component renders exactly one of the three
-        // panels at a time (default = ResultsPanel). We accept 1.
-        // If the JSS class names changed and we matched 0, that's still
-        // tolerable — the body-visible check above is the hard guard.
-        expect(visiblePanelCount).toBeLessThanOrEqual(2)
+    test('mobile workspace shows panel toggle buttons so users can switch panels', async ({ page }) => {
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
+        // The Search component renders one panel at a time on mobile, but
+        // the workspace toggles are still rendered so the user can switch.
+        await expect(page.getByRole('button', { name: 'filters panel' })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'Results Panel' })).toBeVisible()
     })
 
     test('no horizontal scrollbar on mobile viewport', async ({ page }) => {

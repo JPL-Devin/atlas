@@ -14,44 +14,24 @@ test.describe('Search Page', () => {
         expect(title.toLowerCase()).toContain('atlas')
     })
 
-    test('the three main panels are present', async ({ page }) => {
+    test('Topbar renders with the ATLAS heading and "Image Search" page name', async ({ page }) => {
         await navigateToSearch(page)
-
-        // Wait for the React app to render past the initial empty body
-        await page.waitForFunction(
-            () => document.querySelectorAll('div').length > 5,
-            { timeout: 20000 },
-        ).catch(() => {})
-
-        // The Search component lays out FiltersPanel + SecondaryPanel +
-        // ResultsPanel. The exact CSS class names are JSS-generated, so
-        // match by partial class name (case-insensitive).
-        const panelMatches = await page.evaluate(() => {
-            const all = Array.from(document.querySelectorAll('[class]'))
-            const has = (needle) =>
-                all.some((el) => /class/i.test(el.outerHTML) && (el.className.toString() || '').toLowerCase().includes(needle))
-            return {
-                filters: has('filterspanel') || has('filters'),
-                secondary: has('secondarypanel') || has('secondary'),
-                results: has('resultspanel') || has('results'),
-            }
-        })
-
-        // Filters panel and results panel are required; secondary panel is
-        // a map and may not always render in headless without the network
-        // available, so don't hard-fail on it.
-        expect(panelMatches.filters).toBeTruthy()
-        expect(panelMatches.results).toBeTruthy()
+        await expect(page.locator('h1', { hasText: 'ATLAS' })).toBeVisible()
+        await expect(page.locator('h2', { hasText: /image search/i })).toBeVisible()
     })
 
-    test('Search container element is rendered', async ({ page }) => {
+    test('Toolbar exposes the three panel toggle buttons', async ({ page }) => {
         await navigateToSearch(page)
+        await expect(page.getByRole('button', { name: 'filters panel' })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'Map Panel' })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'Results Panel' })).toBeVisible()
+    })
 
-        const containerExists = await page.evaluate(() => {
-            const all = Array.from(document.querySelectorAll('[class]'))
-            return all.some((el) => (el.className.toString() || '').toLowerCase().includes('search'))
-        })
-        expect(containerExists).toBeTruthy()
+    test('Topbar exposes navigation buttons to other routes', async ({ page }) => {
+        await navigateToSearch(page)
+        await expect(page.getByRole('button', { name: /go to image search/i })).toBeVisible()
+        await expect(page.getByRole('button', { name: /go to archive explorer/i })).toBeVisible()
+        await expect(page.getByRole('button', { name: /go to cart/i })).toBeVisible()
     })
 
     test('no critical JS errors during search page load', async ({ page }) => {

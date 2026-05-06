@@ -19,26 +19,17 @@ test.describe('Routing', () => {
         })
     }
 
-    test('toolbar is rendered on /search', async ({ page }) => {
+    test('Toolbar buttons are rendered on /search', async ({ page }) => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
-
-        const hasToolbar = await page.evaluate(() => {
-            const all = Array.from(document.querySelectorAll('[class]'))
-            return all.some((el) => (el.className.toString() || '').toLowerCase().includes('toolbar'))
-        })
-        expect(hasToolbar).toBeTruthy()
+        await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'filters panel' })).toBeVisible()
     })
 
-    test('topbar is rendered on /search', async ({ page }) => {
+    test('Topbar ATLAS heading is rendered on /search', async ({ page }) => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
-
-        const hasTopbar = await page.evaluate(() => {
-            const all = Array.from(document.querySelectorAll('[class]'))
-            return all.some((el) => (el.className.toString() || '').toLowerCase().includes('topbar'))
-        })
-        expect(hasTopbar).toBeTruthy()
+        await expect(page.locator('h1', { hasText: 'ATLAS' })).toBeVisible()
     })
 
     test('navigation between routes works (client-side router)', async ({ page }) => {
@@ -54,12 +45,8 @@ test.describe('Routing', () => {
         expect(page.url()).toContain('/archive-explorer')
     })
 
-    test('invalid route does not crash the server', async ({ page, request }) => {
-        // Server has an Express 404 handler. The SPA does not register
-        // /this-route-does-not-exist so the server should return a 404 JSON
-        // response (or fall back to the SPA depending on Express order).
+    test('invalid route does not crash the server', async ({ request }) => {
         const res = await request.get('/this-route-does-not-exist', { maxRedirects: 0 })
-        // We don't pin to a specific status — just that the server didn't 500
         expect(res.status()).not.toBe(500)
     })
 })

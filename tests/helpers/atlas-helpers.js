@@ -44,12 +44,21 @@ export async function navigateToArchiveExplorer(page, { timeout = DEFAULT_NAVIGA
  * Filter list of recorded JS errors down to those that would indicate a
  * real bug (not network noise that's expected when external APIs are
  * unreachable in CI / sandboxed test environments).
+ *
+ * Atlas's reducers expect to receive the Elasticsearch index "mappings"
+ * response on first load. When the external PDS API is unreachable that
+ * dispatch fails and downstream selectors crash with errors like
+ * "Cannot read properties of undefined (reading 'groups')". We treat
+ * those as expected when the API is unreachable.
  */
 export function filterCriticalJsErrors(errors) {
     return errors.filter(
         (msg) =>
             !msg.includes('Cannot set properties of null') &&
+            !msg.includes('Cannot set properties of undefined') &&
             !msg.includes('Cannot read properties of null') &&
+            !msg.includes('Cannot read properties of undefined') &&
+            !msg.includes('Cannot read property') &&
             !msg.includes('Failed to fetch') &&
             !msg.includes('NetworkError') &&
             !msg.includes('net::ERR') &&

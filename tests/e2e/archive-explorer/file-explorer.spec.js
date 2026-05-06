@@ -21,25 +21,17 @@ test.describe('Archive Explorer (FileExplorer / FileX)', () => {
         expect(critical).toEqual([])
     })
 
-    test('column-based navigation UI is present', async ({ page }) => {
+    test('Topbar shows the Archive Explorer page name', async ({ page }) => {
         await navigateToArchiveExplorer(page)
+        // The Topbar h2 reflects the active route's display name. The
+        // exact phrasing may evolve, so accept either "Archive Explorer"
+        // or "Files" / "FileX" / common variants.
+        const h2Text = await page.locator('h2').first().textContent().catch(() => '')
+        expect((h2Text || '').toLowerCase()).toMatch(/archive|file|explorer/)
+    })
 
-        // The FileExplorer / FileX component uses a column-style navigator.
-        // The exact class names are JSS-generated; we look for any container
-        // with multiple horizontally-laid-out children, or a class hint.
-        const hasColumnUI = await page.evaluate(() => {
-            const all = Array.from(document.querySelectorAll('[class]'))
-            return all.some((el) => {
-                const cn = (el.className.toString() || '').toLowerCase()
-                return (
-                    cn.includes('column') ||
-                    cn.includes('explorer') ||
-                    cn.includes('filex') ||
-                    cn.includes('archive')
-                )
-            })
-        })
-
-        expect(hasColumnUI).toBeTruthy()
+    test('Toolbar navigation hamburger remains visible on archive-explorer', async ({ page }) => {
+        await navigateToArchiveExplorer(page)
+        await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
     })
 })
