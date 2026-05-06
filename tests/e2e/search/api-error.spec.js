@@ -4,18 +4,25 @@ import { waitForAppReady } from '../../helpers/atlas-helpers.js'
 /**
  * API error / network failure handling.
  *
- * Atlas (the web client) and its data backend are independent services
- * that happen to share a domain in production:
+ * Atlas (the web client) and the data services it depends on are
+ * independent services that happen to share a domain in production:
  *
- *   - Atlas SPA      : https://pds-imaging.jpl.nasa.gov/tools/atlas/*
- *   - Search proxy   : https://pds-imaging.jpl.nasa.gov/api/...
- *                      → API Gateway → Lambda → OpenSearch
- *   - Archive (FileX): https://pds-imaging.jpl.nasa.gov/archive/*
+ *   - Atlas SPA    : https://pds-imaging.jpl.nasa.gov/tools/atlas/*
+ *   - Search proxy : https://pds-imaging.jpl.nasa.gov/api/...
+ *                    → API Gateway → Lambda → OpenSearch
+ *   - Archive      : https://pds-imaging.jpl.nasa.gov/archive/*
+ *                    (data access — binary image content / asset bytes,
+ *                     used by /search thumbnails, /record's full-res
+ *                     OpenSeadragon viewer, and anywhere else images
+ *                     get rendered. NOT tied to /archive-explorer —
+ *                     that page hits the search proxy like /search.)
  *
  * The SPA hits the search proxy on `/api/search/atlas/_search` for
  * both the main /search route and the /archive-explorer route
  * (different filters, same endpoint). Any of API Gateway / Lambda
  * cold-start / OpenSearch can fail independently of Atlas itself.
+ * Image URLs are constructed in `src/core/utils.js#getPDSUrl` and
+ * point at the `/archive` data service.
  *
  * The suite filters "Failed to fetch" / "Cannot read properties of
  * undefined" downstream crashes by default (see
@@ -121,5 +128,30 @@ test.describe('Search - API error handling', () => {
             () => document.body && document.body.innerHTML.length > 100,
         )
         expect(bodyHasContent).toBeTruthy()
+    })
+
+    test('aborting all /archive image requests does not crash the SPA shell', async ({
+        page,
+    }) => {
+        // The /archive data service serves binary image bytes for
+        // thumbnails on /search and the full-res viewer on /record.
+        // It can fail independently of the search proxy. Aborting all
+        // /archive requests should leave broken image placeholders
+        // but the SPA shell must remain fully interactive.
+        await page.route(/\/archive\//, async (route) => {
+            await route.abort('failed')
+        })
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
+        await expect(page.getByRole('button', { name: /go to cart/i })).toBeVisible()
+
+        // Click-nav still works — image fetch failures don't poison
+        // the SPA's event loop or routing.
+        await page.getByRole('button', { name: /go to cart/i }).click()
+        await page.waitForURL((u) => u.pathname.includes('/cart'), { timeout: 30_000 })
+        expect(page.url()).toContain('/cart')
     })
 })
