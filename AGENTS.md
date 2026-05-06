@@ -135,17 +135,17 @@ tests/
 ├── e2e/
 │   ├── smoke.spec.js                       # SPA shell + redirect + stylesheets
 │   ├── startup/                            # /_health, /robots.txt, per-route shell
-│   ├── search/                             # Search route (12 specs)
-│   ├── record/                             # /record (2 specs)
-│   ├── cart/                               # /cart (4 specs)
-│   ├── archive-explorer/                   # FileX (2 specs)
-│   ├── navigation/                         # Routing + click nav + drawer (5 specs)
-│   ├── integration/                        # /search → /record → /cart e2e
-│   ├── performance/                        # Load timing + JS heap
-│   ├── accessibility/                      # axe-core + a11y basics
-│   ├── mobile/                             # 375x667 viewport
-│   ├── security/                           # Headers
-│   └── cross-browser/                      # Firefox-only smoke
+│   ├── search/                             # Search route (16 specs)
+│   ├── record/                             # /record (4 specs)
+│   ├── cart/                               # /cart (8 specs)
+│   ├── archive-explorer/                   # FileX (3 specs)
+│   ├── navigation/                         # Routing + click nav + drawer (6 specs)
+│   ├── integration/                        # /search → /record → /cart e2e (1 spec)
+│   ├── performance/                        # Load timing + JS heap (3 specs)
+│   ├── accessibility/                      # axe-core + a11y basics (4 specs)
+│   ├── mobile/                             # 375x667 viewport + tablet (3 specs)
+│   ├── security/                           # Headers + XSS + CSP (4 specs)
+│   └── cross-browser/                      # Firefox-only smoke (1 spec)
 ├── helpers/atlas-helpers.js                # navigateTo*, filterCriticalJsErrors, waitForAppReady
 ├── fixtures/search-params.js
 ├── global-setup.js                         # Builds if `build/atlas/` is missing

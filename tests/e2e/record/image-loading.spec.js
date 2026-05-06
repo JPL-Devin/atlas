@@ -51,16 +51,20 @@ test.describe('Record - image bytes load via the data service', () => {
             test.skip(true, 'Upstream Atlas API not returning results in this environment')
         }
 
-        // Snapshot then reset the counter — we only care about
-        // requests fired while on /record.
         await firstCard.click()
         await page.waitForURL(/\/record\?uri=/, { timeout: SHORT_RESULT_WAIT_MS })
+
+        // Reset immediately after the URL change and BEFORE
+        // `waitForAppReady` — that helper waits for `networkidle`
+        // (500ms with no in-flight requests), so any OSD tile
+        // requests that fire during the page's settling window would
+        // already be counted-then-discarded if we reset afterwards.
+        imageRequestCount = 0
         await waitForAppReady(page)
 
-        // Reset; capture only post-record requests.
-        imageRequestCount = 0
-        // Give OSD time to construct + dispatch tile fetches.
-        await page.waitForTimeout(5_000)
+        // Give OSD a little extra to dispatch tile fetches in case
+        // they trail the networkidle window.
+        await page.waitForTimeout(2_000)
 
         expect(imageRequestCount).toBeGreaterThan(0)
         expect(filterCriticalJsErrors(errors)).toEqual([])
