@@ -11,7 +11,7 @@ import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-hel
  *
  * The record page is opened by clicking a result on /search. We rely
  * on the same pattern as `tests/e2e/integration/search-to-cart.spec.js`
- * — wait for `.GridViewMasonryItem`, click the first one, wait for
+ * — wait for the first `[result-id]` card, click it, wait for
  * `/record?uri=…`. If no result renders within the budget, the test
  * gracefully self-skips so the suite is safe in network-restricted CI.
  */
@@ -22,7 +22,7 @@ async function openFirstRecordFromSearch(page) {
     await page.goto('/search', { waitUntil: 'domcontentloaded' })
     await waitForAppReady(page)
 
-    const firstCard = page.locator('.GridViewMasonryItem').first()
+    const firstCard = page.locator('[result-id]').first()
     try {
         await firstCard.waitFor({ state: 'visible', timeout: SHORT_RESULT_WAIT_MS })
     } catch {

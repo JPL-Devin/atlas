@@ -17,7 +17,7 @@ import { filterCriticalJsErrors, waitForAppReady } from '../../helpers/atlas-hel
  * Data dependency: this test relies on the upstream Atlas Elasticsearch
  * API (`REACT_APP_DOMAIN`) being reachable and returning at least one
  * result. When the API is offline (e.g. CI without network egress),
- * `.GridViewMasonryItem` will never render and the test gracefully
+ * no `[result-id]` element will ever render and the test gracefully
  * skips itself rather than failing.
  */
 
@@ -37,7 +37,7 @@ test.describe('E2E - search → record → cart', () => {
         // 2) Wait for at least one result card to render. If the API is
         //    unreachable we skip the test rather than fail — see the
         //    docstring above.
-        const firstCard = page.locator('.GridViewMasonryItem').first()
+        const firstCard = page.locator('[result-id]').first()
         try {
             await firstCard.waitFor({ state: 'visible', timeout: SHORT_RESULT_WAIT_MS })
         } catch {
@@ -87,7 +87,7 @@ test.describe('E2E - search → record → cart', () => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await waitForAppReady(page)
 
-        const firstCard = page.locator('.GridViewMasonryItem').first()
+        const firstCard = page.locator('[result-id]').first()
         try {
             await firstCard.waitFor({ state: 'visible', timeout: SHORT_RESULT_WAIT_MS })
         } catch {

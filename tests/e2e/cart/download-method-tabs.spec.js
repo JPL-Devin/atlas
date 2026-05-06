@@ -28,7 +28,7 @@ async function addOneItemToCart(page) {
     await page.goto('/search', { waitUntil: 'domcontentloaded' })
     await waitForAppReady(page)
 
-    const firstCard = page.locator('.GridViewMasonryItem').first()
+    const firstCard = page.locator('[result-id]').first()
     try {
         await firstCard.waitFor({ state: 'visible', timeout: SHORT_RESULT_WAIT_MS })
     } catch {

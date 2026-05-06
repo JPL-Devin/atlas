@@ -73,7 +73,7 @@ Root `/` 307-redirects to `/search`.
 
 The codebase uses **MUI 5** with `@mui/styles/makeStyles`, which
 generates **hashed JSS class names** (`jss1`, `jss10`, …) that change
-between builds. **Never use class-based selectors in tests.**
+between builds. **Never select on those hashed classes.**
 
 Stable selector strategy (in order of preference):
 
@@ -81,7 +81,16 @@ Stable selector strategy (in order of preference):
 2. `getByLabel(text)` / `getByPlaceholder(text)`
 3. `getByText(text, { exact })`
 4. `aria-label="..."` via attribute selectors
-5. XPath axes (`following::`, `ancestor::`) for proximity-based scoping
+5. Custom data attributes (e.g. `[result-id]`) and **stable**,
+   manually-set class names (e.g. `.GridViewMasonryItem`) are fine
+6. XPath axes (`following::`, `ancestor::`) for proximity-based scoping
+
+The rule is about **avoiding selectors that depend on JSS hashes**
+(which change every build), not about class selectors in general.
+If a class name is set explicitly in source (`className="FooBar"`)
+and isn't going to be renamed for cosmetic reasons, it's a fine
+selector — usually `getByRole` is still preferable for semantics,
+but not a hard rule.
 
 ### Component → role cheat sheet
 
@@ -204,7 +213,9 @@ additional CI checks beyond Devin Review.
 - Don't access the parent directory of the project (see
   `.cursorrules`).
 - Don't click bulk-download buttons (see top of file).
-- Don't use class-name selectors in Playwright tests.
+- Don't select on MUI's hashed JSS class names (`jss1`, `jss10`,
+  etc.) — they change every build. Stable manually-set class names
+  (e.g. `.GridViewMasonryItem`) and data attributes are fine.
 - Don't assume `npm run build` will pick up `.env` changes mid-test —
   the build is cached in `build/atlas/` and `tests/global-setup.js`
   only rebuilds if that directory is missing. Delete the directory

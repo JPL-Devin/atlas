@@ -20,7 +20,7 @@ test.describe('Snackbar - "Added to Cart!"', () => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await waitForAppReady(page)
 
-        const firstCard = page.locator('.GridViewMasonryItem').first()
+        const firstCard = page.locator('[result-id]').first()
         try {
             await firstCard.waitFor({ state: 'visible', timeout: SHORT_RESULT_WAIT_MS })
         } catch {
@@ -45,7 +45,7 @@ test.describe('Snackbar - "Added to Cart!"', () => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await waitForAppReady(page)
 
-        const firstCard = page.locator('.GridViewMasonryItem').first()
+        const firstCard = page.locator('[result-id]').first()
         try {
             await firstCard.waitFor({ state: 'visible', timeout: SHORT_RESULT_WAIT_MS })
         } catch {
