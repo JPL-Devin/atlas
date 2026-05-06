@@ -98,7 +98,5 @@ test.describe('Basic Accessibility', () => {
         expect(true).toBe(true)
     })
 
-    test('detailed axe-core audit (skipped — requires @axe-core/playwright)', async () => {
-        test.skip(true, 'SKIP: Detailed accessibility testing requires @axe-core/playwright')
-    })
+    // Detailed axe-core audits live in `tests/e2e/accessibility/axe.spec.js`.
 })

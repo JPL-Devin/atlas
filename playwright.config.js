@@ -1,4 +1,11 @@
 import { defineConfig, devices } from '@playwright/test'
+import dotenv from 'dotenv'
+
+// Load .env so REACT_APP_DOMAIN (and any other developer-specific
+// settings) flow through to the Playwright-managed webServer below.
+// .env is gitignored, so CI environments still rely on the explicit
+// fallback in `webServer.env`.
+dotenv.config()
 
 /**
  * Playwright configuration for Atlas

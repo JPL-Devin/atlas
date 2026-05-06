@@ -73,12 +73,15 @@ const NON_CRITICAL_ERROR_PATTERNS = [
     'AbortError',
     '404',
     // Category 2: downstream Redux/selector crashes when the API
-    // payload is missing
+    // payload is missing. Atlas state is held in immutable.js Maps; when
+    // a reducer receives `undefined` instead of a Map, selectors that
+    // call `.toJS()` / `.get(...).toJS()` throw with these messages.
     'Cannot set properties of null',
     'Cannot set properties of undefined',
     'Cannot read properties of null',
     'Cannot read properties of undefined',
     'Cannot read property',
+    'toJS is not a function',
 ]
 
 export function filterCriticalJsErrors(errors) {
