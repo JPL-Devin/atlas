@@ -22,21 +22,29 @@ tests/
 │   ├── search/
 │   │   ├── search-page.spec.js             # Search route container + panels
 │   │   ├── filters-panel.spec.js           # FiltersPanel rendering
+│   │   ├── filter-input.spec.js            # Text Search input enable/disable + Restart
 │   │   ├── results-panel.spec.js           # ResultsPanel rendering
+│   │   ├── results-view-modes.spec.js      # grid/list/table tabs + image size + rotate
 │   │   ├── modals.spec.js                  # Information / Add Filter / Edit Columns / Feedback
+│   │   ├── snackbar.spec.js                # "Added to Cart!" snackbar lifecycle
 │   │   └── url-state.spec.js               # /search?... and /record?uri=... round-tripping
 │   ├── record/
-│   │   └── record-page.spec.js             # /record route
+│   │   ├── record-page.spec.js             # /record route
+│   │   └── record-controls.spec.js         # Tab switching + OpenSeadragon controls
 │   ├── cart/
 │   │   ├── cart-page.spec.js               # /cart route
-│   │   └── cart-modals.spec.js             # RemoveFromCart / EmptyCart confirmations
+│   │   ├── cart-modals.spec.js             # RemoveFromCart / EmptyCart confirmations
+│   │   ├── cart-confirm.spec.js            # Confirm-yes destructive paths
+│   │   └── download-method-tabs.spec.js    # Tab switching (Download button NOT clicked)
 │   ├── archive-explorer/
-│   │   └── file-explorer.spec.js           # /archive-explorer (FileX)
+│   │   ├── file-explorer.spec.js           # /archive-explorer (FileX)
+│   │   └── column-drilling.spec.js         # Mission-column drilling + URI Regex modal
 │   ├── navigation/
 │   │   ├── routing.spec.js                 # All four routes load without crashing
 │   │   ├── toolbar.spec.js                 # Toolbar rendering / structural
 │   │   ├── click-navigation.spec.js        # Topbar buttons actually navigate
-│   │   └── toolbar-drawer.spec.js          # Drawer hamburger reveals nav links
+│   │   ├── toolbar-drawer.spec.js          # Drawer hamburger reveals nav links
+│   │   └── drawer-all-items.spec.js        # All 12 drawer items + Topbar branding hrefs
 │   ├── integration/
 │   │   └── search-to-cart.spec.js          # /search → /record → /cart end-to-end
 │   ├── performance/
