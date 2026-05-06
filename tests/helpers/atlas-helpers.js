@@ -45,24 +45,42 @@ export async function navigateToArchiveExplorer(page, { timeout = DEFAULT_NAVIGA
  * real bug (not network noise that's expected when external APIs are
  * unreachable in CI / sandboxed test environments).
  *
- * Atlas's reducers expect to receive the Elasticsearch index "mappings"
- * response on first load. When the external PDS API is unreachable that
- * dispatch fails and downstream selectors crash with errors like
- * "Cannot read properties of undefined (reading 'groups')". We treat
- * those as expected when the API is unreachable.
+ * Two categories are filtered out:
+ *
+ * 1. Direct network errors. Atlas talks to a live PDS Elasticsearch
+ *    endpoint (`https://pds-imaging.jpl.nasa.gov/api`). When tests run
+ *    behind a firewall or when that endpoint is briefly unavailable,
+ *    `fetch()` rejects and the browser logs `Failed to fetch`,
+ *    `NetworkError`, `net::ERR_*`, `AbortError`, or `404`.
+ *
+ * 2. Downstream consequences of (1). Atlas's Redux reducers (e.g.
+ *    `addMappingsToFilters`) assume the API responded with a
+ *    well-formed mappings document. When the request fails, the action
+ *    payload is undefined and selectors throw
+ *    `Cannot read properties of undefined (reading 'groups')` /
+ *    `Cannot set properties of null`. Those crashes are *symptoms* of
+ *    the unreachable API, not regressions in the code under test, so
+ *    they are filtered too.
+ *
+ * If you are tracking down an actual regression, comment out (2) first
+ * to surface the underlying error.
  */
+const NON_CRITICAL_ERROR_PATTERNS = [
+    // Category 1: direct network errors
+    'Failed to fetch',
+    'NetworkError',
+    'net::ERR',
+    'AbortError',
+    '404',
+    // Category 2: downstream Redux/selector crashes when the API
+    // payload is missing
+    'Cannot set properties of null',
+    'Cannot set properties of undefined',
+    'Cannot read properties of null',
+    'Cannot read properties of undefined',
+    'Cannot read property',
+]
+
 export function filterCriticalJsErrors(errors) {
-    return errors.filter(
-        (msg) =>
-            !msg.includes('Cannot set properties of null') &&
-            !msg.includes('Cannot set properties of undefined') &&
-            !msg.includes('Cannot read properties of null') &&
-            !msg.includes('Cannot read properties of undefined') &&
-            !msg.includes('Cannot read property') &&
-            !msg.includes('Failed to fetch') &&
-            !msg.includes('NetworkError') &&
-            !msg.includes('net::ERR') &&
-            !msg.includes('AbortError') &&
-            !msg.includes('404'),
-    )
+    return errors.filter((msg) => !NON_CRITICAL_ERROR_PATTERNS.some((pattern) => msg.includes(pattern)))
 }

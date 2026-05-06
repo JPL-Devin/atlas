@@ -66,10 +66,8 @@ export default async function globalSetup() {
     const buildDir = resolve(cwd, 'build/atlas')
 
     if (!existsSync(buildDir)) {
-        // eslint-disable-next-line no-console
         console.log('[global-setup] Build not found, running npm run build...')
         buildAppWithEmptyPublicUrl(cwd)
     }
-    // eslint-disable-next-line no-console
     console.log('[global-setup] Build ready.')
 }
