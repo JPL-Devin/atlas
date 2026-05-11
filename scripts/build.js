@@ -15,16 +15,17 @@ process.on('unhandledRejection', (err) => {
 require('../config/env')
 
 const path = require('path')
-const chalk = require('react-dev-utils/chalk')
+const chalk = require('chalk')
 const fs = require('fs-extra')
 const webpack = require('webpack')
 const configFactory = require('../config/webpack.config')
 const paths = require('../config/paths')
-const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles')
-const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages')
-const printHostingInstructions = require('react-dev-utils/printHostingInstructions')
-const FileSizeReporter = require('react-dev-utils/FileSizeReporter')
-const printBuildError = require('react-dev-utils/printBuildError')
+const {
+    formatWebpackMessages,
+    printBuildError,
+    FileSizeReporter,
+    checkBrowsers,
+} = require('../config/build-utils')
 
 const measureFileSizesBeforeBuild = FileSizeReporter.measureFileSizesBeforeBuild
 const printFileSizesAfterBuild = FileSizeReporter.printFileSizesAfterBuild
@@ -37,7 +38,10 @@ const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024
 const isInteractive = process.stdout.isTTY
 
 // Warn and crash if required files are missing
-if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
+if (!fs.existsSync(paths.appHtml) || !fs.existsSync(paths.appIndexJs)) {
+    console.log(chalk.red('Could not find one of the required files:'))
+    console.log(chalk.red('  ' + paths.appHtml))
+    console.log(chalk.red('  ' + paths.appIndexJs))
     process.exit(1)
 }
 
@@ -46,7 +50,6 @@ const config = configFactory('production')
 
 // We require that you explicitly set browsers and do not fall back to
 // browserslist defaults.
-const { checkBrowsers } = require('react-dev-utils/browsersHelper')
 checkBrowsers(paths.appPath, isInteractive)
     .then(() => {
         // First, read the current file sizes in build directory.
@@ -91,11 +94,8 @@ checkBrowsers(paths.appPath, isInteractive)
             )
             console.log()
 
-            const appPackage = require(paths.appPackageJson)
-            const publicUrl = paths.publicUrl
-            const publicPath = config.output.publicPath
             const buildFolder = path.relative(process.cwd(), paths.appBuild)
-            printHostingInstructions(appPackage, publicUrl, publicPath, buildFolder, useYarn)
+            console.log(`The ${chalk.cyan(buildFolder)} folder is ready to be deployed.`)
         },
         (err) => {
             const tscCompileOnError = process.env.TSC_COMPILE_ON_ERROR === 'true'

@@ -5,7 +5,7 @@ const fs = require('fs')
 const axios = require('axios')
 const helmet = require('helmet')
 const uuidv4 = require('uuid').v4
-const bodyParser = require('body-parser')
+
 const compression = require('compression')
 const paths = require('../config/paths')
 
@@ -84,15 +84,15 @@ const csp = {
             'blob:',
         ],
         connectSrc: ['*.jpl.nasa.gov', '*.amazonaws.com', '*.cloudfront.net', '*.arizona.edu'],
-        frameAncestors: "'self'",
+        frameAncestors: ["'self'"],
     },
 }
 if (process.env.NODE_ENV === 'development' || process.env.DISABLE_CSP === 'true')
     csp.directives = {}
 else app.use(helmet.contentSecurityPolicy(csp))
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 app.get('/_health', (req, res) => {
     res.status(200).send({
