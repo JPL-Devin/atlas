@@ -23,7 +23,24 @@
     "test": "node scripts/test.js",
     "docs": "jsdoc -c jsdoc.conf.json",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
-    "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix"
+    "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test tests/e2e/smoke.spec.js",
+    "test:e2e:search": "playwright test tests/e2e/search",
+    "test:e2e:record": "playwright test tests/e2e/record",
+    "test:e2e:cart": "playwright test tests/e2e/cart",
+    "test:e2e:archive": "playwright test tests/e2e/archive-explorer",
+    "test:e2e:navigation": "playwright test tests/e2e/navigation",
+    "test:e2e:performance": "playwright test tests/e2e/performance",
+    "test:e2e:security": "playwright test tests/e2e/security",
+    "test:e2e:accessibility": "playwright test tests/e2e/accessibility",
+    "test:e2e:mobile": "playwright test tests/e2e/mobile",
+    "test:e2e:integration": "playwright test tests/e2e/integration",
+    "test:e2e:startup": "playwright test tests/e2e/startup",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report playwright-report"
   },
   "dependencies": {
     "@babel/runtime": "^7.28.2",
@@ -165,7 +182,9 @@
     ]
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@babel/core": "^7.29.0",
+    "@playwright/test": "^1.59.1",
     "@svgr/webpack": "^8.1.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
