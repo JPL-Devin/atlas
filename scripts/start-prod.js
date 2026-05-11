@@ -164,7 +164,7 @@ app.get(rootPath, (req, res) => {
 })
 
 // Build route array with PUBLIC_URL prefix (excluding root)
-const baseRoutes = ['/search', '/record', '/cart', '/archive-explorer*']
+const baseRoutes = ['/search', '/record', '/cart', '/archive-explorer', '/archive-explorer/*path']
 const appRoutes = runtimeConfig.PUBLIC_URL
     ? [...baseRoutes, ...baseRoutes.map((route) => `${runtimeConfig.PUBLIC_URL}${route}`)]
     : baseRoutes
