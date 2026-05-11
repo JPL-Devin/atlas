@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test'
+import fs from 'fs'
+import { firefox } from 'playwright-core'
 import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-helpers.js'
 
 /**
@@ -18,11 +20,32 @@ import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-hel
  *
  * Anything more involved (filters, modals, OpenSeadragon) is left
  * to the chromium project, which is the canonical CI suite.
+ *
+ * Firefox is an optional Playwright browser. If a contributor has only
+ * run `npx playwright install chromium` (or used the bare `chromium`
+ * project), the firefox binary won't be on disk and `browserType.launch`
+ * would otherwise fail with `Executable doesn't exist at <path>`.
+ * Rather than fail the whole suite, we detect the missing binary at
+ * module-load time and skip the firefox project with a clear hint.
  */
 
 const ROUTES = ['/search', '/record', '/cart', '/archive-explorer']
 
+const firefoxBinaryExists = (() => {
+    try {
+        const path = firefox.executablePath()
+        return Boolean(path) && fs.existsSync(path)
+    } catch {
+        return false
+    }
+})()
+
 test.describe('Cross-browser smoke', () => {
+    test.skip(
+        !firefoxBinaryExists,
+        'Firefox not installed for Playwright. Run `npx playwright install firefox` to enable cross-browser smoke tests.',
+    )
+
     for (const route of ROUTES) {
         test(`route ${route} renders SPA shell without a critical JS error`, async ({
             page,
