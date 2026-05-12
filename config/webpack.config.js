@@ -15,7 +15,7 @@ const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 const paths = require("./paths");
 const modules = require("./modules");
 const getClientEnvironment = require("./env");
-const html2pug = require("html2pug");
+const { htmlToPug } = require("./build-utils");
 
 const appPackageJson = require(paths.appPackageJson);
 
@@ -628,7 +628,7 @@ class HTML2PugPlugin {
             // Make a pug copy of index.html too
             const htmlStr = fs.readFileSync(`${this.htmlPath}/index.html`, "utf8")
 
-            let pugStr = html2pug(htmlStr, {})
+            let pugStr = htmlToPug(htmlStr)
 
             // Replace absolute paths with publicUrl variable for runtime configuration
             // If webpack publicPath includes a prefix, strip it first to avoid double-prefixing
