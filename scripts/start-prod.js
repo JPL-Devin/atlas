@@ -83,7 +83,7 @@ const csp = {
             'data:',
             'blob:',
         ],
-        connectSrc: ['*.jpl.nasa.gov', '*.amazonaws.com', '*.cloudfront.net', '*.arizona.edu'],
+        connectSrc: ["'self'", '*.jpl.nasa.gov', '*.amazonaws.com', '*.cloudfront.net', '*.arizona.edu'],
         frameAncestors: ["'self'"],
     },
 }
