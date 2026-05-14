@@ -55,6 +55,7 @@ export const WGETCart = (statusCallback, finishCallback, setOnStop, productKeys,
                 await task()
             }
             if (!stopped) createWGETFile(datestamp, finishCallback)
+            else if (typeof finishCallback === 'function') finishCallback(false)
         }
 
         callTasks()

@@ -55,6 +55,7 @@ export const TXTCart = (statusCallback, finishCallback, setOnStop, productKeys, 
                 await task()
             }
             if (!stopped) createTXTFile(datestamp, finishCallback)
+            else if (typeof finishCallback === 'function') finishCallback(false)
         }
 
         callTasks()

@@ -55,6 +55,7 @@ export const CURLCart = (statusCallback, finishCallback, setOnStop, productKeys,
                 await task()
             }
             if (!stopped) createCURLFile(datestamp, finishCallback)
+            else if (typeof finishCallback === 'function') finishCallback(false)
         }
 
         callTasks()
