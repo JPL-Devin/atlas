@@ -1662,7 +1662,7 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
                                       },
                                   }
                                 : null
-                        if (nextVolActive) dispatch(updateFilexColumn(2, nextVolActive))
+                        if (nextVolActive) dispatch(updateFilexColumn(1, nextVolActive))
 
                         let rawPath = url.query.uri || ''
                         const splittedUri = splitUri(rawPath)
