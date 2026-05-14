@@ -1692,7 +1692,7 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
                                     uriPrefix +
                                     rawPath.substring(
                                         0,
-                                        lastMatch + key.length + (isFinalFile ? 0 : 1)
+                                        lastMatch + key.length + 1
                                     )
                                 // || rawPathFinal === key
 
@@ -1703,6 +1703,7 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
                                             active: {
                                                 key: isFinalFile ? key.slice(0, -1) : key,
                                                 uri: isFinalFile ? uri.slice(0, -1) : uri,
+                                                fs_type: isFinalFile ? 'file' : null,
                                                 _needsData: isFinalFile,
                                             },
                                         },
