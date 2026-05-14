@@ -753,6 +753,8 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
             ES_PATHS.product_type.join('.'),
             ES_PATHS.start_time.join('.'),
             ES_PATHS.ml_classifications.join('.'),
+            ES_PATHS.geo_location.join('.'),
+            ES_PATHS.geo_footprint.join('.'),
         ]
 
         if (resultsTable?.columns?.length > 0) {
