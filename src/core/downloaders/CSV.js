@@ -54,7 +54,7 @@ export const CSVCart = (statusCallback, finishCallback, setOnStop, productKeys, 
                 if (stopped) break
                 await task()
             }
-            createCSVFile(datestamp, finishCallback)
+            if (!stopped) createCSVFile(datestamp, finishCallback)
         }
 
         callTasks()
