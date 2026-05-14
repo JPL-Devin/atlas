@@ -51,8 +51,8 @@ const MapListener = (props) => {
                     ? rawTargetList.map((t) => t.toLowerCase())
                     : [String(rawTargetList).toLowerCase()]
                 if (targetList.includes(target)) {
-                    const lng = pos[0]
-                    const lat = pos[1]
+                    const lat = pos[0]
+                    const lng = pos[1]
                     window.circleMarker = L.circleMarker([lat, lng], {
                         radius: 5,
                         color: 'white',
@@ -88,8 +88,8 @@ const MapListener = (props) => {
                         ? rawTargetList.map((t) => t.toLowerCase())
                         : [String(rawTargetList).toLowerCase()]
                     if (targetList.includes(mapTarget)) {
-                        const lng = pos[0]
-                        const lat = pos[1]
+                        const lat = pos[0]
+                        const lng = pos[1]
                         const marker = L.marker([lat, lng], { icon: icon })
                             .on('click', handleClick)
                             .on('mouseover', handleHover)
