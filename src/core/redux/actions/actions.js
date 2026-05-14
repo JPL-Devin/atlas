@@ -425,6 +425,7 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                                 }
                                 break
                             case 'geo_bounding_box':
+                            case 'geo_shape':
                                 break
                             default:
                                 if (facet.nestedPath) {
@@ -557,6 +558,8 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                                         },
                                     })
                                 }
+                                break
+                            case 'geo_shape':
                                 break
                             case 'geo_bounding_box':
                                 if (facet.state.range != null && facet.state.range.length > 0) {
