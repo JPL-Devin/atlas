@@ -135,9 +135,53 @@ export const formatMappings = (schema) => {
                             ],
                         })
                         break
+                    case 'geo_point':
+                        setIn(facets, nextPathSplit, {
+                            display_name: propName,
+                            description: '',
+                            tags: [],
+                            facets: [
+                                {
+                                    field_name: 'longitude',
+                                    field: field,
+                                    term: 'lon',
+                                    type: 'geo_bounding_box',
+                                    units: 'degrees',
+                                    component: 'slider_range',
+                                    props: { min: -180, max: 180, step: 0.1 },
+                                    nestedPath: nestedPath || false,
+                                },
+                                {
+                                    field_name: 'latitude',
+                                    field: field,
+                                    term: 'lat',
+                                    type: 'geo_bounding_box',
+                                    units: 'degrees',
+                                    component: 'slider_range',
+                                    props: { min: -90, max: 90, step: 0.1 },
+                                    nestedPath: nestedPath || false,
+                                },
+                            ],
+                        })
+                        break
+                    case 'geo_shape':
+                        setIn(facets, nextPathSplit, {
+                            display_name: propName,
+                            description: 'A geographic shape field (e.g., footprint polygon)',
+                            tags: [],
+                            facets: [
+                                {
+                                    field_name: propName,
+                                    field: field,
+                                    type: 'geo_shape',
+                                    units: '',
+                                    component: 'text',
+                                    nestedPath: nestedPath || false,
+                                },
+                            ],
+                        })
+                        break
                     default:
-                        // geo_point
-                        // Undo add
                         break
                 }
             }
