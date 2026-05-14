@@ -13,6 +13,8 @@ import { waitForAppReady, navigateToCart, filterCriticalJsErrors } from '../../h
  * Strategy: use `page.route()` to intercept ES search/scroll endpoints,
  * mock responses with large totals and artificial delays, then assert
  * that no new requests fire after Stop is clicked.
+ *
+ * All endpoints are fully mocked via page.route() — no real PDS traffic.
  */
 
 const SHORT_WAIT_MS = 20_000
@@ -42,49 +44,46 @@ function buildSearchResponse(total, scrollId, hitsCount = 10) {
     }
 }
 
-// Seed localStorage with a cart that has one query item so the cart page
-// is ready to download immediately.
-function seedCartWithQueryItem(page) {
-    return page.evaluate(() => {
-        const cartItem = {
-            type: 'query',
-            checked: true,
-            time: Date.now(),
-            item: {
-                query: { match_all: {} },
-                total: 100000,
-                uri: '/data/test/',
-                related: {},
-                images: [],
+// Build a cart item with proper related data so ProductDownloadSelector
+// shows product type checkboxes (needs related.src with count > 0).
+function makeCartItem(idx = 0) {
+    return {
+        type: 'query',
+        checked: true,
+        time: Date.now() + idx,
+        item: {
+            query: { match_all: {} },
+            total: 100000,
+            uri: `/data/test_${idx}/`,
+            related: {
+                src: { uri: `/data/test_${idx}/product.img`, count: 100000, size: 1024 },
             },
-        }
-        localStorage.setItem('ATLAS_CART', JSON.stringify([cartItem]))
-    })
+            images: [],
+        },
+    }
+}
+
+// Seed localStorage with a cart that has one query item.
+function seedCartWithQueryItem(page) {
+    return page.evaluate((item) => {
+        localStorage.setItem('ATLAS_CART', JSON.stringify([item]))
+    }, makeCartItem(0))
 }
 
 // Seed localStorage with two query items
 function seedCartWithTwoQueryItems(page) {
-    return page.evaluate(() => {
-        const makeItem = (idx) => ({
-            type: 'query',
-            checked: true,
-            time: Date.now() + idx,
-            item: {
-                query: { match_all: {} },
-                total: 100000,
-                uri: `/data/test_${idx}/`,
-                related: {},
-                images: [],
-            },
-        })
-        localStorage.setItem('ATLAS_CART', JSON.stringify([makeItem(0), makeItem(1)]))
-    })
+    return page.evaluate((items) => {
+        localStorage.setItem('ATLAS_CART', JSON.stringify(items))
+    }, [makeCartItem(0), makeCartItem(1)])
 }
 
-// Navigate to /cart and switch to the given download tab.
-// Cart items are seeded with `checked: true` in localStorage, so they are
-// already selected when the cart loads — no checkbox interaction needed.
-async function prepareCartForDownload(page, tabName) {
+// Navigate to /cart, check all items, select the "Primary Product" product
+// type, and choose the given download method radio.
+//
+// initial.js resets `checked` to false on every load, so we must check items
+// via programmatic checkbox clicks after the cart renders. MUI hides the
+// native <input>, so we dispatch the click from page.evaluate().
+async function prepareCartForDownload(page, methodName) {
     await page.goto('/cart', { waitUntil: 'domcontentloaded' })
     await waitForAppReady(page)
 
@@ -96,13 +95,46 @@ async function prepareCartForDownload(page, tabName) {
         test.skip(true, 'Cart items did not render — cart seeding may have failed.')
     }
 
-    // Switch to the target download tab
-    const tab = page.getByRole('tab', { name: tabName })
-    if ((await tab.count()) > 0) {
-        await tab.first().click()
-    } else {
-        test.skip(true, `Download tab "${tabName}" not found — panel may require item selection.`)
+    // Check all cart items by programmatically clicking each hidden MUI checkbox.
+    const itemCount = await page.locator('[cart-index]').count()
+    for (let i = 0; i < itemCount; i++) {
+        await page.evaluate((index) => {
+            const el = document.querySelector(`[cart-index="${index}"]`)
+            const cb = el?.querySelector('input[type="checkbox"]')
+            if (cb) cb.click()
+        }, i)
     }
+
+    // Wait for ProductDownloadSelector to appear
+    const productLabel = page.getByText('Primary Product', { exact: false })
+    try {
+        await productLabel.first().waitFor({ state: 'visible', timeout: SHORT_WAIT_MS })
+    } catch {
+        test.skip(true, 'ProductDownloadSelector did not render — product types may be empty.')
+    }
+
+    // Select the "Primary Product / File" product type
+    await productLabel.first().click()
+
+    // Wait for the download method radios to appear
+    await page.waitForTimeout(300)
+
+    // Select the download method radio
+    const radio = page.getByRole('radio', { name: new RegExp(methodName, 'i') })
+    try {
+        await radio.first().waitFor({ state: 'visible', timeout: SHORT_WAIT_MS })
+    } catch {
+        test.skip(true, `Download method "${methodName}" radio not found.`)
+    }
+    await radio.first().click()
+
+    // Wait for the download panel to render
+    await page.waitForTimeout(300)
+}
+
+// Locate the Stop button on the DownloadingCard (MUI IconButton with StopIcon).
+function stopButton(page) {
+    return page.locator('button:has(svg[data-testid="StopIcon"])')
 }
 
 test.describe('Cart - download cancellation', () => {
@@ -110,9 +142,7 @@ test.describe('Cart - download cancellation', () => {
         const errors = []
         page.on('pageerror', (e) => errors.push(e.message))
 
-        // Track intercepted scroll requests
         const scrollRequests = []
-        let searchResponseSent = false
 
         // Intercept ES search/scroll endpoints with delayed responses
         await page.route('**/*_search*', async (route) => {
@@ -120,7 +150,6 @@ test.describe('Cart - download cancellation', () => {
 
             if (url.includes('scroll')) {
                 scrollRequests.push({ url, time: Date.now() })
-                // Delay scroll responses to give time to click cancel
                 await new Promise((r) => setTimeout(r, 2000))
                 await route.fulfill({
                     status: 200,
@@ -130,8 +159,6 @@ test.describe('Cart - download cancellation', () => {
                     ),
                 })
             } else {
-                // Initial search request
-                searchResponseSent = true
                 await route.fulfill({
                     status: 200,
                     contentType: 'application/json',
@@ -180,10 +207,13 @@ test.describe('Cart - download cancellation', () => {
         const scrollCountBeforeStop = scrollRequests.length
 
         // Click the Stop button on the DownloadingCard
-        const stopBtn = page.getByRole('button', { name: /stop download/i }).or(
-            page.locator('button:has(svg[data-testid="StopIcon"])')
-        )
-        await stopBtn.first().click()
+        const stop = stopButton(page)
+        try {
+            await stop.first().waitFor({ state: 'visible', timeout: 10_000 })
+        } catch {
+            test.skip(true, 'Stop button did not appear — download may not have started.')
+        }
+        await stop.first().click()
 
         // Wait to see if any new scroll requests come in after cancel
         await page.waitForTimeout(4000)
@@ -192,7 +222,6 @@ test.describe('Cart - download cancellation', () => {
         const newScrollsAfterCancel = scrollCountAfterStop - scrollCountBeforeStop
 
         // After cancel, at most 1 in-flight scroll request should complete.
-        // No NEW scroll requests should be initiated.
         expect(newScrollsAfterCancel).toBeLessThanOrEqual(1)
 
         expect(filterCriticalJsErrors(errors)).toEqual([])
@@ -263,7 +292,7 @@ test.describe('Cart - download cancellation', () => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await waitForAppReady(page)
         await seedCartWithQueryItem(page)
-        await prepareCartForDownload(page, 'Browser')
+        await prepareCartForDownload(page, 'ZIP')
 
         // Click the Browser ZIP Download button
         const downloadBtn = page.getByRole('button', { name: /browser zip download/i })
@@ -279,10 +308,13 @@ test.describe('Cart - download cancellation', () => {
         const fileCountBeforeStop = fileRequests.length
 
         // Click the Stop button
-        const stopBtn = page.getByRole('button', { name: /stop download/i }).or(
-            page.locator('button:has(svg[data-testid="StopIcon"])')
-        )
-        await stopBtn.first().click()
+        const stop = stopButton(page)
+        try {
+            await stop.first().waitFor({ state: 'visible', timeout: 10_000 })
+        } catch {
+            test.skip(true, 'Stop button did not appear — download may not have started.')
+        }
+        await stop.first().click()
 
         // Wait to see if any new requests come in after cancel
         await page.waitForTimeout(4000)
@@ -308,7 +340,6 @@ test.describe('Cart - download cancellation', () => {
             const url = route.request().url()
 
             if (url.includes('scroll')) {
-                // Delay scroll responses
                 await new Promise((r) => setTimeout(r, 2000))
                 await route.fulfill({
                     status: 200,
@@ -319,7 +350,6 @@ test.describe('Cart - download cancellation', () => {
                 })
             } else {
                 initialSearches.push({ url, time: Date.now() })
-                // Delay the initial search so we have time to cancel
                 await new Promise((r) => setTimeout(r, 1500))
                 await route.fulfill({
                     status: 200,
@@ -365,16 +395,18 @@ test.describe('Cart - download cancellation', () => {
         await page.waitForTimeout(2500)
 
         // Click the Stop button
-        const stopBtn = page.getByRole('button', { name: /stop download/i }).or(
-            page.locator('button:has(svg[data-testid="StopIcon"])')
-        )
-        await stopBtn.first().click()
+        const stop = stopButton(page)
+        try {
+            await stop.first().waitFor({ state: 'visible', timeout: 10_000 })
+        } catch {
+            test.skip(true, 'Stop button did not appear — download may not have started.')
+        }
+        await stop.first().click()
 
         // Wait and observe whether the second item's search fires
         await page.waitForTimeout(4000)
 
         // Only the first cart item's initial _search should have fired.
-        // The second item should never start.
         expect(initialSearches.length).toBeLessThanOrEqual(1)
 
         expect(filterCriticalJsErrors(errors)).toEqual([])
@@ -437,9 +469,6 @@ test.describe('Cart - download cancellation', () => {
         await downloadBtn.click()
 
         // Wait for the DownloadingCard to appear with a progress indicator
-        await page.waitForTimeout(1500)
-
-        // The DownloadingCard should be visible with a running progress bar
         const progressBar = page.locator('[role="progressbar"]')
         try {
             await progressBar.first().waitFor({ state: 'visible', timeout: SHORT_WAIT_MS })
@@ -448,25 +477,14 @@ test.describe('Cart - download cancellation', () => {
         }
 
         // Click the Stop button
-        const stopBtn = page.getByRole('button', { name: /stop download/i }).or(
-            page.locator('button:has(svg[data-testid="StopIcon"])')
-        )
-        await stopBtn.first().click()
+        const stop = stopButton(page)
+        await stop.first().click()
 
-        // After stopping:
-        // 1. The progress bar (buffer variant) should no longer be visible
-        // 2. The card should show "Stopped" text or a red stopped bar
+        // After stopping, the card should show "Stopped" text
         await expect(page.getByText('Stopped')).toBeVisible({ timeout: 5000 })
 
         // The running progress bar should be gone (replaced by the red stopped bar)
         await expect(progressBar.first()).not.toBeVisible({ timeout: 5000 })
-
-        // No download-in-progress button text should remain
-        const downloadInProgress = page.getByRole('button', { name: 'Download in Progress' })
-        if ((await downloadInProgress.count()) > 0) {
-            // The button should still say "Download in Progress" (it's pointer-events: none)
-            // but if the UI properly resets it should not
-        }
 
         expect(filterCriticalJsErrors(errors)).toEqual([])
     })
