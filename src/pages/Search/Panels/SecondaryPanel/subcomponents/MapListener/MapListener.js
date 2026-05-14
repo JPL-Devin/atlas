@@ -93,7 +93,7 @@ const MapListener = (props) => {
                 }
             })
             if (window.clusterGroupOn === true)
-                window.CartoCosmosMap.addLayer(window.footprintsLayer)
+                window.CartoCosmosMap.addLayer(window.clusterGroup)
         }
     }
     const updateFootprints = (mapTarget) => {
