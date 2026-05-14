@@ -1698,7 +1698,7 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
 
                                 dispatch(
                                     updateFilexColumn(
-                                        pathId + 3,
+                                        pathId + 2,
                                         {
                                             active: {
                                                 key: isFinalFile ? key.slice(0, -1) : key,
@@ -2095,7 +2095,7 @@ export const goToFilexURI = (uri) => {
 
             dispatch(
                 updateFilexColumn(
-                    pathId + 3,
+                    pathId + 2,
                     {
                         active: {
                             key: isFinalFile ? key.slice(0, -1) : key,
