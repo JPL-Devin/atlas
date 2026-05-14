@@ -21,6 +21,8 @@ export const WGETCart = (statusCallback, finishCallback, setOnStop, productKeys,
         const startTime = Date.now()
 
         const tasks = []
+        const abortController = new AbortController()
+        let stopped = false
 
         WGETRows = []
 
@@ -35,14 +37,21 @@ export const WGETCart = (statusCallback, finishCallback, setOnStop, productKeys,
                           statusCallback,
                           finishCallback,
                           setOnStop,
-                          startTime
+                          startTime,
+                          abortController
                       )
                     : WGETImage(d.item, productKeys, datestamp, statusCallback)
             })
         })
 
+        setOnStop(() => () => {
+            stopped = true
+            abortController.abort()
+        })
+
         const callTasks = async () => {
             for (const task of tasks) {
+                if (stopped) break
                 await task()
             }
             createWGETFile(datestamp, finishCallback)
@@ -60,7 +69,8 @@ const WGETQuery = (
     statusCallback,
     finishCallback,
     setOnStop,
-    startTime
+    startTime,
+    abortController
 ) => {
     return new Promise((resolve, reject) => {
         let totalReceived = 0
@@ -75,11 +85,7 @@ const WGETQuery = (
                 ES_PATHS.archive.fs_type.join('.'),
             ],
         }
-        let stopped = false
-
-        setOnStop(() => () => {
-            stopped = true
-        })
+        const stopped = () => abortController.signal.aborted
 
         sendStatus(
             statusCallback,
@@ -102,18 +108,25 @@ const WGETQuery = (
         const filter_path = 'filter_path=hits.hits._source,hits.total,_scroll_id'
 
         axios
-            .post(`${domain}${endpoints.search}?scroll=10m&${filter_path}`, dsl, getHeader())
+            .post(`${domain}${endpoints.search}?scroll=10m&${filter_path}`, dsl, {
+                ...getHeader(),
+                signal: abortController.signal,
+            })
             .then((res) => scroll(res))
             .then((s) => {
                 resolve()
             })
             .catch((err) => {
+                if (axios.isCancel(err) || err?.name === 'CanceledError' || err?.name === 'AbortError') {
+                    resolve()
+                    return
+                }
                 console.error('ES Download Error')
                 console.dir(err)
             })
 
         const scroll = (res) => {
-            if (stopped === true || !res?.data?.hits) {
+            if (stopped() || !res?.data?.hits) {
                 if (typeof finishCallback === 'function') {
                     finishCallback(false)
                 }
@@ -181,12 +194,19 @@ const WGETQuery = (
                             scroll: '10m',
                             scroll_id: res.data._scroll_id,
                         },
-                        getHeader()
+                        {
+                            ...getHeader(),
+                            signal: abortController.signal,
+                        }
                     )
                     .then((response) => {
                         return scroll(response)
                     })
                     .catch((err) => {
+                        if (axios.isCancel(err) || err?.name === 'CanceledError' || err?.name === 'AbortError') {
+                            resolve()
+                            return
+                        }
                         console.log(err)
                         reject(err)
                     })
