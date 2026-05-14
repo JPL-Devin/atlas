@@ -81,7 +81,9 @@ function seedCartWithTwoQueryItems(page) {
     })
 }
 
-// Navigate to /cart, select all items, and switch to the given download tab
+// Navigate to /cart and switch to the given download tab.
+// Cart items are seeded with `checked: true` in localStorage, so they are
+// already selected when the cart loads — no checkbox interaction needed.
 async function prepareCartForDownload(page, tabName) {
     await page.goto('/cart', { waitUntil: 'domcontentloaded' })
     await waitForAppReady(page)
@@ -92,21 +94,6 @@ async function prepareCartForDownload(page, tabName) {
         await cartItem.waitFor({ state: 'visible', timeout: SHORT_WAIT_MS })
     } catch {
         test.skip(true, 'Cart items did not render — cart seeding may have failed.')
-    }
-
-    // Select all cart items via checkbox
-    const selectAll = page.getByRole('checkbox', { name: /select all/i })
-    if ((await selectAll.count()) > 0) {
-        const isChecked = await selectAll.isChecked()
-        if (!isChecked) await selectAll.click()
-    } else {
-        // Fallback: click each individual checkbox
-        const checkboxes = page.locator('[cart-index] input[type="checkbox"]')
-        const count = await checkboxes.count()
-        for (let i = 0; i < count; i++) {
-            const cb = checkboxes.nth(i)
-            if (!(await cb.isChecked())) await cb.click()
-        }
     }
 
     // Switch to the target download tab
