@@ -259,8 +259,8 @@ test.describe('Cart - download cancellation', () => {
             })
         })
 
-        // Intercept file download URLs
-        await page.route('**/*.img', async (route) => {
+        // Intercept file download URLs (regex because getPDSUrl appends ::release_id)
+        await page.route(/\.img/, async (route) => {
             fileRequests.push({ url: route.request().url(), time: Date.now() })
             await new Promise((r) => setTimeout(r, 1000))
             await route.fulfill({
