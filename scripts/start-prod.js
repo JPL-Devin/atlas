@@ -174,7 +174,7 @@ app.get(appRoutes, (req, res) => {
     res.setHeader('Cache-Control', 'no-cache')
     res.render(path.join(paths.appBuild, 'index.pug'), {
         nonce: res.locals.nonce,
-        runtimeConfig: JSON.stringify(runtimeConfig),
+        runtimeConfig: JSON.stringify(runtimeConfig).replace(/</g, '\\u003c'),
         publicUrl: runtimeConfig.PUBLIC_URL,
     })
 })
