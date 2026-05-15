@@ -14,6 +14,7 @@ import Cart from '../../pages/Cart/Cart'
 import InformationModal from '../../pages/Search/Modals/InformationModal/InformationModal'
 import FeedbackModal from '../../pages/Search/Modals/FeedbackModal/FeedbackModal'
 
+import MessageBanner from '../../components/MessageBanner/MessageBanner'
 import { getPublicUrl } from '../runtimeConfig'
 import { loadMappings } from '../redux/actions/actions.js'
 
@@ -30,6 +31,7 @@ export const AppRoutes = () => {
 
     return (
         <div className="Routes">
+            <MessageBanner />
             <Router
                 basename={publicUrl}
                 future={{ v7_startTransition: true, v7_relativeSplatPath: true }}

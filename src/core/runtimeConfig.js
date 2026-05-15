@@ -97,6 +97,17 @@ export const getDoiUrl = () => {
 }
 
 /**
+ * Get the banner message from runtime config or fallback to build-time env
+ * @returns {string} The banner message
+ */
+export const getBannerMessage = () => {
+    if (typeof window !== 'undefined' && window.APP_CONFIG) {
+        return window.APP_CONFIG.BANNER_MESSAGE ?? ''
+    }
+    return process.env.REACT_APP_BANNER_MESSAGE ?? ''
+}
+
+/**
  * Get all runtime configuration as an object
  * @returns {Object} All configuration values
  */
@@ -110,5 +121,6 @@ export const getRuntimeConfig = () => {
         IMAGERY_URL: getImageryUrl(),
         REGISTRY_URL: getRegistryUrl(),
         DOI_URL: getDoiUrl(),
+        BANNER_MESSAGE: getBannerMessage(),
     }
 }

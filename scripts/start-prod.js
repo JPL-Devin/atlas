@@ -29,6 +29,7 @@ const runtimeConfig = {
     IMAGERY_URL: process.env.REACT_APP_IMAGERY_URL || '',
     REGISTRY_URL: process.env.REACT_APP_REGISTRY_URL || '',
     DOI_URL: process.env.REACT_APP_DOI_URL || '',
+    BANNER_MESSAGE: process.env.REACT_APP_BANNER_MESSAGE || '',
 }
 
 const app = express()
