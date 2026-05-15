@@ -1,7 +1,14 @@
-.Routes {
+.RoutesWrapper {
     width: 100%;
     height: 100%;
     display: flex;
+    flex-direction: column;
+}
+.Routes {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    min-height: 0;
 }
 .Routes .routeContent {
     height: 100%;
