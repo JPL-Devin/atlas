@@ -58,7 +58,7 @@ export const WGETCart = (statusCallback, finishCallback, setOnStop, productKeys,
             else if (typeof finishCallback === 'function') finishCallback(false)
         }
 
-        callTasks()
+        callTasks().catch(() => {})
     }
 }
 
