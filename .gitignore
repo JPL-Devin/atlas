@@ -15,3 +15,5 @@ bundle-stats.json
 .vscode
 docker-compose.yml
 .claude
+playwright-report/
+test-results/
