@@ -128,7 +128,7 @@ const TXTQuery = (
 
         const scroll = (res) => {
             if (stopped() || !res?.data?.hits) {
-                if (typeof finishCallback === 'function') {
+                if (!stopped() && typeof finishCallback === 'function') {
                     finishCallback(false)
                 }
                 resolve()
