@@ -30,28 +30,30 @@ export const AppRoutes = () => {
     }, [])
 
     return (
-        <div className="Routes">
+        <div className="RoutesWrapper">
             <MessageBanner />
-            <Router
-                basename={publicUrl}
-                future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-            >
-                <Toolbar />
-                <div className="routeMain">
-                    <Topbar />
-                    <div className="routeContent">
-                        <Routes>
-                            <Route path="/search" element={<Search />} />
-                            <Route path="/record" element={<Record />} />
-                            <Route path="/cart" element={<Cart />} />
-                            <Route path="/archive-explorer" element={<FileExplorer />} />
-                        </Routes>
+            <div className="Routes">
+                <Router
+                    basename={publicUrl}
+                    future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+                >
+                    <Toolbar />
+                    <div className="routeMain">
+                        <Topbar />
+                        <div className="routeContent">
+                            <Routes>
+                                <Route path="/search" element={<Search />} />
+                                <Route path="/record" element={<Record />} />
+                                <Route path="/cart" element={<Cart />} />
+                                <Route path="/archive-explorer" element={<FileExplorer />} />
+                            </Routes>
+                        </div>
                     </div>
-                </div>
-            </Router>
-            <InformationModal />
-            <FeedbackModal />
-            <SnackBar />
+                </Router>
+                <InformationModal />
+                <FeedbackModal />
+                <SnackBar />
+            </div>
         </div>
     )
 }

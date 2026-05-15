@@ -25,7 +25,11 @@ const MessageBanner = () => {
 
     if (!message) return null
 
-    return <div className={c.messageBanner}>{message}</div>
+    return (
+        <div className={c.messageBanner} data-testid="message-banner">
+            {message}
+        </div>
+    )
 }
 
 export default MessageBanner
