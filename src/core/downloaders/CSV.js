@@ -131,7 +131,7 @@ const CSVQuery = (
                 if (typeof finishCallback === 'function') {
                     finishCallback(false)
                 }
-                reject()
+                resolve()
                 return
             }
 

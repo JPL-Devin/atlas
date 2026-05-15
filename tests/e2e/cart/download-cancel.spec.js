@@ -14,10 +14,22 @@ import { waitForAppReady, navigateToCart, filterCriticalJsErrors } from '../../h
  * mock responses with large totals and artificial delays, then assert
  * that no new requests fire after Stop is clicked.
  *
+ * Route patterns use regex to ONLY match download-specific requests
+ * (which include `scroll` in the URL), avoiding the app's regular
+ * search API calls that happen during navigation.
+ *
  * All endpoints are fully mocked via page.route() — no real PDS traffic.
  */
 
 const SHORT_WAIT_MS = 20_000
+
+// --- Route patterns -------------------------------------------------------
+// Download searches use  _search?scroll=1m&…  (the scroll query-param
+// distinguishes them from regular /search API calls).
+const DOWNLOAD_SEARCH_RE = /_search\?.*scroll=/
+
+// The dedicated scroll endpoint lives at  /_search/scroll
+const SCROLL_ENDPOINT_RE = /_search\/scroll/
 
 // Build a mock ES search response with a scroll_id and a small hits array
 function buildSearchResponse(total, scrollId, hitsCount = 10) {
@@ -144,47 +156,28 @@ test.describe('Cart - download cancellation', () => {
 
         const scrollRequests = []
 
-        // Intercept ES search/scroll endpoints with delayed responses
-        await page.route('**/*_search*', async (route) => {
-            const url = route.request().url()
-
-            if (url.includes('scroll')) {
-                scrollRequests.push({ url, time: Date.now() })
-                await new Promise((r) => setTimeout(r, 2000))
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify(
-                        buildSearchResponse(100000, 'test_scroll_id_2', 10)
-                    ),
-                })
-            } else {
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify(
-                        buildSearchResponse(100000, 'test_scroll_id_1', 10)
-                    ),
-                })
-            }
+        // Mock the initial download search (has ?scroll= query param)
+        await page.route(DOWNLOAD_SEARCH_RE, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(
+                    buildSearchResponse(100000, 'test_scroll_id_1', 10)
+                ),
+            })
         })
 
-        // Also intercept the dedicated scroll endpoint
-        await page.route('**/*scroll*', async (route) => {
-            const url = route.request().url()
-            if (url.includes('scroll') && !url.includes('_search')) {
-                scrollRequests.push({ url, time: Date.now() })
-                await new Promise((r) => setTimeout(r, 2000))
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify(
-                        buildSearchResponse(100000, 'test_scroll_id_2', 10)
-                    ),
-                })
-            } else {
-                await route.continue()
-            }
+        // Mock the scroll endpoint with a delay so there's time to cancel
+        await page.route(SCROLL_ENDPOINT_RE, async (route) => {
+            scrollRequests.push({ url: route.request().url(), time: Date.now() })
+            await new Promise((r) => setTimeout(r, 2000))
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(
+                    buildSearchResponse(100000, 'test_scroll_id_2', 10)
+                ),
+            })
         })
 
         // Seed cart and navigate
@@ -200,7 +193,7 @@ test.describe('Cart - download cancellation', () => {
         }
         await downloadBtn.click()
 
-        // Wait for the initial search to fire
+        // Wait for the initial search to fire and the first scroll to start
         await page.waitForTimeout(1000)
 
         // Record scroll count at the moment we click Stop
@@ -234,47 +227,28 @@ test.describe('Cart - download cancellation', () => {
         const scrollRequests = []
         const fileRequests = []
 
-        // Intercept ES search/scroll endpoints
-        await page.route('**/*_search*', async (route) => {
-            const url = route.request().url()
-
-            if (url.includes('scroll')) {
-                scrollRequests.push({ url, time: Date.now() })
-                await new Promise((r) => setTimeout(r, 2000))
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify(
-                        buildSearchResponse(100000, 'zip_scroll_id_2', 10)
-                    ),
-                })
-            } else {
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify(
-                        buildSearchResponse(100000, 'zip_scroll_id_1', 10)
-                    ),
-                })
-            }
+        // Mock the initial download search
+        await page.route(DOWNLOAD_SEARCH_RE, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(
+                    buildSearchResponse(100000, 'zip_scroll_id_1', 10)
+                ),
+            })
         })
 
-        // Intercept dedicated scroll endpoint
-        await page.route('**/*scroll*', async (route) => {
-            const url = route.request().url()
-            if (url.includes('scroll') && !url.includes('_search')) {
-                scrollRequests.push({ url, time: Date.now() })
-                await new Promise((r) => setTimeout(r, 2000))
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify(
-                        buildSearchResponse(100000, 'zip_scroll_id_2', 10)
-                    ),
-                })
-            } else {
-                await route.continue()
-            }
+        // Mock the scroll endpoint
+        await page.route(SCROLL_ENDPOINT_RE, async (route) => {
+            scrollRequests.push({ url: route.request().url(), time: Date.now() })
+            await new Promise((r) => setTimeout(r, 2000))
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(
+                    buildSearchResponse(100000, 'zip_scroll_id_2', 10)
+                ),
+            })
         })
 
         // Intercept file download URLs
@@ -333,49 +307,32 @@ test.describe('Cart - download cancellation', () => {
         const errors = []
         page.on('pageerror', (e) => errors.push(e.message))
 
-        // Track which cart items had their initial _search fire
-        const initialSearches = []
+        // Track download-initiated search requests (with ?scroll= param)
+        const downloadSearches = []
 
-        await page.route('**/*_search*', async (route) => {
-            const url = route.request().url()
-
-            if (url.includes('scroll')) {
-                await new Promise((r) => setTimeout(r, 2000))
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify(
-                        buildSearchResponse(100000, 'multi_scroll_id', 10)
-                    ),
-                })
-            } else {
-                initialSearches.push({ url, time: Date.now() })
-                await new Promise((r) => setTimeout(r, 1500))
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify(
-                        buildSearchResponse(100000, 'multi_scroll_id_1', 10)
-                    ),
-                })
-            }
+        // Mock the initial download search — delay it so we can cancel in time
+        await page.route(DOWNLOAD_SEARCH_RE, async (route) => {
+            downloadSearches.push({ url: route.request().url(), time: Date.now() })
+            await new Promise((r) => setTimeout(r, 1500))
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(
+                    buildSearchResponse(100000, 'multi_scroll_id_1', 10)
+                ),
+            })
         })
 
-        // Intercept dedicated scroll endpoint
-        await page.route('**/*scroll*', async (route) => {
-            const url = route.request().url()
-            if (url.includes('scroll') && !url.includes('_search')) {
-                await new Promise((r) => setTimeout(r, 2000))
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify(
-                        buildSearchResponse(100000, 'multi_scroll_id', 10)
-                    ),
-                })
-            } else {
-                await route.continue()
-            }
+        // Mock the scroll endpoint
+        await page.route(SCROLL_ENDPOINT_RE, async (route) => {
+            await new Promise((r) => setTimeout(r, 2000))
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(
+                    buildSearchResponse(100000, 'multi_scroll_id', 10)
+                ),
+            })
         })
 
         // Seed cart with 2 items
@@ -406,8 +363,8 @@ test.describe('Cart - download cancellation', () => {
         // Wait and observe whether the second item's search fires
         await page.waitForTimeout(4000)
 
-        // Only the first cart item's initial _search should have fired.
-        expect(initialSearches.length).toBeLessThanOrEqual(1)
+        // Only the first cart item's download search should have fired.
+        expect(downloadSearches.length).toBeLessThanOrEqual(1)
 
         expect(filterCriticalJsErrors(errors)).toEqual([])
     })
@@ -416,43 +373,27 @@ test.describe('Cart - download cancellation', () => {
         const errors = []
         page.on('pageerror', (e) => errors.push(e.message))
 
-        // Intercept ES search with a slow response so the DownloadingCard stays visible
-        await page.route('**/*_search*', async (route) => {
-            const url = route.request().url()
-            if (url.includes('scroll')) {
-                await new Promise((r) => setTimeout(r, 3000))
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify(
-                        buildSearchResponse(100000, 'ui_scroll_id', 10)
-                    ),
-                })
-            } else {
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify(
-                        buildSearchResponse(100000, 'ui_scroll_id_1', 10)
-                    ),
-                })
-            }
+        // Mock the initial download search
+        await page.route(DOWNLOAD_SEARCH_RE, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(
+                    buildSearchResponse(100000, 'ui_scroll_id_1', 10)
+                ),
+            })
         })
 
-        await page.route('**/*scroll*', async (route) => {
-            const url = route.request().url()
-            if (url.includes('scroll') && !url.includes('_search')) {
-                await new Promise((r) => setTimeout(r, 3000))
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify(
-                        buildSearchResponse(100000, 'ui_scroll_id', 10)
-                    ),
-                })
-            } else {
-                await route.continue()
-            }
+        // Mock the scroll endpoint with a slow response so DownloadingCard stays visible
+        await page.route(SCROLL_ENDPOINT_RE, async (route) => {
+            await new Promise((r) => setTimeout(r, 3000))
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(
+                    buildSearchResponse(100000, 'ui_scroll_id', 10)
+                ),
+            })
         })
 
         // Seed cart and navigate

@@ -131,7 +131,7 @@ const WGETQuery = (
                 if (typeof finishCallback === 'function') {
                     finishCallback(false)
                 }
-                reject()
+                resolve()
                 return
             }
 
