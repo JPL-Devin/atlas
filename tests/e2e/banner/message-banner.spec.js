@@ -75,4 +75,18 @@ test.describe('MessageBanner', () => {
         expect(styles.textAlign).toBe('center')
         expect(styles.backgroundImage).toContain('linear-gradient')
     })
+
+    test('dismiss button hides the banner', async ({ page }) => {
+        const bannerText = 'You can close me.'
+        await injectBannerMessage(page, bannerText)
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        const banner = page.getByTestId('message-banner')
+        await expect(banner).toBeVisible()
+
+        await page.getByTestId('message-banner-dismiss').click()
+        await expect(banner).toHaveCount(0)
+    })
 })
