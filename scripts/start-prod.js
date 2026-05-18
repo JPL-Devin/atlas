@@ -5,7 +5,7 @@ const fs = require('fs')
 const axios = require('axios')
 const helmet = require('helmet')
 const uuidv4 = require('uuid').v4
-const bodyParser = require('body-parser')
+
 const compression = require('compression')
 const paths = require('../config/paths')
 
@@ -83,16 +83,16 @@ const csp = {
             'data:',
             'blob:',
         ],
-        connectSrc: ['*.jpl.nasa.gov', '*.amazonaws.com', '*.cloudfront.net', '*.arizona.edu'],
-        frameAncestors: "'self'",
+        connectSrc: ["'self'", '*.jpl.nasa.gov', '*.amazonaws.com', '*.cloudfront.net', '*.arizona.edu'],
+        frameAncestors: ["'self'"],
     },
 }
 if (process.env.NODE_ENV === 'development' || process.env.DISABLE_CSP === 'true')
     csp.directives = {}
 else app.use(helmet.contentSecurityPolicy(csp))
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 app.get('/_health', (req, res) => {
     res.status(200).send({
@@ -164,7 +164,7 @@ app.get(rootPath, (req, res) => {
 })
 
 // Build route array with PUBLIC_URL prefix (excluding root)
-const baseRoutes = ['/search', '/record', '/cart', '/archive-explorer*']
+const baseRoutes = ['/search', '/record', '/cart', '/archive-explorer', '/archive-explorer/*path']
 const appRoutes = runtimeConfig.PUBLIC_URL
     ? [...baseRoutes, ...baseRoutes.map((route) => `${runtimeConfig.PUBLIC_URL}${route}`)]
     : baseRoutes
