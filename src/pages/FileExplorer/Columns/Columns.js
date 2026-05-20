@@ -1096,17 +1096,11 @@ const Column = (props) => {
                                 ? (() => {
                                       // Group content by type (bundle vs volume)
                                       // Fallback: items without type are treated as volumes
-                                      const isItemDeprecated = (item) =>
-                                          item.key.toLowerCase().includes('deprecated')
                                       const bundles = content.filter(
-                                          (item) =>
-                                              item.type === 'bundle' &&
-                                              (showDeprecated || !isItemDeprecated(item))
+                                          (item) => item.type === 'bundle'
                                       )
                                       const volumes = content.filter(
-                                          (item) =>
-                                              (item.type === 'volume' || !item.type) &&
-                                              (showDeprecated || !isItemDeprecated(item))
+                                          (item) => item.type === 'volume' || !item.type
                                       )
 
                                       // Helper function to build URI for bundle/volume cart items
@@ -1151,6 +1145,7 @@ const Column = (props) => {
                                               const isDeprecated = result.key
                                                   .toLowerCase()
                                                   .includes('deprecated')
+                                              if (!showDeprecated && isDeprecated) return null
                                               const isActive =
                                                   params.active &&
                                                   (params.active.uniqueKey === uniqueKey ||
