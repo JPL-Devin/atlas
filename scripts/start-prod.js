@@ -5,7 +5,7 @@ const fs = require('fs')
 const axios = require('axios')
 const helmet = require('helmet')
 const uuidv4 = require('uuid').v4
-const bodyParser = require('body-parser')
+
 const compression = require('compression')
 const paths = require('../config/paths')
 
@@ -83,16 +83,16 @@ const csp = {
             'data:',
             'blob:',
         ],
-        connectSrc: ['*.jpl.nasa.gov', '*.amazonaws.com', '*.cloudfront.net', '*.arizona.edu'],
-        frameAncestors: "'self'",
+        connectSrc: ["'self'", '*.jpl.nasa.gov', '*.amazonaws.com', '*.cloudfront.net', '*.arizona.edu'],
+        frameAncestors: ["'self'"],
     },
 }
 if (process.env.NODE_ENV === 'development' || process.env.DISABLE_CSP === 'true')
     csp.directives = {}
 else app.use(helmet.contentSecurityPolicy(csp))
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 app.get('/_health', (req, res) => {
     res.status(200).send({
@@ -164,7 +164,7 @@ app.get(rootPath, (req, res) => {
 })
 
 // Build route array with PUBLIC_URL prefix (excluding root)
-const baseRoutes = ['/search', '/record', '/cart', '/archive-explorer*']
+const baseRoutes = ['/search', '/record', '/cart', '/archive-explorer', '/archive-explorer/*path']
 const appRoutes = runtimeConfig.PUBLIC_URL
     ? [...baseRoutes, ...baseRoutes.map((route) => `${runtimeConfig.PUBLIC_URL}${route}`)]
     : baseRoutes
@@ -213,21 +213,38 @@ const docBasePath = runtimeConfig.PUBLIC_URL
     ? `${runtimeConfig.PUBLIC_URL}/documentation`
     : '/documentation'
 
+// Resolve docBuild once at startup for path traversal checks
+let docBuildReal = null
+try {
+    docBuildReal = fs.realpathSync(paths.docBuild)
+} catch (_e) {
+    // docBuild directory may not exist (e.g. docs not built); skip middleware
+}
+
 // Middleware to rewrite documentation HTML files to inject correct base path
-if (runtimeConfig.PUBLIC_URL) {
+if (runtimeConfig.PUBLIC_URL && docBuildReal) {
     app.use(docBasePath, (req, res, next) => {
         // Only process HTML files
         if (req.path.endsWith('.html') || req.path === '/' || !req.path.includes('.')) {
-            const fs = require('fs')
-            let filePath = path.join(paths.docBuild, req.path)
+            let filePath = path.resolve(docBuildReal, req.path.replace(/^\/+/, ''))
 
             // If path doesn't end with .html and is not /, append index.html
             if (!req.path.endsWith('.html') && !req.path.includes('.')) {
                 filePath = path.join(filePath, 'index.html')
             }
 
+            // Prevent path traversal: ensure resolved path is within docBuild
+            if (!filePath.startsWith(docBuildReal + path.sep) && filePath !== docBuildReal) {
+                return res.status(400).send('Invalid path')
+            }
+
             if (fs.existsSync(filePath)) {
-                fs.readFile(filePath, 'utf8', (err, html) => {
+                const realFilePath = fs.realpathSync(filePath)
+                if (!realFilePath.startsWith(docBuildReal + path.sep) && realFilePath !== docBuildReal) {
+                    return res.status(400).send('Invalid path')
+                }
+
+                fs.readFile(realFilePath, 'utf8', (err, html) => {
                     if (err) {
                         return next()
                     }
