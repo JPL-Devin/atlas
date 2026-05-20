@@ -4,6 +4,7 @@ import Url from 'url-parse'
 import geohash from 'ngeohash'
 
 import { domain, endpoints, resultsStatuses, ES_PATHS } from '../../constants'
+import { getAppConfig } from '../../appConfig'
 import {
     getHeader,
     getIn,
@@ -168,6 +169,14 @@ export const setMappings = (indexName, mapping) => {
         if (!hasSetInitialActiveFilters && indexName === 'atlas') {
             dispatch(setInitialActiveFilters(initialActiveFilters))
             dispatch(addActiveFilters(initialActiveFilters))
+
+            const defaultFilterValues = getAppConfig().defaultFilterValues
+            if (defaultFilterValues)
+                Object.keys(defaultFilterValues).forEach((filterKey) => {
+                    if (initialActiveFilters[filterKey])
+                        dispatch(setFieldState(filterKey, 0, defaultFilterValues[filterKey], true))
+                })
+
             hasSetInitialActiveFilters = true
         }
         dispatch({

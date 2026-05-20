@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Search = (props) => {
     useEffect(() => {
-        document.title = 'Atlas - Search | PDS-IMG'
+        document.title = `${getAppConfig().appTitle} - Search | PDS-IMG`
     }, [])
 
     const c = useStyles()

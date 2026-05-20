@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import { useNavigate } from 'react-router-dom'
 import { HASH_PATHS, ES_PATHS, RELATED_MAPPINGS } from '../../../core/constants'
+import { getAppConfig } from '../../../core/appConfig'
 
 import {
     getIn,
@@ -191,7 +192,7 @@ const Title = (props) => {
             name: RELATED_MAPPINGS[key] || key,
             subname: `.${getExtension(uri)}${size ? ` (${size})` : ''}`,
             uri,
-            checked: key === 'src' ? true : false,
+            checked: key === getAppConfig().defaultDownloadProduct,
             release_id: release_id,
         })
     })

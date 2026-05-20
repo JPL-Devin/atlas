@@ -11,6 +11,7 @@ import {
     EMAIL_CONTACT,
 } from '../../core/constants'
 import { getIn, getHeader, getFilename, humanFileSize, setIn } from '../../core/utils'
+import { getAppConfig } from '../../core/appConfig'
 
 import clsx from 'clsx'
 import { Typography } from '@mui/material'
@@ -102,7 +103,8 @@ const ProductDownloadSelector = forwardRef((props, ref) => {
     })
     const checkedCart = cart.filter((v) => v.checked === true)
 
-    const startChecked = forceAllSelected ? true : false
+    const defaultProduct = getAppConfig().defaultDownloadProduct
+    const isDefault = (key) => forceAllSelected || key === defaultProduct
     const [listState, setListState] = useState({
         'Source Products': {
             src: {
@@ -110,7 +112,7 @@ const ProductDownloadSelector = forwardRef((props, ref) => {
                 size: 0,
                 sizeComplete: false,
                 total: 0,
-                checked: startChecked,
+                checked: isDefault('src'),
             },
         },
         'Metadata Products': {
@@ -119,7 +121,7 @@ const ProductDownloadSelector = forwardRef((props, ref) => {
                 size: 0,
                 sizeComplete: false,
                 total: 0,
-                checked: startChecked,
+                checked: isDefault('label'),
             },
         },
         'Browse Products': {
@@ -128,14 +130,14 @@ const ProductDownloadSelector = forwardRef((props, ref) => {
                 size: 0,
                 sizeComplete: false,
                 total: 0,
-                checked: startChecked,
+                checked: isDefault('browse'),
             },
             full: {
                 name: 'Full-sized Image',
                 size: 0,
                 sizeComplete: false,
                 total: 0,
-                checked: startChecked,
+                checked: isDefault('full'),
             },
             lg: { name: 'Large Image', size: 0, sizeComplete: false, total: 0, checked: false },
             md: { name: 'Medium Image', size: 0, sizeComplete: false, total: 0, checked: false },

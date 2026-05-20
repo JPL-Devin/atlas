@@ -217,7 +217,7 @@ const Topbar = () => {
                     </div>
                     <div>
                         <div className={c.appNameDiv}>
-                            <h1 className={c.appName}>ATLAS</h1>
+                            <h1 className={c.appName}>{getAppConfig().appTitle.toUpperCase()}</h1>
                         </div>
                         {pageName && (
                             <>

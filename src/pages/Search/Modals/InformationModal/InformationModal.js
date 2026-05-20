@@ -17,6 +17,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 
 import NASALogoPath from '../../../../media/images/nasa-logo.svg'
 import { getPublicUrl } from '../../../../core/runtimeConfig'
+import { getAppConfig } from '../../../../core/appConfig'
 
 import { publicUrl } from '../../../../core/constants'
 
@@ -185,7 +186,7 @@ const InformationModal = (props) => {
                         </div>
                     </div>
                     <Typography className={c.title} variant="h2">
-                        Atlas
+                        {getAppConfig().aboutTitle}
                     </Typography>
                     <IconButton
                         className={c.closeIcon}
@@ -198,30 +199,30 @@ const InformationModal = (props) => {
                 </div>
                 <div className={c.bottom}>
                     <div className={c.description}>
-                        <Typography>
-                            The Cartography and Imaging Sciences Node of the Planetary Data System
-                            provides a set of applications under the name, "Atlas". These
-                            applications allow users to explore, search, and download imaging and
-                            data products that have been collected from a variety NASA's planetary
-                            space missions. Through the use of these tools, users have access to
-                            petabytes of imaging data in one central location. This collection of
-                            data is updated periodically and is reported within the{' '}
-                            <a className={c.aLink} href={newsPath} rel="noopener">
-                                Latest News
-                            </a>{' '}
-                            section of our home page.
-                        </Typography>
+                        <Typography>{getAppConfig().aboutDescription}</Typography>
                     </div>
                     <div className={c.message}>
                         <Typography>
                             If you have questions, want to share feedback, or need support,{' '}
-                            <a
-                                className={c.aLink}
-                                aria-label="give feedback"
-                                onClick={openFeedback}
-                            >
-                                please send us a message
-                            </a>
+                            {getAppConfig().aboutContactUrl ? (
+                                <a
+                                    className={c.aLink}
+                                    aria-label="contact us"
+                                    href={getAppConfig().aboutContactUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    please contact us
+                                </a>
+                            ) : (
+                                <a
+                                    className={c.aLink}
+                                    aria-label="give feedback"
+                                    onClick={openFeedback}
+                                >
+                                    please send us a message
+                                </a>
+                            )}
                             .
                         </Typography>
                     </div>

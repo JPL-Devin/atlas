@@ -1,5 +1,6 @@
 import { fromJS } from 'immutable'
 import { localStorageCart } from '../../constants'
+import { getAppConfig } from '../../appConfig'
 
 /* Globals */
 /* These are general variables that DO NOT trigger component updates
@@ -98,9 +99,9 @@ export const INITIAL = (() => {
             total: null,
         },
         resultSorting: {
-            field: 'gather.time.start_time',
-            direction: 'desc',
-            defaultField: 'gather.time.start_time',
+            field: getAppConfig().defaultSortField,
+            direction: getAppConfig().defaultSortDirection,
+            defaultField: getAppConfig().defaultSortField,
         },
         resultsTable: {
             columns: [

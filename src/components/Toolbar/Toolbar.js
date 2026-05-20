@@ -255,7 +255,7 @@ const buildDrawerItems = () => {
                 openInNewTab: true,
             })
 
-        if (instance.enableArchiveExplorer) {
+        if (instance.enableArchiveExplorer)
             if (isCurrent)
                 items.push({ name: 'Browse Archive', path: '/archive-explorer', isAtlas: true })
             else
@@ -264,9 +264,8 @@ const buildDrawerItems = () => {
                     path: `${instance.baseUrl}/archive-explorer`,
                     openInNewTab: true,
                 })
-        }
 
-        if (instance.enableCart) {
+        if (instance.enableCart)
             if (isCurrent)
                 items.push({ name: 'Cart', path: '/cart', isAtlas: true, showLength: true })
             else
@@ -275,7 +274,6 @@ const buildDrawerItems = () => {
                     path: `${instance.baseUrl}/cart`,
                     openInNewTab: true,
                 })
-        }
 
         if (isCurrent)
             items.push({ name: 'Documentation', path: '/documentation', isAtlas: true, openInNewTab: true })
@@ -707,7 +705,7 @@ const Toolbar = (props) => {
                                 <InfoOutlinedIcon fontSize="inherit" />
                             </IconButton>
                         </Tooltip>
-                        {drawer === 2 ? <div className={c.optionsName}>About Atlas</div> : null}
+                        {drawer === 2 ? <div className={c.optionsName}>About {getAppConfig().appTitle}</div> : null}
                     </div>
                 </div>
             </div>
