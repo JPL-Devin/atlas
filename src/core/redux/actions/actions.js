@@ -752,6 +752,7 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
             ES_PATHS.instrument.join('.'),
             ES_PATHS.product_type.join('.'),
             ES_PATHS.start_time.join('.'),
+            ES_PATHS.ml_classifications.join('.'),
         ]
 
         if (resultsTable?.columns?.length > 0) {
@@ -942,6 +943,13 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                                             buckets.push(newBucket)
                                         })
                                     }
+
+                                    // Sort buckets case-insensitively
+                                    buckets.sort((a, b) =>
+                                        String(a.key).localeCompare(String(b.key), undefined, {
+                                            sensitivity: 'base',
+                                        })
+                                    )
 
                                     nextActiveFilters[filter].facets[i].fields = buckets
                                 }
@@ -1654,7 +1662,7 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
                                       },
                                   }
                                 : null
-                        if (nextVolActive) dispatch(updateFilexColumn(2, nextVolActive))
+                        if (nextVolActive) dispatch(updateFilexColumn(1, nextVolActive))
 
                         let rawPath = url.query.uri || ''
                         const splittedUri = splitUri(rawPath)
@@ -1684,17 +1692,18 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
                                     uriPrefix +
                                     rawPath.substring(
                                         0,
-                                        lastMatch + key.length + (isFinalFile ? 0 : 1)
+                                        lastMatch + key.length + 1
                                     )
                                 // || rawPathFinal === key
 
                                 dispatch(
                                     updateFilexColumn(
-                                        pathId + 3,
+                                        pathId + 2,
                                         {
                                             active: {
                                                 key: isFinalFile ? key.slice(0, -1) : key,
                                                 uri: isFinalFile ? uri.slice(0, -1) : uri,
+                                                fs_type: isFinalFile ? 'file' : null,
                                                 _needsData: isFinalFile,
                                             },
                                         },
@@ -1939,7 +1948,9 @@ export const queryFilexColumn = (columnId, isLast, cb) => {
                         }))
                         results.buckets = results.buckets.concat(bundleBuckets)
                     }
-                    results.buckets = results.buckets.sort((a, b) => a.key.localeCompare(b.key))
+                    results.buckets = results.buckets.sort((a, b) =>
+                        String(a.key).localeCompare(String(b.key), undefined, { sensitivity: 'base' })
+                    )
                 }
                 if (column.type === 'filter') {
                     let lastDoc = getIn(response, ['data', 'hits', 'hits', 0, '_source'], null)
@@ -2085,7 +2096,7 @@ export const goToFilexURI = (uri) => {
 
             dispatch(
                 updateFilexColumn(
-                    pathId + 3,
+                    pathId + 2,
                     {
                         active: {
                             key: isFinalFile ? key.slice(0, -1) : key,

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import OpenSeadragon from 'openseadragon'
 import 'svg-overlay'
 import PropTypes from 'prop-types'
 
 import { styled } from '@mui/material/styles'
 
+import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
@@ -81,6 +82,51 @@ const OSDButton = styled(IconButton, {
     }),
 }))
 
+const LoadingWrapper = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isHidden',
+})(({ isHidden }) => ({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'none',
+    opacity: 1,
+    transition: 'opacity 0.4s ease-out',
+    ...(isHidden && {
+        opacity: 0,
+    }),
+}))
+
+const LoadingPaper = styled(Paper)(({ theme }) => ({
+    'background': theme.palette.accent.main,
+    'pointerEvents': 'none',
+    '& > div': {
+        padding: `${theme.spacing(4)} ${theme.spacing(6)}`,
+        display: 'flex',
+        alignItems: 'center',
+    },
+}))
+
+const LoadingProgress = styled('div')(({ theme }) => ({
+    'marginTop': '1px',
+    'marginRight': theme.spacing(2),
+    '& .MuiCircularProgress-colorPrimary': {
+        color: theme.palette.text.secondary,
+    },
+}))
+
+const LoadingText = styled('div')(({ theme }) => ({
+    color: theme.palette.text.secondary,
+    fontSize: '14px',
+    fontWeight: 'bold',
+    letterSpacing: '1px',
+    textAlign: 'center',
+}))
+
 const OpenFailedWrapper = styled('div', {
     shouldForwardProp: (prop) => prop !== 'isShown',
 })(({ isShown }) => ({
@@ -154,7 +200,11 @@ const StatusErrorMessage = styled('div')(({ theme }) => ({
 const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
     const [viewer, setViewer] = useState(null)
     const [openFailed, setOpenFailed] = useState(false)
+    const [imageLoading, setImageLoading] = useState(true)
     const [svgOverlay, setSvgOverlay] = useState(null)
+
+    const openHandlerRef = useRef(null)
+    const openFailedHandlerRef = useRef(null)
 
     settings = settings || {}
 
@@ -197,12 +247,27 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
     useEffect(() => {
         if (image && image.src && viewer) {
             setOpenFailed(false)
-            viewer.removeHandler('open')
-            viewer.addHandler('open', function (e) {
+            setImageLoading(true)
+            if (openHandlerRef.current) {
+                viewer.removeHandler('open', openHandlerRef.current)
+            }
+            if (openFailedHandlerRef.current) {
+                viewer.removeHandler('open-failed', openFailedHandlerRef.current)
+            }
+            const onOpen = function (e) {
+                setImageLoading(false)
                 const so = viewer.svgOverlay()
                 setSvgOverlay(so)
                 drawFeatures(so, features)
-            })
+            }
+            const onOpenFailed = function () {
+                setImageLoading(false)
+                setOpenFailed(true)
+            }
+            openHandlerRef.current = onOpen
+            openFailedHandlerRef.current = onOpenFailed
+            viewer.addHandler('open', onOpen)
+            viewer.addHandler('open-failed', onOpenFailed)
             viewer.open({
                 type: 'image',
                 url: image.src,
@@ -227,12 +292,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                 }
             })
         }
-        // Set open failed event
-        if (viewer) {
-            viewer.addHandler('open-failed', () => {
-                setOpenFailed(true)
-            })
-        }
+        // open-failed is handled in the image loading useEffect above
     }, [viewer])
 
     return (
@@ -248,7 +308,8 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                         onClick={() => {
                             viewer.viewport.setRotation(0)
                         }}
-                        size="large">
+                        size="large"
+                    >
                         <HomeIcon fontSize="inherit" />
                     </OSDButton>
                     <OSDButton
@@ -256,7 +317,8 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                         hasGap
                         title="Fullscreen"
                         aria-label="image view fullscreen"
-                        size="large">
+                        size="large"
+                    >
                         <FullscreenIcon fontSize="inherit" />
                     </OSDButton>
                     <OSDButton
@@ -264,14 +326,16 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                         hasJoiner
                         title="Rotate Counter-Clockwise"
                         aria-label="image view rotate counter clockwise"
-                        size="large">
+                        size="large"
+                    >
                         <RotateLeftIcon fontSize="inherit" />
                     </OSDButton>
                     <OSDButton
                         id="osd-rotateright"
                         title="Rotate Clockwise"
                         aria-label="image view rotate clockwise"
-                        size="large">
+                        size="large"
+                    >
                         <RotateRightIcon fontSize="inherit" />
                     </OSDButton>
                 </TopLeft>
@@ -282,7 +346,8 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                             title="Layers"
                             aria-label="image view layers"
                             onClick={onLayers}
-                            size="large">
+                            size="large"
+                        >
                             <LayersIcon fontSize="inherit" />
                         </OSDButton>
                     ) : null}
@@ -293,18 +358,30 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                         hasJoiner
                         title="Zoom In"
                         aria-label="image view zoom in"
-                        size="large">
+                        size="large"
+                    >
                         <AddIcon fontSize="inherit" />
                     </OSDButton>
                     <OSDButton
                         id="osd-zoomout"
                         title="Zoom Out"
                         aria-label="image view zoom out"
-                        size="large">
+                        size="large"
+                    >
                         <RemoveIcon fontSize="inherit" />
                     </OSDButton>
                 </BottomRight>
             </UIOverlay>
+            <LoadingWrapper isHidden={!imageLoading || openFailed}>
+                <LoadingPaper elevation={2}>
+                    <div>
+                        <LoadingProgress>
+                            <CircularProgress size={20} />
+                        </LoadingProgress>
+                        <LoadingText>LOADING</LoadingText>
+                    </div>
+                </LoadingPaper>
+            </LoadingWrapper>
             <OpenFailedWrapper isShown={openFailed}>
                 <StatusDiv isHidden={!openFailed}>
                     <StatusPaper elevation={2}>
@@ -324,7 +401,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                 </StatusDiv>
             </OpenFailedWrapper>
         </OSDRoot>
-    );
+    )
 }
 
 function drawFeatures(overlay, features) {

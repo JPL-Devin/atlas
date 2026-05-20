@@ -3,8 +3,6 @@ import { useSelector, useDispatch } from 'react-redux'
 import { styled } from '@mui/material/styles'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
-
 import Checkbox from '@mui/material/Checkbox'
 
 import { setFieldState } from '../../../../core/redux/actions/actions.js'
@@ -21,9 +19,7 @@ const StyledList = styled('ul')({
     listStyleType: 'none',
 })
 
-const ListItem = styled('li', {
-    shouldForwardProp: (prop) => prop !== 'isZero',
-})(({ theme, isZero }) => ({
+const ListItem = styled('li')(({ theme }) => ({
     'padding': `0px ${theme.spacing(2)}`,
     'display': 'flex',
     'height': '24px',
@@ -36,9 +32,6 @@ const ListItem = styled('li', {
     '&:hover': {
         background: theme.palette.swatches.grey.grey150,
     },
-    ...(isZero && {
-        opacity: 0.4,
-    }),
 }))
 
 const StyledCheckbox = styled(Checkbox)({
@@ -87,9 +80,10 @@ const ListFilter = (props) => {
         <ListFilterRoot>
             <StyledList>
                 {facet.fields ? (
-                    facet.fields.map((field, idx) => (
+                    facet.fields
+                        .filter((field) => field.doc_count > 0)
+                        .map((field, idx) => (
                         <ListItem
-                            isZero={field.doc_count === 0}
                             key={idx}
                             onClick={() => {
                                 dispatch(

@@ -44,6 +44,7 @@ import { publicUrl, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../core/constant
 import { streamDownloadFile } from '../../../../core/downloaders/ZipStream.js'
 
 import ReactMarkdown from 'react-markdown'
+import rehypeExternalLinks from 'rehype-external-links'
 
 const RegexModalRoot = styled('div')(({ theme }) => ({
     position: 'absolute',
@@ -593,7 +594,9 @@ const RegexModal = (props) => {
                         ) : null}
                     </InputSection>
                     <HelpSection isOpen={helpOpen}>
-                        <ReactMarkdown linkTarget="_blank">
+                        <ReactMarkdown
+                            rehypePlugins={[[rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }]]}
+                        >
                             {[
                                 `# Help - Regular Expressions`,
                                 `A regular expression (regex) is a way to match patterns in data using placeholder characters, called operators.`,
@@ -708,6 +711,7 @@ const RegexModal = (props) => {
                                 '- The regular expression engine, Lucene, does not support anchor operators, such as `^` (beginning of line) or `$` (end of line). To match a term, the regular expression must match the entire string.',
                             ].join('\n')}
                         </ReactMarkdown>
+                   
                         <Tooltip title="Close Help" arrow>
                             <CloseHelpIconButton
                                 isOpen={helpOpen}

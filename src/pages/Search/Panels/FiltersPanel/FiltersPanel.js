@@ -28,9 +28,9 @@ const FiltersPanelRoot = styled('div')(({ theme }) => ({
     transition: 'width 0.4s ease-out',
     overflow: 'hidden',
     position: 'relative',
-    background: theme.palette.swatches.grey.grey100,
+    background: theme.palette.swatches.grey.grey150,
     boxSizing: 'border-box',
-    borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    borderRight: `1px solid ${theme.palette.swatches.grey.grey300}`,
 }))
 
 const Contents = styled('div')({
@@ -86,7 +86,7 @@ const ButtonMore = styled('div')(({ theme }) => ({
         color: theme.palette.swatches.grey.grey600,
         fontSize: '21px',
     },
-    marginRight: '4px',
+    'marginRight': '4px',
 }))
 
 const FILTER_TYPES = {

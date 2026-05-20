@@ -8,7 +8,11 @@ updates:
     # Always increase the version requirement
     # to match the new version.
     versioning-strategy: increase
+    cooldown:
+      default-days: 7
     labels:
+      - "dependencies"
+      - "javascript"
       - "pdsen-ignore"
 
   # Maintain dependencies for GitHub Actions
