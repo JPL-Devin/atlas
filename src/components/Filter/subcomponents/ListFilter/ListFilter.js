@@ -81,10 +81,10 @@ const ListFilter = (props) => {
             <StyledList>
                 {facet.fields ? (
                     facet.fields
-                        .filter((field) => field.doc_count > 0)
                         .map((field, idx) => (
                         <ListItem
                             key={idx}
+                            isZero={field.doc_count === 0}
                             onClick={() => {
                                 dispatch(
                                     setFieldState(filterKey, facetId, {
