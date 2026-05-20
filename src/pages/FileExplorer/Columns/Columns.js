@@ -1206,10 +1206,16 @@ const Column = (props) => {
                                               (params.active.uniqueKey === uniqueKey ||
                                                   (!params.active.uniqueKey &&
                                                       params.active.key === result.key))
+                                          const rowStyle = {
+                                              ...style,
+                                              marginLeft: 0,
+                                              paddingLeft: 8,
+                                              width: style.width,
+                                          }
                                           return (
                                               <li
                                                   key={key}
-                                                  style={style}
+                                                  style={rowStyle}
                                                   className={clsx(
                                                       c.listItem,
                                                       c.listItemFilter,
