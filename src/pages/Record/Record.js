@@ -12,6 +12,7 @@ import { makeStyles } from '@mui/styles'
 import { searchRecordByURI, setRecordData } from '../../core/redux/actions/actions'
 import { ES_PATHS, domain, endpoints } from '../../core/constants'
 import { getIn, getHeader } from '../../core/utils'
+import { getAppConfig } from '../../core/appConfig'
 
 import Title from './Title/Title'
 import Content from './Content/Content'
@@ -29,7 +30,7 @@ const Record = (props) => {
     const { width } = props
 
     useEffect(() => {
-        document.title = 'Atlas - Record | PDS-IMG'
+        document.title = `${getAppConfig().appTitle} - Record | PDS-IMG`
     }, [])
 
     const c = useStyles()

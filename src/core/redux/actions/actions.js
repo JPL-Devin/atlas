@@ -638,7 +638,15 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                                 break
                             default:
                                 Object.keys(facet.state).forEach((value) => {
-                                    if (
+                                    if (value === 'exclude' && Array.isArray(facet.state[value])) {
+                                        query.bool = query.bool || { must: [] }
+                                        query.bool.must_not = query.bool.must_not || []
+                                        facet.state[value].forEach((excludeVal) => {
+                                            query.bool.must_not.push({
+                                                match: { [field]: excludeVal },
+                                            })
+                                        })
+                                    } else if (
                                         value === '__filter' &&
                                         facet.state[value] != null &&
                                         facet.state[value] != ''
