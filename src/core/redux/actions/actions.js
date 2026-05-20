@@ -717,12 +717,12 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
         query.bool.must_not = query.bool.must_not || []
         query.bool.must_not.push({
             wildcard: {
-                'gather.pds_archive.bundle_id': 'deprecated*',
+                'gather.pds_archive.bundle_id': '*deprecated*',
             },
         })
         query.bool.must_not.push({
             wildcard: {
-                'gather.pds_archive.volume_id': 'deprecated*',
+                'gather.pds_archive.volume_id': '*deprecated*',
             },
         })
 
