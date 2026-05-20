@@ -531,6 +531,7 @@ const Column = (props) => {
         setSort,
         setShowMobilePreview,
         pds_standard,
+        columns,
     } = props
     const mainPath = getIn(prevColumn, 'active.parent_uri', ':/').split(':/')[1]
 
@@ -544,15 +545,6 @@ const Column = (props) => {
 
     const colRef = useRef(null)
     const firstItemRef = useRef(null)
-
-    // Get columns and lastFilexFilterDoc from Redux for building bundle/volume URIs
-    const columns = useSelector((state) => {
-        const cols = state.get('columns')
-        return typeof cols.toJS === 'function' ? [] : cols
-    })
-    const lastFilexFilterDoc = useSelector((state) => {
-        return state.get('lastFilexFilterDoc')
-    })
 
     let content = null
 
@@ -1153,6 +1145,7 @@ const Column = (props) => {
                                               const isDeprecated = result.key
                                                   .toLowerCase()
                                                   .includes('deprecated')
+                                              if (!showDeprecated && isDeprecated) return null
                                               const isActive =
                                                   params.active &&
                                                   (params.active.uniqueKey === uniqueKey ||
@@ -1737,6 +1730,7 @@ const Columns = (props) => {
                                                 lastFilexFilterDoc,
                                                 ES_PATHS.archive.pds_standard
                                             )}
+                                            columns={columns}
                                         />
                                     ) : null}
                                 </>
@@ -1827,6 +1821,7 @@ const Columns = (props) => {
                                             lastFilexFilterDoc,
                                             ES_PATHS.archive.pds_standard
                                         )}
+                                        columns={columns}
                                     />
                                 </React.Fragment>
                             )
