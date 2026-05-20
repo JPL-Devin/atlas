@@ -232,7 +232,8 @@ const useStyles = makeStyles((theme) => ({
     },
     listItem: {
         'display': 'flex',
-        'height': '28px',
+        'boxSizing': 'border-box',
+        'height': '29px',
         'lineHeight': '28px',
         'padding': `0px 12px 0px 4px`,
         'marginLeft': theme.spacing(1),
@@ -495,6 +496,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
     },
     subHeader: {
+        'boxSizing': 'border-box',
         'padding': '8px 12px 4px 12px',
         'borderBottom': 'none',
         'background': theme.palette.swatches.grey.grey50,
@@ -1169,6 +1171,9 @@ const Column = (props) => {
                                       }
 
                                       const ITEM_HEIGHT = 29
+                                      const HEADER_HEIGHT = 32
+                                      const getRowHeight = ({ index }) =>
+                                          flatRows[index]._header ? HEADER_HEIGHT : ITEM_HEIGHT
 
                                       const rowRenderer = ({ index, key, style }) => {
                                           const row = flatRows[index]
@@ -1330,7 +1335,7 @@ const Column = (props) => {
                                                       width={width}
                                                       height={height}
                                                       rowCount={flatRows.length}
-                                                      rowHeight={ITEM_HEIGHT}
+                                                      rowHeight={getRowHeight}
                                                       rowRenderer={rowRenderer}
                                                       overscanRowCount={10}
                                                       style={{ outline: 'none' }}
