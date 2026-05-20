@@ -18,6 +18,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree'
 
 import { HASH_PATHS, publicUrl } from '../../core/constants'
 import { getPublicUrl } from '../../core/runtimeConfig'
+import { getAppConfig } from '../../core/appConfig'
 
 import NASALogoPath from '../../media/images/nasa-logo.svg'
 
@@ -263,35 +264,39 @@ const Topbar = () => {
                     </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Archive Explorer" arrow placement="bottom">
-                    <IconButton
-                        className={clsx(c.button, {
-                            [c.buttonActive]: pageName === 'Archive Explorer',
-                        })}
-                        aria-label="go to archive explorer"
-                        onClick={() => {
-                            navigate(HASH_PATHS.fileExplorer)
-                        }}
-                        size="large"
-                    >
-                        <AccountTreeIcon fontSize="inherit" />
-                    </IconButton>
-                </Tooltip>
+                {getAppConfig().enableArchiveExplorer && (
+                    <Tooltip title="Archive Explorer" arrow placement="bottom">
+                        <IconButton
+                            className={clsx(c.button, {
+                                [c.buttonActive]: pageName === 'Archive Explorer',
+                            })}
+                            aria-label="go to archive explorer"
+                            onClick={() => {
+                                navigate(HASH_PATHS.fileExplorer)
+                            }}
+                            size="large"
+                        >
+                            <AccountTreeIcon fontSize="inherit" />
+                        </IconButton>
+                    </Tooltip>
+                )}
 
-                <Tooltip title="Cart" arrow placement="bottom">
-                    <IconButton
-                        className={clsx(c.button, { [c.buttonActive]: pageName === 'Cart' })}
-                        aria-label="go to cart"
-                        onClick={() => {
-                            navigate(HASH_PATHS.cart)
-                        }}
-                        size="large"
-                    >
-                        <Badge className={c.cartBadge} badgeContent={cartLength}>
-                            <ShoppingCartOutlinedIcon fontSize="inherit" />
-                        </Badge>
-                    </IconButton>
-                </Tooltip>
+                {getAppConfig().enableCart && (
+                    <Tooltip title="Cart" arrow placement="bottom">
+                        <IconButton
+                            className={clsx(c.button, { [c.buttonActive]: pageName === 'Cart' })}
+                            aria-label="go to cart"
+                            onClick={() => {
+                                navigate(HASH_PATHS.cart)
+                            }}
+                            size="large"
+                        >
+                            <Badge className={c.cartBadge} badgeContent={cartLength}>
+                                <ShoppingCartOutlinedIcon fontSize="inherit" />
+                            </Badge>
+                        </IconButton>
+                    </Tooltip>
+                )}
             </div>
         </div>
     )

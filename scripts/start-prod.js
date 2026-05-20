@@ -32,6 +32,13 @@ const runtimeConfig = {
     APP_INSTANCE: process.env.APP_INSTANCE || 'atlas',
 }
 
+// Instance configurations for server-side route control
+const instanceConfigs = {
+    atlas: { enableCart: true, enableArchiveExplorer: true },
+    raws: { enableCart: false, enableArchiveExplorer: false },
+}
+const currentInstance = instanceConfigs[runtimeConfig.APP_INSTANCE] || instanceConfigs.atlas
+
 const app = express()
 // const app = express.default();
 app.disable('x-powered-by')
@@ -165,7 +172,12 @@ app.get(rootPath, (req, res) => {
 })
 
 // Build route array with PUBLIC_URL prefix (excluding root)
-const baseRoutes = ['/search', '/record', '/cart', '/archive-explorer*']
+const baseRoutes = [
+    '/search',
+    '/record',
+    ...(currentInstance.enableCart ? ['/cart'] : []),
+    ...(currentInstance.enableArchiveExplorer ? ['/archive-explorer*'] : []),
+]
 const appRoutes = runtimeConfig.PUBLIC_URL
     ? [...baseRoutes, ...baseRoutes.map((route) => `${runtimeConfig.PUBLIC_URL}${route}`)]
     : baseRoutes

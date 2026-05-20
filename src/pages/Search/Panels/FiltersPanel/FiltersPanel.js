@@ -21,6 +21,7 @@ import AdvancedFilter from './subcomponents/AdvancedFilter/AdvancedFilter'
 
 import MenuButton from '../../../../components/MenuButton/MenuButton'
 
+import { getAppConfig } from '../../../../core/appConfig'
 import { makeStyles } from '@mui/styles'
 
 const useStyles = makeStyles((theme) => ({
@@ -146,7 +147,7 @@ const FiltersPanel = (props) => {
                         <div className={c.title}>{FILTER_TYPES[filterType]}</div>
                     </div>
                     <div className={c.right}>
-                        {filterType === 'basic' && (
+                        {filterType === 'basic' && getAppConfig().enableAddFilters && (
                             <Button
                                 className={c.addFilter}
                                 aria-label="add filter"
