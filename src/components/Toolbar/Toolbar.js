@@ -116,6 +116,24 @@ const useStyles = makeStyles((theme) => ({
         pointerEvents: 'none',
         paddingRight: '8px',
     },
+    listItemHeader: {
+        'pointerEvents': 'none',
+        'height': 'auto',
+        'minHeight': '32px',
+        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey700}`,
+        'marginTop': '4px',
+        '& a': {
+            padding: '6px 0px 6px 16px',
+            height: 'auto !important',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '1.2px',
+            textTransform: 'uppercase',
+            color: theme.palette.swatches.grey.grey400,
+            borderLeft: 'none',
+            borderBottom: 'none',
+        },
+    },
     listIndent: {
         paddingLeft: '14px',
     },
@@ -366,6 +384,7 @@ const Toolbar = (props) => {
                         <ListItem
                             className={clsx(c.listItem, {
                                 [c.listItemNoClick]: item.isHeader,
+                                [c.listItemHeader]: item.isHeader,
                                 [c.listIndent]: item.isAtlas || item.isData || item.isPDS,
                             })}
                             key={idx}

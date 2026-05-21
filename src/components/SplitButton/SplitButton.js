@@ -113,7 +113,7 @@ export default function SplitButton(props) {
             })
             setCheckedIndices(nextCheckedIndices)
         }
-    }, [])
+    }, [items.length])
 
     const handleClick = () => {
         if (typeof onClick === 'function') {

@@ -26,6 +26,7 @@ import { getIn, getPDSUrl, getFilename } from '../../core/utils.js'
 import { ES_PATHS } from '../../core/constants.js'
 
 import { streamDownloadFile } from '../../core/downloaders/ZipStream.js'
+import { getAppConfig } from '../../core/appConfig'
 
 const CenterTooltip = withStyles((theme) => ({
     tooltip: {
@@ -197,6 +198,7 @@ const ProductToolbar = (props) => {
                     [c.noHoverInner]: noHover,
                 })}
             >
+                {(isCart || getAppConfig().enableCart) && (
                 <Checkbox
                     className={clsx(c.checkbox, {
                         [c.noHoverCheckbox]: noHover,
@@ -209,6 +211,7 @@ const ProductToolbar = (props) => {
                             : dispatch(checkItemInResults(result.result_key))
                     }}
                 />
+                )}
                 {uri != null && result.type !== 'query' && result.type !== 'directory' ? (
                     <CenterTooltip
                         title={`Download ${getFilename(uri)}`}
@@ -232,6 +235,7 @@ const ProductToolbar = (props) => {
                         </IconButton>
                     </CenterTooltip>
                 ) : null}
+                {(isCart || getAppConfig().enableCart) && (
                 <Tooltip
                     title={isInCart ? 'Remove from Cart' : 'Add to Cart'}
                     placement="top-end"
@@ -279,8 +283,9 @@ const ProductToolbar = (props) => {
                         {isInCart ? <RemoveShoppingCartIcon /> : <AddShoppingCartIcon />}
                     </IconButton>
                 </Tooltip>
+                )}
             </div>
-            {!isCart && <ShoppingCartIcon className={clsx(c.inCart, 'ProductToolbarInCart')} />}
+            {!isCart && getAppConfig().enableCart && <ShoppingCartIcon className={clsx(c.inCart, 'ProductToolbarInCart')} />}
         </div>
     )
 }

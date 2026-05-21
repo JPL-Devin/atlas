@@ -32,6 +32,7 @@ import {
     setModal,
     setSnackBarText,
 } from '../../../../../../core/redux/actions/actions.js'
+import { getAppConfig } from '../../../../../../core/appConfig'
 
 const useStyles = makeStyles((theme) => ({
     Heading: {
@@ -232,6 +233,7 @@ const Heading = (props) => {
                         Edit Columns
                     </Button>
                 )}
+                {getAppConfig().enableCart && (
                 <Tooltip
                     title={
                         resultKeysChecked.length > 0
@@ -271,37 +273,32 @@ const Heading = (props) => {
                             : 'Add All to Cart'}
                     </Button>
                 </Tooltip>
-                <MenuButton
-                    options={
-                        !isMobile
-                            ? [
-                                  'Add All Query Results to Cart',
-                                  'Add Selected Results to Cart',
-                                  '-',
-                                  'Deselect All',
-                              ]
-                            : activeView === 'table'
-                            ? [
-                                  'Add All Query Results to Cart',
-                                  'Add Selected Results to Cart',
-                                  '-',
-                                  'Deselect All',
-                                  '-',
-                                  'Edit Columns',
-                              ]
-                            : [
-                                  'Add All Query Results to Cart',
-                                  'Add Selected Results to Cart',
-                                  '-',
-                                  'Deselect All',
-                                  '-',
-                                  'Small Grid Images',
-                                  'Medium Grid Images',
-                                  'Large Grid Images',
-                                  '-',
-                                  'Rotate Images 90°',
-                              ]
-                    }
+                )}
+                {(() => {
+                    const cartOptions = getAppConfig().enableCart ? [
+                        'Add All Query Results to Cart',
+                        'Add Selected Results to Cart',
+                        '-',
+                        'Deselect All',
+                    ] : []
+                    const menuOptions = !isMobile
+                        ? cartOptions
+                        : activeView === 'table'
+                        ? [
+                              ...(cartOptions.length > 0 ? [...cartOptions, '-'] : []),
+                              'Edit Columns',
+                          ]
+                        : [
+                              ...(cartOptions.length > 0 ? [...cartOptions, '-'] : []),
+                              'Small Grid Images',
+                              'Medium Grid Images',
+                              'Large Grid Images',
+                              '-',
+                              'Rotate Images 90°',
+                          ]
+                    if (menuOptions.length === 0) return null
+                    return (<MenuButton
+                    options={menuOptions}
                     buttonComponent={<MoreVertIcon className={c.menuButton} />}
                     onChange={(option, idx) => {
                         switch (option) {
@@ -338,7 +335,8 @@ const Heading = (props) => {
                                 break
                         }
                     }}
-                />
+                />)
+                })()}
             </div>
         </div>
     )
