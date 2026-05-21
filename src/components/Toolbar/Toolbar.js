@@ -42,7 +42,7 @@ import {
 
 import { HASH_PATHS } from '../../core/constants'
 import { getPublicUrl } from '../../core/runtimeConfig'
-import { getAppConfig, getAllInstances } from '../../core/appConfig'
+import { getAppConfig, getAppInstanceKey, getAllInstances } from '../../core/appConfig'
 
 const drawerWidth = 230
 
@@ -249,7 +249,7 @@ const useStyles = makeStyles((theme) => ({
 
 const buildDrawerItems = () => {
     const allInstances = getAllInstances()
-    const currentConfig = getAppConfig()
+    const currentInstanceKey = getAppInstanceKey()
     const items = [
         { name: 'Home', path: 'https://pds-imaging.jpl.nasa.gov/' },
     ]
@@ -260,7 +260,7 @@ const buildDrawerItems = () => {
 
     sortedKeys.forEach((instanceKey) => {
         const instance = allInstances[instanceKey]
-        const isCurrent = instance.appTitle === currentConfig.appTitle
+        const isCurrent = instanceKey === currentInstanceKey
 
         items.push({ name: instance.drawerLabel, isHeader: true })
 

@@ -71,13 +71,14 @@ const instances = {
     },
 }
 
-export const getAppConfig = () => {
+export const getAppInstanceKey = () => {
     let appInstance = 'atlas'
     if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.APP_INSTANCE)
         appInstance = window.APP_CONFIG.APP_INSTANCE
     else if (process.env.REACT_APP_APP_INSTANCE) appInstance = process.env.REACT_APP_APP_INSTANCE
-
-    return instances[appInstance] || instances.atlas
+    return instances[appInstance] ? appInstance : 'atlas'
 }
+
+export const getAppConfig = () => instances[getAppInstanceKey()] || instances.atlas
 
 export const getAllInstances = () => instances

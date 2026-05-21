@@ -44,6 +44,7 @@ const ChippedFilters = (props) => {
                 activeFilters[filterKey].facets.forEach((facet, facetId) => {
                     if (facet.state) {
                         Object.keys(facet.state).forEach((key) => {
+                            if (key === 'exclude') return
                             let value = facet.state[key]
                             if (key === '__filter' && (value == '' || value == null)) return
                             if (value === false) return

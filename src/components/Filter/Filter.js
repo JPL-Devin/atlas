@@ -427,7 +427,9 @@ const Filter = (props) => {
             if (facet.state) {
                 const clearedState = {}
                 Object.keys(facet.state).forEach((key) => {
-                    if (key === '__filter') {
+                    if (key === 'exclude') {
+                        clearedState[key] = facet.state[key]
+                    } else if (key === '__filter') {
                         clearedState[key] = null
                     } else {
                         clearedState[key] = false
@@ -452,6 +454,7 @@ const Filter = (props) => {
         filter.facets.forEach((f) => {
             if (f.state)
                 Object.keys(f.state).forEach((key) => {
+                    if (key === 'exclude') return
                     if (f.state[key] != false && f.state[key] != '' && f.state[key] != null) count++
                 })
         })
