@@ -392,10 +392,11 @@ const Toolbar = (props) => {
                             <a
                                 className={clsx(c.aLink, {
                                     [c.activePath]:
-                                        item.path === pathRoot ||
+                                        !item.openInNewTab &&
+                                        (item.path === pathRoot ||
                                         (item.path &&
                                             item.name != 'Home' &&
-                                            pathRoot.indexOf(item.path) === 0),
+                                            pathRoot.indexOf(item.path) === 0)),
                                 })}
                                 onClick={(e) => {
                                     if (item.isAtlas && !item.openInNewTab) {
