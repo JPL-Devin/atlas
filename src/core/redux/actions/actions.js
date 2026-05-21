@@ -1679,7 +1679,7 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
                                       },
                                   }
                                 : null
-                        if (nextVolActive) dispatch(updateFilexColumn(2, nextVolActive))
+                        if (nextVolActive) dispatch(updateFilexColumn(1, nextVolActive))
 
                         let rawPath = url.query.uri || ''
                         const splittedUri = splitUri(rawPath)
@@ -1709,17 +1709,18 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
                                     uriPrefix +
                                     rawPath.substring(
                                         0,
-                                        lastMatch + key.length + (isFinalFile ? 0 : 1)
+                                        lastMatch + key.length + 1
                                     )
                                 // || rawPathFinal === key
 
                                 dispatch(
                                     updateFilexColumn(
-                                        pathId + 3,
+                                        pathId + 2,
                                         {
                                             active: {
                                                 key: isFinalFile ? key.slice(0, -1) : key,
                                                 uri: isFinalFile ? uri.slice(0, -1) : uri,
+                                                fs_type: isFinalFile ? 'file' : null,
                                                 _needsData: isFinalFile,
                                             },
                                         },
@@ -2112,7 +2113,7 @@ export const goToFilexURI = (uri) => {
 
             dispatch(
                 updateFilexColumn(
-                    pathId + 3,
+                    pathId + 2,
                     {
                         active: {
                             key: isFinalFile ? key.slice(0, -1) : key,

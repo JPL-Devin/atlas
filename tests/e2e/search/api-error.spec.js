@@ -1,0 +1,120 @@
+import { test, expect } from '@playwright/test'
+import { waitForAppReady } from '../../helpers/atlas-helpers.js'
+
+/**
+ * Search proxy error / network failure handling.
+ *
+ * Atlas (the SPA) talks to a separate search proxy service via the
+ * `REACT_APP_DOMAIN` env var. The proxy chains through API Gateway →
+ * Lambda → OpenSearch and is the only data path used by both
+ * `/search` and `/archive-explorer` (different filters, same
+ * endpoint at `/_search`). Any link in that chain — proxy, Lambda
+ * cold-start, OpenSearch — can fail independently of Atlas itself.
+ *
+ * The suite filters "Failed to fetch" / "Cannot read properties of
+ * undefined" downstream crashes by default (see
+ * `filterCriticalJsErrors` in `atlas-helpers.js`). What we actually
+ * want to verify here is that:
+ *
+ *   1. Forcing the search proxy to return 5xx does not white-screen
+ *      the SPA shell. The Toolbar / Topbar must remain interactive.
+ *   2. The user can still navigate to other routes (/cart,
+ *      /archive-explorer) even while /search's data path is failing.
+ *
+ * We deliberately *don't* assert against `filterCriticalJsErrors`
+ * here — that helper is built around exactly the network/Redux noise
+ * we are intentionally generating.
+ */
+
+test.describe('Search - API error handling', () => {
+    test('forcing the search proxy to 500 does not white-screen the SPA shell', async ({
+        page,
+    }) => {
+        await page.route(/_search/, async (route) => {
+            await route.fulfill({
+                status: 500,
+                contentType: 'application/json',
+                body: JSON.stringify({ error: 'forced 500 for test', status: 500 }),
+            })
+        })
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        // Topbar and Toolbar must still be reachable even though the
+        // search API is failing.
+        await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
+        await expect(page.getByRole('button', { name: /go to cart/i })).toBeVisible()
+
+        // Body has rendered content (no white screen).
+        const bodyHasContent = await page.evaluate(
+            () => document.body && document.body.innerHTML.length > 100,
+        )
+        expect(bodyHasContent).toBeTruthy()
+    })
+
+    test('user can still navigate to /cart while the search proxy is failing', async ({
+        page,
+    }) => {
+        await page.route(/_search/, async (route) => {
+            await route.fulfill({
+                status: 500,
+                contentType: 'application/json',
+                body: JSON.stringify({ error: 'forced 500 for test', status: 500 }),
+            })
+        })
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        // The Topbar cart button is the most reliable click-nav target.
+        await page.getByRole('button', { name: /go to cart/i }).click()
+        await page.waitForURL((u) => u.pathname.includes('/cart'), { timeout: 30_000 })
+        expect(page.url()).toContain('/cart')
+
+        // /cart route renders normally — its own UI does not depend on
+        // the broken _search endpoint.
+        await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
+    })
+
+    test('forcing the search proxy to a network error does not crash the SPA shell', async ({
+        page,
+    }) => {
+        // Simulate a hard network failure (DNS / connection reset).
+        await page.route(/_search/, async (route) => {
+            await route.abort('failed')
+        })
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
+        await expect(page.getByRole('button', { name: /go to cart/i })).toBeVisible()
+    })
+
+    test('forcing the search proxy to 500 does not white-screen /archive-explorer', async ({
+        page,
+    }) => {
+        // /archive-explorer hits the same `/api/search/atlas/_search`
+        // endpoint as /search (with different filters), so this also
+        // exercises the FileExplorer's resilience to the search proxy
+        // being unhealthy.
+        await page.route(/_search/, async (route) => {
+            await route.fulfill({
+                status: 500,
+                contentType: 'application/json',
+                body: JSON.stringify({ error: 'forced 500 for test', status: 500 }),
+            })
+        })
+
+        await page.goto('/archive-explorer', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
+        const bodyHasContent = await page.evaluate(
+            () => document.body && document.body.innerHTML.length > 100,
+        )
+        expect(bodyHasContent).toBeTruthy()
+    })
+
+})

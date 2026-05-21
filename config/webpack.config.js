@@ -3,26 +3,19 @@
 const fs = require("fs");
 const path = require("path");
 const webpack = require("webpack");
-const resolve = require("resolve");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CaseSensitivePathsPlugin = require("case-sensitive-paths-webpack-plugin");
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
-const InlineChunkHtmlPlugin = require("react-dev-utils/InlineChunkHtmlPlugin");
+const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
-const InterpolateHtmlPlugin = require("react-dev-utils/InterpolateHtmlPlugin");
-const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin");
-const getCSSModuleLocalIdent = require("react-dev-utils/getCSSModuleLocalIdent");
+const InterpolateHtmlPlugin = require("interpolate-html-plugin");
 const paths = require("./paths");
 const modules = require("./modules");
 const getClientEnvironment = require("./env");
-const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
-const ForkTsCheckerWebpackPlugin = require("react-dev-utils/ForkTsCheckerWebpackPlugin");
-const html2pug = require("html2pug");
-
-const postcssNormalize = require("postcss-normalize");
+const { htmlToPug } = require("./build-utils");
 
 const appPackageJson = require(paths.appPackageJson);
 
@@ -91,7 +84,12 @@ module.exports = function (webpackEnv) {
             },
             {
                 loader: require.resolve("css-loader"),
-                options: cssOptions,
+                options: {
+                    ...cssOptions,
+                    url: {
+                        filter: (url) => !url.startsWith("/"),
+                    },
+                },
             },
             {
                 // Options for PostCSS as we reference these options twice
@@ -102,19 +100,14 @@ module.exports = function (webpackEnv) {
                     // Necessary for external CSS imports to work
                     // https://github.com/facebook/create-react-app/issues/2677
                     postcssOptions: {
-                        ident: "postcss",
-                        plugins: () => [
-                            require("postcss-flexbugs-fixes"),
-                            require("postcss-preset-env")({
+                        plugins: [
+                            "postcss-flexbugs-fixes",
+                            ["postcss-preset-env", {
                                 autoprefixer: {
                                     flexbox: "no-2009",
                                 },
                                 stage: 3,
-                            }),
-                            // Adds PostCSS Normalize as the reset css with default options,
-                            // so that it honors browserslist config in package.json
-                            // which in turn let's users customize the target behavior as per their needs.
-                            postcssNormalize(),
+                            }],
                         ],
                     },
                     sourceMap: isEnvProduction && shouldUseSourceMap,
@@ -151,24 +144,11 @@ module.exports = function (webpackEnv) {
             : isEnvDevelopment && "cheap-module-source-map",
         // These are the "entry points" to our application.
         // This means they will be the "root" imports that are included in JS bundle.
-        entry: [
-            // Include an alternative client for WebpackDevServer. A client's job is to
-            // connect to WebpackDevServer by a socket and get notified about changes.
-            // When you save a file, the client will either apply hot updates (in case
-            // of CSS changes), or refresh the page (in case of JS changes). When you
-            // make a syntax error, this client will display a syntax error overlay.
-            // Note: instead of the default WebpackDevServer client, we use a custom one
-            // to bring better experience for Create React App users. You can replace
-            // the line below with these two lines if you prefer the stock client:
-            // require.resolve("webpack-dev-server/client") + "?/",
-            // require.resolve("webpack/hot/dev-server"),
-            isEnvDevelopment && require.resolve("react-dev-utils/webpackHotDevClient"),
-            // Finally, this is your app's code:
-            paths.appIndexJs,
-            // We include the app code last so that if there is a runtime error during
-            // initialization, it doesn't blow up the WebpackDevServer client, and
-            // changing JS code would still trigger a refresh.
-        ].filter(Boolean),
+        // In dev, webpack-dev-server auto-injects its own client + webpack/hot/dev-server
+        // when `hot: true` is set in the dev-server config, so we don't need to add them
+        // here manually (doing so produces a second WebSocket connection because the
+        // auto-injected client has different query params).
+        entry: paths.appIndexJs,
         output: {
             // The build folder.
             path: isEnvProduction ? paths.appBuild : paths.appBuild,
@@ -201,6 +181,7 @@ module.exports = function (webpackEnv) {
             // this defaults to "window", but by setting it to "this" then
             // module chunks which are built will work in web workers as well.
             globalObject: "this",
+            hashFunction: "xxhash64",
         },
         optimization: {
             minimize: isEnvProduction,
@@ -236,7 +217,7 @@ module.exports = function (webpackEnv) {
                         // Added for profiling in devtools
                         keep_classnames: isEnvProductionProfile,
                         keep_fnames: isEnvProductionProfile,
-                        output: {
+                        format: {
                             ecma: 5,
                             comments: false,
                             // Turned on because emoji and regex is not minified properly using default
@@ -293,19 +274,7 @@ module.exports = function (webpackEnv) {
                 }),
                 ...(modules.webpackAliases || {}),
             },
-            plugins: [
-                // Prevents users from importing files from outside of src/ (or node_modules/).
-                // This often causes confusion because we only process files within src/ with babel.
-                // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
-                // please link the files into your node_modules/ and let module-resolution kick in.
-                // Make sure your source files are compiled, as they will not be processed in any way.
-                new ModuleScopePlugin(paths.appSrc, [
-                    paths.appPackageJson, 
-                    paths.appNodeModules,
-                    // Allow @babel/runtime imports to resolve properly
-                    path.resolve(paths.appNodeModules, "@babel/runtime")
-                ]),
-            ],
+            plugins: [],
             fallback: {
               module: false,
               dgram: false,
@@ -451,7 +420,7 @@ module.exports = function (webpackEnv) {
                                 importLoaders: 1,
                                 sourceMap: isEnvProduction && shouldUseSourceMap,
                                 modules: {
-                                    getLocalIdent: getCSSModuleLocalIdent,
+                                    localIdentName: "[path][name]__[local]--[hash:base64:5]",
                                 },
                             }),
                         },
@@ -483,7 +452,7 @@ module.exports = function (webpackEnv) {
                                     importLoaders: 3,
                                     sourceMap: isEnvProduction && shouldUseSourceMap,
                                     modules: {
-                                        getLocalIdent: getCSSModuleLocalIdent,
+                                        localIdentName: "[path][name]__[local]--[hash:base64:5]",
                                     },
                                 },
                                 "sass-loader"
@@ -518,6 +487,7 @@ module.exports = function (webpackEnv) {
                         extensions: ["js", "mjs", "jsx", "ts", "tsx"],
                         eslintPath: require.resolve("eslint"),
                         cache: true,
+                        emitError: false,
                         failOnError: isEnvProduction,
                         failOnWarning: false,
                     });
@@ -553,25 +523,26 @@ module.exports = function (webpackEnv) {
             // https://github.com/facebook/create-react-app/issues/5358
             isEnvProduction &&
                 shouldInlineRuntimeChunk &&
-                new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime-.+[.]js/]),
+                new HtmlInlineScriptPlugin({
+                    scriptMatchPattern: [/runtime-.+[.]js/],
+                }),
             // Makes some environment variables available in index.html.
             // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
             // <link rel="icon" href="%PUBLIC_URL%/favicon.ico">
             // In production, it will be an empty string unless you specify "homepage"
             // in `package.json`, in which case it will be the pathname of that URL.
             // In development, this will be an empty string.
-            new InterpolateHtmlPlugin(HtmlWebpackPlugin, env.raw),
-            // This gives some necessary context to module not found errors, such as
-            // the requesting resource.
-            new ModuleNotFoundPlugin(paths.appPath),
+            new InterpolateHtmlPlugin(env.raw),
+
             // Makes some environment variables available to the JS code, for example:
             // if (process.env.NODE_ENV === "production") { ... }. See `./env.js`.
             // It is absolutely essential that NODE_ENV is set to production
             // during a production build.
             // Otherwise React will be compiled in the very slow development mode.
             new webpack.DefinePlugin(env.stringified),
-            // This is necessary to emit hot updates (currently CSS only):
-            isEnvDevelopment && new webpack.HotModuleReplacementPlugin(),
+            // webpack-dev-server auto-applies HotModuleReplacementPlugin when `hot: true`
+            // is set in the dev-server config, so we don't add it manually here.
+            // (Adding it manually triggers a WDS v5 warning.)
             // Watcher doesn't work well if you mistype casing in a path so we use
             // a plugin that prints an error when you attempt to do this.
             // See https://github.com/facebook/create-react-app/issues/240
@@ -617,31 +588,7 @@ module.exports = function (webpackEnv) {
               resourceRegExp: /^\.\/locale$/,
               contextRegExp: /moment$/
             }),
-            // TypeScript type checking
-            useTypeScript &&
-                new ForkTsCheckerWebpackPlugin({
-                    typescript: resolve.sync("typescript", {
-                        basedir: paths.appNodeModules,
-                    }),
-                    async: isEnvDevelopment,
-                    useTypescriptIncrementalApi: true,
-                    checkSyntacticErrors: true,
-                    resolveModuleNameModule: process.versions.pnp
-                        ? `${__dirname}/pnpTs.js`
-                        : undefined,
-                    resolveTypeReferenceDirectiveModule: process.versions.pnp
-                        ? `${__dirname}/pnpTs.js`
-                        : undefined,
-                    tsconfig: paths.appTsConfig,
-                    reportFiles: [
-                        "**",
-                        "!**/__tests__/**",
-                        "!**/?(*.)(spec|test).*",
-                        "!**/src/setupProxy.*",
-                        "!**/src/setupTests.*",
-                    ],
-                    silent: true,
-                }),
+
             // index.html lives in webpack's in-memory fs in dev; only emit index.pug after a disk write.
             isEnvProduction && new HTML2PugPlugin(paths.appBuild),
         ].filter(Boolean),
@@ -668,7 +615,7 @@ class HTML2PugPlugin {
             // Make a pug copy of index.html too
             const htmlStr = fs.readFileSync(`${this.htmlPath}/index.html`, "utf8")
 
-            let pugStr = html2pug(htmlStr, {})
+            let pugStr = htmlToPug(htmlStr)
 
             // Replace absolute paths with publicUrl variable for runtime configuration
             // If webpack publicPath includes a prefix, strip it first to avoid double-prefixing
