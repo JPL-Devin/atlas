@@ -64,10 +64,10 @@ const instances = {
         drawerLabel: 'Planetary Raws',
         baseUrl: '',
         dataEndpoint: '/data',
-        searchEndpoint: '/search/raws/_search',
-        pitEndpoint: '/search/raws/_pit',
+        searchEndpoint: '/search/atlas/_search',
+        pitEndpoint: '/search/atlas/_pit',
         scrollEndpoint: '/search/_search/scroll',
-        archiveEndpoint: '/search/raws/_search',
+        archiveEndpoint: '/search/atlas/_search',
     },
 }
 
@@ -75,8 +75,7 @@ export const getAppConfig = () => {
     let appInstance = 'atlas'
     if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.APP_INSTANCE)
         appInstance = window.APP_CONFIG.APP_INSTANCE
-    else if (process.env.REACT_APP_APP_INSTANCE)
-        appInstance = process.env.REACT_APP_APP_INSTANCE
+    else if (process.env.REACT_APP_APP_INSTANCE) appInstance = process.env.REACT_APP_APP_INSTANCE
 
     return instances[appInstance] || instances.atlas
 }
