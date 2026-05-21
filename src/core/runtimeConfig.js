@@ -101,8 +101,8 @@ export const getDoiUrl = () => {
  * @returns {string} The app instance name (e.g., 'atlas', 'raws')
  */
 export const getAppInstance = () => {
-    if (typeof window !== 'undefined' && window.APP_CONFIG)
-        return window.APP_CONFIG.APP_INSTANCE ?? 'atlas'
+    if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.APP_INSTANCE)
+        return window.APP_CONFIG.APP_INSTANCE
 
     return process.env.REACT_APP_APP_INSTANCE ?? 'atlas'
 }
