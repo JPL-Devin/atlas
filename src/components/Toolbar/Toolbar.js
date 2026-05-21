@@ -272,6 +272,7 @@ const buildDrawerItems = () => {
                 path: `${instance.baseUrl}/search`,
                 isAtlas: true,
                 openInNewTab: true,
+                isCrossInstance: true,
             })
 
         if (instance.enableArchiveExplorer)
@@ -283,6 +284,7 @@ const buildDrawerItems = () => {
                     path: `${instance.baseUrl}/archive-explorer`,
                     isAtlas: true,
                     openInNewTab: true,
+                    isCrossInstance: true,
                 })
 
         if (instance.enableCart)
@@ -294,6 +296,7 @@ const buildDrawerItems = () => {
                     path: `${instance.baseUrl}/cart`,
                     isAtlas: true,
                     openInNewTab: true,
+                    isCrossInstance: true,
                 })
 
         if (isCurrent)
@@ -304,6 +307,7 @@ const buildDrawerItems = () => {
                 path: `${instance.baseUrl}/documentation`,
                 isAtlas: true,
                 openInNewTab: true,
+                isCrossInstance: true,
             })
     })
 
@@ -408,7 +412,7 @@ const Toolbar = (props) => {
                                     }
                                 }}
                                 target={item.openInNewTab ? "_blank" : "__blank"}
-                                href={item.isAtlas && item.openInNewTab ? `${publicUrl}${item.path}` : item.path}
+                                href={item.isAtlas && item.openInNewTab && !item.isCrossInstance ? `${publicUrl}${item.path}` : item.path}
                                 rel="noopener"
                             >
                                 {item.name === 'Search Images' && (
