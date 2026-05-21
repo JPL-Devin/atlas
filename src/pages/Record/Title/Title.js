@@ -273,6 +273,8 @@ const Title = (props) => {
                         })
                     }}
                 />
+                {getAppConfig().enableCart && (
+                <>
                 <Divider className={c.divider} orientation="vertical" flexItem />
                 <Tooltip title="Add to Cart" arrow>
                     <IconButton
@@ -293,6 +295,8 @@ const Title = (props) => {
                         <AddShoppingCartIcon size="small" />
                     </IconButton>
                 </Tooltip>
+                </>
+                )}
             </div>
         </div>
     );
