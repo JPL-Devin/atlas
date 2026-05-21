@@ -118,6 +118,7 @@ function BrowserTab(props) {
                                             } else {
                                                 setIsDownloading(true)
                                                 setDownloadId(downloadId + 1)
+                                                setStatus(null)
                                                 setError(null)
                                                 dispatch(
                                                     ZipStreamCart(

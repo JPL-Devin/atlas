@@ -64,6 +64,9 @@ const ZipStreamDownload = (
     let failures = 0
     let filesAreFrom = null
 
+    const abortController = new AbortController()
+    let stopped = false
+
     items.forEach((item) => {
         totalFiles += (item?.item?.total || 1) * productKeys.length
         totalProducts += item?.item?.total || 1
@@ -75,6 +78,7 @@ const ZipStreamDownload = (
     const pull = async (ctrl) => {
         // Gets executed every time zip.js asks for more data
         if (paused) return
+        if (stopped) return
 
         // We want to iterate over each cart item
         // If the cart item is an individual image, we can just read its data
@@ -96,7 +100,7 @@ const ZipStreamDownload = (
                         currentItem.type === 'directory' ||
                         currentItem.type === 'regex'
                     ) {
-                        lastQueryResult = await getQuery(currentItem.item, null, productKeys)
+                        lastQueryResult = await getQuery(currentItem.item, null, productKeys, abortController.signal)
                         files = lastQueryResult.files
                         filesAreFrom = lastQueryResult
                     } else {
@@ -105,7 +109,7 @@ const ZipStreamDownload = (
                     }
                 } else {
                     // We're in the middle of a scroll query
-                    lastQueryResult = await getQuery(currentItem.item, lastQueryResult, productKeys)
+                    lastQueryResult = await getQuery(currentItem.item, lastQueryResult, productKeys, abortController.signal)
                     files = lastQueryResult.files
                     filesAreFrom = lastQueryResult
                 }
@@ -138,7 +142,8 @@ const ZipStreamDownload = (
             const name = files[filesIdx].name
             let res = null
 
-            res = await fetch(url).catch((err) => {
+            res = await fetch(url, { signal: abortController.signal }).catch((err) => {
+                if (err?.name === 'AbortError') return null
                 failures += 1
             })
 
@@ -253,6 +258,8 @@ const ZipStreamDownload = (
             }
             // Make a metadata files too
             ctrl.closeWithMetadata = () => {
+                stopped = true
+                abortController.abort()
                 ctrl.enqueue(getMetadataFile(items, status, productKeys))
                 ctrl.close()
             }
@@ -357,7 +364,7 @@ const ZipStreamDownload = (
     }
 }
 
-const getQuery = (item, previousResult, productKeys) => {
+const getQuery = (item, previousResult, productKeys, signal) => {
     return new Promise((resolve, reject) => {
         //Get total count
         let totalCount = 0
@@ -381,10 +388,17 @@ const getQuery = (item, previousResult, productKeys) => {
                 .post(
                     `${domain}${endpoints.search}?scroll=${scrollTimeout}&${filter_path}`,
                     dsl,
-                    getHeader()
+                    {
+                        ...getHeader(),
+                        signal,
+                    }
                 )
                 .then((res) => processResponse(res))
                 .catch((err) => {
+                    if (axios.isCancel(err) || err?.name === 'CanceledError' || err?.name === 'AbortError') {
+                        resolve({ files: [] })
+                        return
+                    }
                     console.error('ES ZIP Download Error')
                     console.dir(err)
                 })
@@ -396,12 +410,19 @@ const getQuery = (item, previousResult, productKeys) => {
                         scroll: scrollTimeout,
                         scroll_id: previousResult.scrollId,
                     },
-                    getHeader()
+                    {
+                        ...getHeader(),
+                        signal,
+                    }
                 )
                 .then((res) => {
                     processResponse(res)
                 })
                 .catch((err) => {
+                    if (axios.isCancel(err) || err?.name === 'CanceledError' || err?.name === 'AbortError') {
+                        resolve({ files: [] })
+                        return
+                    }
                     console.error('ES ZIP Scroll Download Error')
                     console.dir(err)
                     resolve({
