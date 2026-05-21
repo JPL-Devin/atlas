@@ -252,6 +252,7 @@ const buildDrawerItems = () => {
             items.push({
                 name: 'Search Images',
                 path: `${instance.baseUrl}/search`,
+                isAtlas: true,
                 openInNewTab: true,
             })
 
@@ -262,6 +263,7 @@ const buildDrawerItems = () => {
                 items.push({
                     name: 'Browse Archive',
                     path: `${instance.baseUrl}/archive-explorer`,
+                    isAtlas: true,
                     openInNewTab: true,
                 })
 
@@ -272,6 +274,7 @@ const buildDrawerItems = () => {
                 items.push({
                     name: 'Cart',
                     path: `${instance.baseUrl}/cart`,
+                    isAtlas: true,
                     openInNewTab: true,
                 })
 
@@ -281,6 +284,7 @@ const buildDrawerItems = () => {
             items.push({
                 name: 'Documentation',
                 path: `${instance.baseUrl}/documentation`,
+                isAtlas: true,
                 openInNewTab: true,
             })
     })
