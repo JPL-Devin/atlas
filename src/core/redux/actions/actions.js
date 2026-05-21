@@ -304,6 +304,15 @@ export const clearActiveFilters = () => {
 export const resetFilters = () => {
     return (dispatch, getState) => {
         dispatch(clearActiveFilters())
+
+        const defaultFilterValues = getAppConfig().defaultFilterValues
+        if (defaultFilterValues)
+            Object.keys(defaultFilterValues).forEach((filterKey) => {
+                const activeFilters = getState().get('activeFilters')
+                if (activeFilters && activeFilters.get(filterKey))
+                    dispatch(setFieldState(filterKey, 0, defaultFilterValues[filterKey], true))
+            })
+
         dispatch(setAdvancedFilters(null, true))
         dispatch(clearResults())
         dispatch(search(0, true))
