@@ -284,7 +284,7 @@ const TableView = (props) => {
     }
     // Load More
     const loadData = () => {
-        if (loadedMore) {
+        if (loadedMore && results.length < paging.total) {
             loadedMore = false
             dispatch(search(parseInt(results.length / resultsPerPage)))
         }
