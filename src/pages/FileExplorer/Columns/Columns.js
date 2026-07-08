@@ -60,6 +60,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import FilterListIcon from '@mui/icons-material/FilterList'
 
 import Draggable from 'react-draggable'
+import { List as VirtualizedList, AutoSizer } from 'react-virtualized'
 import Highlighter from 'react-highlight-words'
 
 const initialColumnWidth = 220
@@ -223,9 +224,16 @@ const useStyles = makeStyles((theme) => ({
         margin: 0,
         padding: `2px 0px`,
     },
+    listVirtualized: {
+        listStyleType: 'none',
+        margin: 0,
+        padding: 0,
+        height: '100%',
+    },
     listItem: {
         'display': 'flex',
-        'height': '28px',
+        'boxSizing': 'border-box',
+        'height': '29px',
         'lineHeight': '28px',
         'padding': `0px 12px 0px 4px`,
         'marginLeft': theme.spacing(1),
@@ -488,6 +496,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
     },
     subHeader: {
+        'boxSizing': 'border-box',
         'padding': '8px 12px 4px 12px',
         'borderBottom': 'none',
         'background': theme.palette.swatches.grey.grey50,
@@ -1039,7 +1048,10 @@ const Column = (props) => {
                     onScroll={handleScroll}
                 >
                     {content != null ? (
-                        <ul className={clsx(c.list, { 'fade-in': !prevNames })}>
+                        <ul className={clsx(
+                            params.type === 'volume' ? c.listVirtualized : c.list,
+                            { 'fade-in': !prevNames }
+                        )}>
                             {content.length == 0 ? (
                                 <div className={c.noContent}>
                                     <Typography>This directory is empty.</Typography>
@@ -1113,16 +1125,12 @@ const Column = (props) => {
 
                                       // Helper function to build URI for bundle/volume cart items
                                       const buildBundleVolumeUri = (bundleKey, itemType) => {
-                                          // Build from active columns (don't use lastFilexFilterDoc - it's from a different context)
-                                          // Pattern: atlas:{standard}:{mission}:{spacecraft}:/{bundleName}/
                                           let mission = null
                                           let spacecraft = null
 
-                                          // Iterate through previous columns to find mission and spacecraft
                                           for (let i = 0; i < columnId; i++) {
                                               const col = columns[i]
                                               if (col && col.active && col.type === 'filter') {
-                                                  // First filter is mission, second is spacecraft
                                                   if (!mission) {
                                                       mission = col.active.key
                                                   } else if (!spacecraft) {
@@ -1131,10 +1139,8 @@ const Column = (props) => {
                                               }
                                           }
 
-                                          // Determine standard: bundles are pds4, volumes are pds3
                                           const standard = itemType === 'bundle' ? 'pds4' : 'pds3'
 
-                                          // Build full URI following the pattern
                                           const finalUri =
                                               mission && spacecraft
                                                   ? `atlas:${standard}:${mission}:${spacecraft}:/${bundleKey}/`
@@ -1145,192 +1151,203 @@ const Column = (props) => {
                                           return finalUri
                                       }
 
-                                      const renderItems = (items, typePrefix) =>
-                                          items.map((result, idx) => {
-                                              const uniqueKey = `${result.type || 'volume'}-${
-                                                  result.key
-                                              }`
-                                              const isDeprecated = result.key
-                                                  .toLowerCase()
-                                                  .includes('deprecated')
-                                              const isActive =
-                                                  params.active &&
-                                                  (params.active.uniqueKey === uniqueKey ||
-                                                      (!params.active.uniqueKey &&
-                                                          params.active.key === result.key))
+                                      // Build flat list of rows for virtualization
+                                      const hasBoth =
+                                          bundles.length > 0 && volumes.length > 0
+                                      const flatRows = []
+                                      if (bundles.length > 0) {
+                                          if (hasBoth)
+                                              flatRows.push({ _header: 'Bundles (PDS4)' })
+                                          bundles.forEach((item) =>
+                                              flatRows.push({ ...item, _typePrefix: 'bundle' })
+                                          )
+                                      }
+                                      if (volumes.length > 0) {
+                                          if (hasBoth)
+                                              flatRows.push({ _header: 'Volumes (PDS3)' })
+                                          volumes.forEach((item) =>
+                                              flatRows.push({ ...item, _typePrefix: 'volume' })
+                                          )
+                                      }
+
+                                      const ITEM_HEIGHT = 29
+                                      const HEADER_HEIGHT = 32
+                                      const getRowHeight = ({ index }) =>
+                                          flatRows[index]._header ? HEADER_HEIGHT : ITEM_HEIGHT
+
+                                      const rowRenderer = ({ index, key, style }) => {
+                                          const row = flatRows[index]
+                                          if (row._header) {
                                               return (
                                                   <li
-                                                      key={`${typePrefix}-${idx}`}
-                                                      className={clsx(
-                                                          c.listItem,
-                                                          c.listItemFilter,
-                                                          {
-                                                              [c.listItemActive]: isActive,
-                                                              [c.listItemMobile]: isMobile,
-                                                          }
-                                                      )}
-                                                      onClick={() => {
-                                                          if (!isMobile) setShowFilterColumns(false)
-                                                          dispatch(
-                                                              updateFilexColumn(columnId, {
-                                                                  active: {
-                                                                      ...result,
-                                                                      fs_type: 'volume',
-                                                                      uniqueKey: uniqueKey,
-                                                                      key: result.key, // Keep original key for compatibility
-                                                                  },
-                                                              })
-                                                          )
-                                                      }}
+                                                      key={key}
+                                                      className={c.subHeader}
+                                                      style={style}
                                                   >
-                                                      <div className={c.flexBetween}>
-                                                          <div className={c.liflex}>
-                                                              <div
-                                                                  className={clsx(c.liType, {
-                                                                      [c.liTypeDeprecated]:
-                                                                          isDeprecated,
-                                                                      [c.deprecatedColor]:
-                                                                          isDeprecated && !isActive,
-                                                                  })}
-                                                              >
-                                                                  {isDeprecated ? (
-                                                                      <FolderOffIcon size="small" />
-                                                                  ) : (
-                                                                      <svg
-                                                                          className={c.iconSvg}
-                                                                          viewBox="0 0 24 24"
-                                                                      >
-                                                                          <path
-                                                                              fill="currentColor"
-                                                                              d="M2,10.96C1.5,10.68 1.35,10.07 1.63,9.59L3.13,7C3.24,6.8 3.41,6.66 3.6,6.58L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.66,6.72 20.82,6.88 20.91,7.08L22.36,9.6C22.64,10.08 22.47,10.69 22,10.96L21,11.54V16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V10.96C2.7,11.13 2.32,11.14 2,10.96M12,4.15V4.15L12,10.85V10.85L17.96,7.5L12,4.15M5,15.91L11,19.29V12.58L5,9.21V15.91M19,15.91V12.69L14,15.59C13.67,15.77 13.3,15.76 13,15.6V19.29L19,15.91M13.85,13.36L20.13,9.73L19.55,8.72L13.27,12.35L13.85,13.36Z"
-                                                                          />
-                                                                      </svg>
-                                                                  )}
-                                                              </div>
-                                                              <div
-                                                                  className={clsx(c.liName, {
-                                                                      [c.liNameMobile]: isMobile,
-                                                                      [c.deprecatedColor]:
-                                                                          isDeprecated && !isActive,
-                                                                  })}
-                                                                  title={result.key}
-                                                              >
-                                                                  {getFilename(result.key)}
-                                                              </div>
-                                                          </div>
-                                                          <div
-                                                              className={clsx(
-                                                                  c.listItemButtons,
-                                                                  'listItemButtons',
-                                                                  {
-                                                                      [c.listItemButtonsActive]:
-                                                                          params.active &&
-                                                                          params.active
-                                                                              .uniqueKey ===
-                                                                              uniqueKey,
-                                                                  }
-                                                              )}
-                                                          >
-                                                              <Tooltip title="Add to Cart" arrow>
-                                                                  <IconButton
-                                                                      className={clsx(c.button, {
-                                                                          [c.buttonMobile]:
-                                                                              isMobile,
-                                                                      })}
-                                                                      aria-label="add to cart"
-                                                                      onClick={(e) => {
-                                                                          e.stopPropagation()
-                                                                          const bundleVolumeUri =
-                                                                              buildBundleVolumeUri(
-                                                                                  result.key,
-                                                                                  result.type ||
-                                                                                      'volume'
-                                                                              )
-                                                                          dispatch(
-                                                                              addToCart(
-                                                                                  'directory',
-                                                                                  {
-                                                                                      uri: bundleVolumeUri,
-                                                                                      related: {
-                                                                                          src: {
-                                                                                              uri: bundleVolumeUri,
-                                                                                          },
-                                                                                      },
-                                                                                      size: 0,
-                                                                                  }
-                                                                              )
-                                                                          )
-
-                                                                          dispatch(
-                                                                              setSnackBarText(
-                                                                                  'Added to Cart!',
-                                                                                  'success'
-                                                                              )
-                                                                          )
-                                                                      }}
-                                                                      size="large"
-                                                                  >
-                                                                      <AddShoppingCartIcon size="small" />
-                                                                  </IconButton>
-                                                              </Tooltip>
-                                                          </div>
-                                                      </div>
+                                                      <Typography
+                                                          variant="caption"
+                                                          className={c.subHeaderText}
+                                                      >
+                                                          {row._header}
+                                                      </Typography>
                                                   </li>
                                               )
-                                          })
+                                          }
+
+                                          const result = row
+                                          const uniqueKey = `${result.type || 'volume'}-${
+                                              result.key
+                                          }`
+                                          const isDeprecated = result.key
+                                              .toLowerCase()
+                                              .includes('deprecated')
+                                          const isActive =
+                                              params.active &&
+                                              (params.active.uniqueKey === uniqueKey ||
+                                                  (!params.active.uniqueKey &&
+                                                      params.active.key === result.key))
+                                          const rowStyle = {
+                                              ...style,
+                                              marginLeft: 0,
+                                              paddingLeft: 8,
+                                              width: style.width,
+                                          }
+                                          return (
+                                              <li
+                                                  key={key}
+                                                  style={rowStyle}
+                                                  className={clsx(
+                                                      c.listItem,
+                                                      c.listItemFilter,
+                                                      {
+                                                          [c.listItemActive]: isActive,
+                                                          [c.listItemMobile]: isMobile,
+                                                      }
+                                                  )}
+                                                  onClick={() => {
+                                                      if (!isMobile) setShowFilterColumns(false)
+                                                      dispatch(
+                                                          updateFilexColumn(columnId, {
+                                                              active: {
+                                                                  ...result,
+                                                                  fs_type: 'volume',
+                                                                  uniqueKey: uniqueKey,
+                                                                  key: result.key,
+                                                              },
+                                                          })
+                                                      )
+                                                  }}
+                                              >
+                                                  <div className={c.flexBetween}>
+                                                      <div className={c.liflex}>
+                                                          <div
+                                                              className={clsx(c.liType, {
+                                                                  [c.liTypeDeprecated]:
+                                                                      isDeprecated,
+                                                                  [c.deprecatedColor]:
+                                                                      isDeprecated && !isActive,
+                                                              })}
+                                                          >
+                                                              {isDeprecated ? (
+                                                                  <FolderOffIcon size="small" />
+                                                              ) : (
+                                                                  <svg
+                                                                      className={c.iconSvg}
+                                                                      viewBox="0 0 24 24"
+                                                                  >
+                                                                      <path
+                                                                          fill="currentColor"
+                                                                          d="M2,10.96C1.5,10.68 1.35,10.07 1.63,9.59L3.13,7C3.24,6.8 3.41,6.66 3.6,6.58L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.66,6.72 20.82,6.88 20.91,7.08L22.36,9.6C22.64,10.08 22.47,10.69 22,10.96L21,11.54V16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V10.96C2.7,11.13 2.32,11.14 2,10.96M12,4.15V4.15L12,10.85V10.85L17.96,7.5L12,4.15M5,15.91L11,19.29V12.58L5,9.21V15.91M19,15.91V12.69L14,15.59C13.67,15.77 13.3,15.76 13,15.6V19.29L19,15.91M13.85,13.36L20.13,9.73L19.55,8.72L13.27,12.35L13.85,13.36Z"
+                                                                      />
+                                                                  </svg>
+                                                              )}
+                                                          </div>
+                                                          <div
+                                                              className={clsx(c.liName, {
+                                                                  [c.liNameMobile]: isMobile,
+                                                                  [c.deprecatedColor]:
+                                                                      isDeprecated && !isActive,
+                                                              })}
+                                                              title={result.key}
+                                                          >
+                                                              {getFilename(result.key)}
+                                                          </div>
+                                                      </div>
+                                                      <div
+                                                          className={clsx(
+                                                              c.listItemButtons,
+                                                              'listItemButtons',
+                                                              {
+                                                                  [c.listItemButtonsActive]:
+                                                                      params.active &&
+                                                                      params.active
+                                                                          .uniqueKey ===
+                                                                          uniqueKey,
+                                                              }
+                                                          )}
+                                                      >
+                                                          <Tooltip title="Add to Cart" arrow>
+                                                              <IconButton
+                                                                  className={clsx(c.button, {
+                                                                      [c.buttonMobile]:
+                                                                          isMobile,
+                                                                  })}
+                                                                  aria-label="add to cart"
+                                                                  onClick={(e) => {
+                                                                      e.stopPropagation()
+                                                                      const bundleVolumeUri =
+                                                                          buildBundleVolumeUri(
+                                                                              result.key,
+                                                                              result.type ||
+                                                                                  'volume'
+                                                                          )
+                                                                      dispatch(
+                                                                          addToCart(
+                                                                              'directory',
+                                                                              {
+                                                                                  uri: bundleVolumeUri,
+                                                                                  related: {
+                                                                                      src: {
+                                                                                          uri: bundleVolumeUri,
+                                                                                      },
+                                                                                  },
+                                                                                  size: 0,
+                                                                              }
+                                                                          )
+                                                                      )
+
+                                                                      dispatch(
+                                                                          setSnackBarText(
+                                                                              'Added to Cart!',
+                                                                              'success'
+                                                                          )
+                                                                      )
+                                                                  }}
+                                                                  size="large"
+                                                              >
+                                                                  <AddShoppingCartIcon size="small" />
+                                                              </IconButton>
+                                                          </Tooltip>
+                                                      </div>
+                                                  </div>
+                                              </li>
+                                          )
+                                      }
 
                                       return (
-                                          <>
-                                              {(() => {
-                                                  const hasBoth =
-                                                      bundles.length > 0 && volumes.length > 0
-
-                                                  return (
-                                                      <>
-                                                          {bundles.length > 0 && (
-                                                              <>
-                                                                  {hasBoth && (
-                                                                      <li
-                                                                          key="bundles-header"
-                                                                          className={c.subHeader}
-                                                                      >
-                                                                          <Typography
-                                                                              variant="caption"
-                                                                              className={
-                                                                                  c.subHeaderText
-                                                                              }
-                                                                          >
-                                                                              Bundles (PDS4)
-                                                                          </Typography>
-                                                                      </li>
-                                                                  )}
-                                                                  {renderItems(bundles, 'bundle')}
-                                                              </>
-                                                          )}
-                                                          {volumes.length > 0 && (
-                                                              <>
-                                                                  {hasBoth && (
-                                                                      <li
-                                                                          key="volumes-header"
-                                                                          className={c.subHeader}
-                                                                      >
-                                                                          <Typography
-                                                                              variant="caption"
-                                                                              className={
-                                                                                  c.subHeaderText
-                                                                              }
-                                                                          >
-                                                                              Volumes (PDS3)
-                                                                          </Typography>
-                                                                      </li>
-                                                                  )}
-                                                                  {renderItems(volumes, 'volume')}
-                                                              </>
-                                                          )}
-                                                      </>
-                                                  )
-                                              })()}
-                                          </>
+                                          <AutoSizer>
+                                              {({ width, height }) => (
+                                                  <VirtualizedList
+                                                      width={width}
+                                                      height={height}
+                                                      rowCount={flatRows.length}
+                                                      rowHeight={getRowHeight}
+                                                      rowRenderer={rowRenderer}
+                                                      overscanRowCount={10}
+                                                      style={{ outline: 'none' }}
+                                                  />
+                                              )}
+                                          </AutoSizer>
                                       )
                                   })()
                                 : content.map((r, idx) => {
