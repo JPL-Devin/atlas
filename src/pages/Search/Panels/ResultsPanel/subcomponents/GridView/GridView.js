@@ -245,7 +245,7 @@ const GridView = (props) => {
                 const pxFromTop = scrollTop
                 const pxFromBottom = masonryHeight - (scrollTop + height)
 
-                if (pxFromBottom < gridItemHeight * 2) {
+                if (pxFromBottom < gridItemHeight * 2 && results.length < paging.total) {
                     dispatch(search(parseInt(results.length / resultsPerPage)))
                     allowPageCheck = false
                 }
