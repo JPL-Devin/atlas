@@ -272,7 +272,7 @@ const ListView = (props) => {
                 const pxFromTop = scrollTop
                 const pxFromBottom = masonryHeight - (scrollTop + height)
 
-                if (pxFromBottom < listItemHeight * 2) {
+                if (pxFromBottom < listItemHeight * 2 && results.length < paging.total) {
                     dispatch(search(parseInt(results.length / resultsPerPage)))
                     allowPageCheck = false
                 }
