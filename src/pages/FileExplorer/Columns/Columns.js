@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import clsx from 'clsx'
 import Url from 'url-parse'
 
 import ViewSlider from 'react-view-slider'
@@ -29,7 +28,6 @@ import {
     setShowDeprecated,
 } from '../../../core/redux/actions/actions'
 
-import { makeStyles } from '@mui/styles'
 
 import MenuButton from '../../../components/MenuButton/MenuButton'
 import IconButton from '@mui/material/IconButton'
@@ -38,7 +36,6 @@ import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
-import TextField from '@mui/material/TextField'
 import LinearProgress from '@mui/material/LinearProgress'
 import Checkbox from '@mui/material/Checkbox'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -58,460 +55,59 @@ import GetAppIcon from '@mui/icons-material/GetApp'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import SearchIcon from '@mui/icons-material/Search'
 import FilterListIcon from '@mui/icons-material/FilterList'
+import Box from '@mui/material/Box'
 
 import Draggable from 'react-draggable'
 import Highlighter from 'react-highlight-words'
+
+import {
+    ColumnsRoot,
+    IntroMessage,
+    ColumnRoot,
+    ColumnContent,
+    Header,
+    BackButton,
+    SearchButton,
+    Dropdown,
+    SortButton,
+    MoreButton,
+    SortIconStyled,
+    Body,
+    List,
+    ListItem,
+    LiType,
+    LiName,
+    Footer,
+    FooterPath,
+    Divider,
+    Flex2,
+    FlexBetween,
+    LiFlex,
+    IconSvg,
+    VolumeTitle,
+    DirectoryTitle,
+    NoContent,
+    LoadingBar,
+    ViewSliderViewport,
+    SliderPosition,
+    PositionDot,
+    ListItemButtons,
+    ItemButton,
+    CheckLabel,
+    FilterSearch,
+    FilterSearchInput,
+    HighlightClass,
+    SubHeader,
+    SubHeaderText,
+    PdsVersionText,
+    DetailsButton,
+} from './Columns.styles'
 
 const initialColumnWidth = 220
 const minColumnWidth = 220
 const volumeColumnWidth = 230
 const minVolumeColumnWidth = 230
 const DEPRECATED_COLOR = '#834325'
-
-const useStyles = makeStyles((theme) => ({
-    Columns: {
-        height: '100%',
-        display: 'inline-flex',
-        transition: 'opacity 0.2s ease-in-out',
-    },
-    columnsMobile: {
-        width: 'unset !important',
-        borderRight: 'none',
-    },
-    hasModalOver: {
-        opacity: 0,
-        maxWidth: '100%',
-        overflow: 'hidden',
-    },
-    introMessage: {
-        'position': 'relative',
-        'width': '280px',
-        'lineHeight': '20px',
-        'fontSize': '16px',
-        'color': theme.palette.text.main,
-        'background': theme.palette.swatches.yellow.yellow700,
-        'margin': theme.spacing(4),
-        'padding': theme.spacing(4),
-        'boxShadow': '0px 2px 4px 0px rgba(0, 0, 0, 0.2)',
-        '& > span': {
-            position: 'absolute',
-            top: '50%',
-            left: '-8px',
-            transform: 'translateY(-50%)',
-            width: 0,
-            height: 0,
-            borderTop: '8px solid transparent',
-            borderBottom: '8px solid transparent',
-            borderRight: `8px solid ${theme.palette.swatches.yellow.yellow800}`,
-        },
-    },
-    Column: {
-        display: 'flex',
-        height: '100%',
-        minWidth: `${minColumnWidth}px`,
-        borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        position: 'relative',
-        background: theme.palette.swatches.grey.grey100,
-        boxShadow: 'inset -1px 0px 2px rgba(0,0,0,0.06)',
-        transition: 'width 0.3s ease-in-out, flex-basis 0.3s ease-in-out',
-    },
-    mobile: {
-        width: '100vw !important',
-    },
-    tabletColumn: {
-        height: `calc(100% - ${theme.headHeights[4]}px)`,
-        width: '50%',
-    },
-    content: {
-        height: '100%',
-        // minus divider width
-        width: '100%',
-        position: 'relative',
-    },
-    header: {
-        'height': `${theme.headHeights[2]}px`,
-        'background': theme.palette.swatches.grey.grey0,
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
-        'boxSizing': 'border-box',
-        'display': 'flex',
-        'justifyContent': 'space-between',
-        '& > div': {
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'space-between',
-        },
-        '& > div > div:first-child': {
-            flex: 1,
-            display: 'flex',
-            maxWidth: 'calc(100% - 0px)',
-        },
-    },
-    headerMobile: {
-        '& > div > div:first-child': {
-            maxWidth: 'calc(100% - 88px)',
-        },
-    },
-    filterHeader: {},
-    filterHeaderMobile: {},
-    volumeHeader: {
-        '& > div': {
-            display: 'flex',
-        },
-    },
-    directoryHeader: {},
-    backButton: {
-        lineHeight: '32px',
-        borderRadius: 0,
-        marginRight: '-12px',
-    },
-    searchButton: {
-        lineHeight: '32px',
-        borderRadius: 0,
-        marginRight: '-12px',
-    },
-    searchButtonActive: {
-        borderTop: `2px solid Transparent`,
-        borderBottom: `2px solid ${theme.palette.accent.main}`,
-    },
-    dropdown: {
-        'margin': '4px',
-        'background': theme.palette.swatches.grey.grey600,
-        'padding': '0px 0px 0px 11px',
-        'borderRadius': '3px',
-        'color': theme.palette.swatches.grey.grey0,
-        '&::before': {
-            borderBottom: 'unset',
-        },
-        '& > svg': {
-            color: theme.palette.swatches.grey.grey0,
-        },
-    },
-    dropdownMobile: {
-        float: 'right',
-    },
-    headerTools: {
-        display: 'flex',
-    },
-    buttonSort: {
-        width: `${theme.headHeights[2]}px`,
-        height: `${theme.headHeights[2]}px`,
-    },
-    buttonMore: {
-        width: `${theme.headHeights[2]}px`,
-        height: `${theme.headHeights[2]}px`,
-    },
-    iconSort: {
-        transform: 'rotateY(180deg)',
-    },
-    body: {
-        height: `calc(100% - ${theme.headHeights[2] + theme.headHeights[4]}px)`,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        boxSizing: 'border-box',
-        overflowY: 'auto',
-        transition: 'height 0.2s ease-in-out',
-    },
-    bodyWithFilterOpen: {
-        height: `calc(100% - ${theme.headHeights[2] + theme.headHeights[4] + 37}px)`,
-    },
-    bodyMobile: {
-        height: `calc(100% - ${
-            theme.headHeights[2] + theme.headHeights[4] + theme.headHeights[4]
-        }px)`,
-    },
-    list: {
-        listStyleType: 'none',
-        margin: 0,
-        padding: `2px 0px`,
-    },
-    listItem: {
-        'display': 'flex',
-        'height': '28px',
-        'lineHeight': '28px',
-        'padding': `0px 12px 0px 4px`,
-        'marginLeft': theme.spacing(1),
-        'borderRadius': '4px 0px 0px 4px',
-        'cursor': 'pointer',
-        //'transition': 'background 0.1s ease-in',
-        'overflow': 'hidden',
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey150}`,
-        '&:hover': {
-            'background': theme.palette.swatches.grey.grey150,
-            '& .listItemButtons': {
-                pointerEvents: 'inherit',
-                opacity: 1,
-            },
-        },
-    },
-    listItemLessPadding: {
-        paddingRight: '0px',
-    },
-    listItemFilter: {
-        justifyContent: 'space-between',
-        padding: `0px ${theme.spacing(2)} 0px 0px`,
-    },
-    liType: {
-        fontSize: '24px',
-        padding: '2px',
-    },
-    liName: {
-        margin: `0px ${theme.spacing(1.5)}`,
-        lineHeight: '30px',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-    },
-    liNameMobile: {
-        lineHeight: `${theme.headHeights[3]}px`,
-    },
-    liTypeDeprecated: {
-        width: '22px',
-        padding: '2px 2px 2px 5px',
-    },
-    deprecatedColor: {
-        color: DEPRECATED_COLOR,
-    },
-    listItemActive: {
-        background: `${theme.palette.accent.main} !important`,
-        color: theme.palette.text.secondary,
-    },
-    listItemMobile: {
-        height: `${theme.headHeights[3]}px`,
-        lineHeight: `${theme.headHeights[3]}px`,
-        fontSize: '16px',
-    },
-    footer: {
-        padding: `0px ${theme.spacing(1.5)}`,
-        height: `${theme.headHeights[4]}px`,
-        lineHeight: `${theme.headHeights[4]}px`,
-        color: theme.palette.swatches.grey.grey500,
-        fontSize: '13px',
-        display: 'flex',
-        justifyContent: 'space-between',
-    },
-    footerPath: {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        width: 'calc(100% - 70px)',
-    },
-    divider: {
-        'width': '20px',
-        'height': '40px',
-        'position': 'absolute',
-        'right': 0,
-        'lineHeight': '40px',
-        'cursor': 'col-resize',
-        'boxSizing': 'border-box',
-        'textAlign': 'center',
-        'paddingTop': '4px',
-        'color': theme.palette.swatches.grey.grey300,
-        'transform': 'unset !important',
-        'transition': 'color 0.2s ease-out',
-        '&:hover': {
-            color: theme.palette.swatches.grey.grey500,
-        },
-    },
-    flex: {
-        display: 'flex',
-    },
-    flex2: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        maxWidth: '100%',
-        width: '100%',
-    },
-    flexBetween: {
-        flex: 1,
-        display: 'flex',
-        justifyContent: 'space-between',
-    },
-    liflex: {
-        display: 'flex',
-        flex: 1,
-        overflow: 'hidden',
-    },
-    docCount: {
-        marginLeft: '8px',
-    },
-    iconSvg: {
-        width: '24px',
-        height: '24px',
-        paddingLeft: '2px',
-    },
-    volumeTitle: {
-        padding: '8px 10px 6px 12px',
-        fontSize: '15px',
-        fontWeight: 700,
-        fontFamily: 'inherit',
-        textTransform: 'capitalize',
-    },
-    volumeTitleMobile: {
-        fontSize: '16px',
-        padding: '7px 2px 7px 12px',
-        fontFamily: 'inherit',
-    },
-    directoryTitle: {
-        padding: '12px 10px 9px 12px',
-        color: theme.palette.swatches.grey.grey700,
-        fontSize: '12px',
-        overflow: 'hidden',
-        boxSizing: 'border-box',
-        textOverflow: 'ellipsis',
-        fontFamily: 'inherit',
-    },
-    directoryTitleMobile: {
-        fontSize: '16px',
-        padding: '7px 2px 7px 12px',
-        fontFamily: 'inherit',
-    },
-    noContent: {
-        textAlign: 'center',
-        color: theme.palette.swatches.grey.grey500,
-        padding: '4px 0px',
-    },
-    loading: {
-        'position': 'absolute',
-        'width': '100%',
-        '& .MuiLinearProgress-barColorPrimary': {
-            background: theme.palette.swatches.blue.blue500,
-        },
-    },
-    viewSlider: {},
-    viewSliderViewport: {
-        '& > div': {
-            'overflow': 'hidden !important',
-            'background': 'white',
-            '& > div': {
-                height: '100%',
-            },
-        },
-    },
-    sliderPosition: {
-        'display': 'flex',
-        'width': '100%',
-        'height': `${theme.headHeights[4]}px`,
-        'position': 'absolute',
-        'bottom': '0px',
-        'left': '0px',
-        'boxSizing': 'border-box',
-        'padding': '0px 4px',
-        'borderTop': `1px solid ${theme.palette.swatches.grey.grey200}`,
-        '& > div': {
-            transition: 'all 0.2s ease-in-out',
-        },
-        '& > div > div': {
-            height: '4px',
-            borderRadius: '4px',
-            transition: 'all 0.2s ease-in-out',
-        },
-    },
-    sliderPositionTablet: {
-        width: 'calc(100% - 553px)',
-        marginLeft: `${theme.headHeights[1] + 1}px`,
-    },
-    positionInactive: {
-        '& > div': {
-            background: theme.palette.swatches.grey.grey200,
-        },
-    },
-    positionActive: {
-        '& > div': {
-            background: theme.palette.accent.main,
-        },
-    },
-    hiddenColumn: {
-        width: 0,
-        flexBasis: 'unset !important',
-        transition: 'width 0.3s ease-in-out',
-        minWidth: '0px',
-        overflow: 'hidden',
-    },
-    finalColumn: {
-        //background: `linear-gradient(to right, ${theme.palette.swatches.grey.grey100}, transparent)`,
-        //boxShadow: 'none',
-        //borderRight: 'none',
-    },
-    finalColumnHead: {
-        //background: `linear-gradient(to right, ${theme.palette.swatches.grey.grey0}, transparent)`,
-    },
-    detailsButton: {
-        'marginRight': '-9px',
-        'marginTop': '-1px',
-        '& > button': {
-            padding: '7px 12px',
-        },
-    },
-    listItemButtons: {
-        lineHeight: '25px',
-        right: '0px',
-        background: theme.palette.swatches.grey.grey150,
-        transition: 'opacity 0.2s ease-out',
-        opacity: 0,
-        pointerEvents: 'none',
-    },
-    listItemButtonsActive: {
-        'background': theme.palette.accent.main,
-        '& button': {
-            color: theme.palette.swatches.grey.grey0,
-        },
-    },
-    button: {
-        padding: '4px 4px 3px 4px',
-    },
-    checkLabel: {
-        lineHeight: '30px',
-        color: theme.palette.swatches.grey.grey50,
-        fontSize: '11px',
-    },
-    filterSearch: {
-        height: '0px',
-        overflow: 'hidden',
-        transition: 'height 0.2s ease-in-out',
-    },
-    filterSearchOpen: {
-        height: '37px',
-    },
-    filterSearchInput: {
-        'width': '100%',
-        'height': '37px',
-        '& input': {
-            padding: '10px 12px',
-        },
-        '& .MuiFilledInput-underline:after': {
-            borderBottom: `2px solid ${theme.palette.accent.main}`,
-        },
-        '& .MuiInputAdornment-root': {
-            marginTop: '0px !important',
-            marginRight: '-3px',
-        },
-    },
-    highlight: {
-        fontWeight: 'bold',
-    },
-    subHeader: {
-        'padding': '8px 12px 4px 12px',
-        'borderBottom': 'none',
-        'background': theme.palette.swatches.grey.grey50,
-        'margin': '0px',
-        'cursor': 'default',
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey50,
-        },
-    },
-    subHeaderText: {
-        color: theme.palette.swatches.grey.grey600,
-        fontWeight: 600,
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px',
-        fontSize: '11px',
-    },
-    pdsVersionText: {
-        fontSize: '0.7em',
-        fontWeight: 400,
-        color: theme.palette.swatches.grey.grey500,
-        marginLeft: theme.spacing(0.5),
-        opacity: 0.8,
-    },
-}))
 
 const Column = (props) => {
     const {
@@ -533,8 +129,6 @@ const Column = (props) => {
         pds_standard,
     } = props
     const mainPath = getIn(prevColumn, 'active.parent_uri', ':/').split(':/')[1]
-
-    const c = useStyles()
 
     const dispatch = useDispatch()
 
@@ -679,17 +273,14 @@ const Column = (props) => {
         )
 
     return (
-        <div
-            className={clsx(
-                c.Column,
-                {
-                    'fade-in': !(!showFilterColumns && params.type === 'filter') && !isTablet,
-                    'width-in-240': !(!showFilterColumns && params.type === 'filter'),
-                    [c.hiddenColumn]: !showFilterColumns && params.type === 'filter',
-                    [c.finalColumn]: isFinalColumn,
-                },
-                { [c.mobile]: isMobile, [c.tabletColumn]: isTablet }
-            )}
+        <ColumnRoot
+            className={[
+                !(!showFilterColumns && params.type === 'filter') && !isTablet ? 'fade-in' : '',
+                !(!showFilterColumns && params.type === 'filter') ? 'width-in-240' : '',
+            ].filter(Boolean).join(' ') || undefined}
+            isMobileView={isMobile}
+            isTabletColumn={isTablet}
+            isHidden={!showFilterColumns && params.type === 'filter'}
             style={
                 !(!showFilterColumns && params.type === 'filter')
                     ? { width: params.type === 'volume' ? volumeColumnWidth : initialColumnWidth }
@@ -700,19 +291,16 @@ const Column = (props) => {
             onTouchMove={(e) => handleTouchMove(e)}
             onTouchEnd={() => handleTouchEnd()}
         >
-            <div className={c.content}>
-                <div
-                    className={clsx(c.header, c[params.type + 'Header'], {
-                        [c.headerMobile]: isMobile,
-                        [c[params.type + 'HeaderMobile']]: isMobile,
-                        [c.finalColumnHead]: isFinalColumn,
-                    })}
+            <ColumnContent>
+                <Header
+                    isMobileView={isMobile}
+                    headerType={params.type}
+                    isFinalHead={isFinalColumn}
                 >
-                    <div className={c.flexBetween}>
-                        <div className={c.flexBetween}>
+                    <FlexBetween>
+                        <FlexBetween>
                             {(isMobile || forceBackArrow) && columnId > 0 && (
-                                <IconButton
-                                    className={c.backButton}
+                                <BackButton
                                     aria-label="back"
                                     onClick={() => {
                                         mobileBack()
@@ -720,7 +308,7 @@ const Column = (props) => {
                                     size="large"
                                 >
                                     <ArrowBackIcon fontSize="small" />
-                                </IconButton>
+                                </BackButton>
                             )}
                             <>
                                 {params.type === 'filter' &&
@@ -749,21 +337,18 @@ const Column = (props) => {
                                         ))}
                                     </Select>
                                     */
-                                    <Typography
-                                        className={clsx(c.volumeTitle, {
-                                            [c.volumeTitleMobile]: isMobile,
-                                        })}
+                                    <VolumeTitle
+                                        isMobileView={isMobile}
                                         variant="h6"
                                     >
                                         {params.display_name}
-                                    </Typography>
+                                    </VolumeTitle>
                                 ) : null}
                                 {params.type === 'volume' ? (
-                                    <div className={c.flex2}>
-                                        <div className={c.flex}>
+                                    <Flex2>
+                                        <Box sx={{ display: 'flex' }}>
                                             {!isMobile && !showFilterColumns && (
-                                                <IconButton
-                                                    className={c.backButton}
+                                                <BackButton
                                                     aria-label="back"
                                                     onClick={() => {
                                                         setShowFilterColumns(true)
@@ -771,12 +356,10 @@ const Column = (props) => {
                                                     size="large"
                                                 >
                                                     <ArrowBackIcon fontSize="small" />
-                                                </IconButton>
+                                                </BackButton>
                                             )}
-                                            <Typography
-                                                className={clsx(c.volumeTitle, {
-                                                    [c.volumeTitleMobile]: isMobile,
-                                                })}
+                                            <VolumeTitle
+                                                isMobileView={isMobile}
                                                 variant="h6"
                                             >
                                                 {(() => {
@@ -800,7 +383,7 @@ const Column = (props) => {
                                                         return (
                                                             <>
                                                                 Bundles
-                                                                <span className={c.pdsVersionText}>
+                                                                <span >
                                                                     (PDS4)
                                                                 </span>
                                                             </>
@@ -809,16 +392,16 @@ const Column = (props) => {
                                                         return (
                                                             <>
                                                                 Volumes
-                                                                <span className={c.pdsVersionText}>
+                                                                <span >
                                                                     (PDS3)
                                                                 </span>
                                                             </>
                                                         )
                                                     }
                                                 })()}
-                                            </Typography>
-                                        </div>
-                                        <div className={c.flex}>
+                                            </VolumeTitle>
+                                        </Box>
+                                        <Box sx={{ display: 'flex' }}>
                                             <MenuButton
                                                 key={1}
                                                 options={['Show Deprecated']}
@@ -858,21 +441,19 @@ const Column = (props) => {
                                                     <SearchIcon fontSize="small" />
                                                 </IconButton>
                                             </Tooltip>
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Flex2>
                                 ) : null}
                                 {params.type === 'directory' && prevColumn?.active?.key != null ? (
-                                    <div className={c.flex2}>
-                                        <Typography
-                                            className={clsx(c.directoryTitle, {
-                                                [c.directoryTitleMobile]: isMobile,
-                                            })}
+                                    <Flex2>
+                                        <DirectoryTitle
+                                            isMobileView={isMobile}
                                             variant="h6"
                                         >
                                             {prevNames
                                                 ? prevNames.map((n) => n.title).join('/')
                                                 : prevColumn.active.key}
-                                        </Typography>
+                                        </DirectoryTitle>
                                         <div>
                                             <Tooltip title="Filter List" arrow>
                                                 <IconButton
@@ -921,11 +502,11 @@ const Column = (props) => {
                                                     )
                                             }}
                                         />*/}
-                                    </div>
+                                    </Flex2>
                                 ) : null}
                             </>
-                        </div>
-                        <div className={c.flex}>
+                        </FlexBetween>
+                        <Box sx={{ display: 'flex' }}>
                             {setShowMobilePreview && prevColumn && (
                                 <IconButton
                                     key={0}
@@ -950,15 +531,12 @@ const Column = (props) => {
                                     }}
                                 />
                             )}
-                        </div>
-                    </div>
-                </div>
+                        </Box>
+                    </FlexBetween>
+                </Header>
                 {params.type === 'directory' && prevColumn?.active?.key != null ? (
-                    <div
-                        className={clsx(c.filterSearch, { [c.filterSearchOpen]: filterSearchOpen })}
-                    >
-                        <TextField
-                            className={c.filterSearchInput}
+                    <FilterSearch isOpen={filterSearchOpen}>
+                        <FilterSearchInput
                             placeholder="Filter"
                             value={filterSearchValue}
                             variant="filled"
@@ -976,7 +554,7 @@ const Column = (props) => {
                         {/*
                         
                         <div className={c.regexSearchFooter}>
-                            <div className={c.flex}>
+                            <Box sx={{ display: 'flex' }}>
                                 <IconButton
                                     className={c.regexSearchHelp}
                                     aria-label="regex help"
@@ -990,7 +568,7 @@ const Column = (props) => {
                                 </IconButton>
 
                                 <Tooltip title="Search through all subfolders as well." arrow>
-                                    <div className={c.flex}>
+                                    <Box sx={{ display: 'flex' }}>
                                         <Checkbox
                                             className={c.regexSearchCheckbox}
                                             checked={regexSearchChildrenChecked}
@@ -1024,26 +602,24 @@ const Column = (props) => {
                             </Button>
                         </div>
                             */}
-                    </div>
+                    </FilterSearch>
                 ) : null}
                 {content == null || scrollLoading ? (
-                    <div className={c.loading}>
+                    <LoadingBar>
                         <LinearProgress />
-                    </div>
+                    </LoadingBar>
                 ) : null}
-                <div
-                    className={clsx(c.body, {
-                        [c.bodyMobile]: isMobile,
-                        [c.bodyWithFilterOpen]: filterSearchOpen,
-                    })}
+                <Body
+                    isMobileView={isMobile}
+                    isFilterOpen={filterSearchOpen}
                     onScroll={handleScroll}
                 >
                     {content != null ? (
-                        <ul className={clsx(c.list, { 'fade-in': !prevNames })}>
+                        <List className={!prevNames ? 'fade-in' : undefined}>
                             {content.length == 0 ? (
-                                <div className={c.noContent}>
+                                <NoContent>
                                     <Typography>This directory is empty.</Typography>
-                                </div>
+                                </NoContent>
                             ) : null}
                             {params.type === 'filter'
                                 ? content
@@ -1054,14 +630,11 @@ const Column = (props) => {
                                           return nameA.localeCompare(nameB)
                                       })
                                       .map((result, idx) => (
-                                          <li
+                                          <ListItem
                                               key={idx}
-                                              className={clsx(c.listItem, c.listItemFilter, {
-                                                  [c.listItemActive]:
-                                                      params.active &&
-                                                      params.active.key === result.key,
-                                                  [c.listItemMobile]: isMobile,
-                                              })}
+                                              isFilter
+                                              isActive={params.active && params.active.key === result.key}
+                                              isMobileView={isMobile}
                                               onClick={() => {
                                                   dispatch(
                                                       updateFilexColumn(columnId, {
@@ -1070,10 +643,10 @@ const Column = (props) => {
                                                   )
                                               }}
                                           >
-                                              <div className={c.liflex}>
-                                                  <div className={c.liType}>
+                                              <LiFlex>
+                                                  <LiType>
                                                       <svg
-                                                          className={c.iconSvg}
+                                                          
                                                           viewBox="0 0 24 24"
                                                       >
                                                           <path
@@ -1081,24 +654,22 @@ const Column = (props) => {
                                                               d="M15,19.88C15.04,20.18 14.94,20.5 14.71,20.71C14.32,21.1 13.69,21.1 13.3,20.71L9.29,16.7C9.06,16.47 8.96,16.16 9,15.87V10.75L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L15,10.75V19.88M7.04,5L11,10.06V15.58L13,17.58V10.05L16.96,5H7.04Z"
                                                           />
                                                       </svg>
-                                                  </div>
-                                                  <div
-                                                      className={clsx(c.liName, {
-                                                          [c.liNameMobile]: isMobile,
-                                                      })}
+                                                  </LiType>
+                                                  <LiName
+                                                      isMobileView={isMobile}
                                                       title={result.key}
                                                   >
                                                       {DISPLAY_NAME_MAPPINGS[result.key]
                                                           ? DISPLAY_NAME_MAPPINGS[result.key]
                                                           : result.key}
-                                                  </div>
-                                              </div>
-                                              <div className={c.flex}>
-                                                  <div className={c.docCount}>
+                                                  </LiName>
+                                              </LiFlex>
+                                              <Box sx={{ display: 'flex' }}>
+                                                  <Box sx={{ marginLeft: '8px' }}>
                                                       {abbreviateNumber(result.doc_count)}
-                                                  </div>
-                                              </div>
-                                          </li>
+                                                  </Box>
+                                              </Box>
+                                          </ListItem>
                                       ))
                                 : params.type === 'volume'
                                 ? (() => {
@@ -1159,16 +730,11 @@ const Column = (props) => {
                                                       (!params.active.uniqueKey &&
                                                           params.active.key === result.key))
                                               return (
-                                                  <li
+                                                  <ListItem
                                                       key={`${typePrefix}-${idx}`}
-                                                      className={clsx(
-                                                          c.listItem,
-                                                          c.listItemFilter,
-                                                          {
-                                                              [c.listItemActive]: isActive,
-                                                              [c.listItemMobile]: isMobile,
-                                                          }
-                                                      )}
+                                                      isFilter
+                                                      isActive={isActive}
+                                                      isMobileView={isMobile}
                                                       onClick={() => {
                                                           if (!isMobile) setShowFilterColumns(false)
                                                           dispatch(
@@ -1183,21 +749,17 @@ const Column = (props) => {
                                                           )
                                                       }}
                                                   >
-                                                      <div className={c.flexBetween}>
-                                                          <div className={c.liflex}>
-                                                              <div
-                                                                  className={clsx(c.liType, {
-                                                                      [c.liTypeDeprecated]:
-                                                                          isDeprecated,
-                                                                      [c.deprecatedColor]:
-                                                                          isDeprecated && !isActive,
-                                                                  })}
+                                                      <FlexBetween>
+                                                          <LiFlex>
+                                                              <LiType
+                                                                  isDeprecatedType={isDeprecated}
+                                                                  isDeprecatedColor={isDeprecated && !isActive}
                                                               >
                                                                   {isDeprecated ? (
                                                                       <FolderOffIcon size="small" />
                                                                   ) : (
                                                                       <svg
-                                                                          className={c.iconSvg}
+                                                                          
                                                                           viewBox="0 0 24 24"
                                                                       >
                                                                           <path
@@ -1206,37 +768,21 @@ const Column = (props) => {
                                                                           />
                                                                       </svg>
                                                                   )}
-                                                              </div>
-                                                              <div
-                                                                  className={clsx(c.liName, {
-                                                                      [c.liNameMobile]: isMobile,
-                                                                      [c.deprecatedColor]:
-                                                                          isDeprecated && !isActive,
-                                                                  })}
+                                                              </LiType>
+                                                              <LiName
+                                                                  isMobileView={isMobile}
+                                                                  isDeprecatedColor={isDeprecated && !isActive}
                                                                   title={result.key}
                                                               >
                                                                   {getFilename(result.key)}
-                                                              </div>
-                                                          </div>
-                                                          <div
-                                                              className={clsx(
-                                                                  c.listItemButtons,
-                                                                  'listItemButtons',
-                                                                  {
-                                                                      [c.listItemButtonsActive]:
-                                                                          params.active &&
-                                                                          params.active
-                                                                              .uniqueKey ===
-                                                                              uniqueKey,
-                                                                  }
-                                                              )}
+                                                              </LiName>
+                                                          </LiFlex>
+                                                          <ListItemButtons
+                                                              className="listItemButtons"
+                                                              isActive={params.active && params.active.uniqueKey === uniqueKey}
                                                           >
                                                               <Tooltip title="Add to Cart" arrow>
-                                                                  <IconButton
-                                                                      className={clsx(c.button, {
-                                                                          [c.buttonMobile]:
-                                                                              isMobile,
-                                                                      })}
+                                                                  <ItemButton
                                                                       aria-label="add to cart"
                                                                       onClick={(e) => {
                                                                           e.stopPropagation()
@@ -1271,11 +817,11 @@ const Column = (props) => {
                                                                       size="large"
                                                                   >
                                                                       <AddShoppingCartIcon size="small" />
-                                                                  </IconButton>
+                                                                  </ItemButton>
                                                               </Tooltip>
-                                                          </div>
-                                                      </div>
-                                                  </li>
+                                                          </ListItemButtons>
+                                                      </FlexBetween>
+                                                  </ListItem>
                                               )
                                           })
 
@@ -1292,16 +838,13 @@ const Column = (props) => {
                                                                   {hasBoth && (
                                                                       <li
                                                                           key="bundles-header"
-                                                                          className={c.subHeader}
+                                                                          
                                                                       >
-                                                                          <Typography
+                                                                          <SubHeaderText
                                                                               variant="caption"
-                                                                              className={
-                                                                                  c.subHeaderText
-                                                                              }
                                                                           >
                                                                               Bundles (PDS4)
-                                                                          </Typography>
+                                                                          </SubHeaderText>
                                                                       </li>
                                                                   )}
                                                                   {renderItems(bundles, 'bundle')}
@@ -1312,16 +855,13 @@ const Column = (props) => {
                                                                   {hasBoth && (
                                                                       <li
                                                                           key="volumes-header"
-                                                                          className={c.subHeader}
+                                                                          
                                                                       >
-                                                                          <Typography
+                                                                          <SubHeaderText
                                                                               variant="caption"
-                                                                              className={
-                                                                                  c.subHeaderText
-                                                                              }
                                                                           >
                                                                               Volumes (PDS3)
-                                                                          </Typography>
+                                                                          </SubHeaderText>
                                                                       </li>
                                                                   )}
                                                                   {renderItems(volumes, 'volume')}
@@ -1353,13 +893,12 @@ const Column = (props) => {
                                           return null
 
                                       return (
-                                          <li
+                                          <ListItem
                                               key={idx}
                                               ref={idx === 0 ? firstItemRef : null}
-                                              className={clsx(c.listItem, c.listItemLessPadding, {
-                                                  [c.listItemActive]: isActive,
-                                                  [c.listItemMobile]: isMobile,
-                                              })}
+                                              isLessPadding
+                                              isActive={isActive}
+                                              isMobileView={isMobile}
                                               onClick={() => {
                                                   dispatch(
                                                       updateFilexColumn(columnId, {
@@ -1372,12 +911,9 @@ const Column = (props) => {
                                                   )
                                               }}
                                           >
-                                              <div
-                                                  className={clsx(c.liType, {
-                                                      [c.liTypeDeprecated]: isDeprecated,
-                                                      [c.deprecatedColor]:
-                                                          isDeprecated && !isActive,
-                                                  })}
+                                              <LiType
+                                                  isDeprecatedType={isDeprecated}
+                                                  isDeprecatedColor={isDeprecated && !isActive}
                                               >
                                                   {getIn(r._source, ES_PATHS.archive.fs_type) ===
                                                   'file' ? (
@@ -1395,18 +931,15 @@ const Column = (props) => {
                                                   ) : (
                                                       <FolderIcon size="small" />
                                                   )}
-                                              </div>
-                                              <div className={c.flexBetween}>
-                                                  <div
-                                                      className={clsx(c.liName, {
-                                                          [c.liNameMobile]: isMobile,
-                                                          [c.deprecatedColor]:
-                                                              isDeprecated && !isActive,
-                                                      })}
+                                              </LiType>
+                                              <FlexBetween>
+                                                  <LiName
+                                                      isMobileView={isMobile}
+                                                      isDeprecatedColor={isDeprecated && !isActive}
                                                       title={result.name}
                                                   >
                                                       <Highlighter
-                                                          highlightClassName={c.highlight}
+                                                          highlightClassName="highlight-bold"
                                                           searchWords={[filterSearchValue]}
                                                           autoEscape={true}
                                                           textToHighlight={String(
@@ -1417,25 +950,15 @@ const Column = (props) => {
                                                                   : result.name
                                                           )}
                                                       />
-                                                  </div>
-                                                  <div
-                                                      className={clsx(
-                                                          c.listItemButtons,
-                                                          'listItemButtons',
-                                                          {
-                                                              [c.listItemButtonsActive]:
-                                                                  params.active &&
-                                                                  params.active.key === result.name,
-                                                          }
-                                                      )}
+                                                  </LiName>
+                                                  <ListItemButtons
+                                                      className="listItemButtons"
+                                                      isActive={params.active && params.active.key === result.name}
                                                   >
                                                       {getIn(s, ES_PATHS.archive.fs_type) ===
                                                       'file' ? (
                                                           <Tooltip title="Download" arrow>
-                                                              <IconButton
-                                                                  className={clsx(c.button, {
-                                                                      [c.buttonMobile]: isMobile,
-                                                                  })}
+                                                              <ItemButton
                                                                   aria-label="quick download"
                                                                   onClick={(e) => {
                                                                       e.stopPropagation()
@@ -1457,14 +980,11 @@ const Column = (props) => {
                                                                   size="large"
                                                               >
                                                                   <GetAppIcon size="small" />
-                                                              </IconButton>
+                                                              </ItemButton>
                                                           </Tooltip>
                                                       ) : null}
                                                       <Tooltip title="Add to Cart" arrow>
-                                                          <IconButton
-                                                              className={clsx(c.button, {
-                                                                  [c.buttonMobile]: isMobile,
-                                                              })}
+                                                          <ItemButton
                                                               aria-label="add to cart"
                                                               onClick={(e) => {
                                                                   e.stopPropagation()
@@ -1510,17 +1030,17 @@ const Column = (props) => {
                                                               size="large"
                                                           >
                                                               <AddShoppingCartIcon size="small" />
-                                                          </IconButton>
+                                                          </ItemButton>
                                                       </Tooltip>
-                                                  </div>
-                                              </div>
-                                          </li>
+                                                  </ListItemButtons>
+                                              </FlexBetween>
+                                          </ListItem>
                                       )
                                   })}
-                        </ul>
+                        </List>
                     ) : null}
-                </div>
-                <div className={c.footer}>
+                </Body>
+                <Footer>
                     <div>{isMobile ? mainPath : null}</div>
                     <div>
                         {content != null ? (
@@ -1530,9 +1050,9 @@ const Column = (props) => {
                             </React.Fragment>
                         ) : null}
                     </div>
-                </div>
-            </div>
-        </div>
+                </Footer>
+            </ColumnContent>
+        </ColumnRoot>
     )
 }
 
@@ -1548,8 +1068,6 @@ const Columns = (props) => {
         setShowMobilePreview,
         hasModalOver,
     } = props
-
-    const c = useStyles()
 
     const dispatch = useDispatch()
 
@@ -1708,11 +1226,9 @@ const Columns = (props) => {
     let prevTitleNames = []
 
     return (
-        <div
-            className={clsx(c.Columns, {
-                [c.columnsMobile]: isMobile,
-                [c.hasModalOver]: hasModalOver,
-            })}
+        <ColumnsRoot
+            isMobileView={isMobile}
+            hasModalOver={hasModalOver}
             ref={columnsRef}
         >
             {isMobile ? (
@@ -1742,35 +1258,32 @@ const Columns = (props) => {
                                 </>
                             )
                         }}
-                        className={c.viewSlider}
+                        
                         numViews={columns.length}
                         activeView={mobileActiveColumnIndex}
                         animateHeight={false}
                         fillParent={true}
                         transitionDuration={300}
-                        viewportClassName={c.viewSliderViewport}
+                        
                         transitionTimingFunction="cubic-bezier(0.12, 0, 0.39, 0)"
                     />
-                    <div className={c.sliderPosition}>
+                    <SliderPosition>
                         {[...Array(40).keys()].map((v) => (
-                            <div
+                            <PositionDot
                                 key={v}
                                 style={{
                                     width: `${v >= columns.length ? 0 : 100 / columns.length}%`,
                                     padding: v >= columns.length ? 0 : '10px 4px',
                                 }}
-                                className={clsx({
-                                    [c.positionInactive]: v !== mobileActiveColumnIndex,
-                                    [c.positionActive]: v === mobileActiveColumnIndex,
-                                })}
+                                isActive={v === mobileActiveColumnIndex}
                                 onClick={() => {
                                     setMobileIndex(v)
                                 }}
                             >
                                 <div></div>
-                            </div>
+                            </PositionDot>
                         ))}
-                    </div>
+                    </SliderPosition>
                 </>
             ) : (
                 <>
@@ -1832,38 +1345,35 @@ const Columns = (props) => {
                             )
                     })}
                     {forceNColumns > 0 && (
-                        <div className={clsx(c.sliderPosition, c.sliderPositionTablet)}>
+                        <SliderPosition isTablet>
                             {[...Array(40).keys()].map((v) => (
-                                <div
+                                <PositionDot
                                     key={v}
                                     style={{
                                         width: `${v >= columns.length ? 0 : 100 / columns.length}%`,
                                         padding: v >= columns.length ? 0 : '10px 4px',
                                     }}
-                                    className={clsx({
-                                        [c.positionInactive]: v !== mobileActiveColumnIndex,
-                                        [c.positionActive]: v === mobileActiveColumnIndex,
-                                    })}
+                                    isActive={v === mobileActiveColumnIndex}
                                     onClick={() => {
                                         setMobileIndex(v)
                                     }}
                                 >
                                     <div></div>
-                                </div>
+                                </PositionDot>
                             ))}
-                        </div>
+                        </SliderPosition>
                     )}
                 </>
             )}
             {!isMobile && columns && columns.length === 1 && (
                 <div>
-                    <div className={c.introMessage}>
+                    <IntroMessage>
                         <span></span>
                         <div>Select a mission to begin browsing our data archive.</div>
-                    </div>
+                    </IntroMessage>
                 </div>
             )}
-        </div>
+        </ColumnsRoot>
     )
 }
 

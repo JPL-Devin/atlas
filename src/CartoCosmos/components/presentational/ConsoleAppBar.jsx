@@ -6,31 +6,25 @@ import ConsoleCoordinates from './ConsoleCoordinates.jsx'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import Grid from '@mui/material/Grid'
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import Divider from '@mui/material/Divider'
+import Box from '@mui/material/Box'
 
-/**
- * Controls css styling for this component using js to css
- */
-const useStyles = makeStyles((theme) => ({
-    root: {
-        height: 100,
-        width: '100%',
-    },
-    appbar: {
-        background: '#f8f9fa',
-    },
-    toolbar: {
-        height: 100,
-        maxWidth: 800,
-        width: 'auto',
-        padding: 0,
-    },
-    grid: {
-        maxWidth: 800,
-        height: 100,
-    },
-}))
+const StyledAppBar = styled(AppBar)({
+    background: '#f8f9fa',
+})
+
+const StyledToolbar = styled(Toolbar)({
+    height: 100,
+    maxWidth: 800,
+    width: 'auto',
+    padding: 0,
+})
+
+const StyledGrid = styled(Grid)({
+    maxWidth: 800,
+    height: 100,
+})
 
 /**
  * Main component of the console, which arranges all subcomponents into a grid
@@ -39,18 +33,15 @@ const useStyles = makeStyles((theme) => ({
  * @component
  */
 export default function ConsoleAppBar(props) {
-    const classes = useStyles()
     return (
-        <div className={classes.root} id="consoleToolbarParent">
-            <AppBar
-                className={classes.appbar}
+        <Box sx={{ height: 100, width: '100%' }} id="consoleToolbarParent">
+            <StyledAppBar
                 position="static"
                 color="inherit"
                 id="consoleToolbar"
             >
-                <Toolbar className={classes.toolbar}>
-                    <Grid
-                        className={classes.grid}
+                <StyledToolbar>
+                    <StyledGrid
                         container
                         justifyContent="space-between"
                         alignItems="stretch"
@@ -71,9 +62,9 @@ export default function ConsoleAppBar(props) {
                                 {/*<ConsoleCoordinates />*/}
                             </Grid>
                         </Grid>
-                    </Grid>
-                </Toolbar>
-            </AppBar>
-        </div>
+                    </StyledGrid>
+                </StyledToolbar>
+            </StyledAppBar>
+        </Box>
     );
 }

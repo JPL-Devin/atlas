@@ -8,6 +8,7 @@ import {
     copyToClipboardAction,
 } from '../../../../core/redux/actions/actions.js'
 
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
@@ -21,67 +22,63 @@ import AdvancedFilter from './subcomponents/AdvancedFilter/AdvancedFilter'
 
 import MenuButton from '../../../../components/MenuButton/MenuButton'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
-const useStyles = makeStyles((theme) => ({
-    FiltersPanel: {
-        height: '100%',
-        transition: 'width 0.4s ease-out',
-        overflow: 'hidden',
-        position: 'relative',
-        background: theme.palette.swatches.grey.grey150,
-        boxSizing: 'border-box',
-        borderRight: `1px solid ${theme.palette.swatches.grey.grey300}`,
+const FiltersPanelRoot = styled('div')(({ theme }) => ({
+    height: '100%',
+    transition: 'width 0.4s ease-out',
+    overflow: 'hidden',
+    position: 'relative',
+    background: theme.palette.swatches.grey.grey150,
+    boxSizing: 'border-box',
+    borderRight: `1px solid ${theme.palette.swatches.grey.grey300}`,
+}))
+
+const Contents = styled('div')({
+    width: '100%',
+    height: '100%',
+    margin: 0,
+    display: 'flex',
+    flexFlow: 'column',
+})
+
+const FilterHeading = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: theme.headHeights[1],
+    display: 'flex',
+    justifyContent: 'space-between',
+    boxSizing: 'border-box',
+    background: theme.palette.swatches.grey.grey100,
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+}))
+
+const FilterTitle = styled('div')(({ theme }) => ({
+    padding: '4px 0px 4px 12px',
+    fontSize: '16px',
+    fontWeight: 500,
+    lineHeight: '34px',
+    color: theme.palette.text.primary,
+    whiteSpace: 'nowrap',
+}))
+
+const AddFilterButton = styled(Button)(({ theme }) => ({
+    'color': theme.palette.text.secondary,
+    'fontSize': '11px',
+    'lineHeight': '11px',
+    'padding': '4px 0px',
+    'margin': '7px',
+    '& .MuiButton-endIcon': {
+        marginTop: '-2px',
+        marginLeft: '3px',
     },
-    contents: {
-        width: '100%', //`calc(100% - ${theme.spacing(2)})`,
-        height: '100%', //`calc(100% - ${theme.spacing(4)})`,
-        margin: 0, //`${theme.spacing(2)} ${theme.spacing(1)}`,
-        display: 'flex',
-        flexFlow: 'column',
+}))
+
+const ButtonMore = styled('div')(({ theme }) => ({
+    '& .MuiIconButton-root': {
+        color: theme.palette.swatches.grey.grey600,
+        fontSize: '21px',
     },
-    content: {
-        overflowY: 'auto',
-        flex: 1,
-    },
-    heading: {
-        width: '100%',
-        height: theme.headHeights[1],
-        display: 'flex',
-        justifyContent: 'space-between',
-        boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey100,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-    },
-    title: {
-        padding: '4px 0px 4px 12px',
-        fontSize: '16px',
-        fontWeight: 500,
-        lineHeight: '34px',
-        color: theme.palette.text.primary,
-        whiteSpace: 'nowrap',
-    },
-    right: {
-        display: 'flex',
-    },
-    addFilter: {
-        'color': theme.palette.text.secondary,
-        'fontSize': '11px',
-        'lineHeight': '11px',
-        'padding': '4px 0px',
-        'margin': '7px',
-        '& .MuiButton-endIcon': {
-            marginTop: '-2px',
-            marginLeft: '3px',
-        },
-    },
-    buttonMore: {
-        '& .MuiIconButton-root': {
-            color: theme.palette.swatches.grey.grey600,
-            fontSize: '21px',
-        },
-        'marginRight': '4px',
-    },
+    marginRight: '4px',
 }))
 
 const FILTER_TYPES = {
@@ -91,7 +88,6 @@ const FILTER_TYPES = {
 
 const FiltersPanel = (props) => {
     const { mobile } = props
-    const c = useStyles()
     const dispatch = useDispatch()
 
     const w = useSelector((state) => {
@@ -139,16 +135,15 @@ const FiltersPanel = (props) => {
     if (width == 0) style.border = 'unset'
 
     return (
-        <div className={c.FiltersPanel} style={style}>
-            <div className={c.contents}>
-                <div className={c.heading}>
-                    <div className={c.left}>
-                        <div className={c.title}>{FILTER_TYPES[filterType]}</div>
+        <FiltersPanelRoot style={style}>
+            <Contents>
+                <FilterHeading>
+                    <div>
+                        <FilterTitle>{FILTER_TYPES[filterType]}</FilterTitle>
                     </div>
-                    <div className={c.right}>
+                    <Box sx={{ display: 'flex' }}>
                         {filterType === 'basic' && (
-                            <Button
-                                className={c.addFilter}
+                            <AddFilterButton
                                 aria-label="add filter"
                                 size="small"
                                 onClick={() => dispatch(setModal('addFilter'))}
@@ -156,9 +151,9 @@ const FiltersPanel = (props) => {
                                 endIcon={<AddIcon />}
                             >
                                 Add
-                            </Button>
+                            </AddFilterButton>
                         )}
-                        <div className={c.buttonMore}>
+                        <ButtonMore>
                             <MenuButton
                                 options={[
                                     FILTER_TYPES.basic,
@@ -174,11 +169,11 @@ const FiltersPanel = (props) => {
                                 buttonComponent={<MoreVertIcon fontSize="inherit" />}
                                 onChange={handleMenuChange}
                             />
-                        </div>
-                    </div>
-                </div>
-                <div
-                    className={c.content}
+                        </ButtonMore>
+                    </Box>
+                </FilterHeading>
+                <Box
+                    sx={{ overflowY: 'auto', flex: 1 }}
                     onScroll={(e) => {
                         const scrollTop = e.target.scrollTop
 
@@ -212,9 +207,9 @@ const FiltersPanel = (props) => {
                     }}
                 >
                     {filterType === 'advanced' ? <AdvancedFilter /> : <FilterList />}
-                </div>
-            </div>
-        </div>
+                </Box>
+            </Contents>
+        </FiltersPanelRoot>
     )
 }
 

@@ -11,14 +11,15 @@ import DialogContent from '@mui/material/DialogContent'
 import IconButton from '@mui/material/IconButton'
 import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import Box from '@mui/material/Box'
 
 import NASALogoPath from '../../../../media/images/nasa-logo.svg'
 import { getPublicUrl } from '../../../../core/runtimeConfig'
 
 import { publicUrl } from '../../../../core/constants'
+import { ContentsMobile } from '../../../../components/shared/ModalComponents'
 
 // Construct runtime-aware logo URL
 const getNASALogoUrl = () => {
@@ -27,115 +28,109 @@ const getNASALogoUrl = () => {
     return `${publicUrl}/${relativePath}`
 }
 
-const useStyles = makeStyles((theme) => ({
-    InformationModal: {
-        margin: theme.headHeights[1],
-        [theme.breakpoints.down('sm')]: {
-            margin: '6px',
-        },
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+    margin: theme.headHeights[1],
+    [theme.breakpoints.down('sm')]: {
+        margin: '6px',
     },
-    contents: {
-        background: theme.palette.primary.main,
-        width: '960px',
-        maxWidth: '960px',
+}))
+
+const Contents = styled('div')(({ theme }) => ({
+    background: theme.palette.primary.main,
+    width: '960px',
+    maxWidth: '960px',
+}))
+
+const Content = styled(DialogContent)(({ theme }) => ({
+    padding: '20px 40px 8px 40px',
+    height: `calc(100% - ${theme.headHeights[2]}px)`,
+    textAlign: 'center',
+}))
+
+const Head = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'center',
+    [theme.breakpoints.down('sm')]: {
+        flexFlow: 'column',
     },
-    contentsMobile: {
-        background: theme.palette.primary.main,
-        height: '100%',
+}))
+
+const CloseIconButton = styled(IconButton)(({ theme }) => ({
+    padding: theme.spacing(1.5),
+    margin: '4px',
+    position: 'absolute',
+    top: '0px',
+    right: '0px',
+}))
+
+const Logo = styled('div')({
+    '& > img': {
+        width: '100px',
+        height: '100px',
+        marginLeft: '12px',
     },
-    content: {
-        padding: '20px 40px 8px 40px',
-        height: `calc(100% - ${theme.headHeights[2]}px)`,
+})
+
+const PdsAndNode = styled('div')(({ theme }) => ({
+    textAlign: 'left',
+    padding: '26px 0px',
+    [theme.breakpoints.down('sm')]: {
+        paddingTop: '4px',
+    },
+}))
+
+const Pds = styled(Typography)(({ theme }) => ({
+    fontSize: '18px',
+    textTransform: 'uppercase',
+    [theme.breakpoints.down('sm')]: {
         textAlign: 'center',
     },
-    closeIcon: {
-        padding: theme.spacing(1.5),
-        height: '100%',
-        margin: '4px 0px',
+}))
+
+const Node = styled(Typography)(({ theme }) => ({
+    fontSize: '24px',
+    [theme.breakpoints.down('sm')]: {
+        textAlign: 'center',
     },
-    flexBetween: {
-        display: 'flex',
-        justifyContent: 'space-between',
+}))
+
+const Title = styled(Typography)(({ theme }) => ({
+    margin: `0px 0px ${theme.spacing(6)} 0px`,
+    padding: '0px 2px',
+    fontSize: '30px',
+    fontWeight: 'bold',
+    lineHeight: '28px',
+    textTransform: 'uppercase',
+}))
+
+const Message = styled('div')(({ theme }) => ({
+    margin: `${theme.spacing(4)} 0px`,
+}))
+
+const ALink = styled('a')({
+    color: 'link',
+    cursor: 'pointer',
+    textDecoration: 'underline',
+    fontWeight: 'bold',
+})
+
+const Metadata = styled('div')({
+    '& > p': {
+        fontFamily: 'monospace',
     },
-    head: {
-        display: 'flex',
-        justifyContent: 'center',
-        [theme.breakpoints.down('sm')]: {
-            flexFlow: 'column',
-        },
-    },
-    closeIcon: {
-        padding: theme.spacing(1.5),
-        margin: '4px',
-        position: 'absolute',
-        top: '0px',
-        right: '0px',
-    },
-    logo: {
-        '& > img': {
-            width: '100px',
-            height: '100px',
-            marginLeft: '12px',
-        },
-    },
-    pdsAndNode: {
-        textAlign: 'left',
-        padding: '26px 0px',
-        [theme.breakpoints.down('sm')]: {
-            paddingTop: '4px',
-        },
-    },
-    pds: {
-        fontSize: '18px',
-        textTransform: 'uppercase',
-        [theme.breakpoints.down('sm')]: {
-            textAlign: 'center',
-        },
-    },
-    node: {
-        fontSize: '24px',
-        [theme.breakpoints.down('sm')]: {
-            textAlign: 'center',
-        },
-    },
-    title: {
-        margin: `0px 0px ${theme.spacing(6)} 0px`,
-        padding: '0px 2px',
-        fontSize: '30px',
-        fontWeight: 'bold',
-        lineHeight: '28px',
-        textTransform: 'uppercase',
-    },
-    description: {
-        textAlign: 'justify',
-    },
-    message: {
-        margin: `${theme.spacing(4)} 0px`,
-    },
-    aLink: {
-        color: 'link',
-        cursor: 'pointer',
-        textDecoration: 'underline',
-        fontWeight: 'bold',
-    },
-    metadata: {
-        '& > p': {
-            fontFamily: 'monospace',
-        },
-    },
-    footer: {
-        'backgroundColor': 'rgba(0,0,0,0)',
-        'display': 'flex',
-        'justifyContent': 'space-between',
-        '& .MuiButton-text': {
-            color: theme.palette.primary.light,
-        },
+})
+
+const Footer = styled(DialogActions)(({ theme }) => ({
+    'backgroundColor': 'rgba(0,0,0,0)',
+    'display': 'flex',
+    'justifyContent': 'space-between',
+    '& .MuiButton-text': {
+        color: theme.palette.primary.light,
     },
 }))
 
 const InformationModal = (props) => {
     const {} = props
-    const c = useStyles()
 
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
@@ -159,45 +154,43 @@ const InformationModal = (props) => {
     const newsPath = `https://pds-imaging.jpl.nasa.gov/`
 
     return (
-        <Dialog
-            className={c.InformationModal}
+        <StyledDialog
             fullScreen={isMobile}
             open={open}
             onClose={handleClose}
             aria-labelledby="responsive-dialog-title"
             PaperProps={{
-                className: isMobile ? c.contentsMobile : c.contents,
+                component: isMobile ? ContentsMobile : Contents,
             }}
         >
-            <DialogContent className={c.content}>
-                <div className={c.top}>
-                    <div className={c.head}>
-                        <div className={c.logo}>
+            <Content>
+                <div>
+                    <Head>
+                        <Logo>
                             <img src={getNASALogoUrl()} alt={'NASA Logo'} />
-                        </div>
-                        <div className={c.pdsAndNode}>
-                            <Typography className={c.pds} variant="h3">
+                        </Logo>
+                        <PdsAndNode>
+                            <Pds variant="h3">
                                 Planetary Data System
-                            </Typography>
-                            <Typography className={c.node} variant="h3">
+                            </Pds>
+                            <Node variant="h3">
                                 Cartography and Imaging Sciences
-                            </Typography>
-                        </div>
-                    </div>
-                    <Typography className={c.title} variant="h2">
+                            </Node>
+                        </PdsAndNode>
+                    </Head>
+                    <Title variant="h2">
                         Atlas
-                    </Typography>
-                    <IconButton
-                        className={c.closeIcon}
+                    </Title>
+                    <CloseIconButton
                         title="Close"
                         aria-label="close"
                         onClick={handleClose}
                         size="large">
                         <CloseSharpIcon fontSize="inherit" />
-                    </IconButton>
+                    </CloseIconButton>
                 </div>
-                <div className={c.bottom}>
-                    <div className={c.description}>
+                <div>
+                    <Box sx={{ textAlign: 'justify' }}>
                         <Typography>
                             The Cartography and Imaging Sciences Node of the Planetary Data System
                             provides a set of applications under the name, "Atlas". These
@@ -206,36 +199,36 @@ const InformationModal = (props) => {
                             space missions. Through the use of these tools, users have access to
                             petabytes of imaging data in one central location. This collection of
                             data is updated periodically and is reported within the{' '}
-                            <a className={c.aLink} href={newsPath} rel="noopener">
+                            <ALink href={newsPath} rel="noopener">
                                 Latest News
-                            </a>{' '}
+                            </ALink>{' '}
                             section of our home page.
                         </Typography>
-                    </div>
-                    <div className={c.message}>
+                    </Box>
+                    <Message>
                         <Typography>
                             If you have questions, want to share feedback, or need support,{' '}
-                            <a
-                                className={c.aLink}
+                            <ALink
+                                as="a"
                                 aria-label="give feedback"
                                 onClick={openFeedback}
                             >
                                 please send us a message
-                            </a>
+                            </ALink>
                             .
                         </Typography>
-                    </div>
-                    <div className={c.metadata}>
+                    </Message>
+                    <Metadata>
                         <Typography>Version Number: {process.env.REACT_APP_VERSION}</Typography>
                         <Typography>
                             Clearance Number: {process.env.REACT_APP_CLEARANCE_NUMBER}
                         </Typography>
                         <Typography>Last Updated: {process.env.REACT_APP_LAST_UPDATED}</Typography>
-                    </div>
+                    </Metadata>
                 </div>
-            </DialogContent>
-            <DialogActions className={c.footer}>
-                <div className={c.footerLeft}>
+            </Content>
+            <Footer>
+                <div>
                     <Button href="https://www.jpl.nasa.gov/jpl-image-use-policy">
                         Image Use Policy
                     </Button>
@@ -243,13 +236,13 @@ const InformationModal = (props) => {
                         Privacy Policy
                     </Button>
                 </div>
-                <div className={c.footerRight}>
+                <div>
                     <Button title="Close" aria-label="close" onClick={handleClose}>
                         Close
                     </Button>
                 </div>
-            </DialogActions>
-        </Dialog>
+            </Footer>
+        </StyledDialog>
     );
 }
 

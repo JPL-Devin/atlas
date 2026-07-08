@@ -1,83 +1,70 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
-
 import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
 
 import MiniHistogram from '../../../MiniHistogram/MiniHistogram'
 
 import { setFieldState } from '../../../../core/redux/actions/actions.js'
 import { getIn, prettify, abbreviateNumber } from '../../../../core/utils.js'
+import { ClearButton, SubmitButton, BottomDiv } from '../../../shared/FilterComponents'
 
 import Slider from '@mui/material/Slider'
+import Box from '@mui/material/Box'
 
-const useStyles = makeStyles((theme) => ({
-    SliderRangeFilter: {
-        width: '100%',
-        display: 'flex',
-        flexFlow: 'column',
-    },
-    notAlone: {
+const SliderRangeFilterRoot = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isNotAlone',
+})(({ isNotAlone }) => ({
+    width: '100%',
+    display: 'flex',
+    flexFlow: 'column',
+    ...(isNotAlone && {
         paddingTop: '10px',
         position: 'relative',
-    },
-    title: {
-        position: 'absolute',
-        left: '50%',
-        top: '146px',
-        transform: 'translateX(-50%)',
-        color: theme.palette.swatches.grey.grey400,
-    },
-    histogramWrapper: {
-        margin: '8px 18px 0px 18px',
-    },
-    sliderWrapper: {
-        height: '30px',
-        width: 'calc(100% - 40px)',
-        padding: '4px 23px 4px 23px',
-        marginTop: '-17px',
-    },
-    sliderMarks: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        margin: '-9px -4px 0px -4px',
-        fontSize: '12px',
-    },
-    inputs: {
-        display: 'flex',
-        flexFlow: 'column',
-        width: 'calc(100% - 40px)',
-        padding: '4px 20px 0px 20px',
-    },
-    input: {
-        'flex': 1,
-        '& .MuiFormLabel-root': {
-            color: theme.palette.swatches.grey.grey700,
-        },
-    },
-    bottom: {
-        marginTop: theme.spacing(2),
-        padding: `0px ${theme.spacing(2)}`,
-    },
-    clear: {
-        'background': theme.palette.swatches.grey.grey500,
-        '&:hover': {
-            background: theme.palette.swatches.red.red500,
-        },
-    },
-    submit: {
-        width: '80px',
-        float: 'right',
+    }),
+}))
+
+const TitleDiv = styled('div')(({ theme }) => ({
+    position: 'absolute',
+    left: '50%',
+    top: '146px',
+    transform: 'translateX(-50%)',
+    color: theme.palette.swatches.grey.grey400,
+}))
+
+const SliderWrapper = styled('div')({
+    height: '30px',
+    width: 'calc(100% - 40px)',
+    padding: '4px 23px 4px 23px',
+    marginTop: '-17px',
+})
+
+const SliderMarks = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    margin: '-9px -4px 0px -4px',
+    fontSize: '12px',
+})
+
+const InputsDiv = styled('div')({
+    display: 'flex',
+    flexFlow: 'column',
+    width: 'calc(100% - 40px)',
+    padding: '4px 20px 0px 20px',
+})
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+    'flex': 1,
+    '& .MuiFormLabel-root': {
+        color: theme.palette.swatches.grey.grey700,
     },
 }))
 
+
 const SliderRangeFilter = (props) => {
     const { filterKey, facetId, alone, settingsActive } = props
-    const c = useStyles()
 
     const dispatch = useDispatch()
     const facet = useSelector((state) => {
@@ -157,21 +144,17 @@ const SliderRangeFilter = (props) => {
     }
 
     return (
-        <div
-            className={clsx(c.SliderRangeFilter, {
-                [c.notAlone]: !alone,
-            })}
-        >
-            {!alone ? <div className={c.title}>{prettify(facetName)}</div> : null}
-            <div className={c.histogramWrapper}>
+        <SliderRangeFilterRoot isNotAlone={!alone}>
+            {!alone ? <TitleDiv>{prettify(facetName)}</TitleDiv> : null}
+            <Box sx={{ margin: '8px 18px 0px 18px' }}>
                 <MiniHistogram
                     buckets={facet.fields}
                     height={100}
                     selectedRange={normalizedValue}
                     outliers={outliers}
                 />
-            </div>
-            <div className={c.sliderWrapper}>
+            </Box>
+            <SliderWrapper>
                 <Slider
                     value={normalizedValue}
                     min={min}
@@ -179,15 +162,14 @@ const SliderRangeFilter = (props) => {
                     step={step}
                     onChange={handleSliderChange}
                 />
-                <div className={c.sliderMarks}>
+                <SliderMarks>
                     <div>{abbreviateNumber(min, 2)}</div>
                     <div>{abbreviateNumber(max, 2)}</div>
-                </div>
-            </div>
-            <div className={c.inputs}>
-                <TextField
+                </SliderMarks>
+            </SliderWrapper>
+            <InputsDiv>
+                <StyledTextField
                     label="From"
-                    className={c.input}
                     value={value[0] != null ? value[0] : ''}
                     margin="dense"
                     onChange={(e) => {
@@ -200,9 +182,8 @@ const SliderRangeFilter = (props) => {
                         type: 'number',
                     }}
                 />
-                <TextField
+                <StyledTextField
                     label="To"
-                    className={c.input}
                     value={value[1] != null ? value[1] : ''}
                     margin="dense"
                     onChange={(e) => {
@@ -215,19 +196,17 @@ const SliderRangeFilter = (props) => {
                         type: 'number',
                     }}
                 />
-            </div>
-            <div className={c.bottom}>
-                <Button
-                    className={c.clear}
+            </InputsDiv>
+            <BottomDiv sx={{ padding: (theme) => `0px ${theme.spacing(2)}` }}>
+                <ClearButton
                     size="small"
                     variant="contained"
                     onClick={handleClear}
                     disabled={value[0] == null && value[1] == null}
                 >
                     Clear
-                </Button>
-                <Button
-                    className={c.submit}
+                </ClearButton>
+                <SubmitButton
                     size="small"
                     variant="contained"
                     onClick={handleSubmit}
@@ -236,9 +215,9 @@ const SliderRangeFilter = (props) => {
                     }
                 >
                     Search
-                </Button>
-            </div>
-        </div>
+                </SubmitButton>
+            </BottomDiv>
+        </SliderRangeFilterRoot>
     )
 }
 

@@ -7,7 +7,7 @@ import axios from 'axios'
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import { searchRecordByURI, setRecordData } from '../../core/redux/actions/actions'
 import { ES_PATHS, domain, endpoints } from '../../core/constants'
@@ -17,12 +17,10 @@ import Title from './Title/Title'
 import Content from './Content/Content'
 import Footer from './Footer/Footer'
 
-const useStyles = makeStyles((theme) => ({
-    Record: {
-        width: '100%',
-        height: '100%',
-        color: theme.palette.text.primary,
-    },
+const RecordRoot = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    color: theme.palette.text.primary,
 }))
 
 const Record = (props) => {
@@ -31,8 +29,6 @@ const Record = (props) => {
     useEffect(() => {
         document.title = 'Atlas - Record | PDS-IMG'
     }, [])
-
-    const c = useStyles()
 
     const location = useLocation()
     const dispatch = useDispatch()
@@ -132,11 +128,11 @@ const Record = (props) => {
     }, [JSON.stringify(recordData)])
 
     return (
-        <div className={c.Record}>
+        <RecordRoot>
             <Title recordData={recordData} versions={versions} activeVersion={activeVersion} />
             <Content recordData={recordData} versions={versions} activeVersion={activeVersion} />
             {/*<Footer />*/}
-        </div>
+        </RecordRoot>
     )
 }
 

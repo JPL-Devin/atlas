@@ -6,55 +6,55 @@ import CartoCosmos from '../../../../CartoCosmos/CartoCosmos'
 
 import MapListener from './subcomponents/MapListener/MapListener'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
-const useStyles = makeStyles((theme) => ({
-    SecondaryPanel: {
-        height: '100%',
-        transition: 'width 0.4s ease-out',
-        overflow: 'hidden',
-        position: 'relative',
-    },
-    content: {
-        width: '100%', //`calc(100% - ${theme.spacing(2)})`,
-        height: '100%', //`calc(100% - ${theme.spacing(4)})`,
-        margin: 0, //`${theme.spacing(2)} ${theme.spacing(1)}`,
-        background: theme.palette.swatches.grey.grey800,
-        display: 'flex',
-        flexFlow: 'column',
-    },
-    heading: {
-        width: '100%',
-        height: theme.headHeights[1],
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '4px 12px',
-        boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey700,
-    },
-    title: {
-        fontSize: '16px',
-        fontWeight: 500,
-        lineHeight: '34px',
-        color: theme.palette.text.secondary,
-        whiteSpace: 'nowrap',
-    },
-    map: {
-        'width': '100%',
-        'height': '100%',
-        'overflow': 'hidden',
-        '& > div': {
-            width: '100%',
-            height: '100%',
-            overflow: 'hidden',
-        },
-    },
+const SecondaryPanelRoot = styled('div')({
+    height: '100%',
+    transition: 'width 0.4s ease-out',
+    overflow: 'hidden',
+    position: 'relative',
+})
+
+const Content = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    margin: 0,
+    background: theme.palette.swatches.grey.grey800,
+    display: 'flex',
+    flexFlow: 'column',
 }))
+
+const Heading = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: theme.headHeights[1],
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '4px 12px',
+    boxSizing: 'border-box',
+    background: theme.palette.swatches.grey.grey700,
+}))
+
+const Title = styled('div')(({ theme }) => ({
+    fontSize: '16px',
+    fontWeight: 500,
+    lineHeight: '34px',
+    color: theme.palette.text.secondary,
+    whiteSpace: 'nowrap',
+}))
+
+const MapContainer = styled('div')({
+    'width': '100%',
+    'height': '100%',
+    'overflow': 'hidden',
+    '& > div': {
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+    },
+})
 
 const SecondaryPanel = (props) => {
     const { mobile } = props
-    const c = useStyles()
-
     const mainRef = useRef()
     const [firstOpen, setFirstOpen] = useState(false)
 
@@ -79,20 +79,20 @@ const SecondaryPanel = (props) => {
     }
 
     return (
-        <div className={c.SecondaryPanel} style={style} ref={mainRef}>
-            <MapListener parentClass={c.map} firstOpen={firstOpen} />
-            <div className={c.content}>
-                <div className={c.heading}>
-                    <div className={c.left}>
-                        <div className={c.title}>Map</div>
+        <SecondaryPanelRoot style={style} ref={mainRef}>
+            <MapListener parentClass="mapContainer" firstOpen={firstOpen} />
+            <Content>
+                <Heading>
+                    <div>
+                        <Title>Map</Title>
                     </div>
-                    <div className={c.right}></div>
-                </div>
-                <div className={c.map}>
+                    <div></div>
+                </Heading>
+                <MapContainer className="mapContainer">
                     <CartoCosmos firstOpen={firstOpen} />
-                </div>
-            </div>
-        </div>
+                </MapContainer>
+            </Content>
+        </SecondaryPanelRoot>
     )
 }
 

@@ -1,41 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import PropTypes from 'prop-types'
 
 import Input from '@mui/material/Input'
-import Button from '@mui/material/Button'
 
 import { setFieldState } from '../../../../core/redux/actions/actions.js'
 import { getIn } from '../../../../core/utils.js'
+import { ClearButton, SubmitButton, BottomDiv } from '../../../shared/FilterComponents'
 
-const useStyles = makeStyles((theme) => ({
-    InputFilter: {
-        display: 'flex',
-        flexFlow: 'column',
-        padding: `0px ${theme.spacing(2)}`,
-    },
-    input: {
-        flex: 1,
-    },
-    bottom: {
-        marginTop: theme.spacing(2),
-    },
-    clear: {
-        'background': theme.palette.swatches.grey.grey500,
-        '&:hover': {
-            background: theme.palette.swatches.red.red500,
-        },
-    },
-    submit: {
-        width: '80px',
-        float: 'right',
-    },
+const InputFilterRoot = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexFlow: 'column',
+    padding: `0px ${theme.spacing(2)}`,
 }))
+
+const StyledInput = styled(Input)({
+    flex: 1,
+})
 
 const InputFilter = (props) => {
     const { filterKey, facetId, type } = props
-    const c = useStyles()
 
     const [filterInput, setFilterInput] = useState(null)
 
@@ -73,9 +58,8 @@ const InputFilter = (props) => {
     }
 
     return (
-        <div className={c.InputFilter}>
-            <Input
-                className={c.input}
+        <InputFilterRoot>
+            <StyledInput
                 placeholder={facetName}
                 value={filterInput || ''}
                 type={type}
@@ -86,27 +70,25 @@ const InputFilter = (props) => {
                     if (e.key === 'Enter') handleSubmit()
                 }}
             />
-            <div className={c.bottom}>
-                <Button
-                    className={c.clear}
+            <BottomDiv>
+                <ClearButton
                     size="small"
                     variant="contained"
                     onClick={handleClear}
                     disabled={filterInput == null}
                 >
                     Clear
-                </Button>
-                <Button
-                    className={c.submit}
+                </ClearButton>
+                <SubmitButton
                     size="small"
                     variant="contained"
                     onClick={handleSubmit}
                     disabled={filterInput == null}
                 >
                     Search
-                </Button>
-            </div>
-        </div>
+                </SubmitButton>
+            </BottomDiv>
+        </InputFilterRoot>
     )
 }
 

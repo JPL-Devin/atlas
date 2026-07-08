@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
-import { makeStyles, withStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
-import clsx from 'clsx'
 import moment from 'moment'
 
 import Paper from '@mui/material/Paper'
@@ -12,110 +11,113 @@ import LinearProgress from '@mui/material/LinearProgress'
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayIcon from '@mui/icons-material/PlayArrow'
 import StopIcon from '@mui/icons-material/Stop'
+import Box from '@mui/material/Box'
 
 import { abbreviateNumber } from '../../core/utils.js'
 
-const DownloadingLinearProgress = withStyles((theme) => ({
-    root: {},
-    colorPrimary: {
+const DownloadingLinearProgress = styled(LinearProgress)(({ theme }) => ({
+    '&.MuiLinearProgress-colorPrimary': {
         backgroundColor: theme.palette.swatches.grey.grey1500,
     },
-    bar: {
+    '& .MuiLinearProgress-bar': {
         backgroundColor: theme.palette.accent.main,
     },
-    bar2Buffer: {
+    '& .MuiLinearProgress-bar2Buffer': {
         backgroundColor: theme.palette.swatches.blue.blue200,
     },
-    dashed: {
+    '& .MuiLinearProgress-dashed': {
         backgroundImage: `radial-gradient(${theme.palette.swatches.grey.grey400} 0%, ${theme.palette.swatches.grey.grey400} 16%, transparent 42%)`,
     },
-}))(LinearProgress)
+}))
 
-const useStyles = makeStyles((theme) => ({
-    status: {
-        border: `1px solid ${theme.palette.swatches.grey.grey300}`,
+const StatusPaper = styled(Paper)(({ theme }) => ({
+    border: `1px solid ${theme.palette.swatches.grey.grey300}`,
+}))
+
+const StatusInner = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: `${theme.spacing(1.5)} 0px`,
+    height: '48px',
+}))
+
+const StatusLeft = styled('div')({
+    width: '108px',
+    position: 'relative',
+    paddingLeft: 10,
+    cursor: 'pointer',
+})
+
+const StatusProgress = styled('div')({
+    'lineHeight': '48px',
+    '&:hover': {
+        opacity: 0,
     },
-    statusInner: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: `${theme.spacing(1.5)} 0px`,
-        height: '48px',
+})
+
+const StatusCount = styled('div')({
+    'fontSize': 18,
+    'position': 'absolute',
+    'top': '0px',
+    'lineHeight': '48px',
+    'width': '100%',
+    'background': 'white',
+    'opacity': 0,
+    '&:hover': {
+        opacity: 1,
     },
-    statusLeft: {
-        width: '108px',
-        position: 'relative',
-        paddingLeft: 10,
-        cursor: 'pointer',
-    },
-    statusProgress: {
-        'lineHeight': '48px',
-        '&:hover': {
-            opacity: 0,
-        },
-    },
-    statusCount: {
-        'fontSize': 18,
-        'position': 'absolute',
-        'top': '0px',
-        'lineHeight': '48px',
-        'width': '100%',
-        'background': 'white',
-        'opacity': 0,
-        '&:hover': {
-            opacity: 1,
-        },
-    },
-    statusMiddle: {
-        textAlign: 'center',
-    },
-    statusElapsed: {
-        fontSize: 14,
-        marginTop: '7px',
-    },
-    statusRemaining: {
-        fontSize: 14,
-    },
-    statusRight: {
-        width: '108px',
-        display: 'flex',
-        justifyContent: 'end',
-    },
-    statusButtonBlue: {
-        'fontSize': 30,
-        'transition': 'color 0.2s ease-in-out',
-        '&:hover': {
-            color: theme.palette.accent.main,
-        },
-    },
-    statusButtonRed: {
-        'fontSize': 30,
-        'transition': 'color 0.2s ease-in-out',
-        '&:hover': {
-            color: theme.palette.swatches.red.red500,
-        },
-    },
-    statusDone: {
+})
+
+const StatusRight = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isDone' && prop !== 'isHidden',
+})(({ isDone, isHidden }) => ({
+    width: '108px',
+    display: 'flex',
+    justifyContent: 'end',
+    ...(isDone && {
         opacity: 0.5,
         pointerEvents: 'none',
-    },
-    stoppedBar: {
-        height: '4px',
-        width: '100%',
-        background: theme.palette.swatches.red.red500,
-    },
-    doneBar: {
-        height: '4px',
-        width: '100%',
-        background: theme.palette.swatches.green.green500,
-    },
-    hide: {
+    }),
+    ...(isHidden && {
         display: 'none',
+    }),
+}))
+
+const BlueButton = styled(IconButton, {
+    shouldForwardProp: (prop) => prop !== 'isHidden',
+})(({ theme, isHidden }) => ({
+    'fontSize': 30,
+    'transition': 'color 0.2s ease-in-out',
+    '&:hover': {
+        color: theme.palette.accent.main,
     },
+    ...(isHidden && {
+        display: 'none',
+    }),
+}))
+
+const RedButton = styled(IconButton)(({ theme }) => ({
+    'fontSize': 30,
+    'transition': 'color 0.2s ease-in-out',
+    '&:hover': {
+        color: theme.palette.swatches.red.red500,
+    },
+}))
+
+const StoppedBar = styled('div')(({ theme }) => ({
+    height: '4px',
+    width: '100%',
+    background: theme.palette.swatches.red.red500,
+}))
+
+const DoneBar = styled('div')(({ theme }) => ({
+    height: '4px',
+    width: '100%',
+    background: theme.palette.swatches.green.green500,
 }))
 
 function DownloadingCard(props) {
     const { downloadId, status, controller, controllerType, onStop, hideActions, hidePause } = props
-    const c = useStyles()
 
     const modes = {
         running: 'running',
@@ -206,7 +208,7 @@ function DownloadingCard(props) {
     else if (status.overall.estimatedTimeRemaining < 0) remaining = '00:00:00'
 
     return (
-        <Paper className={c.status} elevation={0}>
+        <StatusPaper elevation={0}>
             {mode === modes.running && (
                 <DownloadingLinearProgress
                     variant="buffer"
@@ -214,36 +216,34 @@ function DownloadingCard(props) {
                     valueBuffer={status.overall.buffer}
                 />
             )}
-            {mode === modes.stopped && <div className={c.stoppedBar}></div>}
-            {mode === modes.done && <div className={c.doneBar}></div>}
-            <div className={c.statusInner}>
-                <div className={c.statusLeft}>
-                    <div className={c.statusProgress} style={{ fontSize: progressFontSize }}>
+            {mode === modes.stopped && <StoppedBar />}
+            {mode === modes.done && <DoneBar />}
+            <StatusInner>
+                <StatusLeft>
+                    <StatusProgress style={{ fontSize: progressFontSize }}>
                         {progressText}
-                    </div>
-                    <div className={c.statusCount}>
+                    </StatusProgress>
+                    <StatusCount>
                         {`${abbreviateNumber(status.overall.current)} / ${abbreviateNumber(
                             status.overall.total
                         )}`}
-                    </div>
-                </div>
-                <div className={c.statusMiddle}>
-                    <div className={c.statusElapsed}>{`Elapsed: ${moment
+                    </StatusCount>
+                </StatusLeft>
+                <Box sx={{ textAlign: 'center' }}>
+                    <Box sx={{ fontSize: 14, marginTop: '7px' }}>{`Elapsed: ${moment
                         .utc(moment.duration(status.overall.elapsedTime).as('milliseconds'))
-                        .format('HH:mm:ss')}`}</div>
-                    <div className={c.statusRemaining}>{`Remaining: ${
+                        .format('HH:mm:ss')}`}</Box>
+                    <Box sx={{ fontSize: 14 }}>{`Remaining: ${
                         remaining == 'Invalid date' ? 'Calculating' : remaining
-                    }`}</div>
-                </div>
-                <div
-                    className={clsx(c.statusRight, {
-                        [c.statusDone]: mode === modes.done || mode === modes.stopped,
-                        [c.hide]: hideActions === true,
-                    })}
+                    }`}</Box>
+                </Box>
+                <StatusRight
+                    isDone={mode === modes.done || mode === modes.stopped}
+                    isHidden={hideActions === true}
                 >
                     <Tooltip title={`${mode === modes.paused ? 'Resume' : 'Pause'} Download`} arrow>
-                        <IconButton
-                            className={clsx(c.statusButtonBlue, { [c.hide]: hidePause === true })}
+                        <BlueButton
+                            isHidden={hidePause === true}
                             onClick={() => {
                                 if (mode === modes.running) {
                                     pause()
@@ -258,17 +258,17 @@ function DownloadingCard(props) {
                             ) : (
                                 <PauseIcon fontSize="inherit" />
                             )}
-                        </IconButton>
+                        </BlueButton>
                     </Tooltip>
 
                     <Tooltip title="Stop Download" arrow>
-                        <IconButton className={c.statusButtonRed} onClick={stop} size="large">
+                        <RedButton onClick={stop} size="large">
                             <StopIcon fontSize="inherit" />
-                        </IconButton>
+                        </RedButton>
                     </Tooltip>
-                </div>
-            </div>
-        </Paper>
+                </StatusRight>
+            </StatusInner>
+        </StatusPaper>
     )
 }
 

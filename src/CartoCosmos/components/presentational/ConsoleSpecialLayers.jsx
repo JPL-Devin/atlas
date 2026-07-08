@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import clsx from 'clsx'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import Tooltip from '@mui/material/Tooltip'
 
@@ -12,43 +11,43 @@ import MobileOffIcon from '@mui/icons-material/MobileOff';
 import GridOnIcon from '@mui/icons-material/GridOn'
 import GridOffIcon from '@mui/icons-material/GridOff'
 
-/**
- * Controls css styling for this component using js to css
- */
-const useStyles = makeStyles((theme) => ({
-    root: {
-        'top': '10px',
-        'right': '56px',
-        'display': 'flex',
-        'zIndex': 500,
-        'position': 'absolute',
-        '& > a': {
-            width: '36px',
-            height: '36px',
-            lineHeight: '46px',
-            textAlign: 'center',
-            boxSizing: 'border-box',
-            color: '#fdfdfd',
-            background: '#000000',
-            border: '1px solid #232323',
-            transition: 'all 0.2s ease-in-out',
-        },
-        '& > a:hover': {
-            cursor: 'pointer',
-            background: '#222',
-        },
-        '& > a:first-child': {
-            borderTopLeftRadius: '2px',
-            borderBottomLeftRadius: '2px',
-        },
-        '& > a:last-child': {
-            borderTopRightRadius: '2px',
-            borderBottomRightRadius: '2px',
-        },
+const SpecialLayersRoot = styled('div')({
+    'top': '10px',
+    'right': '56px',
+    'display': 'flex',
+    'zIndex': 500,
+    'position': 'absolute',
+    '& > a': {
+        width: '36px',
+        height: '36px',
+        lineHeight: '46px',
+        textAlign: 'center',
+        boxSizing: 'border-box',
+        color: '#fdfdfd',
+        background: '#000000',
+        border: '1px solid #232323',
+        transition: 'all 0.2s ease-in-out',
     },
-    off: {
+    '& > a:hover': {
+        cursor: 'pointer',
+        background: '#222',
+    },
+    '& > a:first-child': {
+        borderTopLeftRadius: '2px',
+        borderBottomLeftRadius: '2px',
+    },
+    '& > a:last-child': {
+        borderTopRightRadius: '2px',
+        borderBottomRightRadius: '2px',
+    },
+})
+
+const LayerLink = styled('a', {
+    shouldForwardProp: (prop) => prop !== 'isOff',
+})(({ isOff }) => ({
+    ...(isOff && {
         color: '#cccccc !important',
-    },
+    }),
 }))
 
 /**
@@ -67,7 +66,6 @@ const useStyles = makeStyles((theme) => ({
  */
 export default function ConsoleSpecialButtons(props) {
     const { target } = props
-    const c = useStyles()
 
     const [useClusters, setUseClusters] = useState(false)
     const [useFootprints, setUseFootprints] = useState(false)
@@ -132,26 +130,26 @@ export default function ConsoleSpecialButtons(props) {
     }
 
     return (
-        <div className={c.root}>
+        <SpecialLayersRoot>
             <Tooltip title="Plotted imagery centers from the results panel." arrow placement="bottom-end">
-                <a onClick={handleClustersClick} className={clsx({ [c.off]: !useClusters })}>
+                <LayerLink onClick={handleClustersClick} isOff={!useClusters}>
                     {useClusters ? <GpsOnIcon /> : <GpsOffIcon />}
-                </a>
+                </LayerLink>
             </Tooltip>
             <Tooltip title="Plotted imagery footprints from the results panel." arrow placement="bottom-end">
-                <a onClick={handleFootprintsClick} className={clsx({ [c.off]: !useFootprints })}>
+                <LayerLink onClick={handleFootprintsClick} isOff={!useFootprints}>
                     {useFootprints ? <PanoramaVerticalIcon /> : <MobileOffIcon />}
-                </a>
+                </LayerLink>
             </Tooltip>
             <Tooltip
                 title="A heatmap of all query result center points."
                 arrow
                 placement="bottom-end"
             >
-                <a onClick={handleGridClick} className={clsx({ [c.off]: !useGrid })}>
+                <LayerLink onClick={handleGridClick} isOff={!useGrid}>
                     {useGrid ? <GridOnIcon /> : <GridOffIcon />}
-                </a>
+                </LayerLink>
             </Tooltip>
-        </div>
+        </SpecialLayersRoot>
     )
 }

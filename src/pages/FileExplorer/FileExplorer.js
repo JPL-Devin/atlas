@@ -11,82 +11,74 @@ import RegexModal from './Modals/RegexModal/RegexModal'
 import MenuButton from '../../components/MenuButton/MenuButton'
 
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 
 import SortIcon from '@mui/icons-material/Sort'
+import Box from '@mui/material/Box'
 
-import clsx from 'clsx'
 import Draggable from 'react-draggable'
 
 const initialPreviewWidth = 512
 
-const useStyles = makeStyles((theme) => ({
-    FileExplorer: {
-        width: '100%',
-        height: '100%',
-        color: theme.palette.text.primary,
-    },
-    title: {
-        color: theme.palette.text.primary,
-        lineHeight: `${theme.headHeights[2]}px`,
-        fontSize: '16px',
-        fontWeight: 500,
-        margin: 0,
-        padding: `0 ${theme.spacing(3)}`,
-    },
-    topMenu: {},
-    content: {
-        width: '100%',
-        height: `calc(100% - ${theme.headHeights[2] + 1}px)`,
-        display: 'flex',
-        justifyContent: 'space-between',
-        overflow: 'hidden',
-        background: theme.palette.swatches.grey.grey150,
-        boxShadow: 'inset 0px 1px 2px 0px rgba(0,0,0,0.07)',
-    },
-    contentTall: {
+const FileExplorerRoot = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    color: theme.palette.text.primary,
+}))
+
+const ContentArea = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isTall',
+})(({ theme, isTall }) => ({
+    width: '100%',
+    height: `calc(100% - ${theme.headHeights[2] + 1}px)`,
+    display: 'flex',
+    justifyContent: 'space-between',
+    overflow: 'hidden',
+    background: theme.palette.swatches.grey.grey150,
+    boxShadow: 'inset 0px 1px 2px 0px rgba(0,0,0,0.07)',
+    ...(isTall && {
         height: `calc(100% - 1px)`,
+    }),
+}))
+
+const ContentMobile = styled('div')({
+    height: 'calc(100% - 41px)',
+    width: '100%',
+    position: 'absolute',
+    top: '41px',
+    left: 0,
+})
+
+const LeftPanel = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isUnderLarge',
+})(({ theme, isUnderLarge }) => ({
+    'overflowX': 'auto',
+    'overflowY': 'hidden',
+    'flex': 1,
+    'boxShadow': '1px 0px 2px 0px rgba(0,0,0,0.02)',
+    'position': 'relative',
+    '&::-webkit-scrollbar-thumb': {
+        backgroundColor: theme.palette.swatches.grey.grey300,
+        boxShadow: `inset 0px 0px 0px 1px ${theme.palette.swatches.grey.grey50}`,
     },
-    contentMobile: {
-        height: 'calc(100% - 41px)',
-        width: '100%',
-        position: 'absolute',
-        top: '41px',
-        left: 0,
-    },
-    left: {
-        'overflowX': 'auto',
-        'overflowY': 'hidden',
-        'flex': 1,
-        'boxShadow': '1px 0px 2px 0px rgba(0,0,0,0.02)',
-        'position': 'relative',
-        '&::-webkit-scrollbar-thumb': {
-            backgroundColor: theme.palette.swatches.grey.grey300,
-            boxShadow: `inset 0px 0px 0px 1px ${theme.palette.swatches.grey.grey50}`,
-        },
-    },
-    leftUnderLarge: {
+    ...(isUnderLarge && {
         overflow: 'hidden',
         flex: 1,
-    },
-    rightWrapper: {
-        display: 'flex',
-        position: 'relative',
-    },
-    right: {
-        width: `${initialPreviewWidth}px`,
-        boxShadow: '-1px 0px 2px 0px rgba(0,0,0,0.07)',
-    },
-    divider: {
-        width: '8px',
-        height: '100%',
-        cursor: 'col-resize',
-        position: 'absolute',
-        height: '100%',
-        zIndex: 1000,
-    },
+    }),
 }))
+
+const RightPanel = styled('div')({
+    width: `${initialPreviewWidth}px`,
+    boxShadow: '-1px 0px 2px 0px rgba(0,0,0,0.07)',
+})
+
+const ResizeDivider = styled('div')({
+    width: '8px',
+    height: '100%',
+    cursor: 'col-resize',
+    position: 'absolute',
+    zIndex: 1000,
+})
 
 let slidingRight = false
 
@@ -94,8 +86,6 @@ const FileExplorer = (props) => {
     useEffect(() => {
         document.title = 'Atlas - Archive Explorer | PDS-IMG'
     }, [])
-
-    const c = useStyles()
 
     const dispatch = useDispatch()
 
@@ -173,8 +163,8 @@ const FileExplorer = (props) => {
     // If mobile
     if (isMobile) {
         return (
-            <div className={c.FileExplorer}>
-                <div className={clsx(c.content, c.contentMobile)}>
+            <FileExplorerRoot>
+                <ContentMobile>
                     <Columns
                         isMobile={true}
                         sort={sort}
@@ -188,12 +178,12 @@ const FileExplorer = (props) => {
                         setShowMobilePreview={setShowMobilePreviewWrapper}
                         forcedPreview={forcedPreview}
                     />
-                </div>
-            </div>
+                </ContentMobile>
+            </FileExplorerRoot>
         )
     }
     return (
-        <div className={c.FileExplorer}>
+        <FileExplorerRoot>
             <Heading
                 hide={modal !== false}
                 menuItems={[
@@ -209,9 +199,9 @@ const FileExplorer = (props) => {
                     />,
                 ]}
             />
-            <div className={clsx(c.content, { [c.contentTall]: modal !== false })}>
-                <div
-                    className={clsx(c.left, { [c.leftUnderLarge]: isLarge && !isMobile })}
+            <ContentArea isTall={modal !== false}>
+                <LeftPanel
+                    isUnderLarge={isLarge && !isMobile}
                     ref={slideRef}
                 >
                     <Columns
@@ -221,8 +211,8 @@ const FileExplorer = (props) => {
                         hasModalOver={modal != false}
                     />
                     <RegexModal modal={modal} />
-                </div>
-                <div className={c.rightWrapper}>
+                </LeftPanel>
+                <Box sx={{ display: 'flex', position: 'relative' }}>
                     <Draggable
                         axis="x"
                         defaultPosition={{ x: 0, y: 0 }}
@@ -251,14 +241,14 @@ const FileExplorer = (props) => {
                             }
                         }}
                     >
-                        <div className={c.divider} ref={dragRef}></div>
+                        <ResizeDivider ref={dragRef} />
                     </Draggable>
-                    <div className={c.right} ref={rightRef}>
+                    <RightPanel ref={rightRef}>
                         <Preview />
-                    </div>
-                </div>
-            </div>
-        </div>
+                    </RightPanel>
+                </Box>
+            </ContentArea>
+        </FileExplorerRoot>
     )
 }
 

@@ -1,22 +1,18 @@
 import React from 'react'
 import ConsoleAppBar from '../presentational/ConsoleAppBar.jsx'
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
-/**
- * Controls css styling for this component using js to css
- */
-const useStyles = makeStyles({
-    root: {
-        maxWidth: 800,
-        height: 100,
-        width: '100%',
-        display: 'none',
-    },
-    consAppbar: {
-        maxWidth: 800,
-        height: 100,
-        width: 'auto',
-    },
+const ContainerRoot = styled('div')({
+    maxWidth: 800,
+    height: 100,
+    width: '100%',
+    display: 'none',
+})
+
+const StyledConsoleAppBar = styled(ConsoleAppBar)({
+    maxWidth: 800,
+    height: 100,
+    width: 'auto',
 })
 
 /**
@@ -26,10 +22,9 @@ const useStyles = makeStyles({
  *
  */
 export default function ConsoleContainer(props) {
-    const classes = useStyles()
     return (
-        <div className={classes.root}>
-            <ConsoleAppBar target={props.target} className={classes.consAppbar} />
-        </div>
+        <ContainerRoot>
+            <StyledConsoleAppBar target={props.target} />
+        </ContainerRoot>
     )
 }

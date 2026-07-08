@@ -1,7 +1,7 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import { makeStyles, withStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import {
     domain,
@@ -12,90 +12,83 @@ import {
 } from '../../core/constants'
 import { getIn, getHeader, getFilename, humanFileSize, setIn } from '../../core/utils'
 
-import clsx from 'clsx'
 import { Typography } from '@mui/material'
 import Checkbox from '@mui/material/Checkbox'
 
 import WarningIcon from '@mui/icons-material/Warning'
+import Box from '@mui/material/Box'
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        padding: `${theme.spacing(2)} ${theme.spacing(3)}`,
-        background: theme.palette.swatches.grey.grey100,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-    },
-    title: {
-        fontSize: '16px',
-        fontWeight: 'bold',
-        marginBottom: theme.spacing(3),
-    },
-    header: {
-        fontWeight: 'bold',
-    },
-    item: {
-        'display': 'flex',
-        'justifyContent': 'space-between',
-        '& > div': {
-            display: 'flex',
-        },
-        'lineHeight': '27px',
-    },
-    checkbox: {},
-    label: {
-        lineHeight: '27px',
-    },
-    total: {
-        fontStyle: 'italic',
-    },
-    totalTitle: {
-        fontWeight: 'bold',
-    },
-    size: {
-        fontWeight: 'bold',
-    },
-    summary: {
-        display: 'flex',
-        justifyContent: 'flex-end',
-        marginTop: '21px',
-    },
-    hidden: {
+const RootDiv = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'hidden',
+})(({ theme, hidden }) => ({
+    padding: `${theme.spacing(2)} ${theme.spacing(3)}`,
+    background: theme.palette.swatches.grey.grey100,
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    ...(hidden && {
         display: 'none',
-    },
-    sizeWarning: {
-        display: 'flex',
-        width: '100%',
-        background: theme.palette.swatches.yellow.yellow700,
-        padding: '16px 16px 16px 0px',
-        boxSizing: 'border-box',
-        marginTop: '16px',
-        marginBottom: '8px',
-        borderRadius: '3px',
-        boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.1)',
-    },
-    sizeWarningIcon: {
-        'width': '80px',
-        'margin': 'auto',
-        'textAlign': 'center',
-        '& svg': {
-            fontSize: '42px',
-        },
-    },
-    sizeWarningMessage: {
-        'flex': 1,
-        'fontSize': '15px',
-        'letterSpacing': '0.25px',
-        '& a': {
-            fontWeight: 'bold',
-        },
-    },
+    }),
 }))
+
+const Title = styled(Typography)(({ theme }) => ({
+    fontSize: '16px',
+    fontWeight: 'bold',
+    marginBottom: theme.spacing(3),
+}))
+
+const Header = styled(Typography)({
+    fontWeight: 'bold',
+})
+
+const ItemDiv = styled('div')({
+    'display': 'flex',
+    'justifyContent': 'space-between',
+    '& > div': {
+        display: 'flex',
+    },
+    'lineHeight': '27px',
+    'cursor': 'pointer',
+})
+
+const SummaryDiv = styled('div')({
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginTop: '21px',
+})
+
+const SizeWarning = styled('div')(({ theme }) => ({
+    display: 'flex',
+    width: '100%',
+    background: theme.palette.swatches.yellow.yellow700,
+    padding: '16px 16px 16px 0px',
+    boxSizing: 'border-box',
+    marginTop: '16px',
+    marginBottom: '8px',
+    borderRadius: '3px',
+    boxShadow: '0px 2px 2px 0px rgba(0, 0, 0, 0.1)',
+}))
+
+const SizeWarningIcon = styled('div')({
+    'width': '80px',
+    'margin': 'auto',
+    'textAlign': 'center',
+    '& svg': {
+        fontSize: '42px',
+    },
+})
+
+const SizeWarningMessage = styled('div')({
+    'flex': 1,
+    'fontSize': '15px',
+    'letterSpacing': '0.25px',
+    '& a': {
+        fontWeight: 'bold',
+    },
+})
 
 const ProductDownloadSelector = forwardRef((props, ref) => {
     const { hidden, forceAllSelected, onSummaryReady, onSelection } = props
 
     const dispatch = useDispatch()
-
-    const c = useStyles()
 
     const cart = useSelector((state) => {
         return state.get('cart').toJS() || []
@@ -205,39 +198,37 @@ const ProductDownloadSelector = forwardRef((props, ref) => {
     const summary = getSummary(listState)
 
     return (
-        <div className={clsx(c.root, { [c.hidden]: hidden })}>
-            <Typography className={c.title}>
+        <RootDiv hidden={hidden}>
+            <Title>
                 1. Select the products to include in your download:
-            </Typography>
-            <div className={c.list}>{makeSelectors(listState, onCheck)}</div>
-            <div className={c.summary}>
-                <div className={c.totalTitle}>Total:&nbsp;</div>
-                <div className={c.total}>{summary.total} items</div>
+            </Title>
+            <div>{makeSelectors(listState, onCheck)}</div>
+            <SummaryDiv>
+                <Box sx={{ fontWeight: 'bold' }}>Total:&nbsp;</Box>
+                <Box sx={{ fontStyle: 'italic' }}>{summary.total} items</Box>
                 <div>&nbsp;|&nbsp;</div>
-                <div className={c.size}>{humanFileSize(summary.size)}</div>
-            </div>
+                <Box sx={{ fontWeight: 'bold' }}>{humanFileSize(summary.size)}</Box>
+            </SummaryDiv>
             {summary.total > MAX_BULK_DOWNLOAD_COUNT && (
-                <div className={c.sizeWarning}>
-                    <div className={c.sizeWarningIcon}>
+                <SizeWarning>
+                    <SizeWarningIcon>
                         <WarningIcon />
-                    </div>
-                    <div className={c.sizeWarningMessage}>
+                    </SizeWarningIcon>
+                    <SizeWarningMessage>
                         Your download exceeds {MAX_BULK_DOWNLOAD_COUNT} items and may be throttled.
                         If you need to perform a large download within a reasonable time, please
                         reach out to the PDS-IMG node at{' '}
                         <a href={`mailto:${EMAIL_CONTACT}?subject=Bulk%20Download%20Request`}>
                             {EMAIL_CONTACT}
                         </a>
-                    </div>
-                </div>
+                    </SizeWarningMessage>
+                </SizeWarning>
             )}
-        </div>
+        </RootDiv>
     )
 })
 
 function makeSelectors(state, onCheck) {
-    const c = useStyles()
-
     let list = []
     Object.keys(state).forEach((groupName, idx) => {
         const sublist = []
@@ -245,8 +236,7 @@ function makeSelectors(state, onCheck) {
             const p = state[groupName][productType]
             if (p.total > 0)
                 sublist.push(
-                    <div
-                        className={c.item}
+                    <ItemDiv
                         onClick={() => {
                             onCheck(groupName, productType)
                         }}
@@ -254,26 +244,25 @@ function makeSelectors(state, onCheck) {
                     >
                         <div>
                             <Checkbox
-                                className={c.checkbox}
                                 color="default"
                                 checked={p.checked}
                                 size="medium"
                             />
-                            <div className={c.label}>{p.name}</div>
+                            <Box sx={{ lineHeight: '27px' }}>{p.name}</Box>
                         </div>
                         <div>
-                            <div className={c.total}>{p.total} items</div>
+                            <Box sx={{ fontStyle: 'italic' }}>{p.total} items</Box>
                             <div>&nbsp;|&nbsp;</div>
-                            <div className={c.size}>{humanFileSize(p.size)}</div>
+                            <Box sx={{ fontWeight: 'bold' }}>{humanFileSize(p.size)}</Box>
                         </div>
-                    </div>
+                    </ItemDiv>
                 )
         })
         if (sublist.length > 0) {
             sublist.unshift(
-                <Typography className={c.header} key={idx}>
+                <Header key={idx}>
                     {groupName}
-                </Typography>
+                </Header>
             )
             list = list.concat(sublist)
         }

@@ -6,31 +6,29 @@ import { setFieldState } from '../../../../../../core/redux/actions/actions'
 
 import { getIn, capitalize, prettify, isObject, objectToString } from '../../../../../../core/utils'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import Chip from '@mui/material/Chip'
 
-const useStyles = makeStyles((theme) => ({
-    ChippedFilters: {
-        height: '24px',
-        minHeight: '24px',
-        padding: theme.spacing(1),
-    },
-    chip: {
-        'margin': `0 ${theme.spacing(1)}`,
+const ChippedFiltersRoot = styled('div')(({ theme }) => ({
+    height: '24px',
+    minHeight: '24px',
+    padding: theme.spacing(1),
+}))
+
+const StyledChip = styled(Chip)(({ theme }) => ({
+    'margin': `0 ${theme.spacing(1)}`,
+    'color': theme.palette.text.primary,
+    'border': `1px solid rgba(0,0,0,0.23)`,
+    '& svg': {
         'color': theme.palette.text.primary,
-        'border': `1px solid rgba(0,0,0,0.23)`,
-        '& svg': {
-            'color': theme.palette.text.primary,
-            'transition': 'color 0.2s ease-out',
-            '&:hover': {
-                color: `${theme.palette.swatches.red.red500} !important`,
-            },
+        'transition': 'color 0.2s ease-out',
+        '&:hover': {
+            color: `${theme.palette.swatches.red.red500} !important`,
         },
     },
 }))
 
 const ChippedFilters = (props) => {
-    const c = useStyles()
     const dispatch = useDispatch()
 
     const activeFilters = useSelector((state) => {
@@ -38,7 +36,7 @@ const ChippedFilters = (props) => {
     }).toJS()
 
     return (
-        <div className={c.ChippedFilters}>
+        <ChippedFiltersRoot>
             {Object.keys(activeFilters).map((filterKey, idx) => {
                 let chips = []
                 activeFilters[filterKey].facets.forEach((facet, facetId) => {
@@ -63,8 +61,7 @@ const ChippedFilters = (props) => {
                                 subName = ` (${facet.display_name || prettify(facet.field_name)})`
 
                             chips.push(
-                                <Chip
-                                    className={c.chip}
+                                <StyledChip
                                     label={`${capitalize(
                                         activeFilters[filterKey].display_name || filterKey
                                     )}${subName}: ${key === '__filter' ? `*${value}*` : value}`}
@@ -85,7 +82,7 @@ const ChippedFilters = (props) => {
                 })
                 return chips
             })}
-        </div>
+        </ChippedFiltersRoot>
     )
 }
 

@@ -3,8 +3,6 @@ import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 import Url from 'url-parse'
-import clsx from 'clsx'
-
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
@@ -13,70 +11,72 @@ import MuiAlert from '@mui/material/Alert'
 
 import LinkIcon from '@mui/icons-material/Link'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
 import { copyToClipboard, splitUri } from '../../../core/utils'
 import { HASH_PATHS, ES_PATHS } from '../../../core/constants'
 
-const useStyles = makeStyles((theme) => ({
-    Heading: {
-        'display': 'flex',
-        'justifyContent': 'space-between',
-        'width': '100%',
-        'background': theme.palette.swatches.grey.grey100,
-        'height': theme.headHeights[2],
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
-        '& > div': {
-            display: 'flex',
-        },
-        '& > div:first-child': {
-            width: '100%',
-        },
+const HeadingRoot = styled('div', {
+    shouldForwardProp: (prop) => prop !== 'isHidden',
+})(({ theme, isHidden }) => ({
+    'display': 'flex',
+    'justifyContent': 'space-between',
+    'width': '100%',
+    'background': theme.palette.swatches.grey.grey100,
+    'height': theme.headHeights[2],
+    'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
+    '& > div': {
+        display: 'flex',
     },
-    hide: {
+    '& > div:first-child': {
+        width: '100%',
+    },
+    ...(isHidden && {
         height: '0px',
         overflow: 'hidden',
-    },
-    path: {
-        margin: 0,
-        padding: `0px ${theme.spacing(1)} 0px ${theme.spacing(3)}`,
-        boxSizing: 'border-box',
-        width: 'calc(100% - 40px)',
-    },
-    pathTitle: {
-        'fontSize': 14,
-        'lineHeight': `${theme.headHeights[2]}px`,
-        'fontFamily': 'monospace',
-        'textOverflow': 'ellipsis',
-        'whiteSpace': 'nowrap',
-        'overflow': 'hidden',
-        '& > span:first-child': {
-            color: theme.palette.swatches.grey.grey500,
-        },
-    },
-    copyLink: {},
-    copyButton: {
-        'padding': 10,
-        'borderRadius': 0,
-        'opacity': 0.5,
-        'transition': 'opacity 0.2s ease-out',
-        '&:hover': {
-            opacity: 1,
-        },
-    },
-    copyIcon: {
-        fontSize: 20,
-    },
-    snackbar: {
-        fontSize: 14,
-        fontWeight: 'bold',
+    }),
+}))
+
+const PathWrapper = styled('div')(({ theme }) => ({
+    margin: 0,
+    padding: `0px ${theme.spacing(1)} 0px ${theme.spacing(3)}`,
+    boxSizing: 'border-box',
+    width: 'calc(100% - 40px)',
+}))
+
+const PathTitle = styled(Typography)(({ theme }) => ({
+    'fontSize': 14,
+    'lineHeight': `${theme.headHeights[2]}px`,
+    'fontFamily': 'monospace',
+    'textOverflow': 'ellipsis',
+    'whiteSpace': 'nowrap',
+    'overflow': 'hidden',
+    '& > span:first-child': {
+        color: theme.palette.swatches.grey.grey500,
     },
 }))
 
+const CopyButton = styled(IconButton)({
+    'padding': 10,
+    'borderRadius': 0,
+    'opacity': 0.5,
+    'transition': 'opacity 0.2s ease-out',
+    '&:hover': {
+        opacity: 1,
+    },
+})
+
+const CopyIcon = styled(LinkIcon)({
+    fontSize: 20,
+})
+
+const StyledAlert = styled(MuiAlert)({
+    fontSize: 14,
+    fontWeight: 'bold',
+})
+
 const Heading = (props) => {
     const { menuItems, hide } = props
-
-    const c = useStyles()
 
     const navigate = useNavigate()
 
@@ -152,30 +152,29 @@ const Heading = (props) => {
     }
 
     return (
-        <div className={clsx(c.Heading, { [c.hide]: hide })}>
+        <HeadingRoot isHidden={hide}>
             <div
                 style={{
                     width: `calc(100% - ${menuItems ? menuItems.length * 40 : 0}px)`,
                 }}
             >
-                <div className={c.path}>
-                    <Typography className={c.pathTitle} variant="h4">
+                <PathWrapper>
+                    <PathTitle variant="h4">
                         <span>{fullPath.split('/').splice(0, 3).join('/')}</span>
                         <span>/{fullPath.split('/').splice(3).join('/')}</span>
-                    </Typography>
-                </div>
-                <div className={c.copyLink}>
+                    </PathTitle>
+                </PathWrapper>
+                <div>
                     <Tooltip title="Copy Link" arrow>
-                        <IconButton
-                            className={c.copyButton}
+                        <CopyButton
                             aria-label="copy link to file explorer"
                             onClick={() => {
                                 copyToClipboard(window.location.href)
                                 handleOpenSnackbar()
                             }}
                             size="large">
-                            <LinkIcon className={c.copyIcon} />
-                        </IconButton>
+                            <CopyIcon />
+                        </CopyButton>
                     </Tooltip>
                 </div>
             </div>
@@ -189,17 +188,16 @@ const Heading = (props) => {
                 autoHideDuration={4000}
                 onClose={handleCloseSnackbar}
             >
-                <MuiAlert
-                    className={c.snackbar}
+                <StyledAlert
                     elevation={6}
                     variant="filled"
                     onClose={handleCloseSnackbar}
                     severity="success"
                 >
                     Copied Link to Clipboard!
-                </MuiAlert>
+                </StyledAlert>
             </Snackbar>
-        </div>
+        </HeadingRoot>
     );
 }
 

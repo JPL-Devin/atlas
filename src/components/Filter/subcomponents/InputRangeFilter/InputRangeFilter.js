@@ -1,49 +1,35 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import PropTypes from 'prop-types'
 
 import Input from '@mui/material/Input'
-import Button from '@mui/material/Button'
 
 import { setFieldState } from '../../../../core/redux/actions/actions.js'
 import { getIn } from '../../../../core/utils.js'
+import { ClearButton, SubmitButton, BottomDiv } from '../../../shared/FilterComponents'
 
-const useStyles = makeStyles((theme) => ({
-    InputRangeFilter: {
-        display: 'flex',
-        flexFlow: 'column',
-        padding: `0px ${theme.spacing(2)}`,
-    },
-    input: {
-        flex: 1,
-        marginBottom: theme.spacing(2),
-        paddingLeft: theme.spacing(2),
-    },
-    bottom: {
-        marginTop: theme.spacing(2),
-    },
-    clear: {
-        'background': theme.palette.swatches.grey.grey500,
-        '&:hover': {
-            background: theme.palette.swatches.red.red500,
-        },
-    },
-    submit: {
-        width: '80px',
-        float: 'right',
-    },
-    outOfOrder: {
-        textAlign: 'center',
-        margin: `${theme.spacing(2)} 0px`,
-        color: theme.palette.swatches.red.red500,
-        fontWeight: 'bold',
-    },
+const InputRangeFilterRoot = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexFlow: 'column',
+    padding: `0px ${theme.spacing(2)}`,
+}))
+
+const StyledInput = styled(Input)(({ theme }) => ({
+    flex: 1,
+    marginBottom: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+}))
+
+const OutOfOrderDiv = styled('div')(({ theme }) => ({
+    textAlign: 'center',
+    margin: `${theme.spacing(2)} 0px`,
+    color: theme.palette.swatches.red.red500,
+    fontWeight: 'bold',
 }))
 
 const InputRangeFilter = (props) => {
     const { filterKey, facetId, type } = props
-    const c = useStyles()
 
     const [filterInputStart, setFilterInputStart] = useState(null)
     const [filterInputEnd, setFilterInputEnd] = useState(null)
@@ -93,9 +79,8 @@ const InputRangeFilter = (props) => {
     }
 
     return (
-        <div className={c.InputRangeFilter}>
-            <Input
-                className={c.input}
+        <InputRangeFilterRoot>
+            <StyledInput
                 placeholder="Start Value"
                 value={filterInputStart || ''}
                 inputProps={{ min: min, max: max, step: step }}
@@ -107,8 +92,7 @@ const InputRangeFilter = (props) => {
                     if (e.key === 'Enter') handleSubmit()
                 }}
             />
-            <Input
-                className={c.input}
+            <StyledInput
                 placeholder="End Value"
                 value={filterInputEnd || ''}
                 inputProps={{ min: min, max: max, step: step }}
@@ -124,29 +108,27 @@ const InputRangeFilter = (props) => {
             {filterInputStart != null &&
                 filterInputEnd != null &&
                 parseFloat(filterInputStart) > parseFloat(filterInputEnd) && (
-                    <div className={c.outOfOrder}>Start Value is greater than End Value!</div>
+                    <OutOfOrderDiv>Start Value is greater than End Value!</OutOfOrderDiv>
                 )}
-            <div className={c.bottom}>
-                <Button
-                    className={c.clear}
+            <BottomDiv>
+                <ClearButton
                     size="small"
                     variant="contained"
                     onClick={handleClear}
                     disabled={filterInputStart == null && filterInputEnd == null}
                 >
                     Clear
-                </Button>
-                <Button
-                    className={c.submit}
+                </ClearButton>
+                <SubmitButton
                     size="small"
                     variant="contained"
                     onClick={handleSubmit}
                     disabled={filterInputStart == null && filterInputEnd == null}
                 >
                     Search
-                </Button>
-            </div>
-        </div>
+                </SubmitButton>
+            </BottomDiv>
+        </InputRangeFilterRoot>
     )
 }
 

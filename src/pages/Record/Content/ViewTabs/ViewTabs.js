@@ -4,19 +4,17 @@ import PropTypes from 'prop-types'
 
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
-import { makeStyles, withStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import { prettify } from '../../../../core/utils.js'
 
 import { setRecordViewTab } from '../../../../core/redux/actions/actions.js'
 
-const useStyles = makeStyles((theme) => ({
-    ViewTabs: {
-        height: theme.headHeights[2],
-        boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey100,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        color: theme.palette.text.main,
-    },
+const ViewTabsRoot = styled('div')(({ theme }) => ({
+    height: theme.headHeights[2],
+    boxSizing: 'border-box',
+    background: theme.palette.swatches.grey.grey100,
+    borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    color: theme.palette.text.primary,
 }))
 
 // HELPERS
@@ -27,8 +25,8 @@ function a11yProps(index) {
     }
 }
 
-const StyledTabs = withStyles((theme) => ({
-    indicator: {
+const StyledTabs = styled(Tabs)(({ theme }) => ({
+    '& .MuiTabs-indicator': {
         'display': 'flex',
         'justifyContent': 'center',
         'backgroundColor': 'transparent',
@@ -39,23 +37,20 @@ const StyledTabs = withStyles((theme) => ({
             backgroundColor: theme.palette.accent.main,
         },
     },
-}))((props) => <Tabs {...props} TabIndicatorProps={{ children: <span /> }} />)
+}))
 
-const StyledTab = withStyles((theme) => ({
-    root: {
-        'color': theme.palette.text.main,
-        'fontSize': theme.typography.pxToRem(14),
-        'marginRight': theme.spacing(1),
-        'minWidth': 88,
-        '&:focus': {
-            opacity: 1,
-        },
+const StyledTab = styled(Tab)(({ theme }) => ({
+    'color': theme.palette.text.primary,
+    'fontSize': theme.typography.pxToRem(14),
+    'marginRight': theme.spacing(1),
+    'minWidth': 88,
+    '&:focus': {
+        opacity: 1,
     },
-}))((props) => <Tab disableRipple {...props} />)
+}))
 
 const ViewTabs = (props) => {
     const { recordViewTab, VIEW_TABS } = props
-    const c = useStyles()
 
     const dispatch = useDispatch()
 
@@ -65,17 +60,18 @@ const ViewTabs = (props) => {
     }
 
     return (
-        <div className={c.ViewTabs}>
+        <ViewTabsRoot>
             <StyledTabs
                 value={VIEW_TABS.indexOf(recordViewTab)}
                 onChange={handleChange}
                 aria-label="record view tab"
+                TabIndicatorProps={{ children: <span /> }}
             >
                 {VIEW_TABS.map((v, i) => (
-                    <StyledTab label={prettify(v)} key={i} {...a11yProps(i)} />
+                    <StyledTab disableRipple label={prettify(v)} key={i} {...a11yProps(i)} />
                 ))}
             </StyledTabs>
-        </div>
+        </ViewTabsRoot>
     )
 }
 

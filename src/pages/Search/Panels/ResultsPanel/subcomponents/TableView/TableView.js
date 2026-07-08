@@ -12,10 +12,9 @@ import {
 import { List, AutoSizer, InfiniteLoader } from 'react-virtualized'
 import Draggable from 'react-draggable'
 
-import clsx from 'clsx'
 import Image from 'mui-image'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
@@ -35,196 +34,191 @@ import ProductIcons from '../../../../../../components/ProductIcons/ProductIcons
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ImageIcon from '@mui/icons-material/Image'
+import Box from '@mui/material/Box'
 
 import BrowseImage from '../../../../../../components/BrowseImage/BrowseImage.js'
 
 const rowItemHeight = 32
 
-const useStyles = makeStyles((theme) => ({
-    TableView: {
+const TableViewRoot = styled('div')({
+    width: '100%',
+    height: '100%',
+    padding: `0px`,
+    boxSizing: 'border-box',
+    overflow: 'hidden',
+})
+
+const TableContent = styled('div')({
+    'height': '100%',
+    'overflowY': 'hidden',
+    'background': 'white',
+    '& > div': {
+        whiteSpace: 'nowrap',
+    },
+    '& .ReactVirtualize__List': {
+        overflowX: 'hidden',
+        overflowY: 'auto',
+    },
+})
+
+const RowItem = styled('div')(({ theme }) => ({
+    'borderBottom': `1px solid ${theme.palette.swatches.grey.grey150}`,
+    'min-height': `${rowItemHeight}px`,
+    'max-height': `${rowItemHeight}px`,
+    'lineHeight': `${rowItemHeight}px`,
+    'box-sizing': 'border-box',
+    'position': 'relative',
+    'width': '100%',
+    'background': theme.palette.primary.main,
+    'transition': 'background 0.2s ease-out',
+    '&:hover': {
+        background: theme.palette.swatches.blue.blue100,
+    },
+}))
+
+const Cell = styled('div')(({ theme }) => ({
+    'borderRight': `1px solid ${theme.palette.swatches.grey.grey150}`,
+    'padding': '0px 6px',
+    'boxSizing': 'border-box',
+    'whiteSpace': 'nowrap',
+    'textOverflow': 'ellipsis',
+    'overflow': 'hidden',
+    'display': 'inline-block',
+    'transition': 'box-shadow 0.2s ease-out, background 0.2s ease-out',
+    '&:hover': {
+        background: theme.palette.swatches.grey.grey0,
+        boxShadow: `inset 0px 0px 0px 1px ${theme.palette.accent.main}`,
+    },
+}))
+
+const CellRaw = styled('div')(({ theme }) => ({
+    borderRight: `1px solid ${theme.palette.swatches.grey.grey150}`,
+    boxSizing: 'border-box',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    display: 'inline-block',
+    height: `${rowItemHeight}px`,
+}))
+
+const CellThumbnail = styled('div')(({ theme }) => ({
+    'background-color': `${theme.palette.swatches.black.black0}`,
+    'width': `${rowItemHeight}px`,
+    'height': `${rowItemHeight}px`,
+    'zIndex': 2,
+    '& img': {
         width: '100%',
         height: '100%',
-        padding: `0px`,
-        boxSizing: 'border-box',
-        overflow: 'hidden',
     },
-    content: {
-        'height': '100%',
-        'overflowY': 'hidden',
-        'background': 'white',
-        '& > div': {
-            whiteSpace: 'nowrap',
-        },
-        '& .ReactVirtualize__List': {
-            overflowX: 'hidden',
-            overflowY: 'auto',
-        },
+    'cursor': 'pointer',
+    'display': 'inline-block',
+    'position': 'relative',
+    '&:hover .thumbnailIcon': {
+        opacity: '1',
     },
-    rowItem: {
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey150}`,
-        'min-height': `${rowItemHeight}px`,
-        'max-height': `${rowItemHeight}px`,
-        'lineHeight': `${rowItemHeight}px`,
-        'box-sizing': 'border-box',
-        'position': 'relative',
-        'width': '100%',
-        'background': theme.palette.primary.main,
-        'transition': 'background 0.2s ease-out',
-        '&:hover': {
-            background: theme.palette.swatches.blue.blue100,
-        },
-    },
-    cell: {
-        'borderRight': `1px solid ${theme.palette.swatches.grey.grey150}`,
-        'padding': '0px 6px',
-        'boxSizing': 'border-box',
-        'whiteSpace': 'nowrap',
-        'textOverflow': 'ellipsis',
-        'overflow': 'hidden',
-        'display': 'inline-block',
-        'transition': 'box-shadow 0.2s ease-out, background 0.2s ease-out',
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey0,
-            boxShadow: `inset 0px 0px 0px 1px ${theme.palette.accent.main}`,
-        },
-    },
-    cellRaw: {
-        borderRight: `1px solid ${theme.palette.swatches.grey.grey150}`,
-        boxSizing: 'border-box',
-        whiteSpace: 'nowrap',
-        textOverflow: 'ellipsis',
-        overflow: 'hidden',
-        display: 'inline-block',
-        height: `${rowItemHeight}px`,
-    },
-    cellThumbnail: {
-        'background-color': `${theme.palette.swatches.black.black0}`,
-        'width': `${rowItemHeight}px`,
-        'height': `${rowItemHeight}px`,
-        'zIndex': 2,
-        '& img': {
-            width: '100%',
-            height: '100%',
-        },
-        'cursor': 'pointer',
-        'display': 'inline-block',
-        'position': 'relative',
-        '&:hover .thumbnailIcon': {
-            opacity: '1',
-        },
-        '&:hover .hoverImage': {
-            position: 'absolute !important',
-            width: '128px !important',
-            height: 'auto !important',
-            pointerEvents: 'none',
-            zIndex: 1000000,
-            left: `${rowItemHeight + 10}px !important`,
-            background: `${theme.palette.accent.main} !important`,
-            boxShadow: '0px 2px 3px 0px rgba(0, 0, 0, 0.25)',
-            transform: `translateY(calc(-50% + ${rowItemHeight / 2}px))`,
-            borderRadius: '4px',
-        },
-    },
-    cellImage: {
-        'opacity': 1,
-        'object-fit': 'cover !important',
-        'user-select': 'none',
-        'overflow': 'hidden',
-        'text-overflow': 'ellipsis',
-        'image-rendering': 'pixelated',
-        'width': `${rowItemHeight}px !important`,
-        'height': `${rowItemHeight}px !important`,
-        'display': 'inline-block',
-        'position': 'static !important',
-        'background': `linear-gradient(to bottom, #060606, ${theme.palette.swatches.black.black0}) !important`,
-    },
-    thumbnailIcon: {
-        position: 'absolute',
-        width: `${rowItemHeight + 10}px !important`,
-        height: `${rowItemHeight}px !important`,
-        background: theme.palette.accent.main,
+    '&:hover .hoverImage': {
+        position: 'absolute !important',
+        width: '128px !important',
+        height: 'auto !important',
         pointerEvents: 'none',
-        opacity: '0',
-        boxSizing: 'border-box',
-        padding: '6px',
+        zIndex: 1000000,
+        left: `${rowItemHeight + 10}px !important`,
+        background: `${theme.palette.accent.main} !important`,
+        boxShadow: '0px 2px 3px 0px rgba(0, 0, 0, 0.25)',
+        transform: `translateY(calc(-50% + ${rowItemHeight / 2}px))`,
+        borderRadius: '4px',
     },
-    modelIcon: {
-        width: '100%',
-        height: '100%',
+}))
+
+const CellImage = styled(BrowseImage)(({ theme }) => ({
+    'opacity': 1,
+    'object-fit': 'cover !important',
+    'user-select': 'none',
+    'overflow': 'hidden',
+    'text-overflow': 'ellipsis',
+    'image-rendering': 'pixelated',
+    'width': `${rowItemHeight}px !important`,
+    'height': `${rowItemHeight}px !important`,
+    'display': 'inline-block',
+    'position': 'static !important',
+    'background': `linear-gradient(to bottom, #060606, ${theme.palette.swatches.black.black0}) !important`,
+}))
+
+const Header = styled('div')(({ theme }) => ({
+    'borderBottom': `1px solid ${theme.palette.swatches.grey.grey300}`,
+    'min-height': `${theme.headHeights[3]}px`,
+    'max-height': `${theme.headHeights[3]}px`,
+    'lineHeight': `${theme.headHeights[3]}px`,
+    'display': 'inline-block',
+    'whiteSpace': 'nowrap',
+    'box-sizing': 'border-box',
+    'min-width': '100%',
+    'background': theme.palette.swatches.grey.grey150,
+}))
+
+const CellHeader = styled('div')(({ theme }) => ({
+    'padding': '0px 6px',
+    'fontWeight': 'bold',
+    'display': 'inline-block',
+    'boxSizing': 'border-box',
+    'position': 'relative',
+    '&:hover .tableViewSortButton': {
+        opacity: 1,
     },
-    header: {
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey300}`,
-        'min-height': `${theme.headHeights[3]}px`,
-        'max-height': `${theme.headHeights[3]}px`,
-        'lineHeight': `${theme.headHeights[3]}px`,
-        'display': 'inline-block',
-        'whiteSpace': 'nowrap',
-        'box-sizing': 'border-box',
-        'min-width': '100%',
-        'background': theme.palette.swatches.grey.grey150,
-    },
-    cellHeader: {
-        'padding': '0px 6px',
-        'fontWeight': 'bold',
-        'display': 'inline-block',
-        'boxSizing': 'border-box',
-        'position': 'relative',
-        '&:hover .tableViewSortButton': {
-            opacity: 1,
+    '& > div:last-child': {
+        'position': 'absolute',
+        'top': '0px',
+        'left': '-5px',
+        'width': '9px',
+        'height': '100%',
+        'cursor': 'col-resize',
+        '& > div': {
+            width: '1px',
+            margin: '0px 4px',
+            height: '100%',
+            background: theme.palette.swatches.grey.grey300,
         },
-        '& > div:last-child': {
-            'position': 'absolute',
-            'top': '0px',
-            'left': '-5px',
-            'width': '9px',
-            'height': '100%',
-            'cursor': 'col-resize',
-            '& > div': {
-                width: '1px',
-                margin: '0px 4px',
-                height: '100%',
-                background: theme.palette.swatches.grey.grey300,
-            },
-        },
-        '& > div.react-draggable-dragging:last-child': {
-            'left': '-70px',
-            'width': '139px',
-            'height': '100vh',
-            'zIndex': 1000,
-            '& > div': {
-                width: '1px',
-                margin: '0px 69px',
-                background: theme.palette.accent.main,
-            },
+    },
+    '& > div.react-draggable-dragging:last-child': {
+        'left': '-70px',
+        'width': '139px',
+        'height': '100vh',
+        'zIndex': 1000,
+        '& > div': {
+            width: '1px',
+            margin: '0px 69px',
+            background: theme.palette.accent.main,
         },
     },
-    cellHeaderContent: {
-        display: 'flex',
-    },
-    cellHeaderName: {
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        textOverflow: 'ellipsis',
-        marginRight: '1px',
-        textTransform: 'uppercase',
-    },
-    cellHeaderThumbnail: {
-        'borderRight': `1px solid ${theme.palette.swatches.grey.grey200}`,
-        'box-sizing': 'border-box',
-        'display': 'inline-block',
-    },
-    sortButton: {
-        position: 'absolute',
-        margin: '4px',
-        padding: '1px',
-        borderRadius: '50%',
-        opacity: 0,
-        transition: 'opacity 0.2s ease-out',
-    },
-    sortButtonActive: {
+}))
+
+const CellHeaderName = styled('div')({
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    marginRight: '1px',
+    textTransform: 'uppercase',
+})
+
+const CellHeaderThumbnail = styled('div')(({ theme }) => ({
+    'borderRight': `1px solid ${theme.palette.swatches.grey.grey200}`,
+    'box-sizing': 'border-box',
+    'display': 'inline-block',
+}))
+
+const SortButton = styled(IconButton, {
+    shouldForwardProp: (prop) => prop !== 'isActive',
+})(({ theme, isActive }) => ({
+    position: 'absolute',
+    margin: '4px',
+    padding: '1px',
+    borderRadius: '50%',
+    opacity: 0,
+    transition: 'opacity 0.2s ease-out',
+    ...(isActive && {
         opacity: 1,
         color: theme.palette.accent.main,
-    },
+    }),
 }))
 
 let resultsLength = -1
@@ -233,7 +227,6 @@ let loadedMore = false
 const TableView = (props) => {
     const { results, paging } = props
 
-    const c = useStyles()
     const dispatch = useDispatch()
 
     const resultsPerPage = paging.resultsPerPage
@@ -290,9 +283,7 @@ const TableView = (props) => {
         }
     }
 
-    const RowItem = ({ index, data }) => {
-        const c = useStyles()
-
+    const RowItemComponent = ({ index, data }) => {
         const navigate = useNavigate()
 
         if (data == null) return null
@@ -304,11 +295,11 @@ const TableView = (props) => {
         }
 
         return (
-            <div
+            <RowItem
                 key={index}
                 result-id={index}
                 result-key={data.result_key}
-                className={`${c.rowItem} TableViewRowItem`}
+                className="TableViewRowItem"
                 onMouseEnter={() => {
                     sASet(sAKeys.HOVERED_RESULT, data)
                 }}
@@ -317,16 +308,16 @@ const TableView = (props) => {
                 }}
             >
                 {makeColumns(index, data, cols, columnWidths, toRecord)}
-            </div>
+            </RowItem>
         )
     }
 
     return (
-        <div className={`${c.TableView} fade-in`}>
-            <div className={c.content} id="TableViewContent">
-                <div className={c.header} ref={headerRef}>
+        <TableViewRoot className="fade-in">
+            <TableContent id="TableViewContent">
+                <Header ref={headerRef}>
                     {makeHeader(cols, columnWidths, setColumnWidths, resultSorting, setSort)}
-                </div>
+                </Header>
                 <InfiniteLoader
                     isRowLoaded={({ index }) => results[index]}
                     loadMoreRows={loadData}
@@ -350,7 +341,7 @@ const TableView = (props) => {
                                     rowHeight={rowItemHeight}
                                     rowRenderer={({ index, key, style }) => (
                                         <div key={key} style={style}>
-                                            <RowItem index={index} data={results[index]} />
+                                            <RowItemComponent index={index} data={results[index]} />
                                         </div>
                                     )}
                                 />
@@ -358,13 +349,12 @@ const TableView = (props) => {
                         </AutoSizer>
                     )}
                 </InfiniteLoader>
-            </div>
-        </div>
+            </TableContent>
+        </TableViewRoot>
     )
 }
 
 const makeColumns = (idx, data, cols, columnWidths, toRecord) => {
-    const c = useStyles()
 
     const s = data._source
 
@@ -388,31 +378,30 @@ const makeColumns = (idx, data, cols, columnWidths, toRecord) => {
         switch (col.type) {
             case 'toolbar':
                 colElements.push(
-                    <div
+                    <CellRaw
                         key={`${index}_${index}`}
-                        className={c.cellRaw}
                         style={{
                             width: col.width,
                             position: 'relative',
                         }}
                     >
                         <ProductToolbar result={data} noHover={true} />
-                    </div>
+                    </CellRaw>
                 )
                 break
             case 'thumbnail':
                 colElements.push(
-                    <div key={`${index}_${index}`} className={c.cellThumbnail} onClick={toRecord}>
-                        <BrowseImage
+                    <CellThumbnail key={`${index}_${index}`} onClick={toRecord}>
+                        <CellImage
                             src={
                                 IMAGE_EXTENSIONS.includes(getExtension(imgURL, true))
                                     ? imgURL
                                     : 'null'
                             }
-                            className={clsx(c.cellImage, 'hoverImage')}
+                            className="hoverImage"
                             alt=""
                         />
-                    </div>
+                    </CellThumbnail>
                 )
                 break
             case 'label':
@@ -436,16 +425,15 @@ const makeColumns = (idx, data, cols, columnWidths, toRecord) => {
                 }
 
                 colElements.push(
-                    <div
+                    <Cell
                         key={`${index}_${index}`}
-                        className={c.cell}
                         style={{
                             width: columnWidths[index],
                         }}
                         title={value}
                     >
                         {typeof value === 'string' ? value : JSON.stringify(value)}
-                    </div>
+                    </Cell>
                 )
                 break
             default:
@@ -456,7 +444,6 @@ const makeColumns = (idx, data, cols, columnWidths, toRecord) => {
 }
 
 const makeHeader = (cols, columnWidths, setColumnWidths, resultSorting, setSort) => {
-    const c = useStyles()
 
     const nodeRef = useRef(null)
 
@@ -465,50 +452,46 @@ const makeHeader = (cols, columnWidths, setColumnWidths, resultSorting, setSort)
         switch (col.type) {
             case 'toolbar':
                 colHeader.push(
-                    <div
+                    <CellHeaderThumbnail
                         key={index}
-                        className={c.cellHeaderThumbnail}
                         style={{
                             width: col.width,
                         }}
                     >
                         {col.name}
-                    </div>
+                    </CellHeaderThumbnail>
                 )
                 break
             case 'thumbnail':
                 colHeader.push(
-                    <div
+                    <CellHeaderThumbnail
                         key={index}
-                        className={c.cellHeaderThumbnail}
                         style={{
                             width: 32,
                         }}
                     >
                         {col.name}
-                    </div>
+                    </CellHeaderThumbnail>
                 )
                 break
             case 'label':
                 const colField = col.path.join('.')
                 colHeader.push(
-                    <div
+                    <CellHeader
                         key={index}
-                        className={c.cellHeader}
                         style={{
                             width: columnWidths[index],
                         }}
                     >
-                        <div className={c.cellHeaderContent}>
-                            <div className={c.cellHeaderName} title={colField}>
+                        <Box sx={{ display: 'flex' }}>
+                            <CellHeaderName title={colField}>
                                 {col.name || col.path[col.path.length - 1]}
-                            </div>
-                            <div className={c.cellSorting}>
+                            </CellHeaderName>
+                            <div>
                                 <Tooltip title="Sort Column" arrow placement="top">
-                                    <IconButton
-                                        className={clsx('tableViewSortButton', c.sortButton, {
-                                            [c.sortButtonActive]: resultSorting.field === colField,
-                                        })}
+                                    <SortButton
+                                        className="tableViewSortButton"
+                                        isActive={resultSorting.field === colField}
                                         aria-label={`sort ${colField} column`}
                                         size="small"
                                         onClick={() => {
@@ -527,10 +510,10 @@ const makeHeader = (cols, columnWidths, setColumnWidths, resultSorting, setSort)
                                         ) : (
                                             <ArrowDownwardIcon />
                                         )}
-                                    </IconButton>
+                                    </SortButton>
                                 </Tooltip>
                             </div>
-                        </div>
+                        </Box>
                         <Draggable
                             nodeRef={nodeRef}
                             axis="x"
@@ -545,11 +528,11 @@ const makeHeader = (cols, columnWidths, setColumnWidths, resultSorting, setSort)
                                 setColumnWidths(newColumnWidths)
                             }}
                         >
-                            <div ref={nodeRef} className={c.cellHeaderDrag}>
+                            <div ref={nodeRef}>
                                 <div></div>
                             </div>
                         </Draggable>
-                    </div>
+                    </CellHeader>
                 )
                 break
             default:

@@ -1,18 +1,15 @@
 import React, { useEffect } from 'react'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 
 import Title from './Title/Title'
 import Content from './Content/Content'
 
-const useStyles = makeStyles((theme) => ({
-    Cart: {
-        width: '100%',
-        height: '100%',
-        color: theme.palette.text.primary,
-        overflow: 'hidden',
-    },
+const CartRoot = styled('div')(({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    color: theme.palette.text.primary,
+    overflow: 'hidden',
 }))
 
 const Cart = (props) => {
@@ -20,16 +17,14 @@ const Cart = (props) => {
         document.title = 'Atlas - Cart | PDS-IMG'
     }, [])
 
-    const c = useStyles()
-
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
 
     return (
-        <div className={c.Cart}>
+        <CartRoot>
             <Title />
             <Content isMobile={isMobile} />
-        </div>
+        </CartRoot>
     )
 }
 

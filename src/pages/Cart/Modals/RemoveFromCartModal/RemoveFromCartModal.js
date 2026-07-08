@@ -13,72 +13,77 @@ import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 
-import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-const useStyles = makeStyles((theme) => ({
-    RemoveFromCartModal: {
-        margin: theme.headHeights[1],
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+    margin: theme.headHeights[1],
+}))
+
+const ContentsDesktop = styled('div')(({ theme }) => ({
+    background: theme.palette.primary.main,
+    width: '400px',
+    maxWidth: '400px',
+}))
+
+const ContentsMobile = styled('div')(({ theme }) => ({
+    background: theme.palette.primary.main,
+    height: '100%',
+}))
+
+const ModalContent = styled(DialogContent)(({ theme }) => ({
+    padding: '20px 40px 8px 40px',
+    height: `calc(100% - ${theme.headHeights[2]}px)`,
+    textAlign: 'center',
+}))
+
+const CloseButton = styled(IconButton)(({ theme }) => ({
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    padding: theme.spacing(1.5),
+    margin: '4px !important',
+}))
+
+const ModalTitle = styled(Typography)({
+    margin: '-7px 0px 20px 0px',
+    padding: '0px 2px',
+    fontSize: '18px',
+    fontWeight: 700,
+    lineHeight: '18px',
+})
+
+const ModalMessage = styled(Typography)({
+    margin: '0px 0px 8px 0px',
+    fontSize: '16px',
+})
+
+const ModalFooter = styled(DialogActions)(({ theme }) => ({
+    'display': 'flex',
+    'justifyContent': 'center',
+    '& .MuiButton-text': {
+        color: theme.palette.primary.light,
     },
-    contents: {
-        background: theme.palette.primary.main,
-        width: '400px',
-        maxWidth: '400px',
-    },
-    contentsMobile: {
-        background: theme.palette.primary.main,
-        height: '100%',
-    },
-    content: {
-        padding: '20px 40px 8px 40px',
-        height: `calc(100% - ${theme.headHeights[2]}px)`,
-        textAlign: 'center',
-    },
-    closeModal: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        padding: theme.spacing(1.5),
-        margin: '4px !important',
-    },
-    title: {
-        margin: '-7px 0px 20px 0px',
-        padding: '0px 2px',
-        fontSize: '18px',
-        fontWeight: 700,
-        lineHeight: '18px',
-    },
-    message: {
-        margin: '0px 0px 8px 0px',
-        fontSize: '16px',
-    },
-    footer: {
-        'display': 'flex',
-        'justifyContent': 'center',
-        '& .MuiButton-text': {
-            color: theme.palette.primary.light,
-        },
-    },
-    button1: {
-        height: 30,
-        margin: '7px 3px',
-        background: theme.palette.primary.light,
-    },
-    button2: {
-        'height': 30,
-        'margin': '7px 3px',
-        'color': theme.palette.text.primary,
-        'border': '1px solid rgba(0, 0, 0, 0.5)',
-        '&:hover': {
-            border: '1px solid rgba(0, 0, 0, 1)',
-        },
+}))
+
+const YesButton = styled(Button)(({ theme }) => ({
+    height: 30,
+    margin: '7px 3px',
+    background: theme.palette.primary.light,
+}))
+
+const NoButton = styled(Button)(({ theme }) => ({
+    'height': 30,
+    'margin': '7px 3px',
+    'color': theme.palette.text.primary,
+    'border': '1px solid rgba(0, 0, 0, 0.5)',
+    '&:hover': {
+        border: '1px solid rgba(0, 0, 0, 1)',
     },
 }))
 
 const RemoveFromCartModal = (props) => {
     const {} = props
-    const c = useStyles()
 
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
@@ -114,25 +119,23 @@ const RemoveFromCartModal = (props) => {
     }
 
     return (
-        <Dialog
-            className={c.RemoveFromCartModal}
+        <StyledDialog
             fullScreen={isMobile}
             open={open}
             onClose={handleClose}
             aria-labelledby="responsive-dialog-title"
             PaperProps={{
-                className: isMobile ? c.contentsMobile : c.contents,
+                component: isMobile ? ContentsMobile : ContentsDesktop,
             }}
         >
-            <DialogContent className={c.content}>
-                <Typography className={c.title} variant="h2">
+            <ModalContent>
+                <ModalTitle variant="h2">
                     {title}
-                </Typography>
-                <Typography className={c.message}>{message}</Typography>
-            </DialogContent>
-            <DialogActions className={c.footer}>
-                <Button
-                    className={c.button1}
+                </ModalTitle>
+                <ModalMessage>{message}</ModalMessage>
+            </ModalContent>
+            <ModalFooter>
+                <YesButton
                     variant="contained"
                     aria-label="yes button"
                     size="small"
@@ -142,27 +145,25 @@ const RemoveFromCartModal = (props) => {
                     }}
                 >
                     Yes
-                </Button>
-                <Button
-                    className={c.button2}
+                </YesButton>
+                <NoButton
                     variant="outlined"
                     aria-label="no button"
                     size="small"
                     onClick={handleClose}
                 >
                     No
-                </Button>
+                </NoButton>
 
-                <IconButton
-                    className={c.closeModal}
+                <CloseButton
                     aria-label={`close modal`}
                     size="small"
                     onClick={handleClose}
                 >
                     <CloseSharpIcon />
-                </IconButton>
-            </DialogActions>
-        </Dialog>
+                </CloseButton>
+            </ModalFooter>
+        </StyledDialog>
     )
 }
 

@@ -18,116 +18,100 @@ import { streamDownloadFile } from '../../../core/downloaders/ZipStream.js'
 import { addToCart, setSnackBarText } from '../../../core/redux/actions/actions'
 import SplitButton from '../../../components/SplitButton/SplitButton'
 
-import { makeStyles } from '@mui/styles'
+import { styled } from '@mui/material/styles'
 
-import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import Chip from '@mui/material/Chip'
 
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import { BackButton, BackIcon } from '../../../components/shared/PageComponents'
 import LinkIcon from '@mui/icons-material/Link'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
+import Box from '@mui/material/Box'
 
-const useStyles = makeStyles((theme) => ({
-    Title: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        height: theme.headHeights[1],
-        boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey100,
-        color: theme.palette.text.primary,
+const TitleRoot = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    height: theme.headHeights[1],
+    boxSizing: 'border-box',
+    background: theme.palette.swatches.grey.grey100,
+    color: theme.palette.text.primary,
+}))
+
+const RightSection = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '2px 8px 4px 4px',
+})
+
+
+const NameWrapper = styled('div')(({ theme }) => ({
+    margin: `0px ${theme.spacing(1)}`,
+}))
+
+const NameTitle = styled(Typography)(({ theme }) => ({
+    fontSize: 16,
+    lineHeight: `${theme.headHeights[1]}px`,
+    fontWeight: 'bold',
+}))
+
+
+const CopyButton = styled(IconButton)({
+    'padding': 10,
+    'borderRadius': 0,
+    'opacity': 0.5,
+    'transition': 'opacity 0.2s ease-out',
+    '&:hover': {
+        opacity: 1,
     },
-    left: {
-        display: 'flex',
-        justifyContent: 'space-between',
+})
+
+const CopyIcon = styled(LinkIcon)(({ theme }) => ({
+    fontSize: 20,
+    color: theme.palette.text.primary,
+}))
+
+const StyledSplitButton = styled(SplitButton)(({ theme }) => ({
+    margin: '4px 5px 3px 5px',
+    [theme.breakpoints.down('md')]: {
+        display: 'none',
     },
-    right: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '2px 8px 4px 4px',
+}))
+
+const StyledDivider = styled(Divider)(({ theme }) => ({
+    background: theme.palette.swatches.grey.grey200,
+    margin: `${theme.spacing(0.5)} ${theme.spacing(2)}`,
+}))
+
+const AddToCartButton = styled(IconButton)(({ theme }) => ({
+    width: 34,
+    height: 34,
+    padding: 6,
+    borderRadius: 0,
+    color: theme.palette.accent.main,
+}))
+
+const MlChip = styled(Chip)(({ theme }) => ({
+    'height': '24px',
+    'marginLeft': theme.spacing(1),
+    'background': theme.palette.swatches.orange.orange600,
+    'color': theme.palette.swatches.grey.grey800,
+    'fontWeight': 'bold',
+    'fontSize': '11px',
+    '& .MuiChip-label': {
+        padding: '0px 8px',
     },
-    back: {},
-    backButton: {
-        padding: 2,
-        borderRadius: 0,
-    },
-    backIcon: {
-        fontSize: 36,
-        color: theme.palette.text.primary,
-    },
-    name: {
-        margin: `0px ${theme.spacing(1)}`,
-    },
-    nameTitle: {
-        fontSize: 16,
-        lineHeight: `${theme.headHeights[1]}px`,
-        fontWeight: 'bold',
-    },
-    copyLink: {},
-    copyButton: {
-        'padding': 10,
-        'borderRadius': 0,
-        'opacity': 0.5,
-        'transition': 'opacity 0.2s ease-out',
-        '&:hover': {
-            opacity: 1,
-        },
-    },
-    copyIcon: {
-        fontSize: 20,
-        color: theme.palette.text.primary,
-    },
-    downloadButton1: {
-        height: 30,
-        margin: '2px 3px',
-        background: theme.palette.primary.light,
-    },
-    downloadButton2: {
-        height: 30,
-        margin: '2px 3px',
-        color: theme.palette.text.secondary,
-    },
-    splitButton: {
-        margin: '4px 5px 3px 5px',
-        [theme.breakpoints.down('md')]: {
-            display: 'none',
-        },
-    },
-    divider: {
-        background: theme.palette.swatches.grey.grey200,
-        margin: `${theme.spacing(0.5)} ${theme.spacing(2)}`,
-    },
-    addToCart: {
-        width: 34,
-        height: 34,
-        padding: 6,
-        borderRadius: 0,
-        color: theme.palette.accent.main,
-    },
-    mlChip: {
-        'height': '24px',
-        'marginLeft': theme.spacing(1),
-        'background': theme.palette.swatches.orange.orange600,
-        'color': theme.palette.swatches.grey.grey800,
-        'fontWeight': 'bold',
-        'fontSize': '11px',
-        '& .MuiChip-label': {
-            padding: '0px 8px',
-        },
-    },
-    mlChipsContainer: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: theme.spacing(0.5),
-    },
+}))
+
+const MlChipsContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(0.5),
 }))
 
 const Title = (props) => {
     const { mobile, recordData } = props
-
-    const c = useStyles()
 
     const navigate = useNavigate()
 
@@ -201,64 +185,56 @@ const Title = (props) => {
 
     if (mobile) {
         return (
-            <div className={c.Title}>
+            <TitleRoot>
                 <div className="left"></div>
                 <div className="right"></div>
-            </div>
+            </TitleRoot>
         )
     }
 
     return (
-        <div className={c.Title}>
-            <div className={c.left}>
-                <div className={c.back}>
-                    <Tooltip title={back == 'page' ? 'Back' : 'Back to Search'} arrow>
-                        <IconButton
-                            className={c.backButton}
-                            aria-label={back === 'page' ? 'go back a page' : 'return to search'}
-                            onClick={() => {
-                                if (back === 'page') navigate(-1)
-                                else navigate(HASH_PATHS.search)
-                            }}
-                            size="large">
-                            <ChevronLeftIcon className={c.backIcon} />
-                        </IconButton>
-                    </Tooltip>
-                </div>
-                <div className={c.name}>
-                    <div className={c.mlChipsContainer}>
-                        <Typography className={c.nameTitle} variant="h2">
+        <TitleRoot>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Tooltip title={back == 'page' ? 'Back' : 'Back to Search'} arrow>
+                    <BackButton
+                        aria-label={back === 'page' ? 'go back a page' : 'return to search'}
+                        onClick={() => {
+                            if (back === 'page') navigate(-1)
+                            else navigate(HASH_PATHS.search)
+                        }}
+                        size="large">
+                        <BackIcon />
+                    </BackButton>
+                </Tooltip>
+                <NameWrapper>
+                    <MlChipsContainer>
+                        <NameTitle variant="h2">
                             {getIn(recordData, ES_PATHS.file_name, '--')}
-                        </Typography>
+                        </NameTitle>
                         {mlClassifications.length > 0 &&
                             mlClassifications.map((classification, idx) => (
-                                <Chip
+                                <MlChip
                                     key={idx}
-                                    className={c.mlChip}
                                     label={`ML - ${classification.class}`}
                                     size="small"
                                 />
                             ))}
-                    </div>
-                </div>
-                <div className={c.copyLink}>
-                    <Tooltip title="Copy Link" arrow>
-                        <IconButton
-                            className={c.copyButton}
-                            aria-label="copy link to record page"
-                            onClick={() => {
-                                copyToClipboard(window.location.href)
-                                handleOpenSnackbar('Copied URL to clipboard!')
-                            }}
-                            size="large">
-                            <LinkIcon className={c.copyIcon} />
-                        </IconButton>
-                    </Tooltip>
-                </div>
-            </div>
-            <div className={c.right}>
-                <SplitButton
-                    className={c.splitButton}
+                    </MlChipsContainer>
+                </NameWrapper>
+                <Tooltip title="Copy Link" arrow>
+                    <CopyButton
+                        aria-label="copy link to record page"
+                        onClick={() => {
+                            copyToClipboard(window.location.href)
+                            handleOpenSnackbar('Copied URL to clipboard!')
+                        }}
+                        size="large">
+                        <CopyIcon />
+                    </CopyButton>
+                </Tooltip>
+            </Box>
+            <RightSection>
+                <StyledSplitButton
                     forceName="Download"
                     type="checklist"
                     items={availableDownloadProducts}
@@ -272,10 +248,9 @@ const Title = (props) => {
                         })
                     }}
                 />
-                <Divider className={c.divider} orientation="vertical" flexItem />
+                <StyledDivider orientation="vertical" flexItem />
                 <Tooltip title="Add to Cart" arrow>
-                    <IconButton
-                        className={c.addToCart}
+                    <AddToCartButton
                         aria-label="add current image to cart button"
                         size="small"
                         onClick={() => {
@@ -290,10 +265,10 @@ const Title = (props) => {
                         }}
                     >
                         <AddShoppingCartIcon size="small" />
-                    </IconButton>
+                    </AddToCartButton>
                 </Tooltip>
-            </div>
-        </div>
+            </RightSection>
+        </TitleRoot>
     );
 }
 
