@@ -75,7 +75,14 @@ tests/
 ## Prerequisites
 
 - Node.js v22+
-- Playwright browsers: `npx playwright install --with-deps chromium`
+- Playwright browsers — install **both** chromium and firefox via:
+  ```bash
+  npm run test:e2e:install
+  # equivalent to: npx playwright install --with-deps chromium firefox
+  ```
+  If only chromium is installed, the `firefox` project will gracefully
+  skip its 5 cross-browser smoke tests (with a hint to run the install
+  command) instead of failing.
 
 The test infrastructure automatically:
 
