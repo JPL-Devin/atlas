@@ -147,7 +147,7 @@ export const IMAGE_EXTENSIONS = [
 export const MODEL_EXTENSIONS = ['obj', 'dae']
 
 export const MISSIONS_TO_BODIES = {
-    cassini: {
+    cas: {
         main: 'Saturn',
         planets: ['saturn'],
         moons: [
@@ -206,7 +206,7 @@ export const MISSIONS_TO_BODIES = {
             'ymir',
         ],
     },
-    mars_2020: {
+    m20: {
         main: 'Mars',
         planets: ['mars'],
         moons: ['deimos', 'phobos'],
