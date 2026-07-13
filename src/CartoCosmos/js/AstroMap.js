@@ -8,6 +8,14 @@ import AstroProj from './AstroProj'
 import LayerCollection from './LayerCollection'
 import { MY_JSON_MAPS } from './layers'
 
+// World bounds for the cylindrical projection, so drawn boxes can't produce
+// longitudes outside [-180, 180]. Kept separate from options.maxBounds, which
+// Leaflet nulls out when polar projections call setMaxBounds(null).
+const CYLINDRICAL_MAX_BOUNDS = [
+    [-90, -180],
+    [90, 180],
+]
+
 /**
  * @class AstroMap
  * @aka L.Map.AstroMap
@@ -39,10 +47,7 @@ export default L.Map.AstroMap = L.Map.extend({
         // Keep the cylindrical map on a single world copy so drawn boxes
         // can't produce longitudes outside [-180, 180].
         worldCopyJump: false,
-        maxBounds: [
-            [-90, -180],
-            [90, 180],
-        ],
+        maxBounds: CYLINDRICAL_MAX_BOUNDS,
         maxBoundsViscosity: 1.0,
     },
 
@@ -190,7 +195,7 @@ export default L.Map.AstroMap = L.Map.extend({
             this._currentProj = 'EPSG:4326'
             this.setMaxZoom(8)
             // Restore world bounds; the polar CRS below uses different units.
-            this.setMaxBounds(this.options.maxBounds)
+            this.setMaxBounds(CYLINDRICAL_MAX_BOUNDS)
         } else {
             let proj = this._astroProj.getStringAndCode(name, this._radii)
             newCRS = new L.Proj.CRS(proj['code'], proj['string'], {
