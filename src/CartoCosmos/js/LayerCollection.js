@@ -51,6 +51,11 @@ export default L.LayerCollection = L.Class.extend({
                 // Keep the map to a single world instead of repeated copies.
                 noWrap: true,
                 bounds: WORLD_LAT_LNG_BOUNDS,
+                // Request transparent tiles so no-data areas (e.g. outside the
+                // disc in polar projections) fall through to the dark map
+                // background instead of rendering as opaque white.
+                transparent: true,
+                format: 'image/png',
             })
             let name = String(layer['displayname'])
             this._baseLayers[name] = baseLayer
