@@ -1203,12 +1203,9 @@ export const setMapSearchBoundary = (geometry) => {
 
         switch (geometry.type) {
             case 'Polygon': {
-                // Derive the actual min/max from all ring vertices instead of
-                // assuming a fixed corner order. Leaflet emits longitudes
-                // outside [-180, 180] when the box is drawn on a repeated world
-                // copy, so limit each longitude to valid bounds before taking
-                // min/max. Together this prevents inverted / out-of-range boxes
-                // (e.g. right longitude -253.125) that Elasticsearch rejects.
+                // Min/max over all vertices (any winding), with longitudes
+                // limited to valid bounds, so world-copy draws can't yield an
+                // out-of-range/inverted box that Elasticsearch rejects.
                 const clampLongitude = (lng) =>
                     Math.max(-179.99999999, Math.min(179.99999999, lng))
                 const ring = geometry.coordinates[0]

@@ -217,9 +217,7 @@ export const MISSIONS_TO_BODIES = {
         moons: ['deimos', 'phobos'],
     },
 }
-// Alias both the short-code and long-form mission names, mirroring
-// DISPLAY_NAME_MAPPINGS which maps both forms, so the App.jsx lookup
-// succeeds regardless of which form appears in gather.common.mission.
+// Alias both name forms so the lookup resolves whichever gather.common.mission stores.
 MISSIONS_TO_BODIES.cassini = MISSIONS_TO_BODIES.cas
 MISSIONS_TO_BODIES.m20 = MISSIONS_TO_BODIES.mars_2020
 
