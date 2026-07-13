@@ -206,7 +206,7 @@ export const MISSIONS_TO_BODIES = {
             'ymir',
         ],
     },
-    m20: {
+    mars_2020: {
         main: 'Mars',
         planets: ['mars'],
         moons: ['deimos', 'phobos'],
@@ -217,11 +217,11 @@ export const MISSIONS_TO_BODIES = {
         moons: ['deimos', 'phobos'],
     },
 }
-// Aliases for the long-form mission names that may still appear as
-// gather.common.mission values, mirroring DISPLAY_NAME_MAPPINGS which
-// maps both forms. The standardized short codes above are canonical.
+// Alias both the short-code and long-form mission names, mirroring
+// DISPLAY_NAME_MAPPINGS which maps both forms, so the App.jsx lookup
+// succeeds regardless of which form appears in gather.common.mission.
 MISSIONS_TO_BODIES.cassini = MISSIONS_TO_BODIES.cas
-MISSIONS_TO_BODIES.mars_2020 = MISSIONS_TO_BODIES.m20
+MISSIONS_TO_BODIES.m20 = MISSIONS_TO_BODIES.mars_2020
 
 export const DISPLAY_NAME_MAPPINGS = {
     'ap': 'Apollo',
