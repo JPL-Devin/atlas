@@ -217,6 +217,11 @@ export const MISSIONS_TO_BODIES = {
         moons: ['deimos', 'phobos'],
     },
 }
+// Aliases for the long-form mission names that may still appear as
+// gather.common.mission values, mirroring DISPLAY_NAME_MAPPINGS which
+// maps both forms. The standardized short codes above are canonical.
+MISSIONS_TO_BODIES.cassini = MISSIONS_TO_BODIES.cas
+MISSIONS_TO_BODIES.mars_2020 = MISSIONS_TO_BODIES.m20
 
 export const DISPLAY_NAME_MAPPINGS = {
     'ap': 'Apollo',
