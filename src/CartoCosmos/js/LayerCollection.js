@@ -44,6 +44,8 @@ export default L.LayerCollection = L.Class.extend({
             }
             let baseLayer = L.tileLayer.wms(String(layer['url']) + '?map=' + String(layer['map']), {
                 layers: String(layer['layer']),
+                // Don't render repeated world copies past the antimeridian.
+                noWrap: true,
             })
             let name = String(layer['displayname'])
             this._baseLayers[name] = baseLayer
@@ -62,6 +64,7 @@ export default L.LayerCollection = L.Class.extend({
                 layers: String(layer['layer']),
                 transparent: true,
                 format: 'image/png',
+                noWrap: true,
             })
             let name = String(layer['displayname'])
             this._overlays[name] = overlay
