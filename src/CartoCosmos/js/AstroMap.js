@@ -36,6 +36,14 @@ export default L.Map.AstroMap = L.Map.extend({
         maxZoom: 11,
         attributionControl: false,
         zoomControl: false,
+        // Keep the cylindrical map on a single world copy so drawn boxes
+        // can't produce longitudes outside [-180, 180].
+        worldCopyJump: false,
+        maxBounds: [
+            [-90, -180],
+            [90, 180],
+        ],
+        maxBoundsViscosity: 1.0,
     },
 
     initialize: function (mapDiv, target, options) {
@@ -181,6 +189,8 @@ export default L.Map.AstroMap = L.Map.extend({
             newCRS = this._defaultProj
             this._currentProj = 'EPSG:4326'
             this.setMaxZoom(8)
+            // Restore world bounds; the polar CRS below uses different units.
+            this.setMaxBounds(this.options.maxBounds)
         } else {
             let proj = this._astroProj.getStringAndCode(name, this._radii)
             newCRS = new L.Proj.CRS(proj['code'], proj['string'], {
@@ -188,6 +198,7 @@ export default L.Map.AstroMap = L.Map.extend({
             })
             this._currentProj = proj['code']
             this.setMaxZoom(6)
+            this.setMaxBounds(null)
         }
         this.options.crs = newCRS
 
