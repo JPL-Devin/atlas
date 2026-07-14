@@ -221,6 +221,8 @@ export const MISSIONS_TO_BODIES = {
         moons: ['deimos', 'phobos'],
     },
 }
+// Alias so the lookup resolves whichever form gather.common.mission stores.
+MISSIONS_TO_BODIES.m20 = MISSIONS_TO_BODIES.mars_2020
 
 export const DISPLAY_NAME_MAPPINGS = {
     'ap': 'Apollo',

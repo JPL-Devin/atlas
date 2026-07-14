@@ -1207,12 +1207,21 @@ export const setMapSearchBoundary = (geometry) => {
         let maxLat = 90
 
         switch (geometry.type) {
-            case 'Polygon':
-                minLng = geometry.coordinates[0][0][0]
-                maxLng = geometry.coordinates[0][2][0]
-                minLat = geometry.coordinates[0][0][1]
-                maxLat = geometry.coordinates[0][2][1]
+            case 'Polygon': {
+                // Min/max over all vertices (any winding), with longitudes
+                // limited to valid bounds, so world-copy draws can't yield an
+                // out-of-range/inverted box that Elasticsearch rejects.
+                const clampLongitude = (lng) =>
+                    Math.max(-179.99999999, Math.min(179.99999999, lng))
+                const ring = geometry.coordinates[0]
+                const lngs = ring.map((c) => clampLongitude(c[0]))
+                const lats = ring.map((c) => c[1])
+                minLng = Math.min(...lngs)
+                maxLng = Math.max(...lngs)
+                minLat = Math.min(...lats)
+                maxLat = Math.max(...lats)
                 break
+            }
             case 'Point':
                 console.warn(`Warning - Point geometry type not fully implemented`)
                 break
