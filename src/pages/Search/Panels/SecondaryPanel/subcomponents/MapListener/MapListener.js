@@ -46,10 +46,13 @@ const MapListener = (props) => {
             if (pos) {
                 let target = window.CartoCosmosMap._target || 'None'
                 target = target.toLowerCase()
-                const targetList = getIn(result, targetPath) || []
+                const rawTargetList = getIn(result, targetPath) || []
+                const targetList = Array.isArray(rawTargetList)
+                    ? rawTargetList.map((t) => t.toLowerCase())
+                    : [String(rawTargetList).toLowerCase()]
                 if (targetList.includes(target)) {
-                    const lng = pos[1]
-                    const lat = pos[0]
+                    const lng = pos[0]
+                    const lat = pos[1]
                     window.circleMarker = L.circleMarker([lat, lng], {
                         radius: 5,
                         color: 'white',
@@ -75,11 +78,15 @@ const MapListener = (props) => {
                 iconAnchor: [6, 6],
             })
 
+            if (mapTarget == null) mapTarget = ''
             mapTarget = mapTarget.toLowerCase()
             results.forEach((r) => {
                 const pos = getIn(r, geoLocPath)
                 if (pos) {
-                    const targetList = getIn(r, targetPath) || []
+                    const rawTargetList = getIn(r, targetPath) || []
+                    const targetList = Array.isArray(rawTargetList)
+                        ? rawTargetList.map((t) => t.toLowerCase())
+                        : [String(rawTargetList).toLowerCase()]
                     if (targetList.includes(mapTarget)) {
                         const lng = pos[0]
                         const lat = pos[1]
@@ -93,7 +100,7 @@ const MapListener = (props) => {
                 }
             })
             if (window.clusterGroupOn === true)
-                window.CartoCosmosMap.addLayer(window.footprintsLayer)
+                window.CartoCosmosMap.addLayer(window.clusterGroup)
         }
     }
     const updateFootprints = (mapTarget) => {
@@ -323,7 +330,7 @@ const MapListener = (props) => {
     useEffect(() => {
         sASubscribe(sAKeys.HOVERED_RESULT, 'MapListener_Hover', updateMarker)
         sASubscribe(sAKeys.MAP_TARGET, 'MapListener_Cluster', updateClusters)
-        sASubscribe(sAKeys.MAP_TARGET, 'MapListener_Cluster', updateFootprints)
+        sASubscribe(sAKeys.MAP_TARGET, 'MapListener_Footprint', updateFootprints)
         sASubscribe(sAKeys.MAP_TARGET, 'MapListener_GeoGrid', updateGeoGrid)
     })
 
