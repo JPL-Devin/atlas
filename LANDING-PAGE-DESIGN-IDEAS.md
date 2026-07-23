@@ -40,6 +40,55 @@ The HTML sources and screenshots live in
 
 ---
 
+# Round 3 — creative concepts
+
+Standalone HTML using the real Atlas chrome. Explores free-text search, themed
+collections (not just missions), a Core/Archive vs Raws split, news/activity, and
+alternate layouts. Themed views link to `/search?view=<id>`; Raws to
+`/search?atlas=raws`; Everything to `/search`.
+
+### 10 · Center search
+Google-style centered wordmark + free-text search, Core/Raws toggle, quick chips.
+![](landing-page-design-ideas/mockup-10-search-center.png)
+
+### 11 · Themed collections
+Featured themes (Cassini Grand Finale, Jezero deltas, Ingenuity…) over a mission row.
+![](landing-page-design-ideas/mockup-11-themed-collections.png)
+
+### 12 · Core vs Raws
+Two big entry panels — calibrated Archive vs latest Raws — above a shared search.
+![](landing-page-design-ideas/mockup-12-core-vs-raws.png)
+
+### 13 · News column
+Mission grid with a live "Latest from PDS Imaging" activity column on the right.
+![](landing-page-design-ideas/mockup-13-news-column.png)
+
+### 14 · Explore worlds
+Clickable target bodies (Mars, Moon, Saturn…) with a center search.
+![](landing-page-design-ideas/mockup-14-explore-worlds.png)
+
+### 15 · Magazine
+Editorial layout: big featured collection, side stories, mission strip.
+![](landing-page-design-ideas/mockup-15-magazine.png)
+
+### 16 · Command deck
+Center search + Core/Raws/Everything segmented control, live counts, collection rail.
+![](landing-page-design-ideas/mockup-16-command-deck.png)
+
+### 17 · Timeline
+Missions placed on a 1969→now archive timeline, plus search.
+![](landing-page-design-ideas/mockup-17-timeline.png)
+
+### 18 · Bento
+Mixed-size bento grid: search, featured collection, missions, raws feed, stats.
+![](landing-page-design-ideas/mockup-18-bento.png)
+
+### 19 · Dark hero
+Dramatic starfield hero with center search + Core/Raws switch; tiles below.
+![](landing-page-design-ideas/mockup-19-dark-hero.png)
+
+---
+
 # Round 2 — matches the real Atlas chrome & palette
 
 These reuse the actual Topbar + left Toolbar and the light-theme palette from
