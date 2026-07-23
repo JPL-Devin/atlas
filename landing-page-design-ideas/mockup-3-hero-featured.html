@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<!--
+  Atlas Landing Page — Design Idea 3: Hero header + featured view + secondary card row
+  DESIGN MOCKUP ONLY. Standalone HTML/CSS. Not wired into the app.
+  Curated-view cards link to /search?view=<view_id>; "Everything" links to /search.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Atlas — Curated Views (Hero + Featured)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #12181e; --panel: #192028; --panel-2: #12181d; --border: #282f36;
+    --blue: #62c6f5; --blue-600: #1390f3; --yellow: #fee24a;
+    --text: #fdfdfd; --text-2: #ededed; --muted: #919496;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text);
+    font-family: 'Inter','Helvetica','Arial',sans-serif; -webkit-font-smoothing: antialiased; }
+
+  .topbar { height: 56px; display: flex; align-items: center; gap: 16px; padding: 0 24px;
+    background: var(--panel-2); border-bottom: 1px solid var(--border); }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .mark { width: 30px; height: 30px; border-radius: 4px;
+    background: linear-gradient(135deg, var(--blue), var(--blue-600));
+    display: grid; place-items: center; color: #0a1016; font-weight: 800; }
+  .brand .name { font-weight: 800; letter-spacing: .5px; font-size: 18px; }
+  .brand .sub { color: var(--muted); font-size: 12px; }
+  .spacer { flex: 1; }
+  .nav { color: var(--text-2); font-size: 13px; opacity: .85; }
+
+  /* Hero band */
+  .hero {
+    position: relative; overflow: hidden;
+    padding: 56px 24px 40px;
+    background:
+      radial-gradient(900px 500px at 85% -30%, rgba(98,198,245,.20), transparent 60%),
+      radial-gradient(600px 400px at 10% 120%, rgba(254,226,74,.10), transparent 60%),
+      var(--panel-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-inner { max-width: 1160px; margin: 0 auto; }
+  .kicker { color: var(--blue); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+  .hero h1 { font-size: 40px; line-height: 1.1; font-weight: 800; margin: 10px 0 12px; max-width: 720px; }
+  .hero p { color: var(--muted); font-size: 15px; max-width: 620px; margin: 0; line-height: 1.55; }
+  .hero p code { color: var(--text-2); }
+
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 32px 24px 64px; }
+  .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--muted); margin: 0 0 14px; }
+
+  /* Featured card */
+  .featured {
+    display: grid; grid-template-columns: 1.15fr 1fr; gap: 0;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+    text-decoration: none; color: inherit; margin-bottom: 36px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .featured:hover { border-color: var(--blue); box-shadow: 0 12px 40px rgba(0,0,0,.45); }
+  .featured .art { min-height: 300px; position: relative;
+    background: radial-gradient(320px 320px at 60% 45%, #d4623f, #7a2e1c 60%, #1a0d07); }
+  .featured .art::after { content:""; position:absolute; inset:0;
+    background: linear-gradient(90deg, transparent 40%, var(--panel) 98%); }
+  .featured .art .badge { position: absolute; top: 16px; left: 16px;
+    background: rgba(18,24,30,.7); border: 1px solid var(--border); color: var(--blue);
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 14px; }
+  .featured .content { padding: 32px 32px 28px; display: flex; flex-direction: column; justify-content: center; }
+  .featured .content h2 { font-size: 26px; font-weight: 800; margin: 0 0 8px; }
+  .featured .content .mission { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+  .featured .content .desc { color: var(--text-2); font-size: 14px; line-height: 1.55; margin: 0 0 20px; }
+  .featured .stats { display: flex; gap: 28px; margin-bottom: 22px; }
+  .featured .stats .s span { display: block; }
+  .featured .stats .num { font-size: 20px; font-weight: 800; }
+  .featured .stats .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .cta { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px;
+    background: var(--blue); color: #0a1016; font-weight: 700; font-size: 13px;
+    padding: 9px 16px; border-radius: 3px; text-decoration: none; }
+
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    overflow: hidden; text-decoration: none; color: inherit;
+    transition: transform .15s, border-color .15s; }
+  .card:hover { transform: translateY(-3px); border-color: var(--blue); }
+  .card .thumb { height: 92px; }
+  .card .body { padding: 12px 14px 14px; }
+  .card h3 { font-size: 14px; font-weight: 700; margin: 0 0 3px; }
+  .card .mission { font-size: 11.5px; color: var(--muted); margin: 0 0 9px; }
+  .card .viewid { font-family: 'Public Sans', monospace; font-size: 11px; color: var(--blue);
+    background: rgba(98,198,245,.08); border: 1px solid rgba(98,198,245,.22); border-radius: 4px; padding: 3px 7px; }
+
+  .card.everything { border-color: var(--yellow); }
+  .card.everything .thumb { background: linear-gradient(135deg, #2a2410, #12181e); }
+  .card.everything .viewid { color: var(--yellow); background: rgba(254,226,74,.08); border-color: rgba(254,226,74,.3); }
+
+  .msl { background: radial-gradient(90px 90px at 40% 45%, #d08a4a, #8a4a1f 65%, #2a1608); }
+  .insight { background: radial-gradient(90px 90px at 55% 55%, #b76a44, #5f2f1c 65%, #1c0f09); }
+  .mro { background: radial-gradient(110px 70px at 50% 40%, #9a5638, #5a2c1a 65%, #150b06); }
+  .cassini { background: radial-gradient(90px 90px at 60% 45%, #d9c48a, #9a7f45 60%, #2a2312); }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark">A</div>
+      <div><span class="name">ATLAS</span> &nbsp;<span class="sub">PDS Imaging</span></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="nav">Search&nbsp;&nbsp;·&nbsp;&nbsp;Archive Explorer&nbsp;&nbsp;·&nbsp;&nbsp;Cart</div>
+  </div>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="kicker">PDS Cartography &amp; Imaging Sciences Node</div>
+      <h1>Petabytes of planetary imagery, one curated view away.</h1>
+      <p>Start from a mission with default filters pre-applied, or open <code>/search</code> to browse everything. Every card maps to <code>?view=&lt;id&gt;</code>.</p>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="section-title">Featured view</div>
+    <a class="featured" href="/search?view=m20">
+      <div class="art"><span class="badge">view=m20</span></div>
+      <div class="content">
+        <h2>Mars 2020 / Perseverance</h2>
+        <p class="mission">mission = mars_2020</p>
+        <p class="desc">Navcam, Mastcam-Z, SHERLOC and more from Jezero Crater. Opens Search pre-filtered to the Mars 2020 mission.</p>
+        <div class="stats">
+          <div class="s"><span class="num">4.2M</span><span class="lbl">Products</span></div>
+          <div class="s"><span class="num">7</span><span class="lbl">Instruments</span></div>
+          <div class="s"><span class="num">2021–</span><span class="lbl">Coverage</span></div>
+        </div>
+        <span class="cta">Open this view →</span>
+      </div>
+    </a>
+
+    <div class="section-title">More views</div>
+    <div class="cards">
+      <a class="card" href="/search?view=msl">
+        <div class="thumb msl"></div>
+        <div class="body"><h3>MSL / Curiosity</h3><p class="mission">mission = mars_science_laboratory</p><span class="viewid">view=msl</span></div>
+      </a>
+      <a class="card" href="/search?view=insight">
+        <div class="thumb insight"></div>
+        <div class="body"><h3>InSight</h3><p class="mission">mission = insight</p><span class="viewid">view=insight</span></div>
+      </a>
+      <a class="card" href="/search?view=mro">
+        <div class="thumb mro"></div>
+        <div class="body"><h3>MRO</h3><p class="mission">mission = mro</p><span class="viewid">view=mro</span></div>
+      </a>
+      <a class="card everything" href="/search">
+        <div class="thumb"></div>
+        <div class="body"><h3>Everything</h3><p class="mission">all data · no filters</p><span class="viewid">/search</span></div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
