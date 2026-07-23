@@ -3,6 +3,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
 
+import { getAppConfig } from '../../core/appConfig'
 import Title from './Title/Title'
 import Content from './Content/Content'
 
@@ -17,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Cart = (props) => {
     useEffect(() => {
-        document.title = 'Atlas - Cart | PDS-IMG'
+        document.title = `${getAppConfig().appTitle} - Cart | PDS-IMG`
     }, [])
 
     const c = useStyles()

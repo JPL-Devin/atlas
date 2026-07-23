@@ -8,6 +8,7 @@ import {
     getRegistryUrl,
     getDoiUrl,
 } from './runtimeConfig'
+import { getAppConfig } from './appConfig'
 
 export const MAX_BULK_DOWNLOAD_COUNT = process.env.MAX_BULK_DOWNLOAD_COUNT || 25000
 
@@ -18,12 +19,13 @@ export const EMAIL_CONTACT = process.env.EMAIL_CONTACT || 'pds-img-jpl@jpl.nasa.
 export const publicUrl = getPublicUrl()
 export const domain = getDomain()
 
+const appConfig = getAppConfig()
 export const endpoints = {
-    data: process.env.REACT_APP_DATA_ENDPOINT,
-    search: process.env.REACT_APP_SEARCH_ENDPOINT,
-    pit: process.env.REACT_APP_PIT_ENDPOINT,
-    scroll: process.env.REACT_APP_SCROLL_ENDPOINT,
-    archive: process.env.REACT_APP_ARCHIVE_ENDPOINT,
+    data: appConfig.dataEndpoint,
+    search: appConfig.searchEndpoint,
+    pit: appConfig.pitEndpoint,
+    scroll: appConfig.scrollEndpoint,
+    archive: appConfig.archiveEndpoint,
     mitm: `${publicUrl}/streamsaver/mitm.html`,
     pdsFieldSearch:
         'https://pds.nasa.gov/services/search/search?fq=product-class%3AProduct_Attribute_Definition&fq=attribute_name%3A{field}&wt=json',

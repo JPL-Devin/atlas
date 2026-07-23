@@ -15,6 +15,7 @@ import InformationModal from '../../pages/Search/Modals/InformationModal/Informa
 import FeedbackModal from '../../pages/Search/Modals/FeedbackModal/FeedbackModal'
 
 import { getPublicUrl } from '../runtimeConfig'
+import { getAppConfig } from '../appConfig'
 import { loadMappings } from '../redux/actions/actions.js'
 
 import './routes.css'
@@ -41,8 +42,12 @@ export const AppRoutes = () => {
                         <Routes>
                             <Route path="/search" element={<Search />} />
                             <Route path="/record" element={<Record />} />
-                            <Route path="/cart" element={<Cart />} />
-                            <Route path="/archive-explorer" element={<FileExplorer />} />
+                            {getAppConfig().enableCart && (
+                                <Route path="/cart" element={<Cart />} />
+                            )}
+                            {getAppConfig().enableArchiveExplorer && (
+                                <Route path="/archive-explorer" element={<FileExplorer />} />
+                            )}
                         </Routes>
                     </div>
                 </div>

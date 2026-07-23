@@ -4,6 +4,7 @@ import Url from 'url-parse'
 import geohash from 'ngeohash'
 
 import { domain, endpoints, resultsStatuses, ES_PATHS } from '../../constants'
+import { getAppConfig } from '../../appConfig'
 import {
     getHeader,
     getIn,
@@ -168,6 +169,14 @@ export const setMappings = (indexName, mapping) => {
         if (!hasSetInitialActiveFilters && indexName === 'atlas') {
             dispatch(setInitialActiveFilters(initialActiveFilters))
             dispatch(addActiveFilters(initialActiveFilters))
+
+            const defaultFilterValues = getAppConfig().defaultFilterValues
+            if (defaultFilterValues)
+                Object.keys(defaultFilterValues).forEach((filterKey) => {
+                    if (initialActiveFilters[filterKey])
+                        dispatch(setFieldState(filterKey, 0, defaultFilterValues[filterKey], true))
+                })
+
             hasSetInitialActiveFilters = true
         }
         dispatch({
@@ -295,6 +304,15 @@ export const clearActiveFilters = () => {
 export const resetFilters = () => {
     return (dispatch, getState) => {
         dispatch(clearActiveFilters())
+
+        const defaultFilterValues = getAppConfig().defaultFilterValues
+        if (defaultFilterValues)
+            Object.keys(defaultFilterValues).forEach((filterKey) => {
+                const activeFilters = getState().get('activeFilters')
+                if (activeFilters && activeFilters.get(filterKey))
+                    dispatch(setFieldState(filterKey, 0, defaultFilterValues[filterKey], true))
+            })
+
         dispatch(setAdvancedFilters(null, true))
         dispatch(clearResults())
         dispatch(search(0, true))
@@ -629,7 +647,15 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                                 break
                             default:
                                 Object.keys(facet.state).forEach((value) => {
-                                    if (
+                                    if (value === 'exclude' && Array.isArray(facet.state[value])) {
+                                        query.bool = query.bool || { must: [] }
+                                        query.bool.must_not = query.bool.must_not || []
+                                        facet.state[value].forEach((excludeVal) => {
+                                            query.bool.must_not.push({
+                                                match: { [field]: excludeVal },
+                                            })
+                                        })
+                                    } else if (
                                         value === '__filter' &&
                                         facet.state[value] != null &&
                                         facet.state[value] != ''

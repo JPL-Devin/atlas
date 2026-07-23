@@ -29,7 +29,15 @@ const runtimeConfig = {
     IMAGERY_URL: process.env.REACT_APP_IMAGERY_URL || '',
     REGISTRY_URL: process.env.REACT_APP_REGISTRY_URL || '',
     DOI_URL: process.env.REACT_APP_DOI_URL || '',
+    APP_INSTANCE: process.env.APP_INSTANCE || process.env.REACT_APP_APP_INSTANCE || 'atlas',
 }
+
+// Instance configurations for server-side route control
+const instanceConfigs = {
+    atlas: { enableCart: true, enableArchiveExplorer: true },
+    raws: { enableCart: false, enableArchiveExplorer: false },
+}
+const currentInstance = instanceConfigs[runtimeConfig.APP_INSTANCE] || instanceConfigs.atlas
 
 const app = express()
 // const app = express.default();
@@ -164,7 +172,12 @@ app.get(rootPath, (req, res) => {
 })
 
 // Build route array with PUBLIC_URL prefix (excluding root)
-const baseRoutes = ['/search', '/record', '/cart', '/archive-explorer', '/archive-explorer/*path']
+const baseRoutes = [
+    '/search',
+    '/record',
+    ...(currentInstance.enableCart ? ['/cart'] : []),
+    ...(currentInstance.enableArchiveExplorer ? ['/archive-explorer', '/archive-explorer/*path'] : []),
+]
 const appRoutes = runtimeConfig.PUBLIC_URL
     ? [...baseRoutes, ...baseRoutes.map((route) => `${runtimeConfig.PUBLIC_URL}${route}`)]
     : baseRoutes

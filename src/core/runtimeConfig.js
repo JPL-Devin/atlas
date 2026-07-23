@@ -97,6 +97,17 @@ export const getDoiUrl = () => {
 }
 
 /**
+ * Get the app instance from runtime config or fallback to build-time env
+ * @returns {string} The app instance name (e.g., 'atlas', 'raws')
+ */
+export const getAppInstance = () => {
+    if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.APP_INSTANCE)
+        return window.APP_CONFIG.APP_INSTANCE
+
+    return process.env.REACT_APP_APP_INSTANCE ?? 'atlas'
+}
+
+/**
  * Get all runtime configuration as an object
  * @returns {Object} All configuration values
  */

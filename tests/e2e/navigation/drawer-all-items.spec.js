@@ -45,7 +45,7 @@ test.describe('Toolbar drawer - external links', () => {
             page,
         }) => {
             await openDrawer(page)
-            const link = page.getByRole('link', { name: item.name, exact: true })
+            const link = page.getByRole('link', { name: item.name, exact: true }).first()
             await expect(link).toBeVisible()
             const href = await link.getAttribute('href')
             expect(href).not.toBeNull()
@@ -58,7 +58,7 @@ test.describe('Toolbar drawer - internal links', () => {
     for (const item of INTERNAL_DRAWER_ITEMS) {
         test(`drawer item "${item.name}" routes to "${item.expectedHref}"`, async ({ page }) => {
             await openDrawer(page)
-            const link = page.getByRole('link', { name: item.name, exact: true })
+            const link = page.getByRole('link', { name: item.name, exact: true }).first()
             await expect(link).toBeVisible()
             await expect(link).toHaveAttribute('href', item.expectedHref)
         })

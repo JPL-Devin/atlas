@@ -42,6 +42,7 @@ import {
 
 import { HASH_PATHS } from '../../core/constants'
 import { getPublicUrl } from '../../core/runtimeConfig'
+import { getAppConfig, getAppInstanceKey, getAllInstances } from '../../core/appConfig'
 
 const drawerWidth = 230
 
@@ -114,6 +115,24 @@ const useStyles = makeStyles((theme) => ({
     listItemNoClick: {
         pointerEvents: 'none',
         paddingRight: '8px',
+    },
+    listItemHeader: {
+        'pointerEvents': 'none',
+        'height': 'auto',
+        'minHeight': '32px',
+        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey700}`,
+        'marginTop': '4px',
+        '& a': {
+            padding: '6px 0px 6px 16px',
+            height: 'auto !important',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '1.2px',
+            textTransform: 'uppercase',
+            color: theme.palette.swatches.grey.grey400,
+            borderLeft: 'none',
+            borderBottom: 'none',
+        },
     },
     listIndent: {
         paddingLeft: '14px',
@@ -228,71 +247,89 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const drawerItems = [
-    {
-        name: 'Home',
-        path: 'https://pds-imaging.jpl.nasa.gov/',
-    },
-    {
-        name: 'Atlas',
-        isHeader: true,
-    },
-    {
-        name: 'Search Images',
-        path: '/search',
-        isAtlas: true,
-    },
-    {
-        name: 'Browse Archive',
-        path: '/archive-explorer',
-        isAtlas: true,
-    },
-    {
-        name: 'Cart',
-        path: '/cart',
-        isAtlas: true,
-        showLength: true,
-    },
-    {
-        name: 'Documentation',
-        path: '/documentation',
-        isAtlas: true,
-        openInNewTab: true,
-    },
-    {
-        name: 'Data',
-        isHeader: true,
-    },
-    {
-        name: 'Volumes',
-        path: 'https://pds-imaging.jpl.nasa.gov/volumes/',
-        isData: true,
-    },
-    {
-        name: 'Holdings',
-        path: 'https://pds-imaging.jpl.nasa.gov/holdings/',
-        isData: true,
-    },
-    {
-        name: 'Portal',
-        path: 'https://pds-imaging.jpl.nasa.gov/portal/',
-        isData: true,
-    },
-    {
-        name: 'Release Calendar',
-        path: 'https://pds.nasa.gov/datasearch/subscription-service/data-release-calendar.shtml',
-        isData: true,
-        isExternal: true,
-    },
-    {
-        name: 'Tools & Tutorials',
-        path: 'https://pds-imaging.jpl.nasa.gov/software/',
-    },
-    {
-        name: 'Help',
-        path: 'https://pds-imaging.jpl.nasa.gov/help/help.html',
-    },
-]
+const buildDrawerItems = () => {
+    const allInstances = getAllInstances()
+    const currentInstanceKey = getAppInstanceKey()
+    const items = [
+        { name: 'Home', path: 'https://pds-imaging.jpl.nasa.gov/' },
+    ]
+
+    const sortedKeys = Object.keys(allInstances).sort(
+        (a, b) => allInstances[a].drawerOrder - allInstances[b].drawerOrder
+    )
+
+    sortedKeys.forEach((instanceKey) => {
+        const instance = allInstances[instanceKey]
+        const isCurrent = instanceKey === currentInstanceKey
+
+        items.push({ name: instance.drawerLabel, isHeader: true })
+
+        if (isCurrent)
+            items.push({ name: 'Search Images', path: '/search', isAtlas: true })
+        else
+            items.push({
+                name: 'Search Images',
+                path: `${instance.baseUrl}/search`,
+                isAtlas: true,
+                openInNewTab: true,
+                isCrossInstance: true,
+            })
+
+        if (instance.enableArchiveExplorer)
+            if (isCurrent)
+                items.push({ name: 'Browse Archive', path: '/archive-explorer', isAtlas: true })
+            else
+                items.push({
+                    name: 'Browse Archive',
+                    path: `${instance.baseUrl}/archive-explorer`,
+                    isAtlas: true,
+                    openInNewTab: true,
+                    isCrossInstance: true,
+                })
+
+        if (instance.enableCart)
+            if (isCurrent)
+                items.push({ name: 'Cart', path: '/cart', isAtlas: true, showLength: true })
+            else
+                items.push({
+                    name: 'Cart',
+                    path: `${instance.baseUrl}/cart`,
+                    isAtlas: true,
+                    openInNewTab: true,
+                    isCrossInstance: true,
+                })
+
+        if (isCurrent)
+            items.push({ name: 'Documentation', path: '/documentation', isAtlas: true, openInNewTab: true })
+        else
+            items.push({
+                name: 'Documentation',
+                path: `${instance.baseUrl}/documentation`,
+                isAtlas: true,
+                openInNewTab: true,
+                isCrossInstance: true,
+            })
+    })
+
+    items.push(
+        { name: 'Data', isHeader: true },
+        { name: 'Volumes', path: 'https://pds-imaging.jpl.nasa.gov/volumes/', isData: true },
+        { name: 'Holdings', path: 'https://pds-imaging.jpl.nasa.gov/holdings/', isData: true },
+        { name: 'Portal', path: 'https://pds-imaging.jpl.nasa.gov/portal/', isData: true },
+        {
+            name: 'Release Calendar',
+            path: 'https://pds.nasa.gov/datasearch/subscription-service/data-release-calendar.shtml',
+            isData: true,
+            isExternal: true,
+        },
+        { name: 'Tools & Tutorials', path: 'https://pds-imaging.jpl.nasa.gov/software/' },
+        { name: 'Help', path: 'https://pds-imaging.jpl.nasa.gov/help/help.html' }
+    )
+
+    return items
+}
+
+const drawerItems = buildDrawerItems()
 
 // No need to prepend publicUrl - BrowserRouter's basename handles path prefixing
 
@@ -351,6 +388,7 @@ const Toolbar = (props) => {
                         <ListItem
                             className={clsx(c.listItem, {
                                 [c.listItemNoClick]: item.isHeader,
+                                [c.listItemHeader]: item.isHeader,
                                 [c.listIndent]: item.isAtlas || item.isData || item.isPDS,
                             })}
                             key={idx}
@@ -358,10 +396,11 @@ const Toolbar = (props) => {
                             <a
                                 className={clsx(c.aLink, {
                                     [c.activePath]:
-                                        item.path === pathRoot ||
+                                        !item.openInNewTab &&
+                                        (item.path === pathRoot ||
                                         (item.path &&
                                             item.name != 'Home' &&
-                                            pathRoot.indexOf(item.path) === 0),
+                                            pathRoot.indexOf(item.path) === 0)),
                                 })}
                                 onClick={(e) => {
                                     if (item.isAtlas && !item.openInNewTab) {
@@ -373,7 +412,7 @@ const Toolbar = (props) => {
                                     }
                                 }}
                                 target={item.openInNewTab ? "_blank" : "__blank"}
-                                href={item.isAtlas && item.openInNewTab ? `${publicUrl}${item.path}` : item.path}
+                                href={item.isAtlas && item.openInNewTab && !item.isCrossInstance ? `${publicUrl}${item.path}` : item.path}
                                 rel="noopener"
                             >
                                 {item.name === 'Search Images' && (
@@ -443,7 +482,7 @@ const Toolbar = (props) => {
                     </Tooltip>
                     <Divider className={clsx(c.divider)} />
 
-                    {pathRoot === `/archive-explorer` ? (
+                    {getAppConfig().enableArchiveExplorer && pathRoot === `/archive-explorer` ? (
                         <React.Fragment>
                             <div className={c.optionsItem}>
                                 <Tooltip title="Reset Path" arrow placement="right">
@@ -535,46 +574,20 @@ const Toolbar = (props) => {
                                         </span>
                                     ) : null}
                                 </div>
-                                <div className={c.optionsItem}>
-                                    <Tooltip title="Map Panel" arrow placement="right">
-                                        <IconButton
-                                            className={clsx(c.button, {
-                                                [c.buttonActive]: mobile
-                                                    ? mW === 'secondary'
-                                                    : w.secondary,
-                                            })}
-                                            aria-label="Map Panel"
-                                            size="small"
-                                            onClick={() => {
-                                                if (mobile)
-                                                    dispatch(setWorkspace('secondary', 'mobile'))
-                                                else
-                                                    dispatch(
-                                                        setWorkspace({
-                                                            ...w,
-                                                            secondary: !w.secondary,
-                                                            results:
-                                                                !w.secondary === false
-                                                                    ? true
-                                                                    : w.results,
-                                                        })
-                                                    )
-                                            }}
-                                        >
-                                            <MapIcon fontSize="inherit" />
-                                        </IconButton>
-                                    </Tooltip>
-                                    {drawer === 2 ? (
-                                        <span>
-                                            <div className={c.optionsName}>Show Map</div>
-                                            <Switch
+                                {getAppConfig().enableMap && (
+                                    <div className={c.optionsItem}>
+                                        <Tooltip title="Map Panel" arrow placement="right">
+                                            <IconButton
+                                                className={clsx(c.button, {
+                                                    [c.buttonActive]: mobile
+                                                        ? mW === 'secondary'
+                                                        : w.secondary,
+                                                })}
+                                                aria-label="Map Panel"
                                                 size="small"
-                                                checked={w.secondary}
-                                                onChange={() => {
+                                                onClick={() => {
                                                     if (mobile)
-                                                        dispatch(
-                                                            setWorkspace('secondary', 'mobile')
-                                                        )
+                                                        dispatch(setWorkspace('secondary', 'mobile'))
                                                     else
                                                         dispatch(
                                                             setWorkspace({
@@ -587,10 +600,38 @@ const Toolbar = (props) => {
                                                             })
                                                         )
                                                 }}
-                                            />
-                                        </span>
-                                    ) : null}
-                                </div>
+                                            >
+                                                <MapIcon fontSize="inherit" />
+                                            </IconButton>
+                                        </Tooltip>
+                                        {drawer === 2 ? (
+                                            <span>
+                                                <div className={c.optionsName}>Show Map</div>
+                                                <Switch
+                                                    size="small"
+                                                    checked={w.secondary}
+                                                    onChange={() => {
+                                                        if (mobile)
+                                                            dispatch(
+                                                                setWorkspace('secondary', 'mobile')
+                                                            )
+                                                        else
+                                                            dispatch(
+                                                                setWorkspace({
+                                                                    ...w,
+                                                                    secondary: !w.secondary,
+                                                                    results:
+                                                                        !w.secondary === false
+                                                                            ? true
+                                                                            : w.results,
+                                                                })
+                                                            )
+                                                    }}
+                                                />
+                                            </span>
+                                        ) : null}
+                                    </div>
+                                )}
                                 <div className={c.optionsItem}>
                                     <Tooltip title="Results Panel" arrow placement="right">
                                         <IconButton
@@ -692,7 +733,7 @@ const Toolbar = (props) => {
                                 <InfoOutlinedIcon fontSize="inherit" />
                             </IconButton>
                         </Tooltip>
-                        {drawer === 2 ? <div className={c.optionsName}>About Atlas</div> : null}
+                        {drawer === 2 ? <div className={c.optionsName}>About {getAppConfig().appTitle}</div> : null}
                     </div>
                 </div>
             </div>

@@ -15,6 +15,8 @@ import EditColumnsModal from './Modals/EditColumnsModal/EditColumnsModal'
 import AdvancedFilterModal from './Modals/AdvancedFilterModal/AdvancedFilterModal'
 import AdvancedFilterReturnModal from './Modals/AdvancedFilterReturnModal/AdvancedFilterReturnModal'
 
+import { getAppConfig } from '../../core/appConfig'
+
 const useStyles = makeStyles((theme) => ({
     Search: {
         width: '100%',
@@ -34,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Search = (props) => {
     useEffect(() => {
-        document.title = 'Atlas - Search | PDS-IMG'
+        document.title = `${getAppConfig().appTitle} - Search | PDS-IMG`
     }, [])
 
     const c = useStyles()
@@ -54,7 +56,10 @@ const Search = (props) => {
                 panel = <FiltersPanel mobile={true} />
                 break
             case 'secondary':
-                panel = <SecondaryPanel mobile={true} />
+                if (getAppConfig().enableMap)
+                    panel = <SecondaryPanel mobile={true} />
+                else
+                    panel = <ResultsPanel mobile={true} />
                 break
             default:
                 panel = <ResultsPanel mobile={true} />
@@ -76,7 +81,7 @@ const Search = (props) => {
             <div className={`${c.mainWorkspace} ${c.workspace}`}>
                 <FiltersPanel />
                 <div className={c.workspace}>
-                    <SecondaryPanel />
+                    {getAppConfig().enableMap && <SecondaryPanel />}
                     <ResultsPanel />
                 </div>
             </div>
