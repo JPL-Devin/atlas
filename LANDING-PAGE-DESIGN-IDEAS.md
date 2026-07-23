@@ -1,4 +1,4 @@
-# Atlas Landing Page — Design Ideas
+# Atlas Splash Page — Design Ideas
 
 > **Design-phase exploration only.** These are standalone HTML/CSS mockups for
 > review. No application code, routing, or the `/` redirect in
@@ -7,11 +7,11 @@
 ## Goal
 
 Today the Atlas root `/` 307-redirects straight to `/search` (see
-`scripts/start-prod.js`). This explores replacing that with a **landing page of
-curated views** — a set of cards, each representing a mission (or "everything")
-with a sensible default filter set.
+`scripts/start-prod.js`). This explores replacing that with a **splash page for
+Atlas** — a set of cards, each representing a mission (or "everything") with a
+sensible default filter set.
 
-- Each curated-view card would navigate to **`/search?view=<view_id>`**, where
+- Each mission card would navigate to **`/search?view=<view_id>`**, where
   `view_id` maps to a hardcoded set of default filters
   (e.g. `view=m20` → `mission = mars_2020`).
 - An **"Everything" card** links to bare **`/search`**, preserving the current
@@ -29,11 +29,80 @@ illustrative.
 The HTML sources and screenshots live in
 [`landing-page-design-ideas/`](landing-page-design-ideas/).
 
+> **Two rounds below.** Round 2 (Ideas 5–9) is the recommended set: it reuses the
+> **real Atlas chrome** — the light-theme horizontal Topbar (NASA logo, PDS
+> Cartography & Imaging Sciences wordmark, right-side icon buttons) from
+> `src/components/Topbar/index.js` and the dark left vertical Toolbar from
+> `src/components/Toolbar/Toolbar.js` — via a shared
+> [`_atlas-chrome.css`](landing-page-design-ideas/_atlas-chrome.css). Round 1
+> (Ideas 1–4) was an earlier exploration that used a simplified dark bar and
+> didn't yet match the app's actual color scheme.
+
+---
+
+# Round 2 — matches the real Atlas chrome & palette
+
+These reuse the actual Topbar + left Toolbar and the light-theme palette from
+`src/themes/light.js` (content bg `#f5f5f5`, accent blue `#1c67e3`, active
+`#288bff`, darkgoldenrod PDS/page labels, red cart badge). Public Sans / Inter
+typefaces. Each is standalone HTML linking `_atlas-chrome.css`.
+
+## Idea 5 — Splash hero + mission tile grid
+
+Centered hero headline over a 3-column grid of mission tiles; the **Everything**
+tile is highlighted in Atlas blue. The most direct "front door" for the app.
+
+Source: [`landing-page-design-ideas/mockup-5-splash-hero-grid.html`](landing-page-design-ideas/mockup-5-splash-hero-grid.html)
+
+![Splash hero + mission grid mockup](landing-page-design-ideas/mockup-5-splash-hero-grid.png)
+
+## Idea 6 — Search-forward splash
+
+Leads with a large search field (the primary action), a row of quick mission
+chips, and a compact tile row below. Emphasizes "search first, browse second".
+
+Source: [`landing-page-design-ideas/mockup-6-search-forward.html`](landing-page-design-ideas/mockup-6-search-forward.html)
+
+![Search-forward splash mockup](landing-page-design-ideas/mockup-6-search-forward.png)
+
+## Idea 7 — Two-column: intro + mission list
+
+A sticky intro/stats column on the left (with a "Browse everything" CTA) beside
+a dense mission list on the right. Good for pairing context with quick jumps.
+
+Source: [`landing-page-design-ideas/mockup-7-two-column.html`](landing-page-design-ideas/mockup-7-two-column.html)
+
+![Two-column splash mockup](landing-page-design-ideas/mockup-7-two-column.png)
+
+## Idea 8 — Featured banner + secondary row
+
+A light gradient banner introduces Atlas, a large featured mission gets prime
+placement with stats and a CTA, and a secondary card row (including
+**Everything**) covers the rest.
+
+Source: [`landing-page-design-ideas/mockup-8-featured-banner.html`](landing-page-design-ideas/mockup-8-featured-banner.html)
+
+![Featured banner splash mockup](landing-page-design-ideas/mockup-8-featured-banner.png)
+
+## Idea 9 — Dashboard splash
+
+An instrument-panel layout: a KPI stat strip over mission cards with per-card
+stat readouts and the `GET /search?view=<id>` contract surfaced in the header.
+Leans into the data/science-operations feel while staying on the light palette.
+
+Source: [`landing-page-design-ideas/mockup-9-dashboard.html`](landing-page-design-ideas/mockup-9-dashboard.html)
+
+![Dashboard splash mockup](landing-page-design-ideas/mockup-9-dashboard.png)
+
+---
+
+# Round 1 — earlier dark exploration
+
 ---
 
 ## Idea 1 — Card-grid gallery
 
-A clean 3-column gallery of curated views, each with a hero thumbnail, product /
+A clean 3-column gallery of mission cards, each with a hero thumbnail, product /
 instrument counts, and its `view=<id>` shown as a code chip. The **Everything**
 card is highlighted in the accent yellow. Best for browsing many missions at a
 glance.
@@ -82,7 +151,7 @@ Source: [`landing-page-design-ideas/mockup-4-dark-console.html`](landing-page-de
 
 ---
 
-## Curated views depicted (illustrative)
+## Mission shortcuts depicted (illustrative)
 
 | Card | `view_id` | Default filter | Destination |
 |---|---|---|---|

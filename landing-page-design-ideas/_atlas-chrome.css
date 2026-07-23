@@ -1,0 +1,105 @@
+/*
+  Shared Atlas chrome for splash-page mockups (v2).
+  Mirrors the real app's light theme (src/themes/light.js), the horizontal
+  Topbar (src/components/Topbar/index.js) and the dark left vertical Toolbar
+  (src/components/Toolbar/Toolbar.js). DESIGN MOCKUP ONLY — standalone CSS,
+  nothing imported from the app build.
+*/
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* light-theme tokens from src/themes/light.js */
+  --bg: #f5f5f5;            /* app content background (src/index.css) */
+  --panel: #ffffff;
+  --panel-alt: #fbfbfb;
+  --topbar-bg: #f7f7f7;     /* grey100 */
+  --topbar-border: #d1d1d1; /* grey200 */
+  --rail-bg: #101013;       /* grey850 */
+  --rail-border: #2e2e32;   /* grey700 */
+  --blue: #1c67e3;          /* accent.main / primary.light */
+  --blue-500: #2398f4;
+  --blue-active: #288bff;   /* active.main */
+  --gold: #b8860b;          /* darkgoldenrod (PDS + page name) */
+  --red: #f64137;           /* cart badge (red500) */
+  --text: #000000;
+  --text-2: #2e2e32;
+  --muted: #656666;         /* grey500 */
+  --icon: #959599;          /* grey400 */
+  --border: #d1d1d1;
+  --border-soft: #e7e7e7;   /* grey150 */
+  --head: 40px;             /* headHeights[1] */
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: 'Public Sans', 'Inter', 'Helvetica', 'Arial', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* layout: dark rail + main column */
+.app { display: flex; height: 100vh; overflow: hidden; }
+
+/* ---- left vertical toolbar (dark rail) ---- */
+.rail {
+  width: 41px; flex: none; height: 100%;
+  background: var(--rail-bg);
+  border-right: 1px solid var(--rail-border);
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.rail .group { display: flex; flex-direction: column; }
+.rail .rbtn {
+  width: 40px; height: 40px; border: 2px solid transparent; border-radius: 0;
+  background: none; cursor: pointer; color: var(--icon);
+  display: grid; place-items: center; transition: color .2s;
+}
+.rail .rbtn:hover { color: #b9b9bd; }
+.rail .rbtn.active { color: var(--blue-active); border-left: 2px solid var(--blue-active); }
+.rail .rbtn svg { width: 20px; height: 20px; fill: currentColor; }
+.rail .rdiv { height: 1px; background: var(--rail-border); }
+
+/* ---- main column ---- */
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; height: 100%; }
+
+/* ---- topbar (light) ---- */
+.topbar {
+  height: var(--head); flex: none; width: 100%;
+  display: flex; justify-content: space-between; align-items: stretch;
+  background: var(--topbar-bg); border-bottom: 1px solid var(--topbar-border);
+}
+.topbar .tleft { display: flex; margin-left: 12px; align-items: center; }
+.topbar .logo { width: 40px; height: 40px; padding: 4px; box-sizing: border-box; flex: none; }
+.topbar .logo svg { width: 32px; height: 32px; display: block; }
+.topbar .titles { display: flex; flex-direction: column; justify-content: center; }
+.topbar .node {
+  font-size: 11px; line-height: 16px; text-transform: uppercase; letter-spacing: .2px;
+  padding: 0 8px; display: flex; gap: 3px;
+}
+.topbar .node .pds { color: var(--gold); font-weight: 700; text-decoration: none; }
+.topbar .node .cis { color: var(--muted); text-decoration: none; }
+.topbar .appline { display: flex; align-items: center; margin-top: -2px; }
+.topbar .appname { color: var(--text); font-weight: 700; font-size: 14px; margin: 0; padding: 0 4px; line-height: 20px; }
+.topbar .slash { color: var(--muted); font-weight: 500; font-size: 14px; padding: 0 3px 0 2px; }
+.topbar .page { color: var(--gold); font-size: 14px; letter-spacing: 1px; text-transform: uppercase; padding: 0 4px; }
+
+.topbar .tright { display: flex; }
+.topbar .tbtn {
+  width: 40px; height: 40px; border: none; border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent; background: none; cursor: pointer;
+  color: var(--muted); display: grid; place-items: center; transition: color .2s;
+}
+.topbar .tbtn:hover { color: var(--text); }
+.topbar .tbtn svg { width: 22px; height: 22px; fill: currentColor; }
+.topbar .tbtn.active { color: var(--blue-500); background: rgba(0,0,0,.05); border-bottom: 2px solid var(--blue-500); }
+.topbar .tbtn { position: relative; }
+.topbar .tbtn .badge {
+  position: absolute; top: 2px; right: 4px; background: var(--red); color: #fff;
+  font-size: 11px; line-height: 16px; min-width: 16px; height: 16px; border-radius: 8px;
+  border: 1px solid var(--topbar-bg); padding: 0 3px; font-family: 'Inter', sans-serif;
+}
+
+/* ---- content scroll area ---- */
+.content { flex: 1; min-height: 0; overflow-y: auto; background: var(--bg); }
