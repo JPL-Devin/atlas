@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!--
+  Atlas — Splash (Core/Raws + Collections)
+  DESIGN MOCKUP ONLY. Standalone HTML/CSS reusing the real Atlas chrome
+  (light Topbar + dark left Toolbar) via _atlas-chrome.css. Not wired into the app.
+  Bars/cards link to /search?view=<id>; ongoing missions run to "now".
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Atlas — Splash (Core/Raws + Collections)</title>
+<link rel="stylesheet" href="_atlas-chrome.css" />
+<style>
+
+  .g-apollo { background: radial-gradient(circle at 45% 45%, #c9ccd0, #75787d 60%, #2c2f33); }
+  .g-viking { background: radial-gradient(circle at 40% 45%, #cf6f4a, #7a2e1c 60%, #2a130b); }
+  .g-mer { background: radial-gradient(circle at 45% 45%, #d98a4a, #8a4a1f 60%, #3a1e0c); }
+  .g-cassini { background: radial-gradient(circle at 55% 45%, #e6d5a6, #b9a05f 55%, #4a3f22); }
+  .g-mro { background: radial-gradient(circle at 50% 38%, #b5643f, #5a2c1a 60%, #22110a); }
+  .g-lro { background: radial-gradient(circle at 46% 50%, #cfd2d6, #7c8085 60%, #34383c); }
+  .g-msl { background: radial-gradient(circle at 34% 46%, #d08a4a, #8a4a1f 60%, #3a1e0c); }
+  .g-insight { background: radial-gradient(circle at 55% 55%, #b76a44, #5f2f1c 60%, #2a160d); }
+  .g-m20 { background: radial-gradient(circle at 66% 42%, #c1553a, #7a2e1c 60%, #3a1a10); }
+  .g-europa { background: radial-gradient(circle at 52% 48%, #e8ddc7, #b7986a 55%, #4a3a24); }
+  .g-all { background: conic-gradient(from 210deg, #1c67e3, #c1553a, #d9c48a, #1c67e3); }
+
+  .g-jezero { background: radial-gradient(circle at 40% 60%, #cf7f4e, #8a3f22 60%, #2c150b); }
+  .g-ingenuity { background: radial-gradient(circle at 60% 40%, #7fb3e0, #38618f 60%, #16283f); }
+  .g-dust { background: radial-gradient(circle at 50% 50%, #e0a86a, #9a5a2a 55%, #35200f); }
+  .g-saturn { background: radial-gradient(circle at 55% 45%, #e6d5a6, #b9a05f 58%, #4a3f22); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 26px; }
+  .top { text-align: center; margin-bottom: 24px; }
+  .top h1 { font-size: 24px; font-weight: 800; margin: 0 0 6px; }
+  .top p { color: var(--muted); font-size: 13.5px; margin: 0; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .col { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--panel); display: flex; flex-direction: column; }
+  .col .hd { padding: 20px 22px; color: #fff; position: relative; text-decoration: none; display: block; }
+  .col.core .hd { background: linear-gradient(135deg, #0b3d91, #1c67e3); }
+  .col.raws .hd { background: linear-gradient(135deg, #17171b, #2e2e32); }
+  .col .hd .tag { font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; opacity: .85; }
+  .col .hd h2 { font-size: 22px; font-weight: 800; margin: 5px 0 6px; }
+  .col .hd p { font-size: 13px; opacity: .92; margin: 0 0 12px; max-width: 380px; }
+  .col .hd .stats { display: flex; gap: 22px; }
+  .col .hd .n { font-size: 17px; font-weight: 800; }
+  .col .hd .l { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: .8; }
+  .col .hd .go { position: absolute; top: 20px; right: 22px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3); color: #fff; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 16px; }
+  .col .sub { padding: 14px 18px 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); font-weight: 700; }
+  .col .items { padding: 0 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .it { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; transition: border-color .12s, background .12s; }
+  .it:hover { border-color: var(--blue); background: #f5f9ff; }
+  .it .th { width: 46px; height: 40px; border-radius: 6px; flex: none; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+  .it .info { flex: 1; min-width: 0; }
+  .it .t { font-size: 13.5px; font-weight: 700; }
+  .it .m { font-size: 11.5px; color: var(--muted); }
+  .it .c { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .it .c b { color: var(--text); }
+
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="rail"><div class="group"><button class="rbtn" title="Navigation" aria-label="navigation"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button><div class="rdiv"></div><button class="rbtn active" title="Home" aria-label="home"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button><button class="rbtn" title="Image Search" aria-label="image search"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button><button class="rbtn" title="Timeline" aria-label="timeline"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></button><button class="rbtn" title="Archive Explorer" aria-label="archive explorer"><svg viewBox="0 0 24 24"><path d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"/></svg></button></div><div class="group"><div class="rdiv"></div><button class="rbtn" title="Help" aria-label="help"><svg viewBox="0 0 24 24"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg></button><button class="rbtn" title="Info" aria-label="info"><svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></button></div></nav>
+<div class="main">
+<header class="topbar"><div class="tleft"><div class="logo"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="46" fill="#0B3D91"/><path d="M18 55 Q50 30 84 46" stroke="#fff" stroke-width="2" fill="none" opacity=".55"/><path d="M20 60 C45 48 60 52 82 40 C70 62 40 70 20 60 Z" fill="#FC3D21"/><text x="50" y="56" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="20" fill="#fff" letter-spacing="1">NASA</text></svg></div><div class="titles"><div class="node"><a class="pds">PDS</a><a class="cis">Cartography and Imaging Sciences</a></div><div class="appline"><h1 class="appname">ATLAS</h1></div></div></div><div class="tright" style="align-items:center"><div style="display:flex;align-items:center;margin-right:6px;font-size:11px;font-weight:700;color:#1c67e3;background:#eef4fe;border:1px solid #cfe0fb;border-radius:12px;padding:3px 10px;letter-spacing:.5px;text-transform:uppercase;">Core</div><button class="tbtn" title="API Documentation" aria-label="api docs"><svg viewBox="0 0 24 24"><path d="M7 7H5A2 2 0 0 0 3 9V17H5V13H7V17H9V9A2 2 0 0 0 7 7M7 11H5V9H7M14 7H10V17H12V13H14A2 2 0 0 0 16 11V9A2 2 0 0 0 14 7M14 11H12V9H14M20 9V15H21V17H17V15H18V9H17V7H21V9Z"/></svg></button><button class="tbtn" title="Image Search" aria-label="image search"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button><button class="tbtn" title="Archive Explorer" aria-label="archive explorer"><svg viewBox="0 0 24 24"><path d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"/></svg></button><button class="tbtn" title="Cart" aria-label="cart"><svg viewBox="0 0 24 24"><path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.45C3.52 15.37 4.48 17 6 17h12v-2H6l1.1-2h8.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6zM6 18c-1.1 0-1.99.9-1.99 2S4.9 22 6 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span class="badge">3</span></button></div></header>
+<main class="content">
+
+  <div class="wrap">
+    <div class="top"><h1>Choose your collection</h1><p>Calibrated Archive or the latest Raws — each with themed starting points beneath.</p></div>
+    <div class="cols">
+      <div class="col core">
+        <a class="hd" href="/search"><span class="go">Search all →</span><div class="tag">Atlas Core · Archive</div><h2>Calibrated &amp; archived</h2>
+          <p>Peer-reviewed, PDS4-archived products with full labels and derived data.</p>
+          <div class="stats"><div><div class="n">138M</div><div class="l">Products</div></div><div><div class="n">6</div><div class="l">Missions</div></div><div><div class="n">PDS4</div><div class="l">Standard</div></div></div></a>
+        <div class="sub">Popular collections</div>
+        <div class="items">
+          <a class="it" href="/search?view=cassini_grand_finale"><span class="th g-saturn"></span><span class="info"><span class="t">Cassini Grand Finale</span><br><span class="m">Saturn · calibrated</span></span><span class="c"><b>62K</b></span></a>
+          <a class="it" href="/search?view=jezero_deltas"><span class="th g-jezero"></span><span class="info"><span class="t">Jezero Crater Deltas</span><br><span class="m">Mars 2020 · calibrated</span></span><span class="c"><b>410K</b></span></a>
+          <a class="it" href="/search?view=apollo_pans"><span class="th g-apollo"></span><span class="info"><span class="t">Apollo Surface Panoramas</span><br><span class="m">Moon · restored</span></span><span class="c"><b>27K</b></span></a>
+          <a class="it" href="/search"><span class="th g-all"></span><span class="info"><span class="t">Everything in Core</span><br><span class="m">no filters</span></span><span class="c"><b>138M</b></span></a>
+        </div>
+      </div>
+      <div class="col raws">
+        <a class="hd" href="/search?atlas=raws"><span class="go">Search all →</span><div class="tag">Atlas Raws</div><h2>Raw &amp; latest downlink</h2>
+          <p>Newest raw frames straight from the spacecraft, often within hours.</p>
+          <div class="stats"><div><div class="n">4.1M</div><div class="l">Raw frames</div></div><div><div class="n">~2 hr</div><div class="l">Latency</div></div><div><div class="n">Daily</div><div class="l">Updates</div></div></div></a>
+        <div class="sub">Fresh from the field</div>
+        <div class="items">
+          <a class="it" href="/search?atlas=raws&view=m20"><span class="th g-m20"></span><span class="info"><span class="t">Perseverance · latest</span><br><span class="m">Mars 2020 · raws</span></span><span class="c"><b>12K new</b></span></a>
+          <a class="it" href="/search?atlas=raws&view=msl"><span class="th g-msl"></span><span class="info"><span class="t">Curiosity · latest</span><br><span class="m">Curiosity · raws</span></span><span class="c"><b>8.4K new</b></span></a>
+          <a class="it" href="/search?atlas=raws&view=ingenuity"><span class="th g-ingenuity"></span><span class="info"><span class="t">Ingenuity Flights</span><br><span class="m">Mars 2020 · raws</span></span><span class="c"><b>18K</b></span></a>
+          <a class="it" href="/search?atlas=raws"><span class="th g-all"></span><span class="info"><span class="t">Everything in Raws</span><br><span class="m">no filters</span></span><span class="c"><b>4.1M</b></span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+</div>
+</body>
+</html>

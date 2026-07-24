@@ -40,6 +40,45 @@ The HTML sources and screenshots live in
 
 ---
 
+# Round 4 — timeline explorations + Core/Raws deep-dives
+
+Timeline/Gantt takes (missions as bars across time; ongoing bars run to **now**)
+plus two more Core-vs-Raws directions with themed collections under each heading.
+
+### 20 · Full-screen Gantt
+Label column + bars across a decade axis; stats inside wide bars, ongoing → now.
+![](landing-page-design-ideas/mockup-20-gantt-fullscreen.png)
+
+### 21 · Bar cards
+Taller bar-cards with sparklines and image counts; short missions collapse to compact.
+![](landing-page-design-ideas/mockup-21-gantt-cards.png)
+
+### 22 · Vertical timeline
+Time flows top→bottom; each mission is a column, ongoing reaching the bottom.
+![](landing-page-design-ideas/mockup-22-gantt-vertical.png)
+
+### 23 · Scrolling timeline
+Horizontally scrollable decade rail with staggered mission bars.
+![](landing-page-design-ideas/mockup-23-gantt-scroll.png)
+
+### 24 · Swimlanes by world
+Bars grouped into lanes per target body (Mars, Moon, Saturn, Jupiter).
+![](landing-page-design-ideas/mockup-24-gantt-swimlanes.png)
+
+### 25 · Activity Gantt
+Dark timeline; bar gradient encodes downlink volume, pulse on live missions.
+![](landing-page-design-ideas/mockup-25-gantt-intensity.png)
+
+### 26 · Core vs Raws + collections
+Two entry panels (Archive / Raws), each with themed collections listed beneath.
+![](landing-page-design-ideas/mockup-26-core-raws-collections.png)
+
+### 27 · Core vs Raws bands
+Stacked full-bleed Core/Raws bands, each with a row of collection cards.
+![](landing-page-design-ideas/mockup-27-core-raws-bands.png)
+
+---
+
 # Round 3 — creative concepts
 
 Standalone HTML using the real Atlas chrome. Explores free-text search, themed
