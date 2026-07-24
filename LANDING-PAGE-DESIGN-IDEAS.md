@@ -40,6 +40,93 @@ The HTML sources and screenshots live in
 
 ---
 
+# Round 5 — patterns from other sites/webapps
+
+Two takes each on ten common landing/splash patterns, all keeping a white NASA
+topbar + title and the dark left toolbar (chrome tweaked slightly per concept).
+
+### 28 · Photo hero
+Full-bleed mission image behind a centered search + collection chips.
+![](landing-page-design-ideas/mockup-28-photo-hero.png)
+
+### 29 · Photo hero (bottom)
+Same idea, copy + search anchored low with a peeking collection row.
+![](landing-page-design-ideas/mockup-29-photo-hero-bottom.png)
+
+### 30 · Orbit map
+Click a planet orbiting the Sun to enter its imagery.
+![](landing-page-design-ideas/mockup-30-globe-orbit.png)
+
+### 31 · Map pins
+Clickable landing/feature-site pins over a target-body map.
+![](landing-page-design-ideas/mockup-31-map-pins.png)
+
+### 32 · Ask Atlas
+Natural-language box that turns a plain-English question into a search.
+![](landing-page-design-ideas/mockup-32-ai-ask.png)
+
+### 33 · Ask (chat)
+Chat transcript showing the parsed query + a results preview.
+![](landing-page-design-ideas/mockup-33-ai-chat.png)
+
+### 34 · Wizard (stepper)
+Guided world → mission → instrument flow across a top stepper.
+![](landing-page-design-ideas/mockup-34-wizard-steps.png)
+
+### 35 · Wizard (sidebar)
+Same flow with a persistent side summary of choices.
+![](landing-page-design-ideas/mockup-35-wizard-side.png)
+
+### 36 · Photo wall
+Masonry mosaic that *is* the landing, with a floating search.
+![](landing-page-design-ideas/mockup-36-photo-wall.png)
+
+### 37 · Justified grid
+Google-Images-style justified rows under a search + category chips.
+![](landing-page-design-ideas/mockup-37-photo-justified.png)
+
+### 38 · Stats hero
+Big live counters (products, missions, new-today) over a search.
+![](landing-page-design-ideas/mockup-38-stats-hero.png)
+
+### 39 · Stats dashboard
+KPI cards with sparklines, a collection strip and an activity feed.
+![](landing-page-design-ideas/mockup-39-stats-dashboard.png)
+
+### 40 · App launcher
+Portal grid of Atlas tools (Search, Archive Explorer, Record, Cart…).
+![](landing-page-design-ideas/mockup-40-launcher-grid.png)
+
+### 41 · Portal list
+Same tools as grouped, described list rows.
+![](landing-page-design-ideas/mockup-41-launcher-list.png)
+
+### 42 · Carousel hero
+Full-bleed rotating spotlight with dots + arrows.
+![](landing-page-design-ideas/mockup-42-carousel-hero.png)
+
+### 43 · Spotlight
+Featured story + secondary tiles + a thumbnail strip of more collections.
+![](landing-page-design-ideas/mockup-43-spotlight.png)
+
+### 44 · Split (Core/Raws)
+Two full-height image halves: calibrated Core vs latest Raws.
+![](landing-page-design-ideas/mockup-44-split-duo.png)
+
+### 45 · Split (diagonal)
+Diagonal split (inner vs outer worlds) with an Everything pill.
+![](landing-page-design-ideas/mockup-45-split-diagonal.png)
+
+### 46 · Resume
+"Welcome back" — continue-where-you-left-off + suggestions.
+![](landing-page-design-ideas/mockup-46-resume.png)
+
+### 47 · For you
+Signed-in dashboard: saved searches + recommended collections.
+![](landing-page-design-ideas/mockup-47-for-you.png)
+
+---
+
 # Round 4 — timeline explorations + Core/Raws deep-dives
 
 Timeline/Gantt takes (missions as bars across time; ongoing bars run to **now**)
