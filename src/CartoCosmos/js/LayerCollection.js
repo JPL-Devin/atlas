@@ -1,5 +1,9 @@
 import L from 'leaflet'
 
+// Global lat/lng extent. Bounding tile requests to it keeps the custom
+// projections from requesting (opaque, white) tiles outside a single world.
+const WORLD_LAT_LNG_BOUNDS = L.latLngBounds([-90, -180], [90, 180])
+
 /**
  * @class LayerCollection
  * @aka L.Class.LayerCollection
@@ -44,6 +48,14 @@ export default L.LayerCollection = L.Class.extend({
             }
             let baseLayer = L.tileLayer.wms(String(layer['url']) + '?map=' + String(layer['map']), {
                 layers: String(layer['layer']),
+                // Keep the map to a single world instead of repeated copies.
+                noWrap: true,
+                bounds: WORLD_LAT_LNG_BOUNDS,
+                // Request transparent tiles so no-data areas (e.g. outside the
+                // disc in polar projections) fall through to the dark map
+                // background instead of rendering as opaque white.
+                transparent: true,
+                format: 'image/png',
             })
             let name = String(layer['displayname'])
             this._baseLayers[name] = baseLayer
@@ -62,6 +74,8 @@ export default L.LayerCollection = L.Class.extend({
                 layers: String(layer['layer']),
                 transparent: true,
                 format: 'image/png',
+                noWrap: true,
+                bounds: WORLD_LAT_LNG_BOUNDS,
             })
             let name = String(layer['displayname'])
             this._overlays[name] = overlay

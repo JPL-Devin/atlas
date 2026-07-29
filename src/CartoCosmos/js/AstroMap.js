@@ -8,6 +8,14 @@ import AstroProj from './AstroProj'
 import LayerCollection from './LayerCollection'
 import { MY_JSON_MAPS } from './layers'
 
+// World bounds for the cylindrical projection, so drawn boxes can't produce
+// longitudes outside [-180, 180]. Kept separate from options.maxBounds, which
+// Leaflet nulls out when polar projections call setMaxBounds(null).
+const CYLINDRICAL_MAX_BOUNDS = [
+    [-90, -180],
+    [90, 180],
+]
+
 /**
  * @class AstroMap
  * @aka L.Map.AstroMap
@@ -36,6 +44,11 @@ export default L.Map.AstroMap = L.Map.extend({
         maxZoom: 11,
         attributionControl: false,
         zoomControl: false,
+        // Keep the cylindrical map on a single world copy so drawn boxes
+        // can't produce longitudes outside [-180, 180].
+        worldCopyJump: false,
+        maxBounds: CYLINDRICAL_MAX_BOUNDS,
+        maxBoundsViscosity: 1.0,
     },
 
     initialize: function (mapDiv, target, options) {
@@ -189,12 +202,21 @@ export default L.Map.AstroMap = L.Map.extend({
             this._currentProj = proj['code']
             this.setMaxZoom(6)
         }
+
+        // Clear bounds before reprojecting. Applying latlng maxBounds while a
+        // polar CRS is still active projects to non-finite pixel coordinates
+        // ("coordinates must be finite numbers").
+        this.setMaxBounds(null)
         this.options.crs = newCRS
 
         // Reset the view again because the map refreshses after changing
         // the projection and you start to zoom in/out. This makes the map do a
         // weird flashing transition.
         this.setView(center, 1, true)
+
+        // Constrain panning to a single world once the cylindrical CRS is
+        // active; the polar projections use different units and stay unbounded.
+        if (name == 'cylindrical') this.setMaxBounds(CYLINDRICAL_MAX_BOUNDS)
         this.loadLayerCollection(name)
 
         // this.fire("projChange", { proj: this._currentProj });
