@@ -25,6 +25,7 @@
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
     "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install --with-deps chromium firefox",
     "test:e2e:smoke": "playwright test tests/e2e/smoke.spec.js",
     "test:e2e:search": "playwright test tests/e2e/search",
     "test:e2e:record": "playwright test tests/e2e/record",

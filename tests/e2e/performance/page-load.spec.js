@@ -6,19 +6,30 @@ import { filterCriticalJsErrors } from '../../helpers/atlas-helpers.js'
  *
  * We measure time-to-interactive on the Search route, navigation timing,
  * JS error count during boot, and (where supported) JS heap size.
+ *
+ * "Time-to-interactive" here is defined as the time until the SPA shell
+ * is usable (Topbar visible) — NOT time until upstream APIs settle.
+ * The search proxy and archive data service are independent of Atlas
+ * (see AGENTS.md) and can be arbitrarily slow on any given network;
+ * we don't want their latency to produce flaky perf failures that
+ * have nothing to do with the SPA's actual load performance.
  */
 
 const SEARCH_URL = '/search'
+const SHELL_BUDGET_MS = 15000
 
 test.describe('Page Load Performance', () => {
-    test('/search loads within 15 seconds', async ({ page }) => {
+    test('/search SPA shell becomes interactive within 15 seconds', async ({ page }) => {
         const start = Date.now()
         await page.goto(SEARCH_URL, { waitUntil: 'domcontentloaded', timeout: 30000 })
-        await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
+        // Topbar visible == React has committed initial UI. Independent
+        // of upstream API latency.
+        await page
+            .getByRole('button', { name: 'navigation' })
+            .waitFor({ state: 'visible', timeout: SHELL_BUDGET_MS })
         const elapsed = Date.now() - start
 
-        // Generous threshold for CI runners that may be slow
-        expect(elapsed).toBeLessThan(15000)
+        expect(elapsed).toBeLessThan(SHELL_BUDGET_MS)
     })
 
     test('navigation timing metrics are reasonable', async ({ page }) => {
