@@ -1,0 +1,416 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="base.css" />
+        <script src="shell.js"></script>
+        <style>
+            /* Record page as a working surface: search results stay in a rail on the
+               left, the cart and caption export stay on the right. */
+            .content {
+                background: #0b0b0e;
+                overflow: hidden;
+            }
+            .results {
+                flex: none;
+                width: 260px;
+                background: #0d0d11;
+                border-right: 1px solid var(--grey700);
+                display: flex;
+                flex-flow: column;
+                overflow: hidden;
+            }
+            .qhead {
+                padding: 9px 11px;
+                border-bottom: 1px solid var(--grey700);
+            }
+            .qhead .q {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                height: 26px;
+                padding: 0 8px;
+                background: #08080b;
+                border: 1px solid var(--grey700);
+                border-radius: 3px;
+                font-size: 11.5px;
+                color: #dcdce3;
+            }
+            .qhead .meta {
+                margin-top: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 10.5px;
+                color: var(--grey500);
+            }
+            .rlist {
+                flex: 1;
+                min-height: 0;
+                overflow: hidden;
+            }
+            .ri {
+                display: flex;
+                gap: 8px;
+                padding: 7px 10px;
+                border-bottom: 1px solid #16161b;
+            }
+            .ri img {
+                width: 58px;
+                height: 44px /* thumbnails keep the 4:3 of the source frames */;
+                object-fit: cover;
+                border-radius: 2px;
+                border: 1px solid #26262d;
+                flex: none;
+            }
+            .ri .n {
+                font-size: 11px;
+                font-family: 'DejaVu Sans Mono', monospace;
+                color: #c9c9d2;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .ri .c {
+                margin-top: 3px;
+                font-size: 10.5px;
+                line-height: 14px;
+                color: var(--grey500);
+            }
+            .ri.cur {
+                background: rgba(28, 103, 227, 0.16);
+                box-shadow: inset 2px 0 0 var(--accent2);
+            }
+            .ri.cur .n {
+                color: #fff;
+            }
+            .ri .txt {
+                min-width: 0;
+            }
+            .center {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                flex-flow: column;
+            }
+            .viewer {
+                flex: 1;
+                min-height: 0;
+            }
+            .capstrip {
+                flex: none;
+                padding: 9px 14px 10px 14px;
+                background: #0f0f13;
+                border-top: 1px solid var(--grey700);
+            }
+            .capstrip .t {
+                font-size: 13px;
+                font-weight: 700;
+                color: #fff;
+            }
+            .capstrip .x {
+                margin-top: 4px;
+                font-size: 12.4px;
+                line-height: 18px;
+                color: #d3d3db;
+            }
+            .capstrip .f {
+                margin-top: 6px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .panel {
+                width: 360px;
+            }
+            .cart {
+                margin: 0 12px;
+                border: 1px solid var(--grey700);
+                border-radius: 4px;
+                overflow: hidden;
+            }
+            .ci {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 6px 9px;
+                border-bottom: 1px solid #17171c;
+                font-size: 11px;
+                font-family: 'DejaVu Sans Mono', monospace;
+                color: #c9c9d2;
+            }
+            .ci:last-child {
+                border-bottom: none;
+            }
+            .ci img {
+                width: 34px;
+                height: 26px;
+                object-fit: cover;
+                border-radius: 2px;
+                flex: none;
+            }
+            .ci .rm {
+                margin-left: auto;
+                color: var(--grey500);
+            }
+            .ci .name {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .expo {
+                margin: 8px 12px 0 12px;
+                border: 1px solid var(--grey700);
+                border-radius: 4px;
+                background: #101015;
+                padding: 9px 10px;
+            }
+            .expo .row2 {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 11.7px;
+                color: #dcdce3;
+                margin-bottom: 6px;
+            }
+            .expo .row2:last-child {
+                margin-bottom: 0;
+            }
+            .cb {
+                width: 13px;
+                height: 13px;
+                border-radius: 2px;
+                border: 1px solid #4a4a55;
+                flex: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+            }
+            .cb.on {
+                background: var(--accent);
+                border-color: var(--accent);
+            }
+            .pre {
+                margin: 8px 12px 0 12px;
+                padding: 8px 10px;
+                background: #08080b;
+                border: 1px solid var(--grey700);
+                border-radius: 3px;
+                font-family: 'DejaVu Sans Mono', monospace;
+                font-size: 10.6px;
+                line-height: 16px;
+                color: #9fd0ff;
+                white-space: pre-wrap;
+                word-break: break-all;
+                overflow: hidden;
+            }
+            .note2 {
+                margin: 8px 12px 0 12px;
+                font-size: 11px;
+                line-height: 16px;
+                color: var(--grey400);
+            }
+            a {
+                color: #8ebbff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div data-shell="rail"></div>
+            <div class="main">
+                <div data-shell="topbar"></div>
+                <div
+                    data-shell="titlebar"
+                    data-name="ZRF_1221_0775339022_769RZS_N0561010ZCAM09271_0630LMJ01.IMG"
+                ></div>
+                <div class="tabs">
+                    <div class="tab active">Overview</div>
+                    <div class="tab">Product Label</div>
+                    <div class="tab">
+                        Related Products<span style="opacity: 0.6">&nbsp;&nbsp;18</span>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="tab-right">
+                        <span class="chip blue"
+                            ><span data-icon="grid" data-size="13"></span>Workspace layout</span
+                        >
+                        <span class="chip">4 of 1,842 &middot; results kept open</span>
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="results">
+                        <div class="qhead">
+                            <div class="q">
+                                <span data-icon="search" data-size="14"></span>mission:mars_2020
+                                sol:1221
+                            </div>
+                            <div class="meta">
+                                <span>1,842 products</span><span><a>Back to results</a></span>
+                            </div>
+                        </div>
+                        <div class="rlist">
+                            <div class="ri">
+                                <img src="../assets/thumb-zcam-1184.jpg" />
+                                <div class="txt">
+                                    <div class="n">ZRF_1221_&hellip;ZCAM09271_0610LMJ01</div>
+                                    <div class="c">Frame 2 &middot; 13:07 LTST</div>
+                                </div>
+                            </div>
+                            <div class="ri">
+                                <img src="../assets/thumb-zcam-1189.jpg" />
+                                <div class="txt">
+                                    <div class="n">ZRF_1221_&hellip;ZCAM09271_0620LMJ01</div>
+                                    <div class="c">Frame 3 &middot; 13:07 LTST</div>
+                                </div>
+                            </div>
+                            <div class="ri cur">
+                                <img src="../assets/thumb-zcam-1251.jpg" />
+                                <div class="txt">
+                                    <div class="n">ZRF_1221_&hellip;ZCAM09271_0630LMJ01</div>
+                                    <div class="c">Frame 4 &middot; 13:08 LTST &middot; open</div>
+                                </div>
+                            </div>
+                            <div class="ri">
+                                <img src="../assets/thumb-zcam-1256.jpg" />
+                                <div class="txt">
+                                    <div class="n">ZRF_1221_&hellip;ZCAM09271_0640LMJ01</div>
+                                    <div class="c">Frame 5 &middot; 13:08 LTST</div>
+                                </div>
+                            </div>
+                            <div class="ri">
+                                <img src="../assets/thumb-navcam.jpg" />
+                                <div class="txt">
+                                    <div class="n">NRF_1221_&hellip;NCAM13221_0A0195J01</div>
+                                    <div class="c">Navcam &middot; 12:58 LTST</div>
+                                </div>
+                            </div>
+                            <div class="ri">
+                                <img src="../assets/thumb-navcam2.jpg" />
+                                <div class="txt">
+                                    <div class="n">NLF_1221_&hellip;NCAM13221_0A0195J01</div>
+                                    <div class="c">Navcam L &middot; 12:58 LTST</div>
+                                </div>
+                            </div>
+                            <div class="ri">
+                                <img src="../assets/thumb-hazcam.jpg" />
+                                <div class="txt">
+                                    <div class="n">FLF_1221_&hellip;FHAZ00200_0A0195J01</div>
+                                    <div class="c">Front Hazcam &middot; 13:31 LTST</div>
+                                </div>
+                            </div>
+                            <div class="ri">
+                                <img src="../assets/thumb-hazcam2.jpg" />
+                                <div class="txt">
+                                    <div class="n">RRF_1221_&hellip;RHAZ00200_0A0195J01</div>
+                                    <div class="c">Rear Hazcam &middot; 13:31 LTST</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="center">
+                        <div class="viewer">
+                            <img class="frame" src="../assets/zcam-sol1221.jpg" />
+                            <div data-shell="osd"></div>
+                        </div>
+                        <div class="capstrip">
+                            <div class="t">
+                                Mastcam&#8209;Z Right &mdash; Sol 1221, 13:08 LTST, Site 56 Drive
+                                1010
+                            </div>
+                            <div class="x">
+                                Perseverance acquired this radiometrically calibrated frame &mdash;
+                                the fourth of eighteen in sequence ZCAM09271 &mdash; with the Sun
+                                46.5&deg; above the horizon at Ls 300.8&deg;.
+                            </div>
+                            <div class="f">
+                                <span class="tmpl-note"
+                                    ><span data-icon="template" data-size="14"></span>mars_2020 /
+                                    zcam / calibrated</span
+                                >
+                                <span class="tmpl-note"
+                                    ><span data-icon="check" data-size="14"></span>11 of 12
+                                    tokens</span
+                                >
+                                <span class="tmpl-note"><a>Full description</a></span>
+                                <span class="tmpl-note"><a>All 143 fields</a></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="sec-head">
+                            Cart <span class="hint">6 products &middot; 41.2 MB</span>
+                        </div>
+                        <div class="cart">
+                            <div class="ci">
+                                <img src="../assets/thumb-zcam-1251.jpg" />
+                                <span class="name">ZRF_1221_&hellip;0630LMJ01.IMG</span>
+                                <span class="rm" data-icon="close" data-size="14"></span>
+                            </div>
+                            <div class="ci">
+                                <img src="../assets/thumb-zcam-1189.jpg" />
+                                <span class="name">ZRF_1221_&hellip;0620LMJ01.IMG</span>
+                                <span class="rm" data-icon="close" data-size="14"></span>
+                            </div>
+                            <div class="ci">
+                                <img src="../assets/thumb-navcam.jpg" />
+                                <span class="name">NRF_1221_&hellip;0A0195J01.IMG</span>
+                                <span class="rm" data-icon="close" data-size="14"></span>
+                            </div>
+                            <div class="ci">
+                                <img src="../assets/thumb-hazcam.jpg" />
+                                <span class="name">FLF_1221_&hellip;0A0195J01.IMG</span>
+                                <span class="rm" data-icon="close" data-size="14"></span>
+                            </div>
+                            <div class="ci" style="color: var(--grey500)">+ 2 more</div>
+                        </div>
+
+                        <div class="sec-head" style="margin-top: 10px">
+                            Include with download <span class="hint">applies to all 6</span>
+                        </div>
+                        <div class="expo">
+                            <div class="row2">
+                                <span class="cb on"
+                                    ><span data-icon="check" data-size="11"></span></span
+                                >PDS4 label (.xml)
+                            </div>
+                            <div class="row2">
+                                <span class="cb on"
+                                    ><span data-icon="check" data-size="11"></span></span
+                                >Browse image (.png)
+                            </div>
+                            <div class="row2">
+                                <span class="cb on"
+                                    ><span data-icon="check" data-size="11"></span></span
+                                >Templated captions (captions.csv)
+                            </div>
+                            <div class="row2"><span class="cb"></span>Alt text column</div>
+                            <div class="row2"><span class="cb"></span>Citations (BibTeX)</div>
+                        </div>
+                        <pre class="pre">
+filename,sol,ltst,short_caption
+ZRF_1221_&hellip;0630LMJ01.IMG,1221,13:08,"Mastcam-Z Right, Sol 1221, Site 56, calibrated RZS"
+NRF_1221_&hellip;0A0195J01.IMG,1221,12:58,"Navcam Right, Sol 1221, Site 56, calibrated"
+</pre>
+                        <div class="note2">
+                            Captions are rendered at download time, so every row uses the current
+                            template version for its own mission and instrument.
+                        </div>
+                        <div style="flex: 1"></div>
+                        <div class="actions">
+                            <div class="btn primary">
+                                <span data-icon="download" data-size="16"></span>Download 6
+                            </div>
+                            <div class="btn">
+                                <span data-icon="link" data-size="16"></span>Share workspace
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

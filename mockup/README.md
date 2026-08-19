@@ -4,11 +4,16 @@ Static, non-production design mockups for the record detail page (`/record?uri=�
 The Atlas topbar and the left navigation rail are kept exactly as they are today; everything
 below the title bar is up for redesign.
 
-All four mockups use real values from real PDS products so the layouts are stress-tested with
+Every mockup uses real values from real PDS products so the layouts are stress-tested with
 true field lengths:
 
 - Mastcam-Z Right, `ZRF_1221_0775339022_769RZS_N0561010ZCAM09271_0630LMJ01.IMG` (Sol 1221, sequence ZCAM09271)
 - Navcam Right, `NRF_1279_0780483423_145CWG_N0600000NCAM13279_0A0195J02.IMG` (Sol 1279)
+- MGS Mars Orbiter Camera, `M0400821.IMG` (1999, 22 label fields, no browse image) for the sparse case
+
+Mockups 1–4 cover the overview tab, a caption-first mode, template authoring and related-products
+browsing. Mockups 5–16 are twelve further takes on the main record page only, each keeping the
+same shell and exploring a different information architecture.
 
 The templating idea shared by every mockup: a template is registered per
 `mission / instrument / processing level`, renders several variants from one source
@@ -81,6 +86,126 @@ Turns the record page into a jumping-off point instead of a dead end.
 - Card captions can be switched between short, full-sentence and filename-only forms — same
   template, different variant.
 - Bulk actions: add the whole group to the cart, copy every caption, share the view.
+
+## 5. Read-first document layout
+
+![Read-first document layout](05-document-layout.png)
+
+The record treated as a short document: figure with caption, then prose, then the field tables.
+
+- Templated description reads as an article paragraph at a comfortable measure instead of a panel blurb.
+- Figure and caption sit together as one block, the way a paper or press page would set them.
+- Field tables come after the reading material, in two columns, so the page starts human and ends technical.
+
+## 6. Light metadata surface
+
+![Light metadata surface](06-light-theme.png)
+
+The same overview redesign on the light surface the rest of Atlas already uses; only the viewer stays dark.
+
+- Metadata, caption and field groups adopt the light theme, keeping the record page consistent with search.
+- Resolved template values are marked with underlines and weight rather than dark-theme colour tricks.
+- Shows how much contrast the templated prose needs to stay readable on white.
+
+## 7. Dense field browser
+
+![Dense field browser](07-dense-power-user.png)
+
+For users who came for the label, not the picture.
+
+- Two-column `key = value` list with live filtering (`sun_` → 6 of 143 fields) and keyboard hints.
+- Grouped and flat views of the same 143 fields, with raw label names available.
+- The templated caption is reduced to a single line so it never gets in the way of the fields.
+
+## 8. Full-width viewer with a bottom drawer
+
+![Bottom drawer](08-bottom-drawer.png)
+
+The 480px side panel becomes a drawer that snaps between caption-only, half and full.
+
+- The image gets the whole width, which matters for wide mosaics and panoramas.
+- Drawer columns: templated caption plus variants, at-a-glance fields and sequence, actions.
+- Template source is visible in the drawer so the caption's provenance is one glance away.
+
+## 9. Context and traverse layout
+
+![Context and traverse](09-context-map.png)
+
+Where the frame was taken, alongside what it shows.
+
+- Site traverse map with the rover path, drive marker and camera field-of-view cone.
+- Map labels are driven by the same tokens the caption uses, so text and geometry can't disagree.
+- Sol timeline under the image jumps to neighbouring products in the same site.
+
+## 10. Caption variant browser
+
+![Caption variants](10-caption-variants.png)
+
+All five renderings of one template, side by side, with their length budgets.
+
+- Description, short caption, alt text, social/press and citation, each with character count and copy action.
+- Token coverage and skipped clauses are reported once for the whole set.
+- The template source at the bottom makes it obvious that one document produces all five.
+
+## 11. Cinematic hero
+
+![Cinematic hero](11-cinematic-hero.png)
+
+A public-facing record page for people who arrived from a link, not a query.
+
+- Generated headline ("A hazy noon horizon, seen from Site 60") plus templated lede over a full-bleed frame.
+- Key facts strip carries the numbers a scientist still needs, without dominating the page.
+- Primary actions and the sequence filmstrip stay above the fold; the full field list is a scroll away.
+
+## 12. Compare mode
+
+![Compare mode](12-compare-mode.png)
+
+Calibrated against raw, with synced zoom and pan.
+
+- Each side renders its own template, so the difference in processing is stated in prose, not inferred.
+- Field differences table hides the 136 identical fields and shows only the 7 that differ.
+- Caption diff highlights exactly which clauses change, and the raw template's skipped clauses are called out.
+
+## 13. Overlays and scene tokens
+
+![Overlays and scene tokens](13-annotations.png)
+
+Classifier output as first-class, citable content.
+
+- Detection boxes with confidence values, a measurement line, and toggleable overlay layers.
+- The scene clause in the template consumes those labels, marking anything under 0.80 as tentative.
+- Provenance panel is explicit that these values are derived and not part of the PDS4 label.
+
+## 14. Workspace layout
+
+![Workspace layout](14-workspace.png)
+
+The record page inside a working session, not as a destination.
+
+- Results rail keeps the query alive on the left; the record opens in place.
+- Cart and export options live on the right, including templated captions as a CSV column.
+- Captions are rendered at download time, so each row uses the current template for its own instrument.
+
+## 15. Narrow widths
+
+![Narrow widths](15-narrow-responsive.png)
+
+What the redesign does as the window shrinks, at 700px and 366px.
+
+- The metadata panel becomes a sheet under the image; nothing is removed, only reordered.
+- Tablet renders the full description, phone renders the short variant with a disclosure — no mid-word truncation.
+- At-a-glance tiles reflow 3→2 and actions pin to the bottom; header and rail are untouched.
+
+## 16. Sparse record and fallbacks
+
+![Sparse record](16-sparse-record.png)
+
+An MGS MOC product with 22 fields and no browse image — the case that breaks templated prose.
+
+- Four of nine clauses are skipped and the sentence stays grammatical.
+- Clause resolution table shows exactly which tokens rendered, which were skipped, and why.
+- Absent fields are listed as tokens instead of blank rows, and the empty related-products state offers real alternatives.
 
 ---
 

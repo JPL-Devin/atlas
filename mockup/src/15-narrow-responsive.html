@@ -1,0 +1,538 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="base.css" />
+        <script src="shell.js"></script>
+        <style>
+            /* How the record page reflows when there is no room for a side panel:
+               tablet width beside a phone width, same content, stacked. */
+            .content {
+                display: flex;
+                gap: 0;
+                background: #05050a;
+                overflow: hidden;
+            }
+            .stage {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                align-items: flex-start;
+                justify-content: center;
+                gap: 34px;
+                padding: 18px 0 0 0;
+                background: repeating-linear-gradient(45deg, #08080c 0 12px, #0a0a0f 12px 24px);
+            }
+            .device {
+                border: 1px solid var(--grey700);
+                border-radius: 6px;
+                background: #0d0d11;
+                overflow: hidden;
+                display: flex;
+                flex-flow: column;
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+            }
+            .device .cap {
+                flex: none;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                height: 26px;
+                padding: 0 10px;
+                background: #16161c;
+                border-bottom: 1px solid var(--grey700);
+                font-size: 10.5px;
+                font-weight: 700;
+                letter-spacing: 0.8px;
+                text-transform: uppercase;
+                color: var(--grey400);
+            }
+            .tablet {
+                width: 700px;
+                height: 826px;
+            }
+            .phone {
+                width: 366px;
+                height: 826px;
+            }
+            .body {
+                flex: 1;
+                min-height: 0;
+                overflow: hidden;
+            }
+            .mini-title {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                height: 34px;
+                padding: 0 10px;
+                background: var(--grey100);
+                border-bottom: 1px solid var(--grey200);
+                color: #17171b;
+            }
+            .mini-title .fn {
+                font-family: 'DejaVu Sans Mono', monospace;
+                font-size: 11px;
+                font-weight: 700;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .mini-title .dl {
+                margin-left: auto;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                height: 22px;
+                padding: 0 8px;
+                border-radius: 3px;
+                background: var(--accent);
+                color: #fff;
+                font-size: 10.5px;
+                font-weight: 700;
+                flex: none;
+            }
+            .mini-tabs {
+                display: flex;
+                gap: 14px;
+                height: 30px;
+                align-items: center;
+                padding: 0 10px;
+                background: #fff;
+                border-bottom: 1px solid var(--grey200);
+                font-size: 10.5px;
+                font-weight: 700;
+                letter-spacing: 0.6px;
+                text-transform: uppercase;
+                color: #6a6a72;
+            }
+            .mini-tabs .on {
+                color: #17171b;
+                box-shadow: inset 0 -2px 0 var(--accent);
+                height: 30px;
+                display: flex;
+                align-items: center;
+            }
+            .img {
+                position: relative;
+                background: #06060a;
+            }
+            .img img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+            .img .zoom {
+                position: absolute;
+                right: 8px;
+                bottom: 8px;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                height: 24px;
+                padding: 0 8px;
+                border-radius: 3px;
+                font-size: 10.5px;
+                font-weight: 600;
+                color: #e6e6ec;
+                background: rgba(0, 0, 0, 0.65);
+                border: 1px solid var(--grey700);
+            }
+            .sheet {
+                padding: 10px 12px 0 12px;
+            }
+            .h3 {
+                font-size: 14px;
+                font-weight: 700;
+                color: #fff;
+                line-height: 19px;
+            }
+            .p {
+                margin-top: 6px;
+                font-size: 12.3px;
+                line-height: 18px;
+                color: #cfcfd8;
+            }
+            .p b {
+                color: #fff;
+            }
+            .fold {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                margin-top: 6px;
+                font-size: 11.5px;
+                color: #8ebbff;
+            }
+            .tiles {
+                display: grid;
+                gap: 1px;
+                background: #202027;
+                border: 1px solid #202027;
+                border-radius: 3px;
+                margin-top: 10px;
+            }
+            .tiles.t3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .tiles.t2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .tile {
+                background: #101015;
+                padding: 7px 8px;
+            }
+            .tile .k {
+                font-size: 9px;
+                font-weight: 700;
+                letter-spacing: 0.9px;
+                text-transform: uppercase;
+                color: var(--grey500);
+            }
+            .tile .v {
+                margin-top: 2px;
+                font-size: 14px;
+                font-weight: 700;
+                color: #fff;
+            }
+            .acc {
+                margin-top: 10px;
+                border-top: 1px solid #1b1b21;
+            }
+            .acc .a {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                height: 34px;
+                border-bottom: 1px solid #1b1b21;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.7px;
+                text-transform: uppercase;
+                color: #d7d7de;
+            }
+            .acc .a .c {
+                margin-left: auto;
+                font-weight: 500;
+                letter-spacing: 0;
+                text-transform: none;
+                color: var(--grey500);
+            }
+            .rowsm {
+                font-size: 11.8px;
+            }
+            .rowsm div {
+                display: flex;
+                justify-content: space-between;
+                height: 24px;
+                align-items: center;
+                border-bottom: 1px solid #16161b;
+                color: #c9c9d2;
+            }
+            .rowsm div span:first-child {
+                color: var(--grey500);
+                font-size: 10.5px;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+            }
+            .bottombar {
+                flex: none;
+                display: flex;
+                gap: 7px;
+                padding: 8px 10px;
+                background: #08080b;
+                border-top: 1px solid var(--grey700);
+            }
+            .bottombar div {
+                flex: 1;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                border-radius: 3px;
+                font-size: 11px;
+                font-weight: 600;
+                color: var(--grey150);
+                border: 1px solid var(--grey700);
+                background: #16161b;
+            }
+            .bottombar div.primary {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #fff;
+            }
+            .notes {
+                flex: none;
+                width: 300px;
+                background: #0d0d11;
+                border-left: 1px solid var(--grey700);
+                padding: 12px;
+            }
+            .notes h4 {
+                margin: 0 0 6px 0;
+                font-size: 10.5px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--grey400);
+            }
+            .notes p {
+                margin: 0 0 12px 0;
+                font-size: 12.2px;
+                line-height: 18px;
+                color: #c9c9d2;
+            }
+            .notes p b {
+                color: #fff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div data-shell="rail"></div>
+            <div class="main">
+                <div data-shell="topbar"></div>
+                <div
+                    data-shell="titlebar"
+                    data-name="ZRF_1221_0775339022_769RZS_N0561010ZCAM09271_0630LMJ01.IMG"
+                ></div>
+                <div class="tabs">
+                    <div class="tab active">Overview</div>
+                    <div class="tab">Product Label</div>
+                    <div class="tab">
+                        Related Products<span style="opacity: 0.6">&nbsp;&nbsp;18</span>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="tab-right">
+                        <span class="chip blue"
+                            ><span data-icon="grid" data-size="13"></span>Narrow widths</span
+                        >
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="stage">
+                        <div class="device tablet">
+                            <div class="cap">
+                                <span data-icon="grid" data-size="13"></span>Tablet &middot; 700 px
+                                &middot; panel becomes a sheet under the image
+                            </div>
+                            <div class="body">
+                                <div class="mini-title">
+                                    <span data-icon="back" data-size="16"></span>
+                                    <span class="fn"
+                                        >ZRF_1221_0775339022_769RZS_&hellip;0630LMJ01.IMG</span
+                                    >
+                                    <span class="dl"
+                                        ><span data-icon="download" data-size="13"></span
+                                        >Download</span
+                                    >
+                                </div>
+                                <div class="mini-tabs">
+                                    <span class="on">Overview</span><span>Label</span
+                                    ><span>Related 18</span>
+                                </div>
+                                <div class="img" style="height: 300px">
+                                    <img src="../assets/zcam-sol1221.jpg" />
+                                    <div class="zoom">
+                                        <span data-icon="fullscreen" data-size="13"></span>Full
+                                        viewer
+                                    </div>
+                                </div>
+                                <div class="sheet">
+                                    <div class="h3">
+                                        Mastcam&#8209;Z Right &mdash; Sol 1221, 13:08 LTST, Site 56
+                                    </div>
+                                    <div class="p">
+                                        Perseverance acquired this
+                                        <b>radiometrically calibrated</b> frame on
+                                        <b>Sol 1221</b> (2024&#8209;07&#8209;27 08:13 UTC) from
+                                        <b>Site 56, Drive 1010</b>, the fourth of eighteen frames in
+                                        sequence ZCAM09271. The Sun stood <b>46.5&deg;</b> above the
+                                        horizon.
+                                    </div>
+                                    <div class="fold">
+                                        <span data-icon="template" data-size="13"></span>Rendered
+                                        from mars_2020 / zcam &middot; 11 of 12 tokens
+                                    </div>
+                                    <div class="tiles t3">
+                                        <div class="tile">
+                                            <div class="k">Sol</div>
+                                            <div class="v">1221</div>
+                                        </div>
+                                        <div class="tile">
+                                            <div class="k">Local time</div>
+                                            <div class="v">13:08</div>
+                                        </div>
+                                        <div class="tile">
+                                            <div class="k">Site / drive</div>
+                                            <div class="v">56 / 1010</div>
+                                        </div>
+                                        <div class="tile">
+                                            <div class="k">Instrument</div>
+                                            <div class="v">MCZ_R</div>
+                                        </div>
+                                        <div class="tile">
+                                            <div class="k">Sun elev.</div>
+                                            <div class="v">46.5&deg;</div>
+                                        </div>
+                                        <div class="tile">
+                                            <div class="k">Files</div>
+                                            <div class="v">3</div>
+                                        </div>
+                                    </div>
+                                    <div class="acc">
+                                        <div class="a">
+                                            <span data-icon="chevronDown" data-size="14"></span
+                                            >Observation &amp; time<span class="c">9</span>
+                                        </div>
+                                        <div class="rowsm">
+                                            <div>
+                                                <span>Start (UTC)</span
+                                                ><span>2024-07-27 08:13:07.872</span>
+                                            </div>
+                                            <div><span>LTST</span><span>13:08:26</span></div>
+                                            <div><span>Sequence</span><span>ZCAM09271</span></div>
+                                            <div><span>Exposure</span><span>0.669 s</span></div>
+                                        </div>
+                                        <div class="a">
+                                            <span data-icon="chevronRight" data-size="14"></span
+                                            >Geometry &amp; lighting<span class="c">11</span>
+                                        </div>
+                                        <div class="a">
+                                            <span data-icon="chevronRight" data-size="14"></span>All
+                                            label fields<span class="c">143</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bottombar">
+                                <div class="primary">
+                                    <span data-icon="download" data-size="15"></span>Download
+                                </div>
+                                <div><span data-icon="cart" data-size="15"></span>Cart</div>
+                                <div>
+                                    <span data-icon="quote" data-size="15"></span>Copy caption
+                                </div>
+                                <div><span data-icon="link" data-size="15"></span>Share</div>
+                            </div>
+                        </div>
+
+                        <div class="device phone">
+                            <div class="cap">
+                                <span data-icon="grid" data-size="13"></span>Phone &middot; 366 px
+                            </div>
+                            <div class="body">
+                                <div class="mini-title">
+                                    <span data-icon="back" data-size="16"></span>
+                                    <span class="fn">ZRF_1221_&hellip;0630LMJ01.IMG</span>
+                                    <span class="dl"
+                                        ><span data-icon="download" data-size="13"></span
+                                    ></span>
+                                </div>
+                                <div class="mini-tabs">
+                                    <span class="on">Overview</span><span>Label</span
+                                    ><span>18</span>
+                                </div>
+                                <div class="img" style="height: 240px">
+                                    <img src="../assets/zcam-sol1221.jpg" />
+                                    <div class="zoom">
+                                        <span data-icon="fullscreen" data-size="13"></span>Viewer
+                                    </div>
+                                </div>
+                                <div class="sheet">
+                                    <div class="h3">
+                                        Mastcam&#8209;Z Right<br />Sol 1221, 13:08 LTST
+                                    </div>
+                                    <div class="p">
+                                        Calibrated frame from <b>Site 56, Drive 1010</b>, fourth of
+                                        eighteen in ZCAM09271. Sun <b>46.5&deg;</b> up at Ls
+                                        300.8&deg;.
+                                    </div>
+                                    <div class="fold">
+                                        <span data-icon="chevronDown" data-size="13"></span>Full
+                                        description
+                                    </div>
+                                    <div class="tiles t2">
+                                        <div class="tile">
+                                            <div class="k">Sol</div>
+                                            <div class="v">1221</div>
+                                        </div>
+                                        <div class="tile">
+                                            <div class="k">Local time</div>
+                                            <div class="v">13:08</div>
+                                        </div>
+                                        <div class="tile">
+                                            <div class="k">Site / drive</div>
+                                            <div class="v">56 / 1010</div>
+                                        </div>
+                                        <div class="tile">
+                                            <div class="k">Instrument</div>
+                                            <div class="v">MCZ_R</div>
+                                        </div>
+                                    </div>
+                                    <div class="acc">
+                                        <div class="a">
+                                            <span data-icon="chevronRight" data-size="14"></span
+                                            >Observation<span class="c">9</span>
+                                        </div>
+                                        <div class="a">
+                                            <span data-icon="chevronRight" data-size="14"></span
+                                            >Geometry<span class="c">11</span>
+                                        </div>
+                                        <div class="a">
+                                            <span data-icon="chevronRight" data-size="14"></span>All
+                                            fields<span class="c">143</span>
+                                        </div>
+                                        <div class="a">
+                                            <span data-icon="chevronRight" data-size="14"></span
+                                            >Related<span class="c">18</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bottombar">
+                                <div class="primary">
+                                    <span data-icon="download" data-size="15"></span>Download
+                                </div>
+                                <div><span data-icon="cart" data-size="15"></span></div>
+                                <div><span data-icon="quote" data-size="15"></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="notes">
+                        <h4>What changes as width drops</h4>
+                        <p>
+                            The 480 px metadata panel becomes a <b>sheet below the image</b>;
+                            nothing is removed, only reordered. Caption first,
+                            at&#8209;a&#8209;glance tiles second, grouped fields collapsed.
+                        </p>
+                        <h4>Caption variants do the work</h4>
+                        <p>
+                            The tablet renders the <b>full description</b>; the phone renders the
+                            <b>short</b> variant with a &ldquo;full description&rdquo; disclosure,
+                            so no sentence is ever truncated mid&#8209;word.
+                        </p>
+                        <h4>Tiles reflow 3&rarr;2</h4>
+                        <p>
+                            At&#8209;a&#8209;glance drops to two columns and shows the four facts
+                            users open a record for: sol, local time, site/drive and instrument.
+                        </p>
+                        <h4>Actions pin to the bottom</h4>
+                        <p>
+                            Download stays reachable with one thumb; secondary actions collapse to
+                            icons under 400 px.
+                        </p>
+                        <h4>Header and rail unchanged</h4>
+                        <p>
+                            The existing Atlas topbar and 40 px rail stay exactly as they are at
+                            every width.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

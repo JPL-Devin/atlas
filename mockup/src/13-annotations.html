@@ -1,0 +1,397 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="base.css" />
+        <script src="shell.js"></script>
+        <style>
+            /* Detected features become caption tokens: overlays on the frame drive
+               the "what is in this image" clause of the description. */
+            .content {
+                background: #0b0b0e;
+                overflow: hidden;
+            }
+            .viewer {
+                flex: 1;
+                min-width: 0;
+            }
+            .viewer img.frame {
+                width: 100%;
+                height: 100%;
+                max-width: none;
+                max-height: none;
+                object-fit: cover;
+            }
+            .box {
+                position: absolute;
+                border: 2px solid rgba(71, 218, 132, 0.9);
+                border-radius: 3px;
+                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+            }
+            .box.b2 {
+                border-color: rgba(40, 139, 255, 0.9);
+            }
+            .box.b3 {
+                border-color: rgba(255, 152, 0, 0.9);
+            }
+            .box .bl {
+                position: absolute;
+                left: -2px;
+                top: -21px;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                height: 19px;
+                padding: 0 6px;
+                border-radius: 2px;
+                font-size: 10.5px;
+                font-weight: 700;
+                letter-spacing: 0.3px;
+                color: #06120b;
+                background: rgba(71, 218, 132, 0.92);
+                white-space: nowrap;
+            }
+            .box.b2 .bl {
+                background: rgba(40, 139, 255, 0.92);
+                color: #04101f;
+            }
+            .box.b3 .bl {
+                background: rgba(255, 152, 0, 0.92);
+                color: #1d1200;
+            }
+            .measure {
+                position: absolute;
+                left: 232px;
+                bottom: 150px;
+                width: 214px;
+                height: 0;
+                border-top: 1.5px dashed rgba(255, 255, 255, 0.85);
+            }
+            .measure span {
+                position: absolute;
+                left: 50%;
+                top: -22px;
+                white-space: nowrap;
+                transform: translateX(-50%);
+                font-size: 11px;
+                font-weight: 600;
+                color: #fff;
+                background: rgba(0, 0, 0, 0.7);
+                padding: 1px 6px;
+                border-radius: 2px;
+            }
+            .vtools {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 12px;
+                display: flex;
+                gap: 6px;
+                padding: 6px;
+                background: rgba(13, 13, 17, 0.9);
+                border: 1px solid var(--grey700);
+                border-radius: 4px;
+            }
+            .vtools div {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                height: 27px;
+                padding: 0 9px;
+                border-radius: 3px;
+                font-size: 11.5px;
+                font-weight: 600;
+                color: var(--grey300);
+            }
+            .vtools div.on {
+                background: rgba(28, 103, 227, 0.3);
+                color: #bcd7ff;
+            }
+            .caphead {
+                position: absolute;
+                left: 92px;
+                top: 12px;
+                max-width: 620px;
+                padding: 9px 12px;
+                background: rgba(8, 8, 12, 0.86);
+                border: 1px solid var(--grey700);
+                border-radius: 4px;
+            }
+            .caphead .t {
+                font-size: 13px;
+                font-weight: 700;
+                color: #fff;
+            }
+            .caphead .x {
+                margin-top: 4px;
+                font-size: 12px;
+                line-height: 18px;
+                color: #d3d3db;
+            }
+            .caphead .x .det {
+                color: #9cf0c2;
+                border-bottom: 1px dotted rgba(156, 240, 194, 0.6);
+            }
+            .panel {
+                width: 430px;
+            }
+            .layer {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                height: 34px;
+                padding: 0 12px;
+                border-bottom: 1px solid #17171c;
+                font-size: 12.3px;
+                color: #dcdce3;
+            }
+            .layer .sw {
+                width: 11px;
+                height: 11px;
+                border-radius: 2px;
+                flex: none;
+            }
+            .layer .c {
+                margin-left: auto;
+                font-size: 11px;
+                color: var(--grey500);
+            }
+            .layer .tog {
+                width: 26px;
+                height: 14px;
+                border-radius: 7px;
+                background: var(--accent);
+                position: relative;
+                flex: none;
+            }
+            .layer .tog i {
+                position: absolute;
+                right: 2px;
+                top: 2px;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: #fff;
+            }
+            .layer.off .tog {
+                background: #34343d;
+            }
+            .layer.off .tog i {
+                left: 2px;
+                right: auto;
+            }
+            .layer.off {
+                color: var(--grey500);
+            }
+            .clause {
+                margin: 10px 12px 0 12px;
+                padding: 9px 11px;
+                border: 1px solid var(--grey700);
+                border-left: 2px solid var(--accent2);
+                border-radius: 3px;
+                background: #101015;
+                font-family: 'DejaVu Sans Mono', monospace;
+                font-size: 11.2px;
+                line-height: 18px;
+                color: #cfe0ff;
+            }
+            .clause .tok {
+                color: #ffcc80;
+            }
+            .out {
+                margin: 8px 12px 0 12px;
+                font-size: 12.5px;
+                line-height: 19px;
+                color: #dcdce3;
+            }
+            .det {
+                color: #9cf0c2;
+            }
+            .conf {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin: 10px 12px 0 12px;
+                font-size: 11px;
+                color: var(--grey400);
+            }
+            .conf .bar {
+                flex: 1;
+                height: 4px;
+                border-radius: 2px;
+                background: #26262d;
+                overflow: hidden;
+            }
+            .conf .bar i {
+                display: block;
+                height: 100%;
+                width: 94%;
+                background: var(--accent2);
+            }
+            a {
+                color: #8ebbff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div data-shell="rail"></div>
+            <div class="main">
+                <div data-shell="topbar"></div>
+                <div
+                    data-shell="titlebar"
+                    data-name="ZRF_1221_0775339022_769RZS_N0561010ZCAM09271_0630LMJ01.IMG"
+                ></div>
+                <div class="tabs">
+                    <div class="tab active">Overview</div>
+                    <div class="tab">Product Label</div>
+                    <div class="tab">
+                        Related Products<span style="opacity: 0.6">&nbsp;&nbsp;18</span>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="tab-right">
+                        <span class="chip blue"
+                            ><span data-icon="layers" data-size="13"></span>Overlays &amp; scene
+                            tokens</span
+                        >
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="viewer">
+                        <img class="frame" src="../assets/zcam-sol1221.jpg" />
+                        <div data-shell="osd"></div>
+
+                        <div class="caphead">
+                            <div class="t">
+                                Mastcam&#8209;Z Right &mdash; Sol 1221, 13:08 LTST, Site 56
+                            </div>
+                            <div class="x">
+                                Rocky ground east of the rover showing
+                                <span class="det">wind&#8209;blown sand ripples</span>,
+                                <span class="det">float rocks</span> and a
+                                <span class="det">layered outcrop</span> near the horizon &mdash;
+                                the three scene tokens below were written by the classifier and
+                                consumed by the caption template.
+                            </div>
+                        </div>
+
+                        <div
+                            class="box"
+                            style="left: 120px; top: 470px; width: 300px; height: 150px"
+                        >
+                            <span class="bl">sand ripples &middot; 0.96</span>
+                        </div>
+                        <div
+                            class="box b2"
+                            style="left: 470px; top: 380px; width: 190px; height: 132px"
+                        >
+                            <span class="bl">float rock &middot; 0.91</span>
+                        </div>
+                        <div
+                            class="box b3"
+                            style="left: 660px; top: 200px; width: 300px; height: 118px"
+                        >
+                            <span class="bl">layered outcrop &middot; 0.78</span>
+                        </div>
+                        <div class="measure"><span>1.84 m across (from range map)</span></div>
+
+                        <div class="vtools">
+                            <div class="on">
+                                <span data-icon="layers" data-size="14"></span>Detections
+                            </div>
+                            <div><span data-icon="ruler" data-size="14"></span>Measure</div>
+                            <div><span data-icon="place" data-size="14"></span>Range map</div>
+                            <div><span data-icon="grid" data-size="14"></span>Az / el grid</div>
+                            <div><span data-icon="star" data-size="14"></span>Annotate</div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="sec-head">
+                            Overlay layers <span class="hint">m20&#8209;scene&#8209;v3</span>
+                        </div>
+                        <div class="layer">
+                            <span class="sw" style="background: #47da84"></span>Sand ripples
+                            <span class="c">1 region &middot; 0.96</span
+                            ><span class="tog"><i></i></span>
+                        </div>
+                        <div class="layer">
+                            <span class="sw" style="background: #288bff"></span>Float rocks
+                            <span class="c">14 regions &middot; 0.91</span
+                            ><span class="tog"><i></i></span>
+                        </div>
+                        <div class="layer">
+                            <span class="sw" style="background: #ff9800"></span>Layered outcrop
+                            <span class="c">1 region &middot; 0.78</span
+                            ><span class="tog"><i></i></span>
+                        </div>
+                        <div class="layer off">
+                            <span class="sw" style="background: #7d7d88"></span>Rover hardware
+                            <span class="c">2 regions</span><span class="tog"><i></i></span>
+                        </div>
+                        <div class="layer off">
+                            <span class="sw" style="background: #7d7d88"></span>Sky / horizon line
+                            <span class="c">not in frame</span><span class="tog"><i></i></span>
+                        </div>
+
+                        <div class="sec-head" style="margin-top: 6px">
+                            Scene clause in the template
+                            <span class="hint"><a>Edit</a></span>
+                        </div>
+                        <div class="clause">
+                            {{#if scene.labels}}<br />
+                            &nbsp;&nbsp;showing {{<span class="tok">scene.labels|list(3)</span
+                            >}}<br />
+                            &nbsp;&nbsp;{{#if scene.confidence &lt; 0.8}}<br />
+                            &nbsp;&nbsp;&nbsp;&nbsp;(tentative)<br />
+                            &nbsp;&nbsp;{{/if}}<br />
+                            {{/if}}
+                        </div>
+                        <div class="out">
+                            Renders as: &ldquo;&hellip; showing
+                            <span class="det"
+                                >wind&#8209;blown sand ripples, float rocks and a layered
+                                outcrop</span
+                            >&rdquo; &mdash; labels below 0.80 are kept but marked tentative, and
+                            the clause disappears entirely when no classifier output exists.
+                        </div>
+                        <div class="conf">
+                            <span>Scene confidence</span>
+                            <span class="bar"><i></i></span>
+                            <span>0.94 mean</span>
+                        </div>
+
+                        <div class="sec-head" style="margin-top: 12px">Provenance</div>
+                        <div class="rows">
+                            <div class="row">
+                                <div class="k">Model</div>
+                                <div class="v">m20-scene-v3</div>
+                            </div>
+                            <div class="row">
+                                <div class="k">Run date</div>
+                                <div class="v">2025-01-14</div>
+                            </div>
+                            <div class="row">
+                                <div class="k">Source</div>
+                                <div class="v">PDS Imaging Node &middot; derived</div>
+                            </div>
+                            <div class="row">
+                                <div class="k">Not part of PDS4 label</div>
+                                <div class="v" style="color: var(--orange)">flagged in caption</div>
+                            </div>
+                        </div>
+                        <div style="flex: 1"></div>
+                        <div class="actions">
+                            <div class="btn primary">
+                                <span data-icon="quote" data-size="16"></span>Copy caption
+                            </div>
+                            <div class="btn">
+                                <span data-icon="download" data-size="16"></span>Overlay GeoJSON
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
