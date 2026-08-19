@@ -1,0 +1,691 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="base.css" />
+        <script src="shell.js"></script>
+        <style>
+            .content {
+                position: relative;
+                background: #06060a;
+            }
+            .viewer {
+                filter: brightness(0.42) saturate(0.7);
+            }
+            .panel {
+                filter: brightness(0.5);
+            }
+            .scrim {
+                position: absolute;
+                inset: 0;
+                background: rgba(4, 4, 8, 0.55);
+            }
+
+            /* ============ the studio dialog ============ */
+            .studio {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 1300px;
+                height: 700px;
+                display: flex;
+                flex-flow: column;
+                background: var(--grey850);
+                border: 1px solid var(--grey700);
+                border-radius: 6px;
+                box-shadow: 0 24px 70px rgba(0, 0, 0, 0.7);
+                overflow: hidden;
+            }
+            .studio .head {
+                flex: none;
+                height: 46px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 0 14px;
+                background: #16161b;
+                border-bottom: 1px solid var(--grey700);
+            }
+            .studio .head .t {
+                font-size: 14.5px;
+                font-weight: 700;
+                color: #fff;
+            }
+            .studio .head .grow {
+                flex: 1;
+            }
+            .studio .body {
+                flex: 1;
+                min-height: 0;
+                display: flex;
+            }
+            .col {
+                display: flex;
+                flex-flow: column;
+                min-height: 0;
+            }
+            .col.tokens {
+                width: 268px;
+                flex: none;
+                border-right: 1px solid var(--grey700);
+            }
+            .col.editor {
+                flex: 1;
+                min-width: 0;
+                border-right: 1px solid var(--grey700);
+            }
+            .col.preview {
+                width: 452px;
+                flex: none;
+            }
+            .col > .ch {
+                flex: none;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                height: 32px;
+                padding: 0 12px;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--grey400);
+                background: #131318;
+                border-bottom: 1px solid var(--grey700);
+            }
+            .tokenlist {
+                flex: 1;
+                overflow: hidden;
+                padding: 8px 10px;
+                display: flex;
+                flex-flow: column;
+                gap: 5px;
+            }
+            .tk {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                padding: 5px 8px;
+                border-radius: 3px;
+                background: #16161b;
+                border: 1px solid #202026;
+                font-size: 11.5px;
+            }
+            .tk .val {
+                color: var(--grey400);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .tk.missing {
+                border-color: rgba(255, 92, 82, 0.4);
+            }
+            .tk.missing .val {
+                color: #ff9d96;
+            }
+            .tgroup {
+                font-size: 10px;
+                letter-spacing: 0.8px;
+                text-transform: uppercase;
+                color: var(--grey600);
+                padding: 6px 2px 1px 2px;
+            }
+
+            .code {
+                flex: 1;
+                min-height: 0;
+                overflow: hidden;
+                font-family: 'DejaVu Sans Mono', monospace;
+                font-size: 12.5px;
+                line-height: 21px;
+                color: #d7d7de;
+                padding: 10px 0;
+                background: #0b0b0e;
+            }
+            .code .ln {
+                display: flex;
+                gap: 12px;
+                padding: 0 12px;
+            }
+            .code .ln:hover {
+                background: rgba(255, 255, 255, 0.03);
+            }
+            .code .no {
+                width: 20px;
+                text-align: right;
+                color: var(--grey600);
+                flex: none;
+            }
+            .code .cm {
+                color: #6f7f6f;
+            }
+            .code .str {
+                color: #ffcc80;
+            }
+            .code .kw {
+                color: #ff9d96;
+            }
+            .code .cur {
+                border-left: 2px solid var(--accent2);
+                background: rgba(28, 103, 227, 0.1);
+            }
+            .editor .ebar {
+                flex: none;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 7px 10px;
+                border-top: 1px solid var(--grey700);
+                background: #131318;
+                font-size: 11.5px;
+                color: var(--grey400);
+            }
+
+            .prev {
+                flex: 1;
+                min-height: 0;
+                overflow: hidden;
+                padding: 10px 12px;
+                display: flex;
+                flex-flow: column;
+                gap: 10px;
+            }
+            .prevcard {
+                background: #16161b;
+                border: 1px solid var(--grey700);
+                border-radius: 4px;
+                overflow: hidden;
+            }
+            .prevcard .pch {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 6px 10px;
+                background: #131318;
+                border-bottom: 1px solid #202026;
+                font-size: 10px;
+                letter-spacing: 0.8px;
+                text-transform: uppercase;
+                color: var(--grey500);
+            }
+            .prevcard .pcb {
+                padding: 9px 10px;
+                font-size: 12.5px;
+                line-height: 19px;
+                color: #dcdce3;
+            }
+            .prevcard .pcb .filled {
+                background: rgba(28, 103, 227, 0.16);
+                box-shadow: inset 0 -1px 0 rgba(40, 139, 255, 0.45);
+                border-radius: 2px;
+                padding: 0 2px;
+            }
+            .prevcard img {
+                width: 100%;
+                height: 132px;
+                object-fit: cover;
+                display: block;
+            }
+            .capover {
+                position: relative;
+            }
+            .capover .ov {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 22px 10px 8px 10px;
+                background: linear-gradient(to top, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0));
+                font-size: 11.5px;
+                line-height: 16px;
+                color: #eaeaf0;
+            }
+            .applies {
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 6px;
+                line-height: 18px;
+                font-size: 11.5px;
+                color: var(--grey400);
+                padding: 8px 10px;
+                background: rgba(28, 103, 227, 0.08);
+                border: 1px solid rgba(40, 139, 255, 0.3);
+                border-radius: 4px;
+            }
+            .studio .foot {
+                flex: none;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 0 14px;
+                background: #131318;
+                border-top: 1px solid var(--grey700);
+            }
+            .pbtn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                height: 30px;
+                padding: 0 11px;
+                border-radius: 3px;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--grey150);
+                border: 1px solid var(--grey700);
+                background: #16161b;
+            }
+            .pbtn.primary {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #fff;
+            }
+            .grow {
+                flex: 1;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div data-shell="rail"></div>
+            <div class="main">
+                <div data-shell="topbar"></div>
+                <div
+                    data-shell="titlebar"
+                    data-name="ZRF_1221_0775339022_769RZS_N0561010ZCAM09271_0630LMJ01.IMG"
+                ></div>
+                <div class="tabs">
+                    <div class="tab active">Overview</div>
+                    <div class="tab">Product Label</div>
+                    <div class="tab">Related Products</div>
+                    <div class="spacer"></div>
+                    <div class="tab-right">
+                        <span class="chip blue"
+                            ><span data-icon="edit" data-size="13"></span>Editing caption
+                            template</span
+                        >
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="viewer">
+                        <img class="frame" src="../assets/zcam-sol1221.jpg" />
+                        <div data-shell="osd"></div>
+                    </div>
+                    <div class="panel">
+                        <div class="sec-head">
+                            About this product <span class="hint">templated</span>
+                        </div>
+                        <div class="card">
+                            <div
+                                style="
+                                    padding: 10px 12px;
+                                    font-size: 12.8px;
+                                    line-height: 19px;
+                                    color: #dcdce3;
+                                "
+                            >
+                                Perseverance acquired this radiometrically calibrated
+                                Mastcam&#8209;Z Right frame on
+                                <b>Sol 1221</b> (2024&#8209;07&#8209;27, 13:08:26 local true solar
+                                time) from <b>Site 56, Drive 1010</b>. The Sun stood 46.5&deg; above
+                                the horizon at Ls 300.8&deg;.
+                            </div>
+                        </div>
+                        <div class="sec-head">At a glance</div>
+                        <div class="card">
+                            <div class="rows">
+                                <div class="row">
+                                    <div class="k">Sol</div>
+                                    <div class="v">1221</div>
+                                </div>
+                                <div class="row">
+                                    <div class="k">Local time</div>
+                                    <div class="v">13:08 LTST</div>
+                                </div>
+                                <div class="row">
+                                    <div class="k">Site / drive</div>
+                                    <div class="v">56 / 1010</div>
+                                </div>
+                                <div class="row">
+                                    <div class="k">Instrument</div>
+                                    <div class="v">MCZ_RIGHT</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="acc">
+                            <div class="acc-head">
+                                <span>Identification</span><span class="n">6</span>
+                            </div>
+                        </div>
+                        <div class="acc">
+                            <div class="acc-head">
+                                <span>Observation &amp; time</span><span class="n">9</span>
+                            </div>
+                        </div>
+                        <div class="acc">
+                            <div class="acc-head">
+                                <span>Geometry &amp; lighting</span><span class="n">11</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="scrim"></div>
+
+                    <!-- ======================= caption / description studio ======================= -->
+                    <div class="studio">
+                        <div class="head">
+                            <span data-icon="template" data-size="20"></span>
+                            <span class="t">Description &amp; caption template</span>
+                            <span class="chip">mars_2020 / zcam / calibrated</span>
+                            <span class="chip blue">v4 draft</span>
+                            <div class="grow"></div>
+                            <span class="tmpl-note"
+                                ><span data-icon="visibility" data-size="14"></span>Live preview
+                                uses the open record</span
+                            >
+                        </div>
+                        <div class="body">
+                            <!-- available tokens -->
+                            <div class="col tokens">
+                                <div class="ch">
+                                    Fields on this record
+                                    <span style="color: var(--grey600)">143</span>
+                                </div>
+                                <div class="tokenlist">
+                                    <div class="search" style="margin: 0 0 4px 0">
+                                        <span data-icon="search" data-size="15"></span>
+                                        <span style="flex: 1">Search fields&hellip;</span>
+                                    </div>
+                                    <div class="tgroup">Observation</div>
+                                    <div class="tk">
+                                        <span class="tok">{{sol}}</span
+                                        ><span class="val">1221</span>
+                                    </div>
+                                    <div class="tk">
+                                        <span class="tok">{{ltst}}</span
+                                        ><span class="val">13:08:26</span>
+                                    </div>
+                                    <div class="tk">
+                                        <span class="tok">{{start_time}}</span
+                                        ><span class="val">2024-07-27T08:13:07Z</span>
+                                    </div>
+                                    <div class="tgroup">Instrument</div>
+                                    <div class="tk">
+                                        <span class="tok">{{instrument.name}}</span
+                                        ><span class="val">MCZ_RIGHT</span>
+                                    </div>
+                                    <div class="tk missing">
+                                        <span class="tok">{{filter_bandpass}}</span
+                                        ><span class="val">not in label</span>
+                                    </div>
+                                    <div class="tgroup">Geometry</div>
+                                    <div class="tk">
+                                        <span class="tok">{{site}}</span><span class="val">56</span>
+                                    </div>
+                                    <div class="tk">
+                                        <span class="tok">{{drive}}</span
+                                        ><span class="val">1010</span>
+                                    </div>
+                                    <div class="tk">
+                                        <span class="tok">{{sun_elevation}}</span
+                                        ><span class="val">46.5478</span>
+                                    </div>
+                                    <div class="tk">
+                                        <span class="tok">{{solar_longitude}}</span
+                                        ><span class="val">300.815</span>
+                                    </div>
+                                    <div class="tgroup">Filters</div>
+                                    <div class="tk">
+                                        <span class="tok filter">| round(1)</span
+                                        ><span class="val">46.5</span>
+                                    </div>
+                                    <div class="tk">
+                                        <span class="tok filter">| date('YYYY-MM-DD')</span
+                                        ><span class="val">2024-07-27</span>
+                                    </div>
+                                    <div class="tk">
+                                        <span class="tok block">{{#if}} &hellip; {{/if}}</span
+                                        ><span class="val">optional clause</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- template source -->
+                            <div class="col editor">
+                                <div class="ch">
+                                    Template source
+                                    <span style="display: flex; gap: 10px; color: var(--grey500)"
+                                        ><span>description</span
+                                        ><span style="color: var(--accent2)">caption</span
+                                        ><span>alt text</span><span>citation</span></span
+                                    >
+                                </div>
+                                <div class="code">
+                                    <div class="ln">
+                                        <span class="no">1</span
+                                        ><span class="cm"># caption.mars_2020.zcam.calibrated</span>
+                                    </div>
+                                    <div class="ln"><span class="no">2</span><span></span></div>
+                                    <div class="ln">
+                                        <span class="no">3</span
+                                        ><span
+                                            ><span class="kw">title:</span>
+                                            <span class="tok">{{instrument.display}}</span>
+                                            <span class="str">&mdash;</span> Sol
+                                            <span class="tok">{{sol}}</span>,
+                                            <span class="tok">{{ltst|time('HH:mm')}}</span>
+                                            LTST</span
+                                        >
+                                    </div>
+                                    <div class="ln"><span class="no">4</span><span></span></div>
+                                    <div class="ln">
+                                        <span class="no">5</span><span class="kw">body: |</span>
+                                    </div>
+                                    <div class="ln cur">
+                                        <span class="no">6</span
+                                        ><span
+                                            ><span class="tok">{{spacecraft.display}}</span>
+                                            acquired this</span
+                                        >
+                                    </div>
+                                    <div class="ln">
+                                        <span class="no">7</span
+                                        ><span
+                                            >&nbsp;&nbsp;<span class="tok"
+                                                >{{processing.level}}</span
+                                            >
+                                            <span class="tok">{{instrument.display}}</span> frame on
+                                            Sol</span
+                                        >
+                                    </div>
+                                    <div class="ln">
+                                        <span class="no">8</span
+                                        ><span
+                                            >&nbsp;&nbsp;<span class="tok">{{sol}}</span> (<span
+                                                class="tok"
+                                                >{{start_time|date}}</span
+                                            >, <span class="tok">{{ltst}}</span> local true
+                                            solar</span
+                                        >
+                                    </div>
+                                    <div class="ln">
+                                        <span class="no">9</span
+                                        ><span
+                                            >&nbsp;&nbsp;time) from Site
+                                            <span class="tok">{{site}}</span>, Drive
+                                            <span class="tok">{{drive}}</span>.</span
+                                        >
+                                    </div>
+                                    <div class="ln">
+                                        <span class="no">10</span
+                                        ><span
+                                            >&nbsp;&nbsp;<span class="tok block"
+                                                >{{#if sun_elevation}}</span
+                                            ></span
+                                        >
+                                    </div>
+                                    <div class="ln">
+                                        <span class="no">11</span
+                                        ><span
+                                            >&nbsp;&nbsp;&nbsp;&nbsp;The Sun stood
+                                            <span class="tok">{{sun_elevation|round(1)}}</span>&deg;
+                                            above the</span
+                                        >
+                                    </div>
+                                    <div class="ln">
+                                        <span class="no">12</span
+                                        ><span
+                                            >&nbsp;&nbsp;&nbsp;&nbsp;horizon at Ls
+                                            <span class="tok">{{solar_longitude|round(1)}}</span
+                                            >&deg;.</span
+                                        >
+                                    </div>
+                                    <div class="ln">
+                                        <span class="no">13</span
+                                        ><span
+                                            >&nbsp;&nbsp;<span class="tok block"
+                                                >{{/if}}</span
+                                            ></span
+                                        >
+                                    </div>
+                                    <div class="ln">
+                                        <span class="no">14</span
+                                        ><span
+                                            >&nbsp;&nbsp;<span class="tok block"
+                                                >{{#if filter_bandpass}}</span
+                                            >
+                                            <span class="cm"
+                                                >&larr; skipped, field absent</span
+                                            ></span
+                                        >
+                                    </div>
+                                    <div class="ln">
+                                        <span class="no">15</span
+                                        ><span
+                                            >&nbsp;&nbsp;&nbsp;&nbsp;Filter passband
+                                            <span class="tok">{{filter_bandpass}}</span> nm.</span
+                                        >
+                                    </div>
+                                    <div class="ln">
+                                        <span class="no">16</span
+                                        ><span
+                                            >&nbsp;&nbsp;<span class="tok block"
+                                                >{{/if}}</span
+                                            ></span
+                                        >
+                                    </div>
+                                    <div class="ln"><span class="no">17</span><span></span></div>
+                                    <div class="ln">
+                                        <span class="no">18</span
+                                        ><span
+                                            ><span class="kw">links:</span> spacecraft, instrument,
+                                            target, bundle</span
+                                        >
+                                    </div>
+                                    <div class="ln">
+                                        <span class="no">19</span
+                                        ><span
+                                            ><span class="kw">chips:</span> sol, ltst, site_drive,
+                                            instrument, processing.level</span
+                                        >
+                                    </div>
+                                </div>
+                                <div class="ebar">
+                                    <span data-icon="check" data-size="14"></span>Valid &middot; 12
+                                    tokens
+                                    <span style="color: var(--grey600)">|</span>
+                                    <span data-icon="warning" data-size="14"></span>1 clause skipped
+                                    on this record
+                                    <div class="grow"></div>
+                                    <span data-icon="code" data-size="14"></span>YAML
+                                </div>
+                            </div>
+
+                            <!-- live preview -->
+                            <div class="col preview">
+                                <div class="ch">
+                                    Live preview
+                                    <span style="color: var(--grey600)"
+                                        >ZRF_1221_&hellip;_0630LMJ01</span
+                                    >
+                                </div>
+                                <div class="prev">
+                                    <div class="prevcard">
+                                        <div class="pch">
+                                            Panel description
+                                            <span data-icon="visibility" data-size="13"></span>
+                                        </div>
+                                        <div class="pcb">
+                                            <b>Perseverance</b> acquired this
+                                            <span class="filled">radiometrically calibrated</span>
+                                            <span class="filled">Mastcam&#8209;Z Right</span> frame
+                                            on Sol <span class="filled">1221</span> (<span
+                                                class="filled"
+                                                >2024&#8209;07&#8209;27</span
+                                            >, <span class="filled">13:08:26</span> local true solar
+                                            time) from Site <span class="filled">56</span>, Drive
+                                            <span class="filled">1010</span>. The Sun stood
+                                            <span class="filled">46.5</span>&deg; above the horizon
+                                            at Ls <span class="filled">300.8</span>&deg;.
+                                        </div>
+                                    </div>
+                                    <div class="prevcard capover">
+                                        <div class="pch">
+                                            Viewer caption overlay
+                                            <span data-icon="quote" data-size="13"></span>
+                                        </div>
+                                        <img src="../assets/zcam-sol1221.jpg" />
+                                        <div class="ov">
+                                            <b>Mastcam&#8209;Z Right &mdash; Sol 1221, 13:08 LTST</b
+                                            ><br />
+                                            Perseverance acquired this radiometrically calibrated
+                                            frame from Site 56, Drive 1010.
+                                        </div>
+                                    </div>
+                                    <div class="prevcard">
+                                        <div class="pch">
+                                            Alt text (accessibility)
+                                            <span data-icon="info" data-size="13"></span>
+                                        </div>
+                                        <div class="pcb" style="color: var(--grey300)">
+                                            Rocky Martian ground imaged by Perseverance
+                                            Mastcam&#8209;Z Right on Sol 1221 from Site 56.
+                                        </div>
+                                    </div>
+                                    <div class="applies">
+                                        <span data-icon="layers" data-size="16"></span>
+                                        <span
+                                            >Saving updates captions for
+                                            <b>48,912 products</b> matching</span
+                                        >
+                                        <span class="tok">mission=mars_2020</span>
+                                        <span class="tok">instrument=MCZ_*</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="foot">
+                            <span class="tmpl-note"
+                                ><span data-icon="clock" data-size="14"></span>Last saved by
+                                <b>&nbsp;imaging&#8209;node&nbsp;</b> on 2025&#8209;03&#8209;18
+                                &middot;
+                                <span style="color: #8ebbff">&nbsp;version history</span></span
+                            >
+                            <div class="grow"></div>
+                            <div class="pbtn">
+                                <span data-icon="play" data-size="15"></span>Preview on 5 random
+                                products
+                            </div>
+                            <div class="pbtn">Cancel</div>
+                            <div class="pbtn primary">
+                                <span data-icon="check" data-size="15"></span>Save template
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
