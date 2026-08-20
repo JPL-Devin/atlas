@@ -1,0 +1,90 @@
+import { test, expect } from '@playwright/test'
+
+import {
+    defaultProfile,
+    emptyStates,
+    fields,
+    instanceProfiles,
+    mappingSnapshot,
+    profiles,
+} from '../../src/config/recordDetail'
+import { FORMATTER_NAMES } from '../../src/core/recordPresentation'
+import { TOKEN } from '../../src/core/recordPresentation/resolve'
+
+const ALLOWED_PATHS = new Set(mappingSnapshot.paths)
+const CAPTION_KEYS = ['caption', 'shortCaption', 'altText', 'citation']
+
+// Every profile layer that can carry tiles/captions, flattened for iteration.
+const layers = () => {
+    const out = [{ name: '_default', layer: defaultProfile }]
+    Object.entries(profiles).forEach(([name, layer]) => out.push({ name, layer }))
+    Object.entries(instanceProfiles).forEach(([instance, profile]) => {
+        Object.entries(profile.missions).forEach(([mission, missionLayer]) => {
+            out.push({ name: `${instance}/${mission}`, layer: missionLayer })
+            Object.entries(missionLayer.instruments || {}).forEach(([instrument, layer]) => {
+                out.push({ name: `${instance}/${mission}/${instrument}`, layer })
+            })
+        })
+    })
+    return out
+}
+
+test.describe('record detail config', () => {
+    test('field catalog only references normalized paths', () => {
+        Object.keys(fields).forEach((path) => {
+            expect(ALLOWED_PATHS.has(path), `${path} is not in the mapping snapshot`).toBe(true)
+            expect(path.startsWith('gather.') || path.startsWith('archive.')).toBe(true)
+        })
+    })
+
+    test('field catalog uses known formatters and has labels', () => {
+        Object.entries(fields).forEach(([path, field]) => {
+            expect(FORMATTER_NAMES, `${path} has an unknown formatter`).toContain(field.format)
+            expect(field.label, `${path} has no label`).toBeTruthy()
+        })
+    })
+
+    test('every tile path is catalogued', () => {
+        layers().forEach(({ name, layer }) => {
+            ;(layer.tiles || []).forEach((path) => {
+                expect(fields[path], `${name}: tile ${path} is not in the field catalog`).toBeTruthy()
+            })
+        })
+    })
+
+    test('every caption token is a catalogued path', () => {
+        layers().forEach(({ name, layer }) => {
+            CAPTION_KEYS.forEach((key) => {
+                ;(layer[key] || []).forEach((fragment) => {
+                    const paths = [...String(fragment).matchAll(new RegExp(TOKEN))].map(
+                        ([, path]) => path
+                    )
+                    paths.forEach((path) => {
+                        expect(
+                            fields[path],
+                            `${name}.${key}: {{${path}}} is not in the field catalog`
+                        ).toBeTruthy()
+                    })
+                    // Only direct interpolation is supported — no conditionals.
+                    expect(String(fragment)).not.toMatch(/\{\{\s*[#/]/)
+                })
+            })
+        })
+    })
+
+    test('every profile declares a known empty state', () => {
+        layers().forEach(({ name, layer }) => {
+            if (layer.emptyState == null) return
+            expect(emptyStates[layer.emptyState], `${name}: unknown empty state`).toBeTruthy()
+        })
+    })
+
+    test('tile lists are long enough to survive drop-out', () => {
+        Object.entries(profiles).forEach(([name, profile]) => {
+            const maxTiles = profile.maxTiles != null ? profile.maxTiles : 8
+            expect(profile.tiles.length, `${name} cannot fill ${maxTiles} tiles`).toBeGreaterThanOrEqual(
+                maxTiles
+            )
+        })
+    })
+})

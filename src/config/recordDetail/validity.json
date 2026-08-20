@@ -1,0 +1,19 @@
+{
+    "reject": {
+        "null": true,
+        "emptyString": true,
+        "sentinelMagnitude": 1e29,
+        "values": [
+            "N/A",
+            "NA",
+            "NULL",
+            "UNK",
+            "UNKNOWN",
+            "NONE",
+            "NOT_APPLICABLE",
+            "_",
+            "-",
+            "--"
+        ]
+    }
+}

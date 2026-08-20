@@ -1,0 +1,69 @@
+{
+    "gather": {
+        "landed_missions": {
+            "rmc_rsm": 14,
+            "rmc_drill": 0,
+            "rmc_chimra": 0,
+            "image_type": "THUMBNAIL",
+            "rmc_pose": 14,
+            "rmc_arm": 36,
+            "rmc_site": 75,
+            "planet_day_number": 2407,
+            "rmc_drive": 1420
+        },
+        "common": {
+            "mission_phase_name": "EXTENDED SURFACE MISSION",
+            "instrument": "MAHLI",
+            "product_type": "EDR",
+            "spacecraft": "curiosity",
+            "instrument_name": "MAHLI",
+            "target": "MARS",
+            "mission": "msl",
+            "product_type_name": "EDR"
+        },
+        "orbital_missions": {
+            "solar_azimuth": 4.0352
+        },
+        "uri": "atlas:pds3:msl:curiosity:/MSLMHL_0022/DATA/EDR/SURFACE/2407/2407MH0007720010900389I01_XXXX.DAT",
+        "lighting_geometry": {
+            "solar_longitude": 25.378
+        },
+        "pds_archive": {
+            "volume_id": "mslmhl_0022",
+            "product_id": "2407MH0007720010900389I01_XXXX",
+            "file_name": "2407MH0007720010900389I01_XXXX.DAT",
+            "related": {
+                "label": {
+                    "uri": "atlas:pds3:msl:curiosity:/MSLMHL_0022/DATA/EDR/SURFACE/2407/2407MH0007720010900389I01_XXXX.LBL"
+                },
+                "src": {
+                    "uri": "atlas:pds3:msl:curiosity:/MSLMHL_0022/DATA/EDR/SURFACE/2407/2407MH0007720010900389I01_XXXX.DAT"
+                },
+                "browse": {
+                    "uri": "atlas:pds3:msl:curiosity:/MSLMHL_0022/EXTRAS/EDR/SURFACE/FULL/2407/2407MH0007720010900389I01_XXXX.JPG"
+                }
+            },
+            "data_set_id": "MSL-M-MAHLI-2-EDR-IMG-V1.0",
+            "pds_standard": "pds3"
+        }
+    },
+    "archive": {
+        "size": 6208,
+        "volume_id": "MSLMHL_0022",
+        "fs_type": "file",
+        "updated_at": "2019-09-26T17:27:32Z",
+        "release_id": 0,
+        "md5_updated_at": "2025-02-05T00:04:22Z",
+        "uri": "atlas:pds3:msl:curiosity:/MSLMHL_0022/DATA/EDR/SURFACE/2407/2407MH0007720010900389I01_XXXX.DAT",
+        "md5": "109f07e80b08510bc6789bdee379fcce",
+        "mission": "msl",
+        "file_extension": "dat",
+        "pds_standard": "pds3",
+        "release_id_num": 0.0,
+        "instrument": [],
+        "spacecraft": "curiosity",
+        "name": "2407MH0007720010900389I01_XXXX.DAT",
+        "parent_uri": "atlas:pds3:msl:curiosity:/MSLMHL_0022/DATA/EDR/SURFACE/2407",
+        "data_set_id": "MSLMHL_0022"
+    }
+}

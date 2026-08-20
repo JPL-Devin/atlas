@@ -1,0 +1,30 @@
+{
+    "match": {
+        "mission": "ody"
+    },
+    "tiles": [
+        "gather.common.instrument",
+        "gather.common.product_type",
+        "gather.orbital_missions.orbit",
+        "gather.common.geo_location",
+        "gather.lighting_geometry.incidence_angle",
+        "gather.lighting_geometry.emission_angle",
+        "gather.lighting_geometry.phase_angle",
+        "gather.orbital_missions.spacecraft_altitude",
+        "gather.orbital_missions.solar_longitude",
+        "gather.time.start_time",
+        "gather.pds_archive.data_set_id"
+    ],
+    "maxTiles": 8,
+    "priorityTiles": 4,
+    "caption": [
+        "{{gather.common.instrument_name}}",
+        "orbit {{gather.orbital_missions.orbit}}",
+        "{{gather.common.target}}"
+    ],
+    "shortCaption": [
+        "{{gather.common.instrument}}",
+        "orbit {{gather.orbital_missions.orbit}}"
+    ],
+    "emptyState": "no_browse_generic"
+}

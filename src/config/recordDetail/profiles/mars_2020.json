@@ -1,0 +1,40 @@
+{
+    "match": {
+        "mission": "mars_2020"
+    },
+    "tiles": [
+        "gather.landed_missions.planet_day_number",
+        "gather.landed_missions.start_local_true_solar_time",
+        "gather.landed_missions.rmc_site",
+        "gather.landed_missions.rmc_drive",
+        "gather.common.instrument",
+        "gather.landed_missions.site_instrument_azimuth",
+        "gather.landed_missions.site_instrument_elevation",
+        "gather.landed_missions.site_solar_azimuth",
+        "gather.landed_missions.site_solar_elevation",
+        "gather.lighting_geometry.solar_longitude",
+        "gather.ancillary.color_filter",
+        "gather.ancillary.eye_type",
+        "gather.time.start_time",
+        "gather.pds_archive.bundle_id"
+    ],
+    "maxTiles": 8,
+    "priorityTiles": 4,
+    "caption": [
+        "{{gather.common.instrument}}",
+        "Sol {{gather.landed_missions.planet_day_number}}",
+        "{{gather.landed_missions.start_local_true_solar_time}} LTST",
+        "Site {{gather.landed_missions.rmc_site}}",
+        "Drive {{gather.landed_missions.rmc_drive}}"
+    ],
+    "shortCaption": [
+        "{{gather.common.instrument}}",
+        "Sol {{gather.landed_missions.planet_day_number}}"
+    ],
+    "altText": [
+        "{{gather.common.instrument}} image",
+        "of the Martian surface on sol {{gather.landed_missions.planet_day_number}}",
+        "at site {{gather.landed_missions.rmc_site}}"
+    ],
+    "emptyState": "no_browse_surface"
+}

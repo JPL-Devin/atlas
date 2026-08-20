@@ -1,17 +1,23 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-import { getIn, getPDSUrl, prettify, getExtension } from '../../../../../core/utils.js'
-import { HASH_PATHS, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../../core/constants.js'
-
+import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import FormControl from '@mui/material/FormControl'
+
+import { getIn, getPDSUrl, getExtension } from '../../../../../core/utils.js'
+import { HASH_PATHS, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../../core/constants.js'
+import { getAppConfig, getAppInstanceKey } from '../../../../../core/appConfig.js'
+import { resolvePresentation } from '../../../../../core/recordPresentation'
+import { emptyStates } from '../../../../../config/recordDetail'
+import { setRecordViewTab } from '../../../../../core/redux/actions/actions.js'
 
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import ThreeViewer from '../../../../../components/ThreeViewer/ThreeViewer'
@@ -20,241 +26,271 @@ const useStyles = makeStyles((theme) => ({
     Overview: {
         width: '100%',
         height: '100%',
-        background: theme.palette.swatches.grey.grey900,
-        color: theme.palette.swatches.grey.grey150,
+        background: theme.palette.swatches.grey.grey100,
+        color: theme.palette.text.primary,
         display: 'flex',
         [theme.breakpoints.down('md')]: {
             flexFlow: 'column',
+            overflowY: 'auto',
+        },
+    },
+    viewerColumn: {
+        flex: 1,
+        height: '100%',
+        display: 'flex',
+        flexFlow: 'column',
+        background: theme.palette.swatches.grey.grey900,
+        minWidth: 0,
+        [theme.breakpoints.down('md')]: {
+            height: 'unset',
+            flex: 'unset',
         },
     },
     viewer: {
-        height: '100%',
         flex: 1,
+        minHeight: 0,
         [theme.breakpoints.down('md')]: {
-            minHeight: '60%',
             flex: 'unset',
-            height: 'unset',
+            height: '55vh',
         },
     },
-    fields: {
+    caption: {
+        color: theme.palette.swatches.grey.grey150,
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        fontSize: '13px',
+        lineHeight: '20px',
+        padding: '10px 16px',
+    },
+    emptyState: {
+        flex: 1,
+        display: 'flex',
+        flexFlow: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        color: theme.palette.swatches.grey.grey200,
+        padding: '32px',
+        [theme.breakpoints.down('md')]: {
+            flex: 'unset',
+            padding: '24px 16px',
+        },
+    },
+    emptyStateTitle: {
+        fontSize: '15px',
+        fontWeight: 'bold',
+        marginBottom: '6px',
+    },
+    emptyStateBody: {
+        fontSize: '13px',
+        maxWidth: '360px',
+    },
+    metadata: {
         width: '480px',
         height: '100%',
         boxSizing: 'border-box',
         overflowY: 'auto',
-        background: '#101013',
-        borderLeft: `1px solid ${theme.palette.swatches.grey.grey700}`,
-        padding: '0px 0px 32px 0px',
+        padding: '16px 20px 32px 20px',
+        borderLeft: `1px solid ${theme.palette.swatches.grey.grey300}`,
         [theme.breakpoints.down('md')]: {
             width: '100%',
+            height: 'unset',
             borderLeft: 'none',
-            borderTop: `2px solid ${theme.palette.swatches.grey.grey900}`,
+            borderTop: `1px solid ${theme.palette.swatches.grey.grey300}`,
         },
     },
-    /*
-    fieldList: {
-        listStyleType: 'none',
-        margin: 0,
-        padding: 0,
-        fontSize: '14px',
-        color: theme.palette.text.primary,
-    },
-    fieldLi: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        lineHeight: `${theme.headHeights[3]}px`,
-        border: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        padding: '0px 8px 0px 16px',
-        margin: '5px 0px',
-        background: 'white',
-    },
-    */
-    fieldList: {
-        'listStyleType': 'none',
-        'margin': `0px`,
-        'padding': '0px',
-        '& > li': {
-            'display': 'flex',
-            'justifyContent': 'space-between',
-            'lineHeight': '24px',
-            'padding': '4px 8px',
-            'transition': 'max-height 0.3s ease-in',
-            'wordBreak': 'break-all',
-            '& > div:last-child': {
-                whiteSpace: 'inherit',
-            },
-        },
-        '& > li:nth-child(odd)': {
-            background: theme.palette.swatches.grey.grey700,
-        },
-    },
-    fieldName: {
-        marginRight: '16px',
-        textTransform: 'uppercase',
-        color: theme.palette.swatches.grey.grey300,
+    heading: {
         fontSize: '12px',
+        fontWeight: 'bold',
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase',
+        color: theme.palette.swatches.grey.grey500,
+        marginBottom: '10px',
     },
-    fieldValue: {
+    tiles: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+        gap: '8px',
+        [theme.breakpoints.down('lg')]: {
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+        },
+        [theme.breakpoints.down('sm')]: {
+            gridTemplateColumns: 'minmax(0, 1fr)',
+        },
+    },
+    tile: {
+        background: theme.palette.swatches.grey.grey150,
+        border: `1px solid ${theme.palette.swatches.grey.grey300}`,
+        borderRadius: '2px',
+        padding: '8px 10px',
+        minWidth: 0,
+    },
+    tileLabel: {
+        fontSize: '11px',
+        textTransform: 'uppercase',
+        letterSpacing: '0.04em',
+        color: theme.palette.swatches.grey.grey600,
+        whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        textAlign: 'right',
-        flex: '1',
     },
-    formControl: {
-        minWidth: 125,
-        margin: '5px 0px 3px 8px',
+    tileValue: {
+        fontSize: '14px',
+        lineHeight: '20px',
+        wordBreak: 'break-word',
+    },
+    secondary: {
+        marginTop: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        flexWrap: 'wrap',
+    },
+    citation: {
+        marginTop: '16px',
+        fontSize: '12px',
+        lineHeight: '18px',
+        color: theme.palette.swatches.grey.grey600,
+    },
+    versionRow: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '16px',
+    },
+    versionLabel: {
+        fontSize: '12px',
+        textTransform: 'uppercase',
+        letterSpacing: '0.04em',
+        color: theme.palette.swatches.grey.grey600,
     },
     select: {
-        'color': theme.palette.swatches.grey.grey300,
-        'background': theme.palette.swatches.grey.grey800,
-        'border-bottom': `2px solid ${theme.palette.swatches.grey.grey600}`,
-        'paddingLeft': '4px',
-        '& > div:first-child': {
-            padding: '8px 20px 6px 6px',
-            textAlign: 'left',
-        },
-        '& > svg': {
-            color: '#efefef',
-            top: '4px',
-            right: '2px',
-        },
-    },
-    versionSelectItem: {},
-    heading: {
         fontSize: '14px',
-        lineHeight: '32px',
-        fontWeight: 'bold',
-        color: theme.palette.swatches.grey.grey100,
-        textTransform: 'uppercase',
-        padding: '4px 8px 4px 8px',
+    },
+    // Describes the image for screen readers; the viewer itself is a canvas.
+    srOnly: {
+        position: 'absolute',
+        width: '1px',
+        height: '1px',
+        overflow: 'hidden',
+        clip: 'rect(0 0 0 0)',
+        whiteSpace: 'nowrap',
     },
 }))
 
-const fields = [
-    'gather.pds_archive.bundle_id',
-    'gather.pds_archive.collection_id',
-    'gather.pds_archive.data_set_id',
-    'gather.pds_archive.file_name',
-    'gather.common.instrument',
-    'gather.common.latitude',
-    'pds4_label.lidvid',
-    'gather.common.longitude',
-    'gather.common.mission',
-    'gather.pds_archive.pds_standard',
-    'gather.time.product_creation_time',
-    'gather.pds_archive.product_id',
-    'gather.common.product_type',
-    'gather.common.spacecraft',
-    'gather.time.spacecraft_clock_start_count',
-    'gather.time.start_time',
-    'gather.time.stop_time',
-    'gather.common.target',
-    'uri',
-    'pds4_label.pds:Identification_Area/pds:version_id',
-    'gather.pds_archive.volume_id',
-]
-
 const Overview = (props) => {
-
     const { recordData, versions, activeVersion } = props
     const c = useStyles()
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     const theme = useTheme()
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+    const isNarrow = useMediaQuery(theme.breakpoints.down('md'))
 
     const release_id = getIn(recordData, ES_PATHS.release_id)
-
     const browse_uri = getIn(recordData, ES_PATHS.browse)
     const uri = getIn(recordData, ES_PATHS.source)
     const supplemental = getIn(recordData, ES_PATHS.supplemental)
+    const pds_standard = getIn(recordData, ES_PATHS.pds_standard)
+
+    const presentation = resolvePresentation(recordData, { instance: getAppInstanceKey() })
+    const emptyState = emptyStates[presentation.emptyState] || emptyStates.no_browse_generic
 
     let imgURL = getPDSUrl(browse_uri, release_id)
-
     let type = getExtension(imgURL, true)
     if (!IMAGE_EXTENSIONS.includes(type)) {
         imgURL = getPDSUrl(uri, release_id)
         type = getExtension(imgURL, true)
     }
+    const hasViewable = imgURL != null && (type === 'obj' || IMAGE_EXTENSIONS.includes(type))
 
-    let Viewer
-    switch (type) {
-        case 'obj':
-            Viewer = (
+    let Viewer = null
+    if (hasViewable)
+        Viewer =
+            type === 'obj' ? (
                 <ThreeViewer url={imgURL} release_id={release_id} supplemental={supplemental} />
+            ) : (
+                <OpenSeadragonViewer image={{ src: imgURL }} settings={{ defaultZoomLevel: 0.5 }} />
             )
-            break
-        default:
-            Viewer = (
-                <OpenSeadragonViewer
-                    image={{
-                        src: imgURL,
-                    }}
-                    settings={{ defaultZoomLevel: 0.5 }}
-                />
-            )
-    }
 
-    const pds_standard = getIn(recordData, ES_PATHS.pds_standard)
+    // Phones show only the priority tiles; wider viewports show the configured
+    // maximum in the same configured order.
+    const tiles = isNarrow
+        ? presentation.tiles.slice(0, presentation.priorityTiles)
+        : presentation.tiles
+    const caption = isNarrow ? presentation.shortCaption : presentation.caption
+
+    const showVersions = pds_standard === 'pds4' && versions.length > 0
 
     return (
         <div className={c.Overview}>
-            <div className={c.viewer}>{Viewer}</div>
-            <div className={c.fields}>
-                <div className={c.heading}>Overview Fields</div>
-                <ul className={c.fieldList}>
-                    {fields.map((field, idx) => {
-                        const split = field.split('.')
-                        const name = prettify(split[split.length - 1])
-                        let value = getIn(recordData, field)
-                        if (name == null || value == null) return
-                        if (typeof value != 'string' && value.length != null)
-                            value = value.join(', ')
-
-                        let versionSelector = null
-                        if (
-                            pds_standard === 'pds4' &&
-                            field.toLowerCase().endsWith('version_id') &&
-                            versions.length > 0
-                        ) {
-                            versionSelector = (
-                                <div>
-                                    <FormControl className={c.formControl} size="small">
-                                        <Select
-                                            className={c.select}
-                                            onChange={(e) => {
-                                                navigate(
-                                                    `${HASH_PATHS.record}?uri=${
-                                                        versions[e.target.value].uri
-                                                    }`
-                                                )
-                                            }}
-                                            value={activeVersion == null ? '' : activeVersion}
-                                        >
-                                            {versions.map((v, idx) => {
-                                                return (
-                                                    <MenuItem
-                                                        className={c.versionSelectItem}
-                                                        key={idx}
-                                                        value={idx}
-                                                    >
-                                                        <div>{v.version}</div>
-                                                    </MenuItem>
-                                                )
-                                            })}
-                                        </Select>
-                                    </FormControl>
+            {(hasViewable || !isNarrow) && (
+                <div className={c.viewerColumn}>
+                    {hasViewable ? (
+                        <>
+                            {presentation.altText != null && (
+                                <span className={c.srOnly}>{presentation.altText}</span>
+                            )}
+                            <div className={c.viewer}>{Viewer}</div>
+                            {caption != null && (
+                                <div className={c.caption} aria-label="record caption">
+                                    {caption}
                                 </div>
-                            )
-                        }
-
-                        return (
-                            <li className={c.fieldLi} key={idx}>
-                                <div className={c.fieldName}>{name}</div>
-                                <div className={c.fieldValue}>{versionSelector || value}</div>
-                            </li>
-                        )
-                    })}
-                </ul>
+                            )}
+                        </>
+                    ) : (
+                        <div className={c.emptyState}>
+                            <div className={c.emptyStateTitle}>{emptyState.title}</div>
+                            <div className={c.emptyStateBody}>{emptyState.body}</div>
+                        </div>
+                    )}
+                </div>
+            )}
+            <div className={c.metadata}>
+                {showVersions && (
+                    <div className={c.versionRow}>
+                        <div className={c.versionLabel}>Version</div>
+                        <FormControl size="small">
+                            <Select
+                                className={c.select}
+                                aria-label="record version"
+                                onChange={(e) => {
+                                    navigate(
+                                        `${HASH_PATHS.record}?uri=${versions[e.target.value].uri}`
+                                    )
+                                }}
+                                value={activeVersion == null ? '' : activeVersion}
+                            >
+                                {versions.map((v, idx) => (
+                                    <MenuItem key={idx} value={idx}>
+                                        {v.version}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </div>
+                )}
+                <div className={c.heading}>At a glance</div>
+                <div className={c.tiles}>
+                    {tiles.map((tile, idx) => (
+                        <div className={c.tile} key={idx}>
+                            <div className={c.tileLabel}>
+                                {isNarrow ? tile.shortLabel : tile.label}
+                            </div>
+                            <div className={c.tileValue}>{tile.value}</div>
+                        </div>
+                    ))}
+                </div>
+                <div className={c.secondary}>
+                    <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() => dispatch(setRecordViewTab('product label'))}
+                    >
+                        View full label
+                    </Button>
+                </div>
+                {presentation.citation != null && getAppConfig().enableRecordCitation && (
+                    <div className={c.citation}>{presentation.citation}</div>
+                )}
             </div>
         </div>
     )
@@ -262,6 +298,8 @@ const Overview = (props) => {
 
 Overview.propTypes = {
     recordData: PropTypes.object,
+    versions: PropTypes.array,
+    activeVersion: PropTypes.number,
 }
 
-export default Overview;
+export default Overview

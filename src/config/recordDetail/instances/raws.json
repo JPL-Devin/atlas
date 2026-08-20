@@ -1,0 +1,69 @@
+{
+    "instance": "raws",
+    "missions": {
+        "mars_2020": {
+            "tiles": [
+                "gather.landed_missions.planet_day_number",
+                "gather.landed_missions.start_local_true_solar_time",
+                "gather.common.instrument",
+                "gather.ancillary.color_filter",
+                "gather.ancillary.eye_type",
+                "gather.time.start_time",
+                "gather.time.earth_received_start_time",
+                "gather.landed_missions.rmc_site",
+                "gather.landed_missions.rmc_drive"
+            ],
+            "maxTiles": 6,
+            "priorityTiles": 3,
+            "caption": [
+                "{{gather.common.instrument}}",
+                "Sol {{gather.landed_missions.planet_day_number}}",
+                "{{gather.landed_missions.start_local_true_solar_time}} LTST"
+            ],
+            "shortCaption": [
+                "Sol {{gather.landed_missions.planet_day_number}}",
+                "\u00b7 {{gather.common.instrument}}"
+            ],
+            "instruments": {
+                "NAVCAM_LEFT": {
+                    "tiles": [
+                        "gather.landed_missions.planet_day_number",
+                        "gather.landed_missions.start_local_true_solar_time",
+                        "gather.landed_missions.rmc_site",
+                        "gather.landed_missions.rmc_drive",
+                        "gather.landed_missions.site_instrument_azimuth",
+                        "gather.landed_missions.site_instrument_elevation",
+                        "gather.ancillary.eye_type",
+                        "gather.time.start_time"
+                    ],
+                    "maxTiles": 6,
+                    "caption": [
+                        "Navcam Left",
+                        "Sol {{gather.landed_missions.planet_day_number}}",
+                        "{{gather.landed_missions.start_local_true_solar_time}} LTST",
+                        "looking {{gather.landed_missions.site_instrument_azimuth}} azimuth"
+                    ]
+                },
+                "NAVCAM_RIGHT": {
+                    "tiles": [
+                        "gather.landed_missions.planet_day_number",
+                        "gather.landed_missions.start_local_true_solar_time",
+                        "gather.landed_missions.rmc_site",
+                        "gather.landed_missions.rmc_drive",
+                        "gather.landed_missions.site_instrument_azimuth",
+                        "gather.landed_missions.site_instrument_elevation",
+                        "gather.ancillary.eye_type",
+                        "gather.time.start_time"
+                    ],
+                    "maxTiles": 6,
+                    "caption": [
+                        "Navcam Right",
+                        "Sol {{gather.landed_missions.planet_day_number}}",
+                        "{{gather.landed_missions.start_local_true_solar_time}} LTST",
+                        "looking {{gather.landed_missions.site_instrument_azimuth}} azimuth"
+                    ]
+                }
+            }
+        }
+    }
+}

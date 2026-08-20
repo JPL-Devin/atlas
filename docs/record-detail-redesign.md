@@ -1,11 +1,11 @@
-# Record Detail Redesign (Mockup 1) — Implementation Assessment
+# Record Detail Redesign (Mockup 1) — Assessment and As-Built Notes
 
-Technical assessment of whether the "Overview redesign" direction
-(`mockup/src/01-overview-redesign.html`) can be built against Atlas's real
-data, plus a proposed configuration design.
+Technical assessment of whether the "Overview redesign" direction can be built
+against Atlas's real data, the configuration design it produced, and — in §12 —
+what actually shipped.
 
-**This is an assessment, not an implementation.** No production code is
-changed by this document.
+Sections 0–11 are the assessment as reviewed. **§12 is authoritative for the
+code in this repo**; where the two differ, §12 wins.
 
 Revised after review against three constraints:
 
@@ -171,7 +171,7 @@ and it is why the config count is 25 rather than 21.
 
 ### 3.1 What mockup 1 actually asks for
 
-Extracted from `mockup/src/01-overview-redesign.html`. The description
+Extracted from mockup 1 (`01-overview-redesign`, PR #20). The description
 paragraph and the viewer caption between them reference:
 
 > Sol · mission name · calendar date · LTST · instrument display name ·
@@ -256,7 +256,7 @@ reconciled and so the cost of the two constraints is explicit.
 Consequences for the page itself:
 
 - The Overview **leads with the caption and the at-a-glance block**, not with a
-  paragraph. The prose lead in `mockup/src/01-overview-redesign.html` should be
+  paragraph. The prose lead in mockup 1 (`01-overview-redesign`, PR #20) should be
   re-drawn before implementation — see §4.9.
 - The mockup's `"Calibrated color (CWG)"` line comes from `product_type` /
   `product_type_name`, not from a processing level.
@@ -1382,6 +1382,81 @@ Sequencing and risk:
    the cost of each. Sequence is the cheapest (a scalar already in the label);
    PDS4 RMC has the largest product impact; processing level needs a
    PDS3/PDS4 vocabulary decision before it can be normalized at all.
+
+---
+
+## 12. What shipped
+
+The implementation in this repo follows §4–§9 with three deliberate
+differences, all driven by review feedback after the assessment was written.
+
+### 12.1 Files
+
+| Path | Purpose |
+|---|---|
+| `src/config/recordDetail/fields.json` | Field catalog (§4.4): label, shortLabel, format, unit, precision, numeric domain, per normalized path |
+| `src/config/recordDetail/validity.json` | Global sentinel / null-ish rejection (§5) |
+| `src/config/recordDetail/emptyStates.json` | No-browse copy variants (§6.1) |
+| `src/config/recordDetail/mappingSnapshot.json` | 171 `gather.*` / `archive.*` leaf paths from the live `_mapping`, so validation can fail on a path the index doesn't have |
+| `src/config/recordDetail/profiles/*.json` | `_default` plus mission and mission.`pds_standard` profiles |
+| `src/config/recordDetail/instances/raws.json` | RAWS app-instance override (§12.3) |
+| `src/core/recordPresentation/` | Resolver, formatters, validity gate |
+| `src/pages/Record/Content/Views/Overview/Overview.js` | The redesigned Overview |
+| `tests/unit/record-presentation*.spec.js` | Config validation + golden fixture assertions |
+| `tests/fixtures/records/*.json` | Seven real sampled records (rover PDS3/PDS4, orbiter, sentinel-bearing, no-browse, sparse) |
+
+Ten mission profiles ship rather than 25: `cas`, `clem`, `mars_2020`, `mer`,
+`mess`, `mgs`, `mro`, `msl.pds3`, `msl.pds4`, `ody`, plus `_default`. That is
+the 95.5% set from §4.1 plus the two MSL standards split out; the remaining
+missions render from `_default` today and get a profile when someone wants one.
+
+### 12.2 Separators are structural, not typed into fragments
+
+§4.9 wrote caption fragments with their own punctuation
+(`"— Sol {{…}}"`). Shipped fragments carry no punctuation at all and the
+resolver joins the surviving ones with ` · `. Reason: a leading dash belongs to
+the fragment *after* the one that dropped, so an MSL PDS4 record whose
+instrument path is missing rendered `— Mars`. With structural separators, any
+subset of fragments dropping still reads correctly. A profile can override the
+separator; `altText` and `citation` join with a space since they are prose.
+
+### 12.3 An app-instance layer above mission
+
+Resolution is `_default → mission → mission.pds_standard → instance mission →
+instance instrument`, one layer more than §4.3. Atlas and RAWS are already
+separate app instances (`src/core/appConfig.js`, `getAppInstanceKey()`), and
+RAWS needs a different M20 Navcam tile list and caption than Atlas without
+forking the shared mission profiles.
+
+`instances/raws.json` is the single worked example: `mars_2020` with
+`NAVCAM_LEFT` / `NAVCAM_RIGHT` overrides. It is intentionally the only instance
+file — RAWS has no data in this index yet, so it exists to pin the mechanism,
+not to serve traffic.
+
+Note the asymmetry: the mission layer exists because field *availability*
+differs, the instance/instrument layer exists because *editorial preference*
+differs. Instrument is still not an availability axis (§4.1). RAWS also sets
+`enableRecordCitation: false`, so the citation line is Atlas-only.
+
+### 12.4 Resolution runs client-side, for now
+
+§8 recommends the search proxy return resolved strings. The proxy is a
+different repo, so resolution ships as a self-contained module with no React,
+Redux or DOM dependency, consumed by the Overview at render time. Lifting it
+into the API Lambda means moving the directory and swapping the call site; the
+public contract (`caption`, `shortCaption`, `altText`, `citation`, `tiles`,
+`priorityTiles`, `emptyState`) is already the payload §8 proposes, and nothing
+outside the module ever sees a path or a template.
+
+### 12.5 Validation
+
+`npm run test:unit` runs the checks §7 asks for without a browser or a server:
+every catalogued path exists in the mapping snapshot, every tile path and
+caption token is catalogued, every formatter name is real, every empty-state
+key resolves, every profile can still fill its `maxTiles` after drop-out, and
+no fragment uses conditional syntax. The fixture specs assert resolved output
+against real records, including that the resolved payload contains neither
+`gather.` nor `{{`.
 
 ---
 

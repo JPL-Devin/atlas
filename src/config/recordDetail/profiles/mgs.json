@@ -1,0 +1,27 @@
+{
+    "match": {
+        "mission": "mgs"
+    },
+    "tiles": [
+        "gather.orbital_missions.orbit",
+        "gather.common.instrument_name",
+        "gather.common.product_type",
+        "gather.common.geo_location",
+        "gather.common.filter",
+        "gather.common.mission_phase_name",
+        "gather.pds_archive.data_set_id",
+        "archive.size"
+    ],
+    "maxTiles": 8,
+    "priorityTiles": 4,
+    "caption": [
+        "{{gather.common.instrument_name}}",
+        "orbit {{gather.orbital_missions.orbit}}",
+        "{{gather.common.target}}"
+    ],
+    "shortCaption": [
+        "{{gather.common.instrument_name}}",
+        "orbit {{gather.orbital_missions.orbit}}"
+    ],
+    "emptyState": "no_browse_generic"
+}

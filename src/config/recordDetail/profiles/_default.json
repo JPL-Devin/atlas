@@ -1,0 +1,36 @@
+{
+    "match": {},
+    "tiles": [
+        "gather.common.instrument_name",
+        "gather.common.instrument",
+        "gather.common.product_type",
+        "gather.common.target",
+        "gather.time.start_time",
+        "gather.common.mission_phase_name",
+        "gather.pds_archive.data_set_id",
+        "gather.pds_archive.bundle_id",
+        "archive.size"
+    ],
+    "maxTiles": 8,
+    "priorityTiles": 4,
+    "caption": [
+        "{{gather.common.instrument_name}}",
+        "{{gather.common.target}}"
+    ],
+    "shortCaption": [
+        "{{gather.common.instrument_name}}"
+    ],
+    "altText": [
+        "{{gather.common.instrument_name}} image",
+        "of {{gather.common.target}}"
+    ],
+    "citation": [
+        "{{gather.common.spacecraft}}",
+        "{{gather.common.instrument_name}},",
+        "{{gather.pds_archive.product_id}}.",
+        "NASA Planetary Data System,",
+        "{{gather.pds_archive.data_set_id}},",
+        "release {{gather.pds_archive.release_id}}."
+    ],
+    "emptyState": "no_browse_generic"
+}

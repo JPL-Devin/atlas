@@ -1,0 +1,39 @@
+{
+    "match": {
+        "mission": "msl",
+        "pds_standard": "pds3"
+    },
+    "tiles": [
+        "gather.landed_missions.planet_day_number",
+        "gather.landed_missions.rmc_site",
+        "gather.landed_missions.rmc_drive",
+        "gather.common.instrument_name",
+        "gather.common.product_type_name",
+        "gather.lighting_geometry.solar_longitude",
+        "gather.time.start_time",
+        "gather.landed_missions.frame_type",
+        "gather.landed_missions.site_instrument_azimuth",
+        "gather.landed_missions.site_instrument_elevation",
+        "gather.time.spacecraft_clock_start_count",
+        "gather.common.mission_phase_name",
+        "gather.pds_archive.data_set_id"
+    ],
+    "maxTiles": 8,
+    "priorityTiles": 4,
+    "caption": [
+        "{{gather.common.instrument_name}}",
+        "Sol {{gather.landed_missions.planet_day_number}}",
+        "Site {{gather.landed_missions.rmc_site}}",
+        "Drive {{gather.landed_missions.rmc_drive}}"
+    ],
+    "shortCaption": [
+        "{{gather.common.instrument_name}}",
+        "Sol {{gather.landed_missions.planet_day_number}}"
+    ],
+    "altText": [
+        "{{gather.common.instrument_name}} image",
+        "of the Martian surface on sol {{gather.landed_missions.planet_day_number}}",
+        "at site {{gather.landed_missions.rmc_site}}"
+    ],
+    "emptyState": "no_browse_surface"
+}

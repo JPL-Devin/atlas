@@ -1,0 +1,70 @@
+{
+    "gather": {
+        "pds_archive": {
+            "related": {
+                "src": {
+                    "uri": "atlas:pds3:cas:cassini_orbiter:/covims_0001/data/1999010T081659_1999010T084505/v1294648291_1.qub"
+                },
+                "browse": {
+                    "uri": "atlas:pds3:cas:cassini_orbiter:/covims_0001/extras/browse/1999010T081659_1999010T084505/v1294648291_1.qub.jpeg"
+                },
+                "label": {
+                    "uri": "atlas:pds3:cas:cassini_orbiter:/covims_0001/data/1999010T081659_1999010T084505/v1294648291_1.lbl"
+                }
+            },
+            "data_set_id": "CO-E/V/J/S-VIMS-2-QUBE-V1.0",
+            "product_id": "1/1294648291_1",
+            "file_name": "v1294648291_1.qub",
+            "volume_id": "covims_0001",
+            "pds_standard": "pds3"
+        },
+        "orbital_missions": {
+            "right_ascension": 1.0000000331813535e+32,
+            "twist_angle": 1.0000000331813535e+32,
+            "sub_spacecraft_longitude": 1.0000000331813535e+32,
+            "sub_solar_latitude": -1.0000000331813535e+32,
+            "target_distance": 1.0000000331813535e+32,
+            "declination": 1.0000000331813535e+32,
+            "sub_spacecraft_latitude": 1.0000000331813535e+32
+        },
+        "common": {
+            "target": "SKY",
+            "mission": "cas",
+            "spacecraft": "cassini_orbiter",
+            "instrument_name": "VIMS - Spectrometer",
+            "instrument": "VIMS",
+            "product_type": "EDR"
+        },
+        "lighting_geometry": {
+            "emission_angle": -1.0000000331813535e+32,
+            "incidence_angle": -1.0000000331813535e+32,
+            "phase_angle": -1.0000000331813535e+32
+        },
+        "time": {
+            "start_time": "1999-01-10T08:26:48.000Z",
+            "spacecraft_clock_stop_count": "1294648317.092",
+            "stop_time": "1999-01-10T08:27:14.000Z",
+            "spacecraft_clock_start_count": "1294648291.005"
+        },
+        "uri": "atlas:pds3:cas:cassini_orbiter:/covims_0001/data/1999010T081659_1999010T084505/v1294648291_1.qub"
+    },
+    "archive": {
+        "pds_standard": "pds3",
+        "file_extension": "qub",
+        "md5": "ebcc9d4aa53eaadd007f14689b28faaf",
+        "md5_updated_at": "2025-01-16T17:52:44Z",
+        "release_id_num": 0.0,
+        "release_id": 0,
+        "size": 160256,
+        "mission": "cas",
+        "spacecraft": "cassini_orbiter",
+        "uri": "atlas:pds3:cas:cassini_orbiter:/covims_0001/data/1999010T081659_1999010T084505/v1294648291_1.qub",
+        "parent_uri": "atlas:pds3:cas:cassini_orbiter:/covims_0001/data/1999010T081659_1999010T084505",
+        "name": "v1294648291_1.qub",
+        "instrument": [],
+        "data_set_id": "covims_0001",
+        "volume_id": "covims_0001",
+        "updated_at": "2005-07-01T04:04:16Z",
+        "fs_type": "file"
+    }
+}

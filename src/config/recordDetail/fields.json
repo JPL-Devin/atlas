@@ -1,0 +1,241 @@
+{
+    "gather.common.mission": { "label": "Mission", "format": "vocabulary", "vocabulary": "mission" },
+    "gather.common.spacecraft": {
+        "label": "Spacecraft",
+        "format": "vocabulary",
+        "vocabulary": "spacecraft"
+    },
+    "gather.common.instrument": { "label": "Instrument", "shortLabel": "Inst", "format": "text" },
+    "gather.common.instrument_name": {
+        "label": "Instrument",
+        "shortLabel": "Inst",
+        "format": "text"
+    },
+    "gather.common.target": { "label": "Target", "format": "titlecase" },
+    "gather.common.product_type": {
+        "label": "Product type",
+        "shortLabel": "Type",
+        "format": "text"
+    },
+    "gather.common.product_type_name": {
+        "label": "Product type",
+        "shortLabel": "Type",
+        "format": "text"
+    },
+    "gather.common.kind": { "label": "Kind", "format": "titlecase" },
+    "gather.common.filter": { "label": "Filter", "format": "text" },
+    "gather.common.mission_phase_name": {
+        "label": "Mission phase",
+        "shortLabel": "Phase",
+        "format": "titlecase"
+    },
+    "gather.common.geo_location": { "label": "Location", "shortLabel": "Loc", "format": "geo" },
+
+    "gather.time.start_time": { "label": "Start time", "shortLabel": "Start", "format": "datetime" },
+    "gather.time.stop_time": { "label": "Stop time", "shortLabel": "Stop", "format": "datetime" },
+    "gather.time.product_creation_time": {
+        "label": "Created",
+        "shortLabel": "Created",
+        "format": "datetime"
+    },
+    "gather.time.spacecraft_clock_start_count": {
+        "label": "Spacecraft clock",
+        "shortLabel": "SCLK",
+        "format": "text"
+    },
+    "gather.time.earth_received_start_time": {
+        "label": "Earth received",
+        "shortLabel": "ERT",
+        "format": "datetime"
+    },
+
+    "gather.pds_archive.bundle_id": { "label": "Bundle", "format": "text" },
+    "gather.pds_archive.collection_id": { "label": "Collection", "format": "text" },
+    "gather.pds_archive.data_set_id": {
+        "label": "Data set",
+        "shortLabel": "Data set",
+        "format": "text"
+    },
+    "gather.pds_archive.product_id": { "label": "Product ID", "shortLabel": "ID", "format": "text" },
+    "gather.pds_archive.file_name": { "label": "File", "format": "text" },
+    "gather.pds_archive.volume_id": { "label": "Volume", "format": "text" },
+    "gather.pds_archive.release_id": { "label": "Release", "format": "text" },
+
+    "gather.landed_missions.planet_day_number": {
+        "label": "Sol",
+        "shortLabel": "Sol",
+        "format": "integer"
+    },
+    "gather.landed_missions.start_local_true_solar_time": {
+        "label": "Local true solar time",
+        "shortLabel": "LTST",
+        "format": "clock"
+    },
+    "gather.landed_missions.start_local_mean_solar_time": {
+        "label": "Local mean solar time",
+        "shortLabel": "LMST",
+        "format": "clock"
+    },
+    "gather.landed_missions.rmc_site": { "label": "Site", "format": "integer" },
+    "gather.landed_missions.rmc_drive": { "label": "Drive", "format": "integer" },
+    "gather.landed_missions.rmc_pose": { "label": "Pose", "format": "integer" },
+    "gather.landed_missions.frame_type": { "label": "Frame", "format": "titlecase" },
+    "gather.landed_missions.image_type": { "label": "Image type", "format": "titlecase" },
+    "gather.landed_missions.site_instrument_azimuth": {
+        "label": "Instrument azimuth",
+        "shortLabel": "Inst az",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 1,
+        "valid": { "min": -360, "max": 360 }
+    },
+    "gather.landed_missions.site_instrument_elevation": {
+        "label": "Instrument elevation",
+        "shortLabel": "Inst el",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 1,
+        "valid": { "min": -90, "max": 90 }
+    },
+    "gather.landed_missions.site_solar_azimuth": {
+        "label": "Solar azimuth",
+        "shortLabel": "Sun az",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 1,
+        "valid": { "min": -360, "max": 360 }
+    },
+    "gather.landed_missions.site_solar_elevation": {
+        "label": "Solar elevation",
+        "shortLabel": "Sun el",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 1,
+        "valid": { "min": -90, "max": 90 }
+    },
+
+    "gather.lighting_geometry.incidence_angle": {
+        "label": "Incidence angle",
+        "shortLabel": "Incidence",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 1,
+        "valid": { "min": 0, "max": 180 }
+    },
+    "gather.lighting_geometry.emission_angle": {
+        "label": "Emission angle",
+        "shortLabel": "Emission",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 1,
+        "valid": { "min": 0, "max": 180 }
+    },
+    "gather.lighting_geometry.phase_angle": {
+        "label": "Phase angle",
+        "shortLabel": "Phase",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 1,
+        "valid": { "min": 0, "max": 180 }
+    },
+    "gather.lighting_geometry.solar_longitude": {
+        "label": "Solar longitude",
+        "shortLabel": "Ls",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 1,
+        "valid": { "min": 0, "max": 360 }
+    },
+
+    "gather.orbital_missions.orbit": { "label": "Orbit", "format": "integer" },
+    "gather.orbital_missions.spacecraft_altitude": {
+        "label": "Spacecraft altitude",
+        "shortLabel": "Altitude",
+        "format": "number",
+        "unit": "km",
+        "precision": 0
+    },
+    "gather.orbital_missions.target_distance": {
+        "label": "Target distance",
+        "shortLabel": "Distance",
+        "format": "number",
+        "unit": "km",
+        "precision": 0
+    },
+    "gather.orbital_missions.slant_distance": {
+        "label": "Slant distance",
+        "shortLabel": "Slant",
+        "format": "number",
+        "unit": "km",
+        "precision": 0
+    },
+    "gather.orbital_missions.sub_spacecraft_latitude": {
+        "label": "Sub-spacecraft latitude",
+        "shortLabel": "SC lat",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 2,
+        "valid": { "min": -90, "max": 90 }
+    },
+    "gather.orbital_missions.sub_spacecraft_longitude": {
+        "label": "Sub-spacecraft longitude",
+        "shortLabel": "SC lon",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 2,
+        "valid": { "min": -360, "max": 360 }
+    },
+    "gather.orbital_missions.sub_solar_latitude": {
+        "label": "Sub-solar latitude",
+        "shortLabel": "Sun lat",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 2,
+        "valid": { "min": -90, "max": 90 }
+    },
+    "gather.orbital_missions.sub_solar_longitude": {
+        "label": "Sub-solar longitude",
+        "shortLabel": "Sun lon",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 2,
+        "valid": { "min": -360, "max": 360 }
+    },
+    "gather.orbital_missions.solar_distance": {
+        "label": "Solar distance",
+        "shortLabel": "Sun dist",
+        "format": "number",
+        "unit": "km",
+        "precision": 0
+    },
+    "gather.orbital_missions.solar_longitude": {
+        "label": "Solar longitude",
+        "shortLabel": "Ls",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 1,
+        "valid": { "min": 0, "max": 360 }
+    },
+    "gather.orbital_missions.north_azimuth": {
+        "label": "North azimuth",
+        "shortLabel": "N az",
+        "format": "number",
+        "unit": "\u00b0",
+        "precision": 1,
+        "valid": { "min": -360, "max": 360 }
+    },
+    "gather.orbital_missions.map_projection_type": {
+        "label": "Map projection",
+        "shortLabel": "Projection",
+        "format": "titlecase"
+    },
+
+    "gather.ancillary.color_filter": { "label": "Color filter", "shortLabel": "Color", "format": "text" },
+    "gather.ancillary.downsample": { "label": "Downsample", "format": "text" },
+    "gather.ancillary.eye_type": { "label": "Eye", "format": "titlecase" },
+    "gather.ancillary.image_kind": { "label": "Image kind", "format": "titlecase" },
+    "gather.ancillary.producer": { "label": "Producer", "format": "text" },
+
+    "archive.size": { "label": "File size", "shortLabel": "Size", "format": "bytes" },
+    "archive.file_extension": { "label": "Format", "format": "uppercase" }
+}

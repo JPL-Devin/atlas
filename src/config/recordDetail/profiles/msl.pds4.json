@@ -1,0 +1,26 @@
+{
+    "match": {
+        "mission": "msl",
+        "pds_standard": "pds4"
+    },
+    "tiles": [
+        "gather.common.instrument",
+        "gather.common.product_type",
+        "gather.time.start_time",
+        "gather.time.spacecraft_clock_start_count",
+        "gather.common.target",
+        "gather.pds_archive.bundle_id",
+        "gather.pds_archive.collection_id",
+        "gather.time.product_creation_time"
+    ],
+    "maxTiles": 8,
+    "priorityTiles": 4,
+    "caption": [
+        "{{gather.common.instrument}}",
+        "{{gather.common.target}}"
+    ],
+    "shortCaption": [
+        "{{gather.common.instrument}}"
+    ],
+    "emptyState": "no_browse_surface"
+}

@@ -1,0 +1,32 @@
+{
+    "match": {
+        "mission": "mer"
+    },
+    "tiles": [
+        "gather.landed_missions.planet_day_number",
+        "gather.landed_missions.rmc_site",
+        "gather.landed_missions.rmc_drive",
+        "gather.common.instrument_name",
+        "gather.common.product_type_name",
+        "gather.landed_missions.frame_type",
+        "gather.landed_missions.site_instrument_azimuth",
+        "gather.landed_missions.site_instrument_elevation",
+        "gather.common.filter",
+        "gather.time.start_time",
+        "gather.common.mission_phase_name",
+        "gather.pds_archive.data_set_id"
+    ],
+    "maxTiles": 8,
+    "priorityTiles": 4,
+    "caption": [
+        "{{gather.common.instrument_name}}",
+        "Sol {{gather.landed_missions.planet_day_number}}",
+        "Site {{gather.landed_missions.rmc_site}}",
+        "Drive {{gather.landed_missions.rmc_drive}}"
+    ],
+    "shortCaption": [
+        "{{gather.common.instrument_name}}",
+        "Sol {{gather.landed_missions.planet_day_number}}"
+    ],
+    "emptyState": "no_browse_surface"
+}
