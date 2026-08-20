@@ -696,6 +696,7 @@ const Overview = (props) => {
                             className={`${c.rawNames} ${rawNames ? c.rawNamesOn : ''}`}
                             size="small"
                             aria-pressed={rawNames}
+                            disabled={rawRows.length === 0}
                             onClick={() => setRawNames(!rawNames)}
                         >
                             Raw names
