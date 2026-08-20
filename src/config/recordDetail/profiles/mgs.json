@@ -14,10 +14,29 @@
     ],
     "maxTiles": 8,
     "priorityTiles": 4,
-    "caption": [
+    "sections": [
+        "identification",
+        "observation",
+        "geometry_orbital",
+        "files"
+    ],
+    "separator": ", ",
+    "captionTitle": [
         "{{gather.common.instrument_name}}",
-        "orbit {{gather.orbital_missions.orbit}}",
-        "{{gather.common.target}}"
+        "orbit {{gather.orbital_missions.orbit}}"
+    ],
+    "captionChips": [
+        "Orbit {{gather.orbital_missions.orbit}}",
+        "{{gather.common.target}}",
+        "{{gather.common.instrument_name}}",
+        "{{gather.common.product_type}}",
+        "{{gather.common.geo_location}}"
+    ],
+    "caption": [
+        "Imaged by {{gather.common.instrument_name}} aboard {{gather.common.spacecraft}}",
+        "on orbit {{gather.orbital_missions.orbit}}",
+        "over {{gather.common.target}} at {{gather.common.geo_location}}",
+        "during the {{gather.common.mission_phase_name}} mission phase"
     ],
     "shortCaption": [
         "{{gather.common.instrument_name}}",

@@ -18,6 +18,23 @@
     ],
     "maxTiles": 8,
     "priorityTiles": 4,
+    "sections": [
+        "identification",
+        "observation",
+        "geometry_surface",
+        "files"
+    ],
+    "captionTitle": [
+        "{{gather.common.instrument_name}}",
+        "Sol {{gather.landed_missions.planet_day_number}}"
+    ],
+    "captionChips": [
+        "Sol {{gather.landed_missions.planet_day_number}}",
+        "Site {{gather.landed_missions.rmc_site}}",
+        "Drive {{gather.landed_missions.rmc_drive}}",
+        "{{gather.common.instrument_name}}",
+        "{{gather.common.product_type_name}}"
+    ],
     "caption": [
         "{{gather.common.instrument_name}}",
         "Sol {{gather.landed_missions.planet_day_number}}",

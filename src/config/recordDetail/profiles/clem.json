@@ -19,6 +19,23 @@
     ],
     "maxTiles": 8,
     "priorityTiles": 4,
+    "sections": [
+        "identification",
+        "observation",
+        "geometry_orbital",
+        "files"
+    ],
+    "captionTitle": [
+        "{{gather.common.instrument}}",
+        "{{gather.common.target}}"
+    ],
+    "captionChips": [
+        "{{gather.common.instrument}}",
+        "{{gather.common.target}}",
+        "Orbit {{gather.orbital_missions.orbit}}",
+        "{{gather.common.filter}}",
+        "{{gather.common.geo_location}}"
+    ],
     "caption": [
         "{{gather.common.instrument}}",
         "{{gather.common.target}}"

@@ -23,8 +23,9 @@ test.describe('resolvePresentation', () => {
         expect(valueOf(p, 'Sol')).toBe('2407')
         expect(valueOf(p, 'Site')).toBe('75')
         expect(tileOf(p, 'Site').sub).toBe('drive 1420')
-        expect(p.caption).toBe('MAHLI · Sol 2407 · Site 75 · Drive 1420')
-        expect(p.shortCaption).toBe('MAHLI · Sol 2407')
+        expect(p.caption).toContain('on sol 2407')
+        expect(p.caption).toContain('from site 75 drive 1420')
+        expect(p.shortCaption).toBe('MAHLI, Sol 2407')
     })
 
     test('msl pds4 drops the surface tiles it has no normalized path for', () => {
@@ -44,7 +45,7 @@ test.describe('resolvePresentation', () => {
         expect(valueOf(p, 'Local true solar time')).toBe('14:28:56')
         expect(valueOf(p, 'Instrument elevation')).toBe('-32.9°')
         expect(p.caption).toContain('NAVCAM_RIGHT')
-        expect(p.caption).toContain('14:28:56 LTST')
+        expect(p.caption).toContain('14:28:56 local true solar time')
     })
 
     test('raws overrides mars 2020 navcam without touching the shared profile', () => {
@@ -61,7 +62,10 @@ test.describe('resolvePresentation', () => {
         expect(valueOf(p, 'Orbit')).toBe('2272')
         expect(valueOf(p, 'Location')).toBe('56.83, -95.86')
         expect(labels(p)).not.toContain('Sol')
-        expect(p.caption).toBe('MOC Wide Angle · orbit 2272 · Mars')
+        expect(p.caption).toBe(
+            'Imaged by MOC Wide Angle aboard Mars Global Surveyor, on orbit 2272, over Mars at 56.83, -95.86, during the Mapping mission phase'
+        )
+        expect(p.captionTitle).toBe('MOC Wide Angle, orbit 2272')
     })
 
     test('cassini sentinel geometry drops out', () => {
@@ -123,6 +127,41 @@ test.describe('resolvePresentation', () => {
             expect(citation).not.toMatch(/[,;·-]\s*$/)
             expect(citation).not.toMatch(/,\s*,/)
         })
+    })
+
+    test('caption chips resolve and drop whole when a path is missing', () => {
+        const m2020 = resolvePresentation(mars2020Navcam)
+        expect(m2020.captionChips).toContain('Sol 818')
+        expect(m2020.captionChips).toContain('NAVCAM_RIGHT')
+
+        const msl = resolvePresentation(mslPds3)
+        expect(msl.captionChips).toContain('Site 75')
+        expect(msl.captionChips).toContain('Drive 1420')
+
+        // The pds4 fixture has no normalized instrument, so that chip is absent.
+        const pds4 = resolvePresentation(mslPds4)
+        expect(pds4.captionChips).toContain('Mars')
+        expect(pds4.captionChips.length).toBeLessThan(4)
+    })
+
+    test('sections carry only fields with a valid normalized value', () => {
+        const p = resolvePresentation(mslPds3)
+        const ids = p.sections.map((s) => s.id)
+        expect(ids).toContain('identification')
+        expect(ids).toContain('geometry_surface')
+        const identification = p.sections.find((s) => s.id === 'identification')
+        expect(identification.rows.some((row) => row.label === 'Mission')).toBe(true)
+        p.sections.forEach((section) => {
+            expect(section.rows.length).toBeGreaterThan(0)
+            section.rows.forEach((row) => {
+                expect(row.value).toBeTruthy()
+                expect(String(row.value)).not.toContain('undefined')
+            })
+        })
+
+        // An orbiter never gets a surface geometry section, and vice versa.
+        const mgs = resolvePresentation(mgsMoc)
+        expect(mgs.sections.map((s) => s.id)).not.toContain('geometry_surface')
     })
 
     test('a sub-line drops on its own when its field is missing', () => {

@@ -1510,11 +1510,46 @@ metadata column is `grey800` with `grey850` tiles, labels `grey400`, values
 `grey0`; the viewer column stays `grey900`. The shell above it (topbar,
 branding, icon rail, title bar, tabs) is untouched.
 
-Two mockup elements are still absent and are product decisions, not
-implementation gaps: the **Related Products tab** (no such tab exists in
-`Content.js` today — the mockup shows one) and the mockup's collapsible label
-sections / viewer toolbar / prose "About this product" block, which §1's
-direction replaced with the caption plus at-a-glance.
+### 12.9 The full metadata panel and the caption card
+
+A second review pass restored the parts of the mockup's panel that the first
+implementation left out:
+
+- **Caption card.** The strip below the viewer became the mockup's floating
+  card: a chip row, a bold title, then the prose caption, plus *Copy caption*.
+  All three come from profile keys — `captionChips` (a fragment per chip),
+  `captionTitle`, `caption` — resolved by the same fragment renderer, so a chip
+  or clause whose path is missing drops whole. Prose profiles set
+  `"separator": ", "` so the caption reads as a sentence rather than a
+  `·`-joined list. Phones show title + short caption only.
+- **Field filter.** One input filters every row in the panel by label or value.
+  Filtering expands all sections so a match is never hidden behind a collapsed
+  header.
+- **Collapsible sections.** `sections.json` groups catalogued normalized paths
+  into `identification`, `observation`, `geometry_surface`,
+  `geometry_orbital` and `files`; a profile lists the ids it wants, so an
+  orbiter never renders a surface-geometry section. Rows resolve through the
+  same catalog and validity gate as tiles, so absent fields — and then empty
+  sections — drop out. A final **All label fields** section flattens the raw
+  `pds3_label`/`pds4_label`, which is the one place field names appear as the
+  archive spells them; every row has a copy-value button.
+- **Action bar.** Download (`SplitButton` over the record's related products),
+  Add to cart, Copy citation, View full label and copy-link, pinned below the
+  scrolling panel. Download and cart reuse the same
+  `streamDownloadFile`/`addToCart` calls as the title bar via
+  `src/core/recordDownloads.js`; the title bar hides its download button under
+  `md`, so this is also the only download affordance on a phone.
+
+No template authoring surfaces here: rendered output only, no template source,
+profile names, token counts or edit affordances, per §3's constraint as
+clarified in review — the rendered *result* of a template is fine in the UI, an
+in-page template editor is not.
+
+One mockup element is still absent and is a product decision, not an
+implementation gap: the **Related Products tab** (no such tab exists in
+`Content.js` today — the mockup shows one). The mockup's viewer toolbar
+(Caption / Overlays / Measure / Sequence) is also unbuilt; Sequence has no
+normalized path (§3.4).
 
 ---
 

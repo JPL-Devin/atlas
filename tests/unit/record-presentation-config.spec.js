@@ -8,13 +8,21 @@ import {
     instanceProfiles,
     mappingSnapshot,
     profiles,
+    sections,
 } from '../../src/config/recordDetail'
 import { FORMATTER_NAMES } from '../../src/core/recordPresentation'
 import { TOKEN } from '../../src/core/recordPresentation/resolve'
 import tileIcons from '../../src/pages/Record/Content/Views/Overview/tileIcons.js'
 
 const ALLOWED_PATHS = new Set(mappingSnapshot.paths)
-const CAPTION_KEYS = ['caption', 'shortCaption', 'altText', 'citation']
+const CAPTION_KEYS = [
+    'caption',
+    'shortCaption',
+    'captionTitle',
+    'captionChips',
+    'altText',
+    'citation',
+]
 
 // Every profile layer that can carry tiles/captions, flattened for iteration.
 const layers = () => {
@@ -95,6 +103,24 @@ test.describe('record detail config', () => {
         layers().forEach(({ name, layer }) => {
             if (layer.emptyState == null) return
             expect(emptyStates[layer.emptyState], `${name}: unknown empty state`).toBeTruthy()
+        })
+    })
+
+    test('every section field is catalogued and every section has a title', () => {
+        Object.entries(sections).forEach(([id, section]) => {
+            expect(section.title, `${id} has no title`).toBeTruthy()
+            expect(section.fields.length, `${id} has no fields`).toBeGreaterThan(0)
+            section.fields.forEach((path) => {
+                expect(fields[path], `${id}: ${path} is not in the field catalog`).toBeTruthy()
+            })
+        })
+    })
+
+    test('every profile references known sections', () => {
+        layers().forEach(({ name, layer }) => {
+            ;(layer.sections || []).forEach((id) => {
+                expect(sections[id], `${name}: unknown section ${id}`).toBeTruthy()
+            })
         })
     })
 

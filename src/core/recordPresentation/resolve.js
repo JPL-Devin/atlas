@@ -1,4 +1,10 @@
-import { defaultProfile, fields, instanceProfiles, profiles } from '../../config/recordDetail'
+import {
+    defaultProfile,
+    fields,
+    instanceProfiles,
+    profiles,
+    sections as sectionGroups,
+} from '../../config/recordDetail'
 import { getIn } from '../utils'
 import { formatValue } from './formatters'
 import { isValidValue } from './validity'
@@ -78,6 +84,22 @@ const readTileEntry = (recordData, entry) => {
     return { ...tile, sub: prefix === '' ? sub.value : `${prefix} ${sub.value}` }
 }
 
+// Sections are named groups of normalized paths (config/recordDetail/sections.json);
+// rows with no value drop, and a section with no rows drops with them.
+const readSections = (recordData, ids) =>
+    (Array.isArray(ids) ? ids : [])
+        .map((id) => {
+            const group = sectionGroups[id]
+            if (group == null) return null
+            const rows = []
+            group.fields.forEach((path) => {
+                const tile = readTile(recordData, path)
+                if (tile) rows.push({ label: tile.label, value: tile.value })
+            })
+            return rows.length ? { id, title: group.title, rows } : null
+        })
+        .filter((section) => section != null)
+
 const CAPTION_SEPARATOR = ' \u00b7 '
 
 const renderFragments = (recordData, fragments, separator = ' ') => {
@@ -95,6 +117,12 @@ const renderFragments = (recordData, fragments, separator = ' ') => {
         .filter((text) => text != null && text !== '')
     return rendered.length ? rendered.join(separator) : null
 }
+
+// A chip is a fragment string; it drops whole when any path it names is absent.
+const readChips = (recordData, chips) =>
+    (Array.isArray(chips) ? chips : [])
+        .map((chip) => renderFragments(recordData, [chip]))
+        .filter((chip) => chip != null)
 
 /**
  * Resolves a record into display-ready strings and label/value tiles. Field
@@ -121,6 +149,9 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
 
     return {
         caption: renderFragments(recordData, profile.caption, separator),
+        captionTitle: renderFragments(recordData, profile.captionTitle, separator),
+        captionChips: readChips(recordData, profile.captionChips),
+        sections: readSections(recordData, profile.sections),
         shortCaption:
             renderFragments(recordData, profile.shortCaption, separator) ||
             renderFragments(recordData, profile.caption, separator),
