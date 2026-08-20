@@ -30,8 +30,8 @@ const useStyles = makeStyles((theme) => ({
         'height': '100%',
         'background': theme.palette.swatches.grey.grey800,
         'position': 'relative',
-        // The minimap is too costly for a phone-width viewer.
-        '& .navigator': {
+        // The minimap is too cramped to be useful at phone width.
+        '& #openSeadragon .navigator': {
             [theme.breakpoints.down('md')]: {
                 display: 'none !important',
             },
@@ -40,6 +40,12 @@ const useStyles = makeStyles((theme) => ({
     OpenSeadragonContainer: {
         width: '100%',
         height: '100%',
+    },
+    // Clear the top-right control column so the minimap sits beside it.
+    navigatorInset: {
+        '& #openSeadragon .navigator': {
+            marginRight: '45px !important',
+        },
     },
     uiOverlay: {
         position: 'absolute',
@@ -286,7 +292,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed
     }, [viewer])
 
     return (
-        <div className={c.OpenSeadragonViewer}>
+        <div className={clsx(c.OpenSeadragonViewer, { [c.navigatorInset]: !!onLayers })}>
             <div id="openSeadragon" className={c.OpenSeadragonContainer}></div>
             <div className={c.uiOverlay}>
                 <div className={c.topLeft}>
