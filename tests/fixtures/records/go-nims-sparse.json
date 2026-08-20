@@ -47,7 +47,6 @@
         "release_id": 0,
         "uri": "atlas:pds3:go:galileo_orbiter:/go_1006/jupiter/edr/10j007.edr",
         "name": "10j007.edr",
-        "spacecraft": "galileo_orbiter",
-        "md5": "17c583b99585488aca38098b30fa93b0"
+        "spacecraft": "galileo_orbiter"
     }
 }

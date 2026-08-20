@@ -55,7 +55,6 @@
     "archive": {
         "size": 5255168,
         "file_extension": "img",
-        "md5": "7947d20b78aace9b77f28112e9c76701",
         "fs_type": "file",
         "spacecraft": "messenger",
         "parent_uri": "atlas:pds3:mess:messenger:/MSGRMDS_3001/DDR/2012_226",

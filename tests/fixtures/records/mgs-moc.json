@@ -73,7 +73,6 @@
         "fs_type": "file",
         "spacecraft": "mars_global_surveyor",
         "data_set_id": "mgsc_1052",
-        "md5": "d57282598885fd4f26baa2d83a4abc95",
         "file_extension": "imq",
         "parent_uri": "atlas:pds3:mgs:mars_global_surveyor:/mgsc_1052/m07018",
         "release_id_num": 0.0,

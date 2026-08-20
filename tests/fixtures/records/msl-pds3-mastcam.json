@@ -55,7 +55,6 @@
         "release_id": 0,
         "md5_updated_at": "2025-02-05T00:04:22Z",
         "uri": "atlas:pds3:msl:curiosity:/MSLMHL_0022/DATA/EDR/SURFACE/2407/2407MH0007720010900389I01_XXXX.DAT",
-        "md5": "109f07e80b08510bc6789bdee379fcce",
         "mission": "msl",
         "file_extension": "dat",
         "pds_standard": "pds3",
