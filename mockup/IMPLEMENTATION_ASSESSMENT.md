@@ -7,12 +7,18 @@ data, plus a proposed configuration design.
 **This is an assessment, not an implementation.** No production code is
 changed by this document.
 
+Revised after review against two constraints: **no derived or computed fields**
+(the caption may interpolate `{{indexed.field.path}}`, nothing else), and **the
+config file count must be small**. Both are now measured rather than asserted —
+§4.1 for the count (25 files, 9 for 95.5% of products), §4.5 for the
+derived-field removal. Effort drops from ≈12 sessions to ≈9.25 (§10).
+
 ---
 
 ## 0. Verdict
 
 Mockup 1 is implementable, but **not as a single layout driven by one set of
-fields.** The evidence below shows three things that shape the whole design:
+fields.** The evidence below shows four things that shape the whole design:
 
 1. **There is no universal at-a-glance vocabulary — and no universal field at
    all** beyond `mission`, `spacecraft`, `instrument`, `target`,
@@ -21,17 +27,25 @@ fields.** The evidence below shows three things that shape the whole design:
    absent for 100% of MGS, Magellan and Lunar Orbiter products and 99.8% of
    Clementine products.
 2. **The correct configuration axis is not `mission → instrument → processing
-   level`.** It must be `mission → pds_standard → instrument → product_type`.
+   level`.** It is `mission → pds_standard`, and **nothing below that**.
    `pds_standard` matters more than instrument: the *same instrument on the
    same spacecraft* has a completely different normalized field set depending
-   on whether the product was archived as PDS3 or PDS4 (§3.3). And
-   `processing_level` cannot be a resolution key at all, because it only
-   exists inside the raw PDS4 label (6.2% of the index) and has no PDS3
-   equivalent (§3.4).
-3. **The prose templates cannot read only from `gather`.** For several
+   on whether the product was archived as PDS3 or PDS4 (§3.4). Instrument, by
+   contrast, turns out **not to need a config layer at all** (§4.1), and
+   `processing_level` cannot be a resolution key, because it only exists
+   inside the raw PDS4 label (24.7% of products with a mission; 6.2% of all
+   239.7M index documents) and has no PDS3 equivalent.
+3. **That means 25 config files for 100% coverage of the index, not 882.**
+   Nine files cover 95.5% of all products (§4.1). This was the main open
+   question after the first draft, and the measurement below settles it.
+4. **The prose templates cannot read only from `gather`.** For several
    missions the fields the design wants are present in the archive but were
    never normalized — they exist only in `pds3_label` / `pds4_label`. Config
    therefore needs per-field *fallback chains*, not single paths (§4).
+
+No derived or computed fields are required (§4.5). Every tile is a direct
+reference to an indexed field; the one place interpolation happens is the
+caption, and it is `{{path}}` substitution with fragment-level drop-out.
 
 The recommendation is a resolved-string API contract (§8), which also happens
 to fix an existing payload problem: `/record` today downloads the entire
@@ -66,6 +80,10 @@ Approach:
 5. `track_total_hits: true` on every counting query. (An early pass without it
    reported a flat 10,000 for every population — those numbers were discarded
    and are not used here.)
+6. To size the config set (§4.1), measured presence of a 38-field candidate
+   tile pool across all 25 mission × `pds_standard` populations **and**
+   separately for each of the 91 instruments inside them, to test whether
+   instrument-level config is actually necessary.
 
 ---
 
@@ -90,8 +108,12 @@ The ~180M documents without a mission are individual archive file entries
 (labels, browse siblings, ancillary files) rather than products, so the
 addressable population for `/record` is ~60M.
 
-**Config authoring is finite and tractable.** Coverage by number of
-mission × instrument × product_type triples configured:
+Those 882 triples are the number of distinct **field-availability shapes** in
+the index. They are *not* the number of config files needed — §4.1 measures
+that separately and the answer is **25**. If the 882 were the config count the
+design would be untenable, so that measurement is the load-bearing one; the
+table below is included only because it is the natural first thing to look at,
+and it is misleading on its own:
 
 | Triples configured | Share of products covered |
 |---|---|
@@ -103,26 +125,30 @@ mission × instrument × product_type triples configured:
 | 200 | 92.2% |
 | 882 (all) | 100% |
 
-So a generic fallback plus ~25 hand-authored configs covers 60% of products,
-and ~100 covers 83%. This is the single most important planning number in
-this document: the config surface is tens of entries, not hundreds, and the
-fallback layer carries the long tail.
+The reason one config can serve many triples is that instruments within a
+mission mostly differ by *having fewer* of the same fields, which tile drop-out
+handles for free. See §4.1.
 
 Products by mission:
 
 | Mission | Products | Mission | Products |
 |---|---:|---|---:|
-| `msl` | 26,990,662 | `mgs` | 243,227 |
-| `mars_2020` | 14,430,266 | `lcro` | 113,044 |
+| `msl` | 30,343,153 | `mgs` | 243,227 |
+| `mars_2020` | 10,004,185 | `lcro` | 113,044 |
 | `mer` | 7,049,275 | `lro` | 77,205 |
 | `ody` | 2,797,610 | `mgn` | 72,818 |
 | `mro` | 2,725,454 | `vik` | 64,514 |
-| `clem` | 1,914,652 | `juno` | 39,744 |
-| `mess` | 1,306,220 | `go` | 20,122 |
+| `mess` | 2,619,601 | `juno` | 39,744 |
+| `clem` | 1,914,652 | `go` | 20,122 |
 | `cas` | 916,485 | `mpf` | 17,712 |
 | `vgr` | 577,401 | `ch1` | 12,152 |
-| `nsyt` | 314,142 | `lo` | 2,990 |
-| `phx` | 256,433 | | |
+| `nsyt` | 315,305 | `lo` | 2,990 |
+| `phx` | 256,433 | | **60,183,082** |
+
+Only four missions have products under both PDS standards — `msl`
+(23,430,052 PDS3 / 6,913,101 PDS4), `mess` (1,309,800 / 1,309,801), `vgr`
+(546,824 / 30,577) and `vik` (6,585 / 57,929). That split is what §4.3 keys on,
+and it is why the config count is 25 rather than 21.
 
 ---
 
@@ -148,7 +174,8 @@ Plus the at-a-glance tiles and the browse image.
 - **I** — instrument-specific (varies *within* a mission)
 - **S** — standard-specific (varies by `pds_standard` within the same instrument)
 - **L** — exists only in the raw label, not normalized
-- **D** — must be derived/computed
+- **D** — must be derived/computed — and since derivation is out (§4.5), a **D**
+  row is a field that either gets normalized upstream or does not ship
 - **X** — not in the index at all
 
 ### 3.3 Availability table
@@ -167,28 +194,29 @@ Percentages are of products in that population. `.` means 0%.
 | PDS standard | `gather.pds_archive.pds_standard` | **U** | 100% everywhere |
 | Browse image URI | `...related.browse.uri` | **M** | 99.4% of products. 384,358 have none — see §6.1 |
 | **Start time** | `gather.time.start_time` | **M** | `mars_2020`/`mer`/`ody`/`nsyt`/`phx`/`lro`/`lcro`/`juno`/`vik` 100%; `cas` 99.1%; `msl` 91.9%; `mro` 83.9%; `vgr` 84.9%; `go` 17.7%; `mpf` 0.9%; `clem` 0.2%; **`mgs` / `mgn` / `lo` 0.0%** |
-| Instrument display name | `gather.common.instrument_name` | **M,S** | 14.3% index-wide. `mer`/`mgs`/`phx`/`cas`/`juno`/`go`/`clem` 100%; **all of `mars_2020` 0%**; `msl` 38% (PDS3 only) |
-| Product type display name | `gather.common.product_type_name` | **M,S** | 14.2% index-wide. `mer` 100%, `ody` 100%; `mars_2020` 0%; `msl` 38% |
-| Sol / planet day | `gather.landed_missions.planet_day_number` | **M,S** | `mer`/`phx` 100%, `mars_2020` 99.2%, `nsyt` 99.6%, **`msl` 77.2%**, `mpf` 0%; all orbiters 0% |
+| Instrument display name | `gather.common.instrument_name` | **M,S** | 57.1% of mission-bearing products. `mer`/`mgs`/`phx`/`mgn`/`juno`/`go`/`mpf`/`lo`/`clem` 100%, `cas` 99.8%; **all of `mars_2020` 0%**, `mro`/`ody`/`nsyt`/`lro`/`ch1` 0%; `msl` 77.2% (= 100% of its PDS3, 0% of its PDS4) |
+| Product type display name | `gather.common.product_type_name` | **M,S** | `ody`/`phx` 100%, `mer` 95.8%, `msl` 77.2% (PDS3 only), `mess` 26.6%, `cas` 0.4%; `mars_2020` 0% |
+| Sol / planet day | `gather.landed_missions.planet_day_number` | **M,S** | `mer`/`phx` 100%, `nsyt` 99.6%, `mars_2020` 99.2%, **`msl` 77.2%** (PDS3 only), `mpf` 0%; all orbiters 0% |
 | **LTST** | `gather.landed_missions.start_local_true_solar_time` | **M,S** | **only `mars_2020` 98.4% and `nsyt` 99.3%.** `msl` 0%, `mer` 0%, `phx` 0% — see §3.4 |
 | LMST | `...start_local_mean_solar_time` | **M,S** | same distribution as LTST |
-| Site | `gather.landed_missions.rmc_site` | **M,S** | `mer` 100%, `mars_2020` 99%, `nsyt`/`phx` 100%, `msl` 38% |
-| Drive | `gather.landed_missions.rmc_drive` | **M,S** | `mer` 100%, `mars_2020` 98%, `msl` 38% |
-| Instrument az/el | `gather.landed_missions.site_instrument_azimuth` / `_elevation` | **M,I** | `mars_2020` 94% (MCZ 99%, NAVCAM 100%, **HELI_NAV 14%**), `nsyt` 99%, `phx` 92%, `mer` 11% |
-| Solar az/el (surface) | `gather.landed_missions.site_solar_azimuth` / `_elevation` | **M,I** | `mars_2020` 94%, `phx` 100%, `mer` 12% |
-| Ls (solar longitude) | `gather.lighting_geometry.solar_longitude` | **M,I** | `mars_2020` 66% (NAVCAM only 53%), `mer` 100%, `mro` 88–100%, `msl` 38%, `nsyt` 12% |
+| Site | `gather.landed_missions.rmc_site` | **M,S** | `mer` 100%, `nsyt` 99.7%, `phx` 100%, `mars_2020` 98.6%, `msl` 77.2% (PDS3 only) |
+| Drive | `gather.landed_missions.rmc_drive` | **M,S** | `mer` 100%, `nsyt` 99.7%, `mars_2020` 98.1%, `msl` 77.2%, **`phx` 0%** (a lander doesn't drive) |
+| Instrument az/el | `gather.landed_missions.site_instrument_azimuth` / `_elevation` | **M,I** | `mars_2020` 94.0% (MCZ 99%, NAVCAM 100%, **HELI_NAV 14%**), `nsyt` 99.3%, `phx` 92.2%, `mer` 10.6%, `msl` 1.9% |
+| Solar az/el (surface) | `gather.landed_missions.site_solar_azimuth` / `_elevation` | **M,I** | `phx` 100%, `nsyt` 99.3%, `mars_2020` 94.5%, `mer` 12.1%, `msl` 1.9% |
+| Ls (solar longitude) | `gather.lighting_geometry.solar_longitude` | **M,I** | `nsyt` 99.3%, `phx` 99.7%, `mro` 88.8%, `msl` 77.1% (PDS3 only), `mars_2020` 66.5% (NAVCAM only 53%), `mer` 12.1% |
 | **Sequence** | — | **L** | Not in `gather` at all. `pds4_label.msn_surface:Command_Execution/msn_surface:sequence_id` (`mars_2020` 95%, `msl` 16.9%, everything else 0%); `pds3_label.sequenceId` 11.9% index-wide |
-| Bundle | `gather.pds_archive.bundle_id` | **S** | PDS4 only. `mars_2020` 100%, `msl` 62%, `nsyt` 100%, `vik` 90%, `vgr` 5.3%; all PDS3-only missions 0% (they have `data_set_id` / `volume_id` instead) |
-| Release | `gather.pds_archive.release_id` | **M** | `mars_2020` 77%, `nsyt` 100%, `msl` 62%; PDS3 missions 0% in `gather` (top-level `release_id` still present) |
+| Bundle | `gather.pds_archive.bundle_id` | **S** | PDS4 only, and exactly tracks each mission's PDS4 share: `mars_2020`/`nsyt` 100%, `vik` 89.8%, `mess` 50.0%, `msl` 22.8%, `vgr` 5.3%; all PDS3-only missions 0% (they have `data_set_id` / `volume_id` instead) |
+| Release | `gather.pds_archive.release_id` | **M** | `nsyt` 100%, `vik` 89.8%, `mars_2020` 77.4%, `mess` 50.0%, `msl` 22.8%; PDS3 missions 0% in `gather` (top-level `release_id` still present) |
 | Processing level | — | **L,S** | `pds4_label.pds:Primary_Result_Summary/pds:processing_level` 6.2% index-wide (PDS4 only); `pds3_label.Processing_Level_Id` 0.02%. Values seen: `Calibrated`, `Derived`, `Partially Processed` |
-| Colour / filter | `gather.ancillary.color_filter` | **M** | `mars_2020` 97%; 0% elsewhere. `gather.common.filter` covers `mer` 98%, `mgs` 100%, `mro` 81% |
-| Orbit number | `gather.orbital_missions.orbit` | **M** | `mgs`/`ody`/`mro`/`ch1` 100%, `vik` 80%, `mess` 36%, `go` 46%; all rovers 0% |
-| Incidence / emission / phase | `gather.lighting_geometry.*` | **M** | `mro` 99.7%, `clem` 99.3%, `cas` 99.6%, `go` 68%, `mess` 49.8%, `lo` 100%; **`mgs` 0.0%** (label only) |
-| Spacecraft altitude | `gather.orbital_missions.spacecraft_altitude` | **M** | `mro`/`clem`/`juno`/`lo` ~100%, `mess` 49.8%, **`mgs` 0.0%** (label only) |
+| Colour / filter | `gather.ancillary.color_filter` | **M** | `mars_2020` 97.2%; 0% elsewhere. `gather.common.filter` covers `mer` 98%, `mgs` 100%, `mro` 81% |
+| Orbit number | `gather.orbital_missions.orbit` | **M** | `mgs`/`ody`/`mro` (99.7%)/`ch1` 100%, `vik` 80.0%, `go` 45.8%, `mess` 36.4%; all rovers and landers 0% |
+| Incidence / emission / phase | `gather.lighting_geometry.*` | **M** | `lo` 100%, `cas` 99.6%, `mro` 99.7%, `clem` 99.3%, `go` 67.9%, `mess` 49.8%; **`mgs` 0.0%** (label only). Sentinel-contaminated on `cas` — see §5.2 |
+| Spacecraft altitude | `gather.orbital_missions.spacecraft_altitude` | **M** | `juno`/`lo` 100%, `mro` 99.7%, `clem` 99.3%, `mess` 49.8%, **`cas` 0%**, **`mgs` 0.0%** (label only) |
 | Sub-spacecraft lat/lon | `gather.orbital_missions.sub_spacecraft_*` | **M** | `mro`/`cas`/`clem` 100%, `mess` 99%, **`mgs` 0.0%** (label only) |
 | Geo footprint / location | `gather.common.geo_footprint` / `geo_location` | **M** | footprint: `ody` 94%, `clem` 94%, `mgn` 99%, `mgs` 72%, `mro` 19%; 0% for all rovers |
 | Asset size | `archive.size` | **U** | 98.4% index-wide |
-| **File / related-product count** | — | **D** | Derivable from `gather.ancillary.group_id`, but that field is `mars_2020`-only (97.2%; 0% for every other mission) — see §6.2 |
+| **File / related-product count** | — | **D** | Needs a second query on `gather.ancillary.group_id`, which is `mars_2020`-only (97.2%; 0% elsewhere). Not a tile — see §6.2 |
+| **Rover motion counter (PDS4)** | — | **D,L** | Parallel arrays `geom:index_id[]` / `index_value_number[]`, only zippable by derivation — the one place §4.5's constraint has a real cost (§3.4) |
 | **Citation / DOI** | — | **X** | `pds4_label.pds:Citation_Information/pds:doi` exists in the mapping but is populated on **1 document out of 239M**. Citations must be composed, not read |
 | **Prose description** | — | **X / partial** | No description field exists for the vast majority. `pds3_label.description` and `RATIONALE_DESC` exist for ~1–2% — see §6.4 |
 
@@ -241,7 +269,8 @@ label paths are populated at 6.1–6.2% (≈14.7–14.9M documents) — which is
 essentially *all* PDS4 products. Two consequences:
 
 - Config must support **fallback chains** per field: prefer `gather`, fall
-  back to a named label path (§4.2).
+  back to a named label path (§4.6). A chain is an ordered list of direct
+  paths, not a computation — the first one that resolves wins.
 - The cleanest long-term fix is a normalization pass that populates
   `gather.landed_missions` / `gather.lighting_geometry` for PDS4 surface
   products. That is a backend/indexing change outside this repo, and the
@@ -249,15 +278,138 @@ essentially *all* PDS4 products. Two consequences:
 
 Note also the RMC shape difference: PDS3 gives `rmc_site` / `rmc_drive` as
 discrete normalized fields; PDS4 gives two parallel arrays
-(`index_id[]` / `index_value_number[]`) that must be zipped by name. A
-fallback chain that just reads a path is insufficient here — this needs a
-named **extractor** (§4.3).
+(`index_id[]` / `index_value_number[]`) that must be zipped by name — position
+2 of `index_value_number` means "DRIVE" only because position 2 of `index_id`
+says so. A fallback chain that reads a path cannot do this, and under the
+no-derived-fields rule (§4.5) nothing in the presentation layer may do it
+either. **This is the one place where the constraint has a real cost**, and the
+honest options are:
+
+- **Normalize it at index time** (recommended). One backend change makes
+  Site/Drive tiles work for all PDS4 surface products, and it is the same
+  change already wanted for `gather.landed_missions` generally.
+- **Until then, PDS4 surface products show no Site/Drive tile.** They drop out
+  like any other absent field, which is graceful but is a real content gap on
+  ~6.9M MSL products.
+
+Recommend the first and ship with the second. What is *not* recommended is
+putting an array-zipping extractor in the presentation layer to paper over a
+normalization gap.
 
 ---
 
 ## 4. Proposed configuration design
 
-### 4.1 Where config lives and who owns it
+### 4.1 How many configs are actually needed: 25, not 882
+
+The first draft of this assessment reported 882 mission × instrument ×
+product_type triples. **That is the size of the field-availability problem
+space, not the number of config files**, and quoting it without the follow-up
+measurement was misleading. This section is the follow-up measurement.
+
+The question that decides the config count is: *within one mission and one PDS
+standard, do different instruments actually disagree about which fields exist?*
+If they don't, an instrument config layer buys nothing.
+
+Measured across all 25 mission × `pds_standard` populations, for a 38-field
+candidate tile pool, per instrument (91 instruments), counting a field as
+"present" for an instrument at ≥95% of that instrument's products:
+
+| Populations | Instruments agree on every field? |
+|---|---|
+| 15 of 25 | Yes — zero disagreement |
+| 10 of 25 | Some disagreement, but see below |
+
+And of the disagreements, almost all are **subtractive**: the instrument has
+*fewer* fields than its mission sibling, not different ones. Declaring the
+**union** of the instrument pools at the mission × standard level and letting
+absent tiles drop out — which the design already has to do for missing values —
+reproduces every instrument's correct tile set exactly:
+
+| Population | Products | Instruments | Union pool | Tiles a given instrument shows |
+|---|---:|---:|---:|---|
+| `msl/pds3` | 23,430,052 | 15 | 14 | 9–14 |
+| `mars_2020/pds4` | 10,004,185 | 19 | 23 | 12–23 |
+| `mer/pds3` | 7,049,275 | 4 | 13 | 12–13 |
+| `msl/pds4` | 6,913,101 | 6 | 8 | 8 |
+| `ody/pds3` | 2,797,610 | 2 | 10 | 9–10 |
+| `mro/pds3` | 2,725,454 | 3 | 17 | 15–17 |
+| `cas/pds3` | 916,485 | 3 | 15 | 6–15 |
+| `mgs/pds3` | 243,227 | 1 | 8 | 8 |
+
+Across all 25 populations the union adds 34 tile-declarations in total over the
+population-wide pools — an average of 1.4 extra lines per config file. That is
+the entire price of eliminating the instrument layer.
+
+Worked illustration, `msl/pds3`. The population-wide stable pool is 9 fields;
+the union is 14. The extra 5 are `start_time`, `stop_time`, `sclk`,
+`creation_time`, `frame_type`:
+
+```
+NAV_RIGHT_B   9,040,642  →  14 tiles  (has all five)
+MAST_LEFT     1,094,098  →   9 tiles  (has none of the five; they drop out)
+MAHLI           451,076  →   9 tiles
+MARDI            64,543  →   9 tiles
+```
+
+One config file, correct output for all 15 instruments. Compare `cas/pds3`,
+the worst case in the index: ISS shows 15 tiles, VIMS 13, and RADAR — a
+non-imaging instrument — 6. Still one file.
+
+#### Config count and coverage
+
+So the resolution set is one file per mission, plus a small override for the
+four missions that have products under both PDS standards (`msl`, `mess`,
+`vgr`, `vik`):
+
+**21 mission files + 4 standard overrides = 25 files, covering 100% of the
+60.2M products that have a mission**, plus one `_default.json`.
+
+They do not have to land at once. Ordered by product count:
+
+| Config files | Products covered | Share |
+|---:|---:|---:|
+| 1 (`msl/pds3`) | 23,430,052 | 38.9% |
+| 2 (+`mars_2020/pds4`) | 33,434,237 | 55.6% |
+| 3 (+`mer/pds3`) | 40,483,512 | 67.3% |
+| 4 (+`msl/pds4`) | 47,396,613 | 78.8% |
+| 5 (+`ody/pds3`) | 50,194,223 | 83.4% |
+| 6 (+`mro/pds3`) | 52,919,677 | 87.9% |
+| 7 (+`clem/pds3`) | 54,834,329 | 91.1% |
+| 8 (+`mess/pds4`) | 56,144,130 | 93.3% |
+| 9 (+`mess/pds3`) | 57,453,930 | **95.5%** |
+| 12 (+`cas`, `vgr/pds3`, `nsyt`) | 59,232,544 | 98.4% |
+| 25 (all) | 60,183,082 | 100.0% |
+
+**Recommended plan: write 9 files, ship, then fill in the tail.** The remaining
+16 cover 4.5% of products and are mostly single-instrument missions with 6–11
+field pools, so they are the cheapest ones to write.
+
+Two things make this hold up rather than being an averaging trick:
+
+- **`maxTiles` matters more than the union size.** `mars_2020/pds4` has a
+  23-field union but the mockup shows ~8 tiles. The config declares the
+  ordered pool and a cap; the resolver takes the first N that resolve. A large
+  union is therefore a *ranked preference list*, not 23 rendered tiles.
+- **The floor is guarded by `_default`.** `go/pds3` NIMS resolves only 3 tiles
+  from its union. That is not a config failure, it is a genuinely sparse
+  product, and §4.9 defines what the page looks like there.
+
+#### When to add a narrower config anyway
+
+Never for field *availability* — drop-out handles that. Only for editorial
+reasons, and each should be justified in review:
+
+- An instrument wants a **different tile order** (RADAR should not lead with
+  incidence angle).
+- An instrument wants a **different caption sentence** (helicopter products on
+  M2020 read oddly with rover phrasing).
+
+Expect a handful of these, not dozens. The schema supports them (§4.3) so the
+option exists, but the coverage argument above does not depend on any of them
+being written.
+
+### 4.2 Where config lives and who owns it
 
 **Recommendation: versioned JSON in this repo, consumed by the API layer, not
 the browser.**
@@ -265,27 +417,22 @@ the browser.**
 ```
 config/record-detail/
 ├── schema/
-│   ├── profile.schema.json          # JSON Schema for a profile
-│   └── template.schema.json
+│   └── profile.schema.json          # JSON Schema for a profile
+├── fields.json                      # field catalog: label, unit, precision, valid range
 ├── formatters.js                    # named, allowlisted value formatters
-├── extractors.js                    # named derived-value extractors
 ├── _default.json                    # generic fallback profile
-├── mission/
-│   ├── mars_2020.json
-│   ├── mars_2020.pds4.NAVCAM_RIGHT.json
-│   ├── mgs.json
-│   ├── mgs.pds3.MOC.json
-│   └── ...
-└── templates/
-    ├── _default.md
-    ├── mars_2020.pds4.ncam.md
-    └── mgs.pds3.moc.md
+└── mission/
+    ├── msl.json
+    ├── msl.pds4.json                # override, only for missions with both standards
+    ├── mars_2020.json
+    ├── mgs.json
+    └── …                            # 25 files total
 ```
 
 Rationale:
 
 - **Not a database.** Atlas has no database (`AGENTS.md`), and adding one for
-  ~100 config files would be the largest single cost in this project for no
+  25 config files would be the largest single cost in this project for no
   benefit. Config changes are reviewable, diffable, revertable, and roll out
   with a deploy.
 - **Not an admin UI in Atlas.** An authoring surface is the thing the task
@@ -303,148 +450,182 @@ answer is to publish `config/record-detail/` as a small versioned package (or
 build artifact) that both the API and the preview CLI consume, so there is a
 single source of truth and the repo stays the editing surface.
 
-### 4.2 Resolution order
+### 4.3 Resolution order
+
+Two layers, plus a fallback:
 
 ```
 _default
   → mission/<mission>.json
-    → mission/<mission>.<pds_standard>.json
-      → mission/<mission>.<pds_standard>.<instrument>.json
-        → mission/<mission>.<pds_standard>.<instrument>.<product_type>.json
+    → mission/<mission>.<pds_standard>.json      (only where it exists)
 ```
 
-Deviation from the `mission → instrument → processing level` order in the
-task, and why:
+Deviation from the `mission → instrument → processing level` order in the task,
+and why:
 
-- **`pds_standard` is inserted second**, above instrument, because §3.4 shows
-  it is the strongest predictor of which normalized fields exist. It is also
-  100% populated, so it is always available as a key.
-- **`processing_level` is replaced by `product_type`.** `processing_level`
-  only exists inside the PDS4 label (6.2% of the index, zero PDS3 coverage),
-  so keying on it would make 94% of products unkeyable. `product_type` is
-  ~100% populated, is already an Atlas facet, and in practice *encodes* the
-  processing level (M2020 `EDR` vs `TDR` vs `RNR`, MSL `ILT` vs `RDR`).
-  `processing_level` remains available as a *display* value where present.
+- **`pds_standard` replaces instrument as the second key**, because §3.4 shows
+  it is the strongest predictor of which normalized fields exist. It is 100%
+  populated, so it is always available as a key. Only 4 missions need it.
+- **Instrument is not a layer**, per §4.1 — instrument variation is handled by
+  tile drop-out, not by config. The schema keeps an optional `instrument`
+  override block for editorial cases, but resolution does not require it.
+- **`processing_level` is dropped as a key.** It only exists inside the PDS4
+  label (24.7% of mission-bearing products, zero PDS3 coverage), so keying on
+  it would leave three quarters of products unkeyable. It remains available as
+  a *display* value where present. `product_type` is ~97.6% populated and is
+  already an Atlas facet, so it is the better discriminator if one is ever
+  needed — but §4.1 shows one isn't.
 
-Merge semantics:
+Merge semantics (deliberately boring, because two layers is all there is):
 
-- Scalars (`title`, `template`, `emptyState`) — child replaces parent.
-- `tiles` — keyed by tile `id`; child entries replace same-`id` parents,
-  new ids append. Ordering by explicit `order` integer, so a child can
-  reposition an inherited tile without redeclaring it.
-- `tiles: { "<id>": null }` — explicit suppression of an inherited tile.
-- No deep array concatenation anywhere: it is the least predictable merge rule
-  to reason about when four layers stack.
+- Scalars (`maxTiles`, `emptyState`) — child replaces parent.
+- `tiles` — an ordered array of field references; a child that declares `tiles`
+  **replaces** the parent's array outright. No positional merging, no
+  order-integer arithmetic, no `null`-to-suppress. With two layers, "write the
+  list you want" is clearer than any merge rule, and it removes the entire
+  class of bugs where an inherited rover tile leaks onto an orbiter page.
+- `caption` — same: child replaces parent.
 
 **Multi-valued instrument.** `gather.common.instrument` is an array on PDS4
-(`["MCZ_RIGHT","MCAMZ_BOTH"]`). Resolution must pick deterministically:
-try each value against the config set in array order and take the first that
-matches a profile; if none match, fall back to the `<mission>.<standard>`
-layer. This must be specified, not left to `Array.find` incidentally.
+(`["MCZ_RIGHT","MCAMZ_BOTH"]`). Because instrument is no longer a resolution
+key, this stops being a resolution problem at all — it is only a *display*
+problem, handled by the instrument tile's formatter joining values. This is a
+direct simplification from dropping the instrument layer.
 
-### 4.3 Profile schema
+### 4.4 The field catalog: declare labels and units once
+
+Everything that is a property *of a field* rather than *of a page* lives in one
+`fields.json`, keyed by ES path — not repeated in every mission config:
+
+```jsonc
+{
+  "gather.landed_missions.planet_day_number": {
+    "label": "Sol", "shortLabel": "Sol", "format": "integer"
+  },
+  "gather.landed_missions.start_local_true_solar_time": {
+    "label": "Local true solar time", "shortLabel": "LTST", "format": "clock"
+  },
+  "gather.landed_missions.rmc_site": { "label": "Site", "format": "integer" },
+  "gather.landed_missions.rmc_drive": { "label": "Drive", "format": "integer" },
+  "gather.lighting_geometry.incidence_angle": {
+    "label": "Incidence angle", "shortLabel": "Incidence",
+    "format": "number", "unit": "°", "precision": 1,
+    "valid": { "min": 0, "max": 180 }          // rejects the ±1e30 sentinel, §5.2
+  },
+  "gather.orbital_missions.spacecraft_altitude": {
+    "label": "Spacecraft altitude", "shortLabel": "Altitude",
+    "format": "number", "unit": "km", "precision": 0
+  },
+  "gather.common.instrument_name": { "label": "Instrument", "format": "text" }
+}
+```
+
+Why this split matters for the size question: it is the difference between a
+mission config being ~15 lines and ~150. "Incidence angle is in degrees, 0–180,
+one decimal" is true everywhere it appears, so it is stated once for the whole
+system rather than once per mission that shows it. The catalog needs about 40
+entries to cover the entire candidate pool measured in §4.1, and it is written
+once.
+
+`format` names resolve against an allowlist in `formatters.js`. They are
+**display formatters, not derived values** — `integer`, `number`, `text`,
+`clock`, `utc_datetime`, `title_case`, `join`. No expressions, no `eval`, no
+arbitrary JS in config.
+
+### 4.5 No derived fields
+
+Per the constraint, **every tile is a direct reference to an indexed field.**
+The first draft proposed named extractors (`rmc`, `az_el_pair`, `lat_lon_pair`,
+`angle_triple`); all are removed. Each was combining two or three fields into
+one composite tile, and in every case the fix is simply to declare the fields
+as separate tiles:
+
+| First draft (derived) | Now |
+|---|---|
+| `rmc` → "Site 13, Drive 65" | two tiles: `rmc_site`, `rmc_drive` |
+| `az_el_pair` → "az 248.4° / el 38.8°" | two tiles: `site_instrument_azimuth`, `site_instrument_elevation` |
+| `angle_triple` → "i 43° / e 12° / p 38°" | three tiles: `incidence_angle`, `emission_angle`, `phase_angle` |
+| `lat_lon_pair` → "14.2°N 175.5°E" | `gather.common.geo_location` where present; otherwise two tiles |
+
+This costs some visual density — three tiles for the lighting angles where the
+mockup shows one — but it buys the thing that matters: a tile is a field, so
+"which field is this?" always has a one-word answer, and drop-out is per-field
+instead of all-or-nothing. In the mockup's own MGS panel the three angles are
+already listed separately, so the design does not actually depend on the
+composite form.
+
+Two consequences worth being explicit about:
+
+- **Formatting is not derivation.** Rendering `38.7834` as `38.8°` is a
+  display concern declared in the field catalog (§4.4), as is rejecting
+  `1e+30` via `valid` (§5.2). Neither invents a value.
+- **One case genuinely cannot be done without derivation** — PDS4 rover motion
+  counters, which are parallel arrays (§3.4). The recommendation there is to
+  normalize at index time rather than to reintroduce an extractor.
+
+### 4.6 Profile schema, and worked example — rover: `msl/pds3`
+
+With labels and units in the catalog, a mission config is close to a bare
+ordered list of paths:
 
 ```jsonc
 {
   "$schema": "../schema/profile.schema.json",
-  "extends": "mars_2020.pds4",
-  "match": { "mission": "mars_2020", "pds_standard": "pds4", "instrument": "NAVCAM_RIGHT" },
+  "match": { "mission": "msl", "pds_standard": "pds3" },
 
-  "template": "templates/mars_2020.pds4.ncam.md",
-
-  "tiles": {
-    "sol": {
-      "order": 10,
-      "label": "Sol",
-      "source": [
-        { "path": "gather.landed_missions.planet_day_number" },
-        { "path": "pds4_label.msn:Surface_Mission/msn:start_sol_number" }
-      ],
-      "format": "integer"
-    },
-    "ltst": {
-      "order": 20,
-      "label": "Local true solar time",
-      "source": [
-        { "path": "gather.landed_missions.start_local_true_solar_time" },
-        { "path": "pds4_label.pds:Time_Coordinates/pds:local_true_solar_time" }
-      ],
-      "format": "clock_hm"
-    },
-    "rmc": {
-      "order": 30,
-      "label": "Rover motion",
-      "source": [
-        { "extractor": "rmc", "args": { "indices": ["SITE", "DRIVE"] } }
-      ],
-      "format": "text"
-    },
-    "instrument_pointing": {
-      "order": 40,
-      "label": "Camera pointing",
-      "source": [{ "extractor": "az_el_pair",
-                   "args": { "az": "gather.landed_missions.site_instrument_azimuth",
-                             "el": "gather.landed_missions.site_instrument_elevation" } }],
-      "format": "degrees",
-      "precision": 1
-    },
-    "solar_elevation": {
-      "order": 50,
-      "label": "Sun elevation",
-      "source": [{ "path": "gather.landed_missions.site_solar_elevation" }],
-      "format": "degrees",
-      "precision": 1
-    },
-    "ls": {
-      "order": 60,
-      "label": "Solar longitude (Ls)",
-      "source": [
-        { "path": "gather.lighting_geometry.solar_longitude" },
-        { "path": "pds4_label.msn:Surface_Mission/msn:solar_longitude" }
-      ],
-      "format": "degrees",
-      "precision": 1
-    },
-    "product_type": {
-      "order": 70,
-      "label": "Product",
-      "source": [
-        { "path": "gather.common.product_type_name" },
-        { "path": "pds4_label.msn:Mission_Information/msn:product_type_name" },
-        { "path": "gather.common.product_type" }
-      ],
-      "format": "product_type_label"
-    },
-    "sequence": {
-      "order": 80,
-      "label": "Sequence",
-      "source": [{ "path": "pds4_label.msn_surface:Command_Execution/msn_surface:sequence_id" }],
-      "format": "upper"
-    }
-  },
-
+  // Ordered preference list — the union pool from §4.1, best tiles first.
+  // Anything that doesn't resolve drops out; the first `maxTiles` that do are shown.
+  "tiles": [
+    "gather.landed_missions.planet_day_number",
+    "gather.landed_missions.rmc_site",
+    "gather.landed_missions.rmc_drive",
+    "gather.common.instrument_name",
+    "gather.common.product_type_name",
+    "gather.lighting_geometry.solar_longitude",
+    "gather.time.start_time",
+    "gather.landed_missions.frame_type",
+    "gather.time.spacecraft_clock_start_count",
+    "gather.common.mission_phase_name",
+    "gather.pds_archive.data_set_id"
+  ],
   "maxTiles": 8,
+
+  "caption": [
+    "{{gather.common.instrument_name}}",
+    "Sol {{gather.landed_missions.planet_day_number}}",
+    "Site {{gather.landed_missions.rmc_site}}",
+    "Drive {{gather.landed_missions.rmc_drive}}"
+  ],
+
   "emptyState": "no_browse_generic"
 }
 ```
 
-Notes on the shape:
+That is the whole file for 23.4M products across 15 instruments. `MAST_LEFT`
+resolves 9 of the 11 listed tiles; `NAV_RIGHT_B` resolves all 11 and shows the
+first 8. No instrument-specific configuration.
 
-- **`source` is always an ordered array of candidates.** First candidate that
-  yields a *valid* value wins (§5). This is what absorbs the `gather` /
-  label split without duplicating whole profiles.
-- **`format` and `extractor` are names, not code.** They resolve against
-  allowlists in `formatters.js` / `extractors.js`. No expressions, no `eval`,
-  no arbitrary JS in config — config authored by mission engineers must not be
-  able to execute anything.
-- Label paths containing `:` and `/` (and, in PDS3, parentheses —
-  `pds3_label.timestamp(imageTime)` is a real field name) are treated as
-  **opaque single path segments** after the `pds3_label.` / `pds4_label.`
-  prefix. Naive dot-splitting breaks on all of these.
-- **`maxTiles`** caps what renders so an over-eager profile can't push the
-  description below the fold.
+Where a field needs the raw-label fallback from §3.4, a tile entry becomes an
+array instead of a string — the only extra shape in the schema:
 
-### 4.4 Worked example — orbiter: `mgs.pds3.MOC`
+```jsonc
+"tiles": [
+  ["gather.landed_missions.planet_day_number",
+   "pds4_label.msn:Surface_Mission/msn:start_sol_number"],
+  ["gather.landed_missions.start_local_true_solar_time",
+   "pds4_label.pds:Time_Coordinates/pds:local_true_solar_time"],
+  "gather.common.instrument_name"
+]
+```
+
+First entry that resolves to a *valid* value (§5) wins. The tile's label and
+unit come from the **first** path in the array, so a fallback can never change
+what the tile is called. Label paths containing `:` and `/` — and, in PDS3,
+parentheses, since `pds3_label.timestamp(imageTime)` is a real field name — are
+treated as opaque single segments after the `pds3_label.` / `pds4_label.`
+prefix. Naive dot-splitting breaks on all of these.
+
+### 4.7 Worked example — orbiter: `mgs/pds3`
 
 Grounded in the real document the task named,
 `atlas:pds3:mgs:mars_global_surveyor:/mgsc_1042/m04008/m0400821.imq`.
@@ -453,156 +634,141 @@ For this product `gather` contains only: mission, spacecraft, instrument,
 `instrument_name` "MOC Narrow Angle", target, product_type `EDR`,
 `mission_phase_name` "MAPPING", `filter` "N/A", `geo_location`,
 `geo_footprint`, `orbital_missions.orbit` 1936, and archive identifiers.
-**No `gather.time` at all**, and none of
-`gather.lighting_geometry` / the rest of `gather.orbital_missions`.
-
-Everything else the tiles need is in the 67-field `pds3_label`:
+**No `gather.time` at all**, and none of `gather.lighting_geometry` or the rest
+of `gather.orbital_missions`. Everything else is in the 67-field `pds3_label`,
+so this profile is mostly fallback arrays:
 
 ```jsonc
 {
-  "extends": "mgs.pds3",
-  "match": { "mission": "mgs", "pds_standard": "pds3", "instrument": "MOC" },
-  "template": "templates/mgs.pds3.moc.md",
+  "$schema": "../schema/profile.schema.json",
+  "match": { "mission": "mgs" },
 
-  "tiles": {
-    "orbit":      { "order": 10, "label": "Orbit",
-                    "source": [{ "path": "gather.orbital_missions.orbit" },
-                               { "path": "pds3_label.orbitNumber" }],
-                    "format": "integer" },
+  "tiles": [
+    ["gather.orbital_missions.orbit", "pds3_label.orbitNumber"],
+    ["gather.time.start_time", "pds3_label.timestamp(imageTime)"],
+    "gather.common.instrument_name",
+    "gather.common.product_type",
+    "gather.common.geo_location",
+    ["gather.lighting_geometry.incidence_angle", "pds3_label.incidenceAngle"],
+    ["gather.lighting_geometry.emission_angle", "pds3_label.emissionAngle"],
+    ["gather.lighting_geometry.phase_angle", "pds3_label.phaseAngle"],
+    ["gather.orbital_missions.spacecraft_altitude", "pds3_label.spacecraftAltitude"],
+    "pds3_label.scaledPixelWidth",
+    "gather.common.mission_phase_name"
+  ],
+  "maxTiles": 8,
 
-    "image_time": { "order": 20, "label": "Image time",
-                    "source": [{ "path": "gather.time.start_time" },
-                               { "path": "pds3_label.timestamp(imageTime)" }],
-                    "format": "utc_datetime" },
+  "caption": [
+    "{{gather.common.instrument_name}}",
+    "orbit {{gather.orbital_missions.orbit}}",
+    "{{gather.common.target}}"
+  ],
 
-    "location":   { "order": 30, "label": "Centre lat / lon",
-                    "source": [{ "extractor": "lat_lon",
-                                 "args": { "path": "gather.common.geo_location" } },
-                               { "extractor": "lat_lon_pair",
-                                 "args": { "lat": "pds3_label.centerLatitude",
-                                           "lon": "pds3_label.centerLongitude" } }],
-                    "format": "lat_lon" },
-
-    "lighting":   { "order": 40, "label": "Incidence / emission / phase",
-                    "source": [{ "extractor": "angle_triple",
-                                 "args": { "i": ["gather.lighting_geometry.incidence_angle",
-                                                 "pds3_label.incidenceAngle"],
-                                           "e": ["gather.lighting_geometry.emission_angle",
-                                                 "pds3_label.emissionAngle"],
-                                           "p": ["gather.lighting_geometry.phase_angle",
-                                                 "pds3_label.phaseAngle"] } }],
-                    "format": "degrees", "precision": 1 },
-
-    "altitude":   { "order": 50, "label": "Spacecraft altitude",
-                    "source": [{ "path": "gather.orbital_missions.spacecraft_altitude" },
-                               { "path": "pds3_label.spacecraftAltitude" }],
-                    "format": "distance_km", "precision": 0 },
-
-    "resolution": { "order": 60, "label": "Scaled pixel width",
-                    "source": [{ "path": "pds3_label.scaledPixelWidth" }],
-                    "format": "distance_m", "precision": 2 },
-
-    "phase":      { "order": 70, "label": "Mission phase",
-                    "source": [{ "path": "gather.common.mission_phase_name" }],
-                    "format": "title_case" },
-
-    "sol":        null,   // suppress anything rover-shaped inherited upstream
-    "ltst":       null,
-    "rmc":        null
-  },
-
-  "maxTiles": 7,
   "emptyState": "no_browse_generic"
 }
 ```
 
-Note there is **zero overlap** between the MGS tile set and the M2020 tile
-set. That is the design working as intended, and it is why a single global
-field list cannot produce this page.
+Note there is **zero overlap** between the MGS tile list and the MSL one. That
+is the design working as intended, and it is why a single global field list
+cannot produce this page. Note also that no `null`-suppression entries are
+needed: because a child config replaces the tile array outright (§4.3), no
+rover-shaped tile can leak in from a parent.
 
-### 4.5 Templates: one source, five variants
+### 4.8 Captions and prose
 
-One file per profile. Named blocks, each producing one variant, sharing the
-same resolved value bag and the same conditional machinery:
+The caption follows the `{{path}}` model exactly: **a list of fragments, each
+containing plain text and field references.** A fragment renders only if
+*every* reference inside it resolves; otherwise the whole fragment is dropped.
+Surviving fragments are joined with a separator.
 
-```
-{{! templates/mgs.pds3.moc.md }}
-
-{{#block description}}
-{{spacecraft_name}}'s {{instrument_name}} imaged {{target_name}}
-{{#if location}}near {{location}}{{/if}}
-{{#if orbit}}on orbit {{orbit}}{{/if}}
-{{#if image_time}}({{image_time:date}}){{/if}}.
-{{#if lighting}}The scene was lit at {{lighting.i}} incidence, viewed at
-{{lighting.e}} emission, for a phase angle of {{lighting.p}}.{{/if}}
-{{#if resolution}}Ground sample distance is about {{resolution}}.{{/if}}
-{{#if label_description}}The label describes it as: {{label_description}}.{{/if}}
-{{/block}}
-
-{{#block caption}}
-{{instrument_name}} — orbit {{orbit}}{{#if image_time}}, {{image_time:date}}{{/if}}
-{{/block}}
-
-{{#block short_caption}}
-{{instrument_short}}{{#if orbit}} · orbit {{orbit}}{{/if}}
-{{/block}}
-
-{{#block alt_text}}
-{{instrument_name}} image of {{target_name}}{{#if location}} at {{location}}{{/if}}
-{{/block}}
-
-{{#block citation}}
-{{spacecraft_name}} {{instrument_name}}, {{product_id}}.
-NASA Planetary Data System, {{data_set_id}}{{#if release}}, release {{release}}{{/if}}.
-Retrieved from Atlas, {{retrieved_date}}.
-{{/block}}
+```jsonc
+"caption": [
+  "{{gather.common.instrument_name}}",
+  "Sol {{gather.landed_missions.planet_day_number}}",
+  "{{gather.landed_missions.start_local_true_solar_time}} LTST"
+]
 ```
 
-Design points:
+M2020 Navcam Right, Sol 383 → *"Navcam Right — Sol 383 — 12:50:44 LTST"*
+MSL Mastcam Left, PDS4 (no sol, no LTST normalized) → *"MASTCAM"*
 
-- **Five blocks, one value bag.** Variants can never disagree about the facts,
-  because they read the same resolved tiles. `alt_text` is deliberately the
-  plainest block — it is the accessibility surface, not a place for
-  degree symbols and parentheses.
-- **`{{#if}}` guards every optional clause**, and the *punctuation lives
-  inside the guard*. This is what prevents `Sol undefined` and, just as
-  importantly, prevents `imaged Mars , .` — the failure mode that actually
-  shows up in practice is orphaned punctuation, not orphaned tokens.
-- **`{{token:format}}`** selects an alternate formatter for the same value
-  (`image_time:date` → `1999-08-14`; bare `image_time` → full UTC timestamp).
-- **`label_description`** exploits a real find: MOC labels carry
-  human-written prose — this product's is *"Partial traverse of a surface
-  covered in part by south polar frost"*. `pds3_label.description` /
-  `RATIONALE_DESC` / `rationaleDesc` are populated on ~1–2% of the index
-  (2.3–2.8M documents), so wherever it exists it should be surfaced verbatim
-  rather than paraphrased by a template. It is the only genuinely
-  human-authored description in the archive.
-- **Templates are Markdown-ish but rendered to a constrained AST**, not to
-  HTML. Output is text plus a small allowlist of link nodes (mission,
-  instrument, target — the underlined links in the mockup). Never
-  `dangerouslySetInnerHTML` over data derived from PDS labels.
+This is why fragments rather than one string with conditionals: `"{{instrument}}
+— Sol {{sol}}"` as a single template has to grow `{{#if}}` syntax the moment
+`sol` is missing, and orphaned punctuation (`"MASTCAM — Sol "`) is the failure
+mode that actually shows up in practice, more often than a bare `undefined`.
+Fragment granularity gets grammatical output with **no conditional syntax at
+all** — the config author writes only `{{path}}` and prose, and cannot express
+a construct that renders `Sol undefined`.
 
-### 4.6 The `_default` fallback
+The same structure produces the other variants the design needs, so they can
+never disagree about the facts:
 
-An unconfigured mission or a brand-new instrument must render something
-sensible. `_default.json` uses only fields verified universal in §3.3:
+```jsonc
+"caption":      [ "{{…instrument_name}}", "Sol {{…planet_day_number}}", "{{…ltst}} LTST" ],
+"shortCaption": [ "{{…instrument_name}}", "Sol {{…planet_day_number}}" ],
+"altText":      [ "{{…instrument_name}} image of {{gather.common.target}}" ],
+"citation":     [ "{{gather.common.spacecraft}} {{…instrument_name}}",
+                  "{{gather.pds_archive.product_id}}",
+                  "NASA Planetary Data System",
+                  "{{gather.pds_archive.data_set_id}}" ]
+```
 
-| Tile | Source |
-|---|---|
-| Instrument | `gather.common.instrument_name` → `gather.common.instrument` |
-| Target | `gather.common.target` |
-| Product type | `gather.common.product_type_name` → `gather.common.product_type` |
-| Time | `gather.time.start_time` → `gather.time.product_creation_time` |
-| Archive | `bundle_id` → `data_set_id` → `volume_id` |
-| Mission phase | `gather.common.mission_phase_name` |
-| Size | `archive.size` |
+`shortCaption` is the phone variant (§9); `altText` is the accessibility
+surface and is deliberately the plainest.
 
-With the default description template degrading to roughly:
-*"{{spacecraft_name}} {{instrument_name}} product of {{target_name}}{{#if
-time}}, {{time:date}}{{/if}}."*
+**The prose description is the one open design question.** Mockup 1 leads with
+a paragraph, and a paragraph is exactly what fragment-joining is *not* good at
+— fragments give comma-spliced clauses, not sentences. Three options, in
+increasing order of cost:
 
-This is intentionally close to what Atlas shows today, so the worst case for
-an unconfigured product is "no better than the status quo", never "broken".
+1. **Ship without generated prose.** Lead with the caption and the at-a-glance
+   block; use the real human-written label prose where it exists
+   (`pds3_label.description` / `RATIONALE_DESC`, ~1–2% of the index, e.g. this
+   MGS product's *"Partial traverse of a surface covered in part by south
+   polar frost"*) and show nothing where it doesn't. Zero new machinery.
+2. **Sentence-list prose.** Same fragment mechanism, but fragments are whole
+   sentences and the separator is `". "`. Grammatical by construction, reads a
+   little clipped. This is the recommended middle path.
+3. **Full conditional template language.** What the first draft proposed
+   (`{{#if}}` guards, punctuation inside guards). Best prose, and the only
+   option that needs a template engine, a template validator, and a syntax for
+   config authors to learn.
+
+Recommend **(2)**, with (1) as the fallback for any profile that hasn't been
+given prose fragments. Both stay inside the `{{path}}` model, and neither
+requires the conditional syntax that made template validation a significant
+line item in the first draft's estimate.
+
+Rendering is to a constrained AST, never HTML: text plus a small allowlist of
+link nodes (mission, instrument, target — the underlined links in the mockup).
+Never `dangerouslySetInnerHTML` over data derived from PDS labels.
+
+### 4.9 The `_default` fallback
+
+An unconfigured mission, a brand-new instrument, or a product whose profile
+resolves nothing must still render. `_default.json` uses only fields verified
+near-universal in §3.3 and §4.1:
+
+| Tile | Path | Index-wide presence |
+|---|---|---|
+| Target | `gather.common.target` | 100.0% |
+| Product type | `gather.common.product_type` | 97.6% |
+| Instrument | `gather.common.instrument_name` → `gather.common.instrument` | 94.2% |
+| Time | `gather.time.start_time` → `gather.time.product_creation_time` | 91.2% |
+| Spacecraft clock | `gather.time.spacecraft_clock_start_count` | 84.3% |
+| Archive | `gather.pds_archive.data_set_id` → `bundle_id` | 69.0% |
+| Mission phase | `gather.common.mission_phase_name` | 67.2% |
+| Size | `archive.size` | 98.4% |
+
+`target` is the **only** field stable-present in all 25 populations, which is
+why the default caption is minimal:
+
+```jsonc
+"caption": [ "{{gather.common.instrument_name}}", "{{gather.common.target}}" ]
+```
+
+This is intentionally close to what Atlas shows today, so the worst case for an
+unconfigured product is "no better than the status quo", never "broken".
 
 ---
 
@@ -612,8 +778,10 @@ an unconfigured product is "no better than the status quo", never "broken".
 were observed, and resolution must handle all four before a value is accepted:
 
 ### 5.1 Absent path
-Handled by the `source` chain; if every candidate misses, the tile is
-**dropped**, and every template clause referencing it is skipped.
+Handled by the tile's fallback array (§4.6); if every candidate misses, the
+tile is **dropped**, and every caption fragment referencing it is dropped
+whole (§4.8). This is also the mechanism that makes the instrument config
+layer unnecessary (§4.1), so it is load-bearing, not just defensive.
 
 ### 5.2 PDS3 numeric sentinels
 Real, and concentrated in exactly the orbiter fields mockup 1 wants:
@@ -641,24 +809,33 @@ these as absent, but a client-side `path in doc` check would accept them.
 `minimumLatitude` = `0` as a not-computed marker, and
 `gather.ancillary.special_processing_flag` = `"_"`.
 
-**Proposed validity gate**, applied to every candidate before acceptance:
+**Proposed validity gate**, applied to every candidate before acceptance. This
+is a property of the *field*, not of the page, so it lives in the field catalog
+(§4.4) and is written once for the whole system rather than per mission:
 
 ```jsonc
+// defaults, applied to every field
 {
   "reject": {
     "null": true,
     "emptyString": true,
     "sentinelMagnitude": 1e29,          // rejects ±1e30 and friends
-    "values": ["N/A", "NULL", "UNK", "UNKNOWN", "NONE", "_", "-"],
-    "range": { "min": -360, "max": 360 } // per-format, from the formatter
+    "values": ["N/A", "NULL", "UNK", "UNKNOWN", "NONE", "_", "-"]
   }
 }
+
+// per-field, in fields.json, only where a real domain exists
+"gather.lighting_geometry.incidence_angle": { "valid": { "min": 0, "max": 180 } }
 ```
 
-Defaults come from the named `format` (an angle formatter carries
-`[-360, 360]`; a distance formatter rejects negatives), so profile authors get
-correct behaviour without writing the gate. Per-tile `reject` overrides exist
-for the exceptions.
+Note this is validity checking, not derivation (§4.5): rejecting `1e+30` does
+not invent a value, it declines to display a non-value. Roughly 10 numeric
+fields need an explicit `valid` range; the sentinel-magnitude and value-list
+rules are global defaults, so no mission config mentions any of this.
+
+The cleaner long-term fix is the same as for §3.4: sentinels should be stripped
+at index time, so `exists` means "has a usable value". Until then the gate is
+what stands between the redesign and `1e+30°` on two thirds of Cassini.
 
 ---
 
@@ -725,13 +902,30 @@ delaying the page.
 
 ### 6.3 Instrument and mission display names
 
-`gather.common.instrument_name` is populated on only 14.3% of the index, and
-notably **0% of `mars_2020`** — the exact mission the mockup is drawn from.
-The mockup's "Navcam Right" and "Perseverance" have no index source.
+`gather.common.instrument_name` is populated on 57.1% of products that have a
+mission (14.3% of all 239.7M index documents), and notably **0% of
+`mars_2020`** — the exact mission the mockup is drawn from. The mockup's
+"Navcam Right" and "Perseverance" have no index source.
 
-`src/core/constants.js` already has `DISPLAY_NAME_MAPPINGS` for missions.
-The proposal is to extend that idea into the record-detail config as a
-dedicated vocabulary file:
+Sized precisely: of the 91 instrument codes in the index, **57 have no
+display name for at least some of their products**. Nine missions have full
+coverage and need no entries at all:
+
+| Mission | Products | `instrument_name` | Instrument codes needing a name |
+|---|---:|---:|---:|
+| `msl` | 30,343,153 | 77.2% | 8 of 18 |
+| `mars_2020` | 10,004,185 | **0.0%** | 23 of 23 |
+| `mer` | 7,049,275 | 100.0% | 0 |
+| `mro` | 2,725,454 | 0.0% | 3 of 3 |
+| `mess` | 2,619,601 | 12.2% | 4 of 4 |
+| `clem` | 1,914,652 | 100.0% | 0 |
+| `mgs` | 243,227 | 100.0% | 0 |
+| … | | | **57 total** |
+
+So it is a 57-entry authoring job, not 91, and it is a **display-name lookup,
+not a derived field** (§4.5) — the same category as the labels in the field
+catalog. `src/core/constants.js` already has `DISPLAY_NAME_MAPPINGS` for
+missions; the proposal extends that idea into the record-detail config:
 
 ```jsonc
 // config/record-detail/vocabulary.json
@@ -749,8 +943,14 @@ dedicated vocabulary file:
 }
 ```
 
-91 instruments across 21 missions is a bounded, one-time authoring job.
 Note `target` needs case folding: PDS4 gives `"mars"`, PDS3 gives `"MARS"`.
+The instrument tile reads `gather.common.instrument_name` first and only
+consults this table when that is absent, so the table shrinks automatically if
+the index gains display names later.
+
+One caveat on ordering the work: `mars_2020` needs all 23 of its entries
+written before its config is useful, and it is the mission the mockup is drawn
+from. Its 23 entries plus MSL's 8 cover 67% of all products.
 
 Longer term the PDS context products are the authoritative source for these
 names, but pulling them in is a separate integration and shouldn't gate this.
@@ -760,7 +960,7 @@ names, but pulling them in is a separate integration and shouldn't gate this.
 `pds4_label.pds:Citation_Information/pds:doi` is in the mapping but populated
 on **exactly one document out of 239 million**. There is no per-product DOI to
 cite. Citations must be **composed** from `product_id` + `data_set_id` /
-`bundle_id` + retrieval date (as in §4.5) and worded so they don't imply a
+`bundle_id` + retrieval date (as in §4.8) and worded so they don't imply a
 registered DOI. Bundle- or collection-level DOIs may exist in PDS registry
 metadata, which would be a better citation target — worth confirming with the
 PDS node before finalising citation wording.
@@ -769,8 +969,8 @@ PDS node before finalising citation wording.
 
 | Gap | Severity | What it takes |
 |---|---|---|
-| PDS4 surface products lack normalized sol/LTST/RMC/Ls | **High** — affects ~26M MSL products | Label fallback chains (in this design), or a backend normalization pass (correct fix, external) |
-| No normalized display names for M2020 instruments | Medium | `vocabulary.json`, ~91 entries, one-time |
+| PDS4 surface products lack normalized sol/LTST/RMC/Ls | **High** — affects 6.91M MSL PDS4 products, plus M2020 Ls gaps | Label fallback chains (in this design), or a backend normalization pass (correct fix, external) |
+| No normalized display names for M2020 instruments | Medium | `vocabulary.json`, 57 entries, one-time |
 | No `gather.time` for MGS / MGN / LO / most CLEM | Medium | Label fallback (`pds3_label.timestamp(imageTime)`) |
 | MGS lighting geometry not normalized | Medium | Label fallback (`incidenceAngle` etc.) |
 | `group_id` is M2020-only | Low | Config-gate the tile; request index extension |
@@ -786,36 +986,48 @@ Three layers, cheapest first:
 
 **1. Build/CI time — schema and static checks.**
 - Every profile validates against `profile.schema.json`.
-- Every `path` starts with a known root (`gather.`, `pds3_label.`,
+- Every path starts with a known root (`gather.`, `pds3_label.`,
   `pds4_label.`, `archive.`, `uri`, `release_id`) **and exists in a snapshot
   of `_mapping`** checked into the repo. This is the check that catches stale
   paths — the mapping snapshot is refreshed by a scheduled job that opens a
   PR when it drifts, so a field disappearing upstream surfaces as a red CI
   run rather than a blank tile.
-- Every `format` / `extractor` name resolves to an allowlist entry.
-- Every `extends` target exists; no cycles.
-- Templates parse; every `{{token}}` maps to a tile declared in the resolved
-  profile; every block (`description`, `caption`, `short_caption`, `alt_text`,
-  `citation`) is present.
+- Every path referenced in a `tiles` array or a `{{…}}` caption token **has an
+  entry in `fields.json`**, so no tile can render without a label or unit.
+- Every `format` name resolves to an allowlist entry.
+- Caption fragments parse, and contain nothing but text and `{{path}}` tokens.
+  Because there is no conditional syntax (§4.8), this is a regex-level check
+  rather than a template-language parser — which is most of why the validation
+  line item is cheaper than in the first draft.
 
 **2. Build time — golden fixtures.**
-A committed corpus of ~30 real `_source` documents (one per configured
-profile, including the deliberately awkward ones: `M0400821`, an MSL PDS4
-Mastcam, a sentinel-heavy Cassini product, a `mess`/MDIS no-browse product)
-with snapshot-tested resolved output. A template edit that breaks grammar on
-a sparse record fails the snapshot instead of shipping.
+A committed corpus of ~30 real `_source` documents (one per configured profile,
+including the deliberately awkward ones: `M0400821`, an MSL PDS4 Mastcam, a
+sentinel-heavy Cassini product, a `mess`/MDIS no-browse product, and a
+`go`/NIMS product that resolves only 3 tiles) with snapshot-tested resolved
+output. A config edit that produces a clipped caption on a sparse record fails
+the snapshot instead of shipping.
+
+Critically, the fixture set must include **more than one instrument per
+configured mission**, since §4.1's whole argument is that one config serves all
+of them. For `msl/pds3` that means a `NAV_RIGHT_B` (14 tiles) *and* a
+`MAST_LEFT` (9 tiles); for `cas/pds3`, ISS *and* RADAR (15 vs 6). Without that,
+the cheapest failure mode of this design — a config authored against the
+biggest instrument and silently thin for the rest — goes undetected.
 
 **3. Runtime — fail soft, alert loud.**
 Resolution errors never surface as broken prose. A profile that throws falls
-back to `_default`; a template block that throws is omitted (the tiles still
-render); both increment a metric and log the profile id + product URI. The
-user-visible worst case is today's Atlas, not a page reading
-`Sol undefined`.
+back to `_default`; a caption fragment that throws is dropped (the remaining
+fragments and all tiles still render); both increment a metric and log the
+profile id + product URI **server-side only**. The user-visible worst case is a
+shorter caption, never a page reading `Sol undefined`.
 
 Additionally, a **coverage report** in CI: for each configured profile, sample
-N real products and report the percentage of declared tiles that actually
-resolve. A profile whose tiles resolve 40% of the time is a config bug that
-no schema check can catch — this is how you find it before users do.
+N real products **per instrument** and report how many tiles resolve. A profile
+whose tiles resolve 40% of the time is a config bug that no schema check can
+catch — this is how you find it before users do. Broken out per instrument, the
+same report is also the tool that answers "does any instrument need its own
+config after all?" empirically, instead of by guesswork.
 
 ---
 
@@ -840,20 +1052,25 @@ The response contract for `/record`:
       { "text": "Navcam Right", "kind": "instrument", "value": "NAVCAM_RIGHT" }
     ],
     "tiles": [
-      { "id": "sol",   "label": "Sol",                  "value": "383" },
-      { "id": "ltst",  "label": "Local true solar time", "value": "12:50:44" },
-      { "id": "rmc",   "label": "Rover motion",          "value": "Site 13 · Drive 65" }
+      { "label": "Sol",   "shortLabel": "Sol",   "value": "383" },
+      { "label": "Local true solar time", "shortLabel": "LTST", "value": "12:50:44" },
+      { "label": "Site",  "shortLabel": "Site",  "value": "13" },
+      { "label": "Drive", "shortLabel": "Drive", "value": "65" }
     ]
   }
 }
 ```
 
-Strings only. No template source, no token names, no profile id, no
-"8 tokens resolved, 1 optional clause skipped" — the mockup shows that
-provenance line and it must not ship. Nothing in this payload lets a client
-infer that templating exists. `links` carries *resolved* text plus a semantic
-kind so the frontend can render the mockup's underlined links without
-knowing anything about templates.
+Strings only. **No field paths, no template source, no token names, no profile
+id**, no "8 tokens resolved, 1 optional clause skipped" — the mockup shows that
+provenance line and it must not ship. Note the tiles carry no `id` or path
+either: the frontend renders a list of label/value pairs and cannot infer that
+configuration exists, let alone what it says. `links` carries *resolved* text
+plus a semantic kind so the frontend can render the mockup's underlined links
+without knowing anything about templates.
+
+Site and Drive appear as separate tiles here rather than one "Rover motion"
+tile, per §4.5.
 
 The frontend's entire job becomes: render `presentation.description`, render
 `presentation.tiles` in order, use `presentation.altText` on the `<img>`.
@@ -864,9 +1081,10 @@ No conditional field logic in React at all.
 Pre-computing resolved strings into the index is attractive until a template
 changes:
 
-- Any edit to a shared template or to `vocabulary.json` requires reindexing
-  the affected population. For `_default` or a spacecraft display name, that's
-  tens of millions of documents.
+- Any edit to a caption or to `vocabulary.json` requires reindexing the
+  affected population. Since §4.1 puts one config in front of up to 23.4M
+  products, the blast radius of a one-word change is a mission-sized reindex —
+  the config consolidation makes index-time resolution *worse*, not better.
 - It makes prose a *data migration*, so fixing a typo needs an indexing run
   and a deploy window. Iteration on wording is exactly what this design needs
   to be cheap.
@@ -937,8 +1155,9 @@ Details:
   document flow, and avoids building a drawer component.
 - **3 → 2 → 1 columns** for at-a-glance. At 375 px, two columns of
   "Local true solar time / 12:50:44" wrap badly; single-column rows read
-  cleanly. Tile labels need a `shortLabel` in the profile for this
-  ("LTST" instead of "Local true solar time").
+  cleanly. Tile labels need a `shortLabel`, which the field catalog (§4.4)
+  already carries per field — "LTST" instead of "Local true solar time" — so
+  mobile costs no extra config.
 - **No-browse products** (§6.1) skip the viewer block entirely on narrow
   rather than rendering an empty dark box above the fold; at-a-glance is
   promoted to first content.
@@ -951,22 +1170,30 @@ Details:
 
 ## 10. Implementation breakdown
 
-Estimated in Devin sessions. Assumes the resolved-string API recommendation.
+Estimated in Devin sessions. Assumes the resolved-string API recommendation,
+no derived fields (§4.5), and the two-layer config from §4.1.
 
 | # | Work | Sessions | Notes |
 |---|---|---:|---|
-| 1 | Config schema, resolution engine, merge semantics, formatter/extractor allowlists | 1 | Pure logic, heavily unit-testable |
-| 2 | Template engine (5 blocks, conditionals, `token:format`, constrained AST) | 1 | Deliberately small; no general-purpose templating |
+| 1 | Config schema, two-layer resolution, field catalog, formatter allowlist | 1 | Pure logic, heavily unit-testable |
+| 2 | Caption/prose fragment renderer + constrained AST | 0.5 | Down from 1 — `{{path}}` substitution with fragment drop-out, no conditional syntax to implement |
 | 3 | Validity gate + sentinel handling (§5) | 0.5 | Small but load-bearing |
-| 4 | `vocabulary.json` for 21 missions / 91 instruments | 0.5 | Bounded authoring; needs a data-engineer review pass |
-| 5 | Profiles + templates for the top ~25 triples (≈60% of products) | 2 | The real authoring cost; iterative with mission engineers |
+| 4 | `vocabulary.json` — 57 instrument names + spacecraft/target | 0.5 | Bounded authoring; needs a data-engineer review pass |
+| 5 | The 9 configs covering 95.5% of products | 0.5 | Down from 2 — each file is an ordered path list plus caption fragments (§4.6) |
+| 5b | The remaining 16 configs (to 100%) | 0.5 | Can ship later; small, sparse missions |
 | 6 | API integration: resolution endpoint, cache, `filter_path` slimming, `group_id` sibling query | 1.5 | **Cross-repo** — search proxy / Lambda is outside this repo |
-| 7 | Frontend: rebuild Overview against `presentation`, light surface, dark viewer, at-a-glance, links | 2 | Bulk of the visual work |
+| 7 | Frontend: rebuild Overview against `presentation`, light surface, dark viewer, at-a-glance, links | 2 | Bulk of the visual work; unchanged |
 | 8 | Mobile reflow + short-caption disclosure + no-browse empty states | 1 | |
-| 9 | Validation: JSON Schema in CI, mapping-snapshot check, golden fixtures, coverage report | 1 | |
+| 9 | Validation: JSON Schema in CI, mapping-snapshot check, golden fixtures, per-instrument coverage report | 0.75 | Down from 1 — no template parser to validate |
 | 10 | Preview CLI for config authors | 0.5 | Replaces the "template studio" idea cheaply |
 | 11 | Playwright coverage across profile shapes (rover, orbiter, sparse, no-browse) | 1 | Per `AGENTS.md` selector rules; no download clicks |
-| | **Total** | **≈12** | |
+| | **Total** | **≈9.25** | Down from ≈12 in the first draft |
+
+The reduction is almost entirely items 2, 5 and 9, and all three come from the
+same two decisions: no derived fields, and no config layer below
+`mission × pds_standard`. Item 7 — the actual frontend rebuild — doesn't move,
+and is now the largest single line item. That is the right shape: the cost
+should be in the UI, not in the configuration system feeding it.
 
 Sequencing and risk:
 
@@ -978,14 +1205,16 @@ Sequencing and risk:
   client-side behind a flag — the record page already receives the full
   `_source` (§8.1), so a client-side prototype is possible with no backend
   change. That is a prototype path only, not the shipping architecture, since
-  it would put template internals in the bundle.
-- **Item 5 grows with ambition, not with difficulty.** Each additional profile
-  is cheap; the question is only how much of the 40% long tail gets
-  hand-authored versus left to `_default`.
+  it would put config internals in the bundle.
+- **Item 5 is no longer the dominant authoring cost**, which is the main
+  practical change from the first draft. Nine files at ~20 lines each is a
+  review-in-an-afternoon job, not a project. Most of the remaining authoring
+  effort moved into item 4, which is a flat list of display names.
 - **The MSL PDS4 normalization gap (§3.4)** is the one item worth escalating
   to the indexing team in parallel. The fallback chains make it survivable,
-  but 26M products reading their sol out of a raw label is a workaround, not
-  a resting state.
+  but 6.9M products reading their sol out of a raw label is a workaround, not
+  a resting state — and under the no-derived-fields rule it is also the reason
+  PDS4 Site/Drive tiles cannot ship at all until it is fixed.
 
 ---
 
@@ -997,7 +1226,8 @@ Sequencing and risk:
    client-side-resolved behind a flag.
 2. **Can `gather.landed_missions` / `gather.lighting_geometry` be populated
    for PDS4 surface products?** This single change would materially simplify
-   config for ~26M MSL products.
+   config for the 6.91M MSL PDS4 products, and is the only way PDS4 Site/Drive
+   tiles can exist at all under the no-derived-fields rule.
 3. **Bundle- or collection-level DOIs** — do they exist in PDS registry
    metadata, and can Atlas cite them? Affects §6.4 wording.
 4. **Can `gather.ancillary.group_id` be extended** beyond `mars_2020`? Decides
@@ -1006,7 +1236,12 @@ Sequencing and risk:
    narrow indexed-field carve-out needs designing in from the start.
 6. **Who are the named config owners per mission?** The schema and validation
    only pay off if there is someone expected to author profiles for their
-   mission.
+   mission. With only 25 files, a single owner for all of them is now a
+   realistic alternative to per-mission ownership.
+7. **Does the prose description ship in release one?** §4.8 offers three
+   options; the recommendation is sentence-list prose, but shipping
+   caption-only first is a legitimate scope cut that removes an entire
+   component.
 
 ---
 
@@ -1020,6 +1255,17 @@ Sequencing and risk:
   mission.
 - Config-space sizing: `composite` aggregation over
   `mission × instrument × product_type`, paged to exhaustion (882 buckets).
+  This is the number of distinct field-availability shapes, **not** the number
+  of config files — see §4.1.
+- Config-count sizing (§4.1): for each of the 25 mission × `pds_standard`
+  populations, a `filters` aggregation of `exists` over a 38-field candidate
+  pool, run once for the population and once per instrument within it (91
+  instruments total), with `track_total_hits: true` throughout. A field counts
+  as present for an instrument at ≥95% of that instrument's products and absent
+  at ≤5%; "instruments disagree" means one instrument is above the first
+  threshold and another below the second. Instruments contributing under
+  max(1000 products, 0.1% of the population) were excluded to keep long-tail
+  noise out of the union.
 - Documents inspected in full: M2020 MCZ_RIGHT RNR, M2020 NAVCAM_RIGHT TDR,
   MSL MAST_LEFT (both PDS3 and PDS4), MER PANCAM, MRO HiRISE, Cassini,
   MGS MOC `m0400821.imq`.
