@@ -26,10 +26,16 @@ import './OpenSeadragon.css'
 
 const useStyles = makeStyles((theme) => ({
     OpenSeadragonViewer: {
-        width: '100%',
-        height: '100%',
-        background: theme.palette.swatches.grey.grey800,
-        position: 'relative',
+        'width': '100%',
+        'height': '100%',
+        'background': theme.palette.swatches.grey.grey800,
+        'position': 'relative',
+        // The minimap is too costly for a phone-width viewer.
+        '& .navigator': {
+            [theme.breakpoints.down('md')]: {
+                display: 'none !important',
+            },
+        },
     },
     OpenSeadragonContainer: {
         width: '100%',
@@ -212,7 +218,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed
                 showNavigator: true,
                 showRotationControl: true,
                 degrees: window.atlasGlobal.imageRotation || 0,
-                navigatorPosition: 'BOTTOM_LEFT',
+                navigatorPosition: 'TOP_RIGHT',
                 navigatorSizeRatio: 0.14,
                 ...settings,
             })
