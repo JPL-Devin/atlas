@@ -1311,7 +1311,7 @@ from §4.1.
 | 5 | The 9 configs covering 95.5% of products | 0.5 | Down from 2 — each file is an ordered list of `gather.*` paths plus caption fragments (§4.7) |
 | 5b | The remaining 16 configs (to 100%) | 0.5 | Can ship later; small, sparse missions |
 | 6 | API integration: resolution endpoint, cache, `filter_path` slimming | 1.25 | **Cross-repo** — search proxy / Lambda is outside this repo. Down from 1.5: no sibling-count query (§6.2) |
-| 7 | Frontend: rebuild Overview against `presentation`, light surface, dark viewer, at-a-glance, links | 2 | Bulk of the visual work; unchanged |
+| 7 | Frontend: rebuild Overview against `presentation`, dark surface, at-a-glance, links | 2 | Bulk of the visual work; unchanged |
 | 8 | Mobile reflow + no-browse empty states | 0.75 | Down from 1 — no description disclosure to build (§9) |
 | 9 | Validation: JSON Schema in CI, path-root check, mapping-snapshot check, golden fixtures, per-instrument coverage report | 0.75 | Down from 1 — no template parser to validate |
 | 10 | Preview CLI for config authors | 0.5 | Replaces the "template studio" idea cheaply |
@@ -1490,9 +1490,8 @@ Running the page against real records surfaced four defects, all fixed:
   OpenSeadragon's legacy "no browse image" panel instead of the configured
   empty state. The viewer now reports `open-failed` up to the Overview, which
   swaps in the configured empty state.
-- **"View full label" was invisible** — an outlined button inheriting white
-  text from the old dark surface. It now takes its colour from the theme's text
-  palette.
+- **"View full label" was invisible** — an outlined button with no explicit
+  colour. It now takes its colour explicitly from the grey swatches.
 - **Citation punctuation and overflow.** Citation fragments carried their own
   commas, so a dropped fragment left a dangling comma; they are now
   punctuation-free and joined with `, ` (the §12.2 rule, applied to citations
@@ -1503,6 +1502,13 @@ Running the page against real records surfaced four defects, all fixed:
 
 Also `gather.ancillary.eye_type` moved off the camera icon (shared with
 Instrument) onto its own.
+
+### 12.8 The record body is dark, per the mockup
+
+The Overview renders on the mockup's dark surface, not Atlas's light one: the
+metadata column is `grey800` with `grey850` tiles, labels `grey400`, values
+`grey0`; the viewer column stays `grey900`. The shell above it (topbar,
+branding, icon rail, title bar, tabs) is untouched.
 
 Two mockup elements are still absent and are product decisions, not
 implementation gaps: the **Related Products tab** (no such tab exists in

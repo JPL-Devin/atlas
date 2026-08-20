@@ -27,8 +27,8 @@ const useStyles = makeStyles((theme) => ({
     Overview: {
         width: '100%',
         height: '100%',
-        background: theme.palette.swatches.grey.grey100,
-        color: theme.palette.text.primary,
+        background: theme.palette.swatches.grey.grey800,
+        color: theme.palette.swatches.grey.grey0,
         display: 'flex',
         [theme.breakpoints.down('md')]: {
             flexFlow: 'column',
@@ -91,12 +91,13 @@ const useStyles = makeStyles((theme) => ({
         boxSizing: 'border-box',
         overflowY: 'auto',
         padding: '16px 20px 32px 20px',
-        borderLeft: `1px solid ${theme.palette.swatches.grey.grey300}`,
+        background: theme.palette.swatches.grey.grey800,
+        borderLeft: `1px solid ${theme.palette.swatches.grey.grey700}`,
         [theme.breakpoints.down('md')]: {
             width: '100%',
             height: 'unset',
             borderLeft: 'none',
-            borderTop: `1px solid ${theme.palette.swatches.grey.grey300}`,
+            borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
         },
     },
     heading: {
@@ -104,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
         letterSpacing: '0.06em',
         textTransform: 'uppercase',
-        color: theme.palette.swatches.grey.grey500,
+        color: theme.palette.swatches.grey.grey400,
         marginBottom: '10px',
     },
     tiles: {
@@ -119,8 +120,8 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     tile: {
-        background: theme.palette.swatches.grey.grey150,
-        border: `1px solid ${theme.palette.swatches.grey.grey300}`,
+        background: theme.palette.swatches.grey.grey850,
+        border: `1px solid ${theme.palette.swatches.grey.grey700}`,
         borderRadius: '2px',
         padding: '8px 10px',
         minWidth: 0,
@@ -132,7 +133,7 @@ const useStyles = makeStyles((theme) => ({
         'fontSize': '11px',
         'textTransform': 'uppercase',
         'letterSpacing': '0.04em',
-        'color': theme.palette.swatches.grey.grey600,
+        'color': theme.palette.swatches.grey.grey400,
         'whiteSpace': 'nowrap',
         'overflow': 'hidden',
         '& > svg': {
@@ -152,7 +153,7 @@ const useStyles = makeStyles((theme) => ({
     tileSub: {
         fontSize: '11px',
         lineHeight: '16px',
-        color: theme.palette.swatches.grey.grey600,
+        color: theme.palette.swatches.grey.grey300,
         wordBreak: 'break-word',
     },
     secondary: {
@@ -166,12 +167,16 @@ const useStyles = makeStyles((theme) => ({
         marginTop: '16px',
         fontSize: '12px',
         lineHeight: '18px',
-        color: theme.palette.swatches.grey.grey600,
+        color: theme.palette.swatches.grey.grey400,
         overflowWrap: 'anywhere',
     },
     labelButton: {
-        color: theme.palette.text.primary,
-        borderColor: theme.palette.swatches.grey.grey400,
+        'color': theme.palette.swatches.grey.grey0,
+        'borderColor': theme.palette.swatches.grey.grey500,
+        '&:hover': {
+            borderColor: theme.palette.swatches.grey.grey300,
+            background: theme.palette.swatches.grey.grey700,
+        },
     },
     versionRow: {
         display: 'flex',
@@ -183,10 +188,17 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '12px',
         textTransform: 'uppercase',
         letterSpacing: '0.04em',
-        color: theme.palette.swatches.grey.grey600,
+        color: theme.palette.swatches.grey.grey400,
     },
     select: {
-        fontSize: '14px',
+        'fontSize': '14px',
+        'color': theme.palette.swatches.grey.grey0,
+        '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: theme.palette.swatches.grey.grey500,
+        },
+        '& .MuiSvgIcon-root': {
+            color: theme.palette.swatches.grey.grey300,
+        },
     },
     // Describes the image for screen readers; the viewer itself is a canvas.
     srOnly: {
