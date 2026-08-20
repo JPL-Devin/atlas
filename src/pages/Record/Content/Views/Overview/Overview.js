@@ -200,6 +200,15 @@ const useStyles = makeStyles((theme) => ({
             color: theme.palette.swatches.grey.grey300,
         },
     },
+    selectMenu: {
+        '& .MuiPaper-root': {
+            background: theme.palette.swatches.grey.grey850,
+            color: theme.palette.swatches.grey.grey0,
+        },
+        '& .MuiMenuItem-root.Mui-selected, & .MuiMenuItem-root:hover': {
+            background: theme.palette.swatches.grey.grey700,
+        },
+    },
     // Describes the image for screen readers; the viewer itself is a canvas.
     srOnly: {
         position: 'absolute',
@@ -297,6 +306,7 @@ const Overview = (props) => {
                         <FormControl size="small">
                             <Select
                                 className={c.select}
+                                MenuProps={{ className: c.selectMenu }}
                                 aria-label="record version"
                                 onChange={(e) => {
                                     navigate(
