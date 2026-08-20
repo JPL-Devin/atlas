@@ -1529,23 +1529,37 @@ implementation left out:
   of a sentence behind — an MSL PDS4 record with no normalized instrument opens
   on "It observes Mars." rather than a broken lead. Hidden under `md`, where
   the short caption carries the page.
-- **Field filter.** One input filters every row in the panel by label or value.
-  Filtering expands all sections so a match is never hidden behind a collapsed
-  header.
+- **Field filter.** One input filters every row in the panel by label or value,
+  with the live field count in its placeholder. Filtering expands all sections
+  so a match is never hidden behind a collapsed header. A **Raw names** toggle
+  beside it adds the raw-label section; with it off, every visible row carries a
+  catalogued label, so `gather.*` paths stay out of the UI by default.
 - **Collapsible sections.** `sections.json` groups catalogued normalized paths
   into `identification`, `observation`, `geometry_surface`,
   `geometry_orbital` and `files`; a profile lists the ids it wants, so an
   orbiter never renders a surface-geometry section. Rows resolve through the
   same catalog and validity gate as tiles, so absent fields — and then empty
-  sections — drop out. A final **All label fields** section flattens the raw
-  `pds3_label`/`pds4_label`, which is the one place field names appear as the
-  archive spells them; every row has a copy-value button.
+  sections — drop out. Identification and Observation open on load, the rest
+  start collapsed. Behind **Raw names**, a final **All label fields** section
+  flattens `pds3_label`/`pds4_label`, skipping object-valued keys so no row
+  renders `[object Object]`. Every row has a copy-value button.
+
+  Note `ES_PATHS.pds4_label` is shadowed in `constants.js` by a nested object of
+  the same name, so `getIn` with it returns the whole record. This view spells
+  the two label paths out locally; `ProductLabel.js` still uses the shadowed
+  constant and is worth a separate look.
 - **Action bar.** Download (`SplitButton` over the record's related products),
   Add to cart, Copy citation, View full label and copy-link, pinned below the
   scrolling panel. Download and cart reuse the same
   `streamDownloadFile`/`addToCart` calls as the title bar via
   `src/core/recordDownloads.js`; the title bar hides its download button under
-  `md`, so this is also the only download affordance on a phone.
+  `md`, so this is also the only download affordance on a phone. The bar is
+  `position: sticky` so it stays reachable on a phone without scrolling past the
+  whole field list.
+
+Description fragments open on the product type rather than an article
+(`EDR image from …`, not `a EDR image from …`), since product types are
+acronyms and an a/an rule would be a derived field.
 
 No template authoring surfaces here: rendered output only, no template source,
 profile names, token counts or edit affordances, per §3's constraint as

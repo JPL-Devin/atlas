@@ -277,6 +277,24 @@ const useStyles = makeStyles((theme) => ({
             opacity: 1,
         },
     },
+    rawNames: {
+        'flexShrink': 0,
+        'fontSize': '10px',
+        'letterSpacing': '0.04em',
+        'color': theme.palette.swatches.grey.grey300,
+        'border': `1px solid ${theme.palette.swatches.grey.grey600}`,
+        'borderRadius': '9px',
+        'padding': '0 8px',
+        'minWidth': 0,
+        '&:hover': {
+            background: theme.palette.swatches.grey.grey700,
+        },
+    },
+    rawNamesOn: {
+        background: theme.palette.swatches.blue.blue700,
+        color: theme.palette.swatches.grey.grey0,
+        borderColor: theme.palette.swatches.blue.blue700,
+    },
     clearFilter: {
         color: theme.palette.swatches.grey.grey300,
         transition: 'opacity 0.2s ease-out',
@@ -365,6 +383,9 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     actions: {
+        position: 'sticky',
+        bottom: 0,
+        zIndex: 1,
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
@@ -428,6 +449,11 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const RAW_SECTION_ID = 'raw'
+// Sections open on load; the rest start collapsed, as in the mockup.
+const OPEN_SECTIONS = ['identification', 'observation']
+// ES_PATHS.pds4_label is shadowed by a nested object of the same name, so the
+// raw label paths are spelled out here.
+const LABEL_PATHS = { pds3: ['pds3_label'], pds4: ['pds4_label'] }
 
 const matches = (row, filter) =>
     filter === '' ||
@@ -444,6 +470,7 @@ const Overview = (props) => {
     const [viewerFailed, setViewerFailed] = useState(false)
     const [filterString, setFilterString] = useState('')
     const [collapsed, setCollapsed] = useState({})
+    const [rawNames, setRawNames] = useState(false)
 
     const release_id = getIn(recordData, ES_PATHS.release_id)
     const browse_uri = getIn(recordData, ES_PATHS.browse)
@@ -489,25 +516,27 @@ const Overview = (props) => {
         : presentation.tiles
     const caption = isNarrow ? presentation.shortCaption : presentation.caption
 
-    // The raw label, flattened, is the last section: the only place field names
-    // appear as the archive spells them.
+    // The raw label, flattened, is the one place field names appear as the
+    // archive spells them, so it sits behind the raw-names toggle.
     const rawRows = useMemo(() => {
         const labelData = getIn(
             recordData,
-            pds_standard === 'pds4' ? ES_PATHS.pds4_label : ES_PATHS.pds3_label,
+            pds_standard === 'pds4' ? LABEL_PATHS.pds4 : LABEL_PATHS.pds3,
             {}
         )
         const flattened = flat.flatten(labelData, { delimiter: ' · ' })
         return Object.keys(flattened)
             .sort()
-            .map((key) => ({ label: key, value: String(flattened[key]) }))
+            .map((key) => ({ label: key, value: flattened[key] }))
+            .filter((row) => ['string', 'number', 'boolean'].includes(typeof row.value))
+            .map((row) => ({ label: row.label, value: String(row.value) }))
             .filter((row) => row.value !== '' && row.value !== 'null')
     }, [recordData, pds_standard])
 
     const filter = filterString.trim().toLowerCase()
     const sections = [
         ...presentation.sections,
-        { id: RAW_SECTION_ID, title: 'All label fields', rows: rawRows },
+        ...(rawNames ? [{ id: RAW_SECTION_ID, title: 'All label fields', rows: rawRows }] : []),
     ]
         .map((section) => ({
             ...section,
@@ -515,6 +544,7 @@ const Overview = (props) => {
         }))
         .filter((section) => section.rows.length > 0)
 
+    const fieldCount = sections.reduce((total, section) => total + section.rows.length, 0)
     const downloadProducts = getDownloadProducts(recordData)
     const showVersions = pds_standard === 'pds4' && versions.length > 0
 
@@ -638,7 +668,9 @@ const Overview = (props) => {
                         <Input
                             className={c.filterInput}
                             value={filterString}
-                            placeholder="Filter fields…"
+                            placeholder={`Filter ${fieldCount} field${
+                                fieldCount === 1 ? '' : 's'
+                            }…`}
                             inputProps={{ 'aria-label': 'filter record fields' }}
                             startAdornment={
                                 <InputAdornment position="start">
@@ -660,23 +692,32 @@ const Overview = (props) => {
                             }
                             onChange={(e) => setFilterString(e.target.value)}
                         />
+                        <Button
+                            className={`${c.rawNames} ${rawNames ? c.rawNamesOn : ''}`}
+                            size="small"
+                            aria-pressed={rawNames}
+                            onClick={() => setRawNames(!rawNames)}
+                        >
+                            Raw names
+                        </Button>
                     </div>
                     {sections.length === 0 && (
                         <div className={c.noMatches}>No fields match “{filterString}”</div>
                     )}
                     {sections.map((section) => {
                         // Filtering expands everything so matches are never hidden.
-                        const open = filter !== '' || collapsed[section.id] !== true
+                        const open =
+                            filter !== '' ||
+                            (collapsed[section.id] == null
+                                ? OPEN_SECTIONS.includes(section.id)
+                                : !collapsed[section.id])
                         return (
                             <div className={c.section} key={section.id}>
                                 <button
                                     className={c.sectionHead}
                                     aria-expanded={open}
                                     onClick={() =>
-                                        setCollapsed({
-                                            ...collapsed,
-                                            [section.id]: !collapsed[section.id],
-                                        })
+                                        setCollapsed({ ...collapsed, [section.id]: open })
                                     }
                                 >
                                     <span>

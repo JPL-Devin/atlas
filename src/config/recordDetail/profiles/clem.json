@@ -26,7 +26,7 @@
         "files"
     ],
     "description": [
-        "This is a {{gather.common.product_type}} product from {{gather.common.instrument}} aboard {{gather.common.spacecraft}}.",
+        "{{gather.common.product_type}} product from {{gather.common.instrument}} aboard {{gather.common.spacecraft}}.",
         "It observes {{gather.common.target}} at {{gather.common.geo_location}} through the {{gather.common.filter}} filter.",
         "It was acquired on orbit {{gather.orbital_missions.orbit}}.",
         "The product is archived in {{gather.pds_archive.data_set_id}}."
