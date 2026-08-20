@@ -26,11 +26,11 @@
     ],
     "citation": [
         "{{gather.common.spacecraft}}",
-        "{{gather.common.instrument_name}},",
-        "{{gather.pds_archive.product_id}}.",
-        "NASA Planetary Data System,",
-        "{{gather.pds_archive.data_set_id}},",
-        "release {{gather.pds_archive.release_id}}."
+        "{{gather.common.instrument_name}}",
+        "{{gather.pds_archive.product_id}}",
+        "NASA Planetary Data System",
+        "{{gather.pds_archive.data_set_id}}",
+        "release {{gather.pds_archive.release_id}}"
     ],
     "emptyState": "no_browse_generic"
 }

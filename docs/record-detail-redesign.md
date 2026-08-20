@@ -1481,6 +1481,35 @@ no fragment uses conditional syntax. The fixture specs assert resolved output
 against real records, including that the resolved payload contains neither
 `gather.` nor `{{`.
 
+### 12.7 Fixes from the first browser pass
+
+Running the page against real records surfaced four defects, all fixed:
+
+- **No-browse detection.** `.IMG` products with no browse asset fell through to
+  the source product URL, so MESSENGER MDIS and MSL PDS4 records showed
+  OpenSeadragon's legacy "no browse image" panel instead of the configured
+  empty state. The viewer now reports `open-failed` up to the Overview, which
+  swaps in the configured empty state.
+- **"View full label" was invisible** — an outlined button inheriting white
+  text from the old dark surface. It now takes its colour from the theme's text
+  palette.
+- **Citation punctuation and overflow.** Citation fragments carried their own
+  commas, so a dropped fragment left a dangling comma; they are now
+  punctuation-free and joined with `, ` (the §12.2 rule, applied to citations
+  too). The block wraps instead of scrolling horizontally.
+- **Tile labels truncated on desktop.** Tiles use `shortLabel` at every
+  breakpoint, with the full label as the tooltip, matching the mockup's card
+  titles ("Local time", "Sun elev.").
+
+Also `gather.ancillary.eye_type` moved off the camera icon (shared with
+Instrument) onto its own.
+
+Two mockup elements are still absent and are product decisions, not
+implementation gaps: the **Related Products tab** (no such tab exists in
+`Content.js` today — the mockup shows one) and the mockup's collapsible label
+sections / viewer toolbar / prose "About this product" block, which §1's
+direction replaced with the caption plus at-a-glance.
+
 ---
 
 ## Appendix: verification notes

@@ -406,7 +406,7 @@
     },
     "gather.ancillary.eye_type": {
         "label": "Eye",
-        "icon": "camera",
+        "icon": "eye",
         "format": "titlecase",
         "microLabel": "eye"
     },

@@ -116,6 +116,15 @@ test.describe('resolvePresentation', () => {
         expect(tileOf(m2020, 'Local true solar time').sub).toBe('LMST 14:19:46')
     })
 
+    test('citation never ends on dangling punctuation when a fragment drops', () => {
+        ;[mars2020Navcam, mslPds3, mgsMoc, messNoBrowse].forEach((record) => {
+            const citation = resolvePresentation(record).citation
+            if (citation == null) return
+            expect(citation).not.toMatch(/[,;·-]\s*$/)
+            expect(citation).not.toMatch(/,\s*,/)
+        })
+    })
+
     test('a sub-line drops on its own when its field is missing', () => {
         const p = resolvePresentation(mars2020Navcam)
         const sol = tileOf(p, 'Sol')

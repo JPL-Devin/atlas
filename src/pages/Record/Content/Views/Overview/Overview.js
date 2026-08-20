@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
@@ -167,6 +167,11 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '12px',
         lineHeight: '18px',
         color: theme.palette.swatches.grey.grey600,
+        overflowWrap: 'anywhere',
+    },
+    labelButton: {
+        color: theme.palette.text.primary,
+        borderColor: theme.palette.swatches.grey.grey400,
     },
     versionRow: {
         display: 'flex',
@@ -201,6 +206,7 @@ const Overview = (props) => {
     const dispatch = useDispatch()
     const theme = useTheme()
     const isNarrow = useMediaQuery(theme.breakpoints.down('md'))
+    const [viewerFailed, setViewerFailed] = useState(false)
 
     const release_id = getIn(recordData, ES_PATHS.release_id)
     const browse_uri = getIn(recordData, ES_PATHS.browse)
@@ -217,7 +223,14 @@ const Overview = (props) => {
         imgURL = getPDSUrl(uri, release_id)
         type = getExtension(imgURL, true)
     }
-    const hasViewable = imgURL != null && (type === 'obj' || IMAGE_EXTENSIONS.includes(type))
+    // A product whose only asset is a source image the archive can't render
+    // falls back to the configured empty state once the viewer reports failure.
+    const hasViewable =
+        imgURL != null && (type === 'obj' || IMAGE_EXTENSIONS.includes(type)) && !viewerFailed
+
+    useEffect(() => {
+        setViewerFailed(false)
+    }, [imgURL])
 
     let Viewer = null
     if (hasViewable)
@@ -225,7 +238,11 @@ const Overview = (props) => {
             type === 'obj' ? (
                 <ThreeViewer url={imgURL} release_id={release_id} supplemental={supplemental} />
             ) : (
-                <OpenSeadragonViewer image={{ src: imgURL }} settings={{ defaultZoomLevel: 0.5 }} />
+                <OpenSeadragonViewer
+                    image={{ src: imgURL }}
+                    settings={{ defaultZoomLevel: 0.5 }}
+                    onOpenFailed={() => setViewerFailed(true)}
+                />
             )
 
     // Phones show only the priority tiles; wider viewports show the configured
@@ -293,8 +310,8 @@ const Overview = (props) => {
                             <div className={c.tile} key={idx}>
                                 <div className={c.tileLabel}>
                                     {Icon && <Icon />}
-                                    <span className={c.tileLabelText}>
-                                        {isNarrow ? tile.shortLabel : tile.label}
+                                    <span className={c.tileLabelText} title={tile.label}>
+                                        {tile.shortLabel}
                                     </span>
                                 </div>
                                 <div className={c.tileValue}>{tile.value}</div>
@@ -305,6 +322,7 @@ const Overview = (props) => {
                 </div>
                 <div className={c.secondary}>
                     <Button
+                        className={c.labelButton}
                         size="small"
                         variant="outlined"
                         onClick={() => dispatch(setRecordViewTab('product label'))}

@@ -125,7 +125,7 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
             renderFragments(recordData, profile.shortCaption, separator) ||
             renderFragments(recordData, profile.caption, separator),
         altText: renderFragments(recordData, profile.altText),
-        citation: renderFragments(recordData, profile.citation),
+        citation: renderFragments(recordData, profile.citation, ', '),
         tiles,
         priorityTiles: profile.priorityTiles != null ? profile.priorityTiles : tiles.length,
         emptyState: profile.emptyState || 'no_browse_generic',

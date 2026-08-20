@@ -6,6 +6,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFileOutlined'
 import InventoryIcon from '@mui/icons-material/Inventory2Outlined'
 import LayersIcon from '@mui/icons-material/LayersOutlined'
 import PhotoCameraIcon from '@mui/icons-material/PhotoCameraOutlined'
+import VisibilityIcon from '@mui/icons-material/VisibilityOutlined'
 import PlaceIcon from '@mui/icons-material/PlaceOutlined'
 import PublicIcon from '@mui/icons-material/PublicOutlined'
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunchOutlined'
@@ -19,6 +20,7 @@ const tileIcons = {
     calendar: CalendarTodayIcon,
     camera: PhotoCameraIcon,
     clock: AccessTimeIcon,
+    eye: VisibilityIcon,
     file: InsertDriveFileIcon,
     filter: FilterAltIcon,
     layers: LayersIcon,

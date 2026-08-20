@@ -178,7 +178,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
+const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed }) => {
     const [viewer, setViewer] = useState(null)
     const [openFailed, setOpenFailed] = useState(false)
     const [imageLoading, setImageLoading] = useState(true)
@@ -243,14 +243,15 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                 setSvgOverlay(so)
                 drawFeatures(so, features)
             }
-            const onOpenFailed = function () {
+            const handleOpenFailed = function () {
                 setImageLoading(false)
                 setOpenFailed(true)
+                if (typeof onOpenFailed === 'function') onOpenFailed()
             }
             openHandlerRef.current = onOpen
-            openFailedHandlerRef.current = onOpenFailed
+            openFailedHandlerRef.current = handleOpenFailed
             viewer.addHandler('open', onOpen)
-            viewer.addHandler('open-failed', onOpenFailed)
+            viewer.addHandler('open-failed', handleOpenFailed)
             viewer.open({
                 type: 'image',
                 url: image.src,
@@ -443,6 +444,8 @@ function drawFeatures(overlay, features) {
     }
 }
 
-OpenSeadragonViewer.propTypes = {}
+OpenSeadragonViewer.propTypes = {
+    onOpenFailed: PropTypes.func,
+}
 
 export default OpenSeadragonViewer
