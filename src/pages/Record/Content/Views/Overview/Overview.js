@@ -19,6 +19,7 @@ import { resolvePresentation } from '../../../../../core/recordPresentation'
 import { emptyStates } from '../../../../../config/recordDetail'
 import { setRecordViewTab } from '../../../../../core/redux/actions/actions.js'
 
+import tileIcons from './tileIcons.js'
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import ThreeViewer from '../../../../../components/ThreeViewer/ThreeViewer'
 
@@ -125,17 +126,33 @@ const useStyles = makeStyles((theme) => ({
         minWidth: 0,
     },
     tileLabel: {
-        fontSize: '11px',
-        textTransform: 'uppercase',
-        letterSpacing: '0.04em',
-        color: theme.palette.swatches.grey.grey600,
-        whiteSpace: 'nowrap',
+        'display': 'flex',
+        'alignItems': 'center',
+        'gap': '4px',
+        'fontSize': '11px',
+        'textTransform': 'uppercase',
+        'letterSpacing': '0.04em',
+        'color': theme.palette.swatches.grey.grey600,
+        'whiteSpace': 'nowrap',
+        'overflow': 'hidden',
+        '& > svg': {
+            fontSize: '12px',
+            flexShrink: 0,
+        },
+    },
+    tileLabelText: {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
     },
     tileValue: {
         fontSize: '14px',
         lineHeight: '20px',
+        wordBreak: 'break-word',
+    },
+    tileSub: {
+        fontSize: '11px',
+        lineHeight: '16px',
+        color: theme.palette.swatches.grey.grey600,
         wordBreak: 'break-word',
     },
     secondary: {
@@ -270,14 +287,21 @@ const Overview = (props) => {
                 )}
                 <div className={c.heading}>At a glance</div>
                 <div className={c.tiles}>
-                    {tiles.map((tile, idx) => (
-                        <div className={c.tile} key={idx}>
-                            <div className={c.tileLabel}>
-                                {isNarrow ? tile.shortLabel : tile.label}
+                    {tiles.map((tile, idx) => {
+                        const Icon = tileIcons[tile.icon]
+                        return (
+                            <div className={c.tile} key={idx}>
+                                <div className={c.tileLabel}>
+                                    {Icon && <Icon />}
+                                    <span className={c.tileLabelText}>
+                                        {isNarrow ? tile.shortLabel : tile.label}
+                                    </span>
+                                </div>
+                                <div className={c.tileValue}>{tile.value}</div>
+                                {tile.sub != null && <div className={c.tileSub}>{tile.sub}</div>}
                             </div>
-                            <div className={c.tileValue}>{tile.value}</div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
                 <div className={c.secondary}>
                     <Button

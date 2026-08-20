@@ -1,5 +1,6 @@
 import emptyStates from './emptyStates.json'
 import fields from './fields.json'
+import icons from './icons.json'
 import validity from './validity.json'
 import mappingSnapshot from './mappingSnapshot.json'
 
@@ -40,4 +41,4 @@ export const instanceProfiles = {
 
 export const defaultProfile = _default
 
-export { emptyStates, fields, validity, mappingSnapshot }
+export { emptyStates, fields, icons, validity, mappingSnapshot }

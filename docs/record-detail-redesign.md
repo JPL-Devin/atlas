@@ -1420,7 +1420,30 @@ instrument path is missing rendered `— Mars`. With structural separators, any
 subset of fragments dropping still reads correctly. A profile can override the
 separator; `altText` and `citation` join with a space since they are prose.
 
-### 12.3 An app-instance layer above mission
+### 12.3 Tiles carry an icon and an optional sub-line
+
+The mockup's at-a-glance cards are three lines — icon + label, value, and a
+smaller secondary line (`Sol 1279 / Ls 334.8°`, `11:45 / LMST 12:36`). Shipped
+tiles reproduce all three without breaking the normalized-paths-only rule:
+
+- Every catalogued field carries an `icon` name from
+  `src/config/recordDetail/icons.json`, mapped to a MUI component in
+  `src/pages/Record/Content/Views/Overview/tileIcons.js`. Names are an
+  allowlist, not a dynamic import, and validation fails on an unknown one.
+- A profile tile entry is either a path string or `{ path, sub }`, where `sub`
+  is a second normalized path rendered on the small line. It reads that field
+  through the same catalog and validity gate, prefixed by the field's
+  `microLabel` (`Ls`, `LMST`, `drive`) or its `shortLabel`. A missing or
+  sentinel `sub` value drops the sub-line only; the tile itself survives.
+- Units are unchanged — they come from the catalog and are already part of the
+  formatted value.
+
+So `{ "path": "…rmc_site", "sub": "…rmc_drive" }` renders the mockup's
+"Site 39 / drive 1469" card as one tile instead of two, while a record with no
+drive still shows Site. Pairing is only a display choice per profile; the paths
+stay direct field reads.
+
+### 12.4 An app-instance layer above mission
 
 Resolution is `_default → mission → mission.pds_standard → instance mission →
 instance instrument`, one layer more than §4.3. Atlas and RAWS are already
@@ -1438,7 +1461,7 @@ differs, the instance/instrument layer exists because *editorial preference*
 differs. Instrument is still not an availability axis (§4.1). RAWS also sets
 `enableRecordCitation: false`, so the citation line is Atlas-only.
 
-### 12.4 Resolution runs client-side, for now
+### 12.5 Resolution runs client-side, for now
 
 §8 recommends the search proxy return resolved strings. The proxy is a
 different repo, so resolution ships as a self-contained module with no React,
@@ -1448,7 +1471,7 @@ public contract (`caption`, `shortCaption`, `altText`, `citation`, `tiles`,
 `priorityTiles`, `emptyState`) is already the payload §8 proposes, and nothing
 outside the module ever sees a path or a template.
 
-### 12.5 Validation
+### 12.6 Validation
 
 `npm run test:unit` runs the checks §7 asks for without a browser or a server:
 every catalogued path exists in the mapping snapshot, every tile path and

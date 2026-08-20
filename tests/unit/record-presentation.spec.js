@@ -11,8 +11,9 @@ import mslPds3 from '../fixtures/records/msl-pds3-mastcam.json'
 import mslPds4 from '../fixtures/records/msl-pds4.json'
 
 const labels = (presentation) => presentation.tiles.map((t) => t.label)
+const tileOf = (presentation, label) => presentation.tiles.find((t) => t.label === label)
 const valueOf = (presentation, label) => {
-    const tile = presentation.tiles.find((t) => t.label === label)
+    const tile = tileOf(presentation, label)
     return tile ? tile.value : null
 }
 
@@ -21,7 +22,7 @@ test.describe('resolvePresentation', () => {
         const p = resolvePresentation(mslPds3)
         expect(valueOf(p, 'Sol')).toBe('2407')
         expect(valueOf(p, 'Site')).toBe('75')
-        expect(valueOf(p, 'Drive')).toBe('1420')
+        expect(tileOf(p, 'Site').sub).toBe('drive 1420')
         expect(p.caption).toBe('MAHLI · Sol 2407 · Site 75 · Drive 1420')
         expect(p.shortCaption).toBe('MAHLI · Sol 2407')
     })
@@ -89,12 +90,36 @@ test.describe('resolvePresentation', () => {
         const serialized = JSON.stringify(p)
         expect(serialized).not.toContain('gather.')
         expect(serialized).not.toContain('{{')
-        expect(Object.keys(p.tiles[0]).sort()).toEqual(['label', 'shortLabel', 'value'])
+        expect(Object.keys(p.tiles[0]).sort()).toEqual([
+            'icon',
+            'label',
+            'shortLabel',
+            'sub',
+            'value',
+        ])
     })
 
     test('tile count honours maxTiles and priorityTiles', () => {
         const p = resolvePresentation(mars2020Navcam)
         expect(p.tiles.length).toBeLessThanOrEqual(8)
         expect(p.priorityTiles).toBe(4)
+    })
+
+    test('tiles carry icons and sub-lines from the paired field', () => {
+        const msl = resolvePresentation(mslPds3)
+        expect(tileOf(msl, 'Sol').icon).toBe('sun')
+        expect(tileOf(msl, 'Sol').sub).toBe('Ls 25.4°')
+
+        const m2020 = resolvePresentation(mars2020Navcam)
+        expect(tileOf(m2020, 'Site').icon).toBe('place')
+        expect(tileOf(m2020, 'Site').sub).toBe('drive 1469')
+        expect(tileOf(m2020, 'Local true solar time').sub).toBe('LMST 14:19:46')
+    })
+
+    test('a sub-line drops on its own when its field is missing', () => {
+        const p = resolvePresentation(mars2020Navcam)
+        const sol = tileOf(p, 'Sol')
+        expect(sol.value).toBeTruthy()
+        expect(sol.sub).toBe(null)
     })
 })

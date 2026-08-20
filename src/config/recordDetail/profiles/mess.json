@@ -6,12 +6,16 @@
         "gather.common.instrument",
         "gather.common.product_type",
         "gather.common.target",
-        "gather.lighting_geometry.incidence_angle",
-        "gather.lighting_geometry.emission_angle",
+        {
+            "path": "gather.lighting_geometry.incidence_angle",
+            "sub": "gather.lighting_geometry.emission_angle"
+        },
         "gather.lighting_geometry.phase_angle",
         "gather.orbital_missions.spacecraft_altitude",
-        "gather.orbital_missions.sub_spacecraft_latitude",
-        "gather.orbital_missions.sub_spacecraft_longitude",
+        {
+            "path": "gather.orbital_missions.sub_spacecraft_latitude",
+            "sub": "gather.orbital_missions.sub_spacecraft_longitude"
+        },
         "gather.common.filter",
         "gather.time.start_time",
         "gather.pds_archive.data_set_id"

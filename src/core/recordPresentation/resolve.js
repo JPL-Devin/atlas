@@ -58,8 +58,24 @@ const readTile = (recordData, path) => {
     return {
         label: field.label,
         shortLabel: field.shortLabel || field.label,
+        icon: field.icon || null,
         value,
     }
+}
+
+// A tile is a path, or { path, sub } where `sub` adds a second field on a
+// smaller line under the value. The sub-line drops on its own.
+const readTileEntry = (recordData, entry) => {
+    const path = typeof entry === 'string' ? entry : entry.path
+    const tile = readTile(recordData, path)
+    if (tile == null) return null
+    if (typeof entry === 'string' || entry.sub == null) return { ...tile, sub: null }
+
+    const sub = readTile(recordData, entry.sub)
+    if (sub == null) return { ...tile, sub: null }
+    const microLabel = getIn(fields, [entry.sub, 'microLabel'])
+    const prefix = microLabel != null ? microLabel : sub.shortLabel
+    return { ...tile, sub: prefix === '' ? sub.value : `${prefix} ${sub.value}` }
 }
 
 const CAPTION_SEPARATOR = ' \u00b7 '
@@ -93,9 +109,9 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
 
     const maxTiles = profile.maxTiles != null ? profile.maxTiles : 8
     const tiles = []
-    ;(profile.tiles || []).forEach((path) => {
+    ;(profile.tiles || []).forEach((entry) => {
         if (tiles.length >= maxTiles) return
-        const tile = readTile(recordData, path)
+        const tile = readTileEntry(recordData, entry)
         if (tile) tiles.push(tile)
     })
 

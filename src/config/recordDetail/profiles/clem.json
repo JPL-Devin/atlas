@@ -9,8 +9,10 @@
         "gather.common.filter",
         "gather.orbital_missions.orbit",
         "gather.common.geo_location",
-        "gather.lighting_geometry.incidence_angle",
-        "gather.lighting_geometry.emission_angle",
+        {
+            "path": "gather.lighting_geometry.incidence_angle",
+            "sub": "gather.lighting_geometry.emission_angle"
+        },
         "gather.lighting_geometry.phase_angle",
         "gather.time.start_time",
         "gather.pds_archive.data_set_id"

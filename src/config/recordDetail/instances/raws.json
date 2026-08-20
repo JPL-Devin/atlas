@@ -3,15 +3,21 @@
     "missions": {
         "mars_2020": {
             "tiles": [
-                "gather.landed_missions.planet_day_number",
-                "gather.landed_missions.start_local_true_solar_time",
-                "gather.common.instrument",
+                {
+                    "path": "gather.landed_missions.planet_day_number",
+                    "sub": "gather.landed_missions.start_local_true_solar_time"
+                },
+                {
+                    "path": "gather.common.instrument",
+                    "sub": "gather.ancillary.eye_type"
+                },
+                {
+                    "path": "gather.landed_missions.rmc_site",
+                    "sub": "gather.landed_missions.rmc_drive"
+                },
                 "gather.ancillary.color_filter",
-                "gather.ancillary.eye_type",
                 "gather.time.start_time",
-                "gather.time.earth_received_start_time",
-                "gather.landed_missions.rmc_site",
-                "gather.landed_missions.rmc_drive"
+                "gather.time.earth_received_start_time"
             ],
             "maxTiles": 6,
             "priorityTiles": 3,
@@ -22,19 +28,26 @@
             ],
             "shortCaption": [
                 "Sol {{gather.landed_missions.planet_day_number}}",
-                "\u00b7 {{gather.common.instrument}}"
+                "· {{gather.common.instrument}}"
             ],
             "instruments": {
                 "NAVCAM_LEFT": {
                     "tiles": [
-                        "gather.landed_missions.planet_day_number",
-                        "gather.landed_missions.start_local_true_solar_time",
-                        "gather.landed_missions.rmc_site",
-                        "gather.landed_missions.rmc_drive",
-                        "gather.landed_missions.site_instrument_azimuth",
-                        "gather.landed_missions.site_instrument_elevation",
+                        {
+                            "path": "gather.landed_missions.planet_day_number",
+                            "sub": "gather.landed_missions.start_local_true_solar_time"
+                        },
+                        {
+                            "path": "gather.landed_missions.rmc_site",
+                            "sub": "gather.landed_missions.rmc_drive"
+                        },
+                        {
+                            "path": "gather.landed_missions.site_instrument_elevation",
+                            "sub": "gather.landed_missions.site_instrument_azimuth"
+                        },
                         "gather.ancillary.eye_type",
-                        "gather.time.start_time"
+                        "gather.time.start_time",
+                        "gather.ancillary.color_filter"
                     ],
                     "maxTiles": 6,
                     "caption": [
@@ -46,14 +59,21 @@
                 },
                 "NAVCAM_RIGHT": {
                     "tiles": [
-                        "gather.landed_missions.planet_day_number",
-                        "gather.landed_missions.start_local_true_solar_time",
-                        "gather.landed_missions.rmc_site",
-                        "gather.landed_missions.rmc_drive",
-                        "gather.landed_missions.site_instrument_azimuth",
-                        "gather.landed_missions.site_instrument_elevation",
+                        {
+                            "path": "gather.landed_missions.planet_day_number",
+                            "sub": "gather.landed_missions.start_local_true_solar_time"
+                        },
+                        {
+                            "path": "gather.landed_missions.rmc_site",
+                            "sub": "gather.landed_missions.rmc_drive"
+                        },
+                        {
+                            "path": "gather.landed_missions.site_instrument_elevation",
+                            "sub": "gather.landed_missions.site_instrument_azimuth"
+                        },
                         "gather.ancillary.eye_type",
-                        "gather.time.start_time"
+                        "gather.time.start_time",
+                        "gather.ancillary.color_filter"
                     ],
                     "maxTiles": 6,
                     "caption": [

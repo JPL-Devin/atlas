@@ -4,16 +4,19 @@
         "pds_standard": "pds3"
     },
     "tiles": [
-        "gather.landed_missions.planet_day_number",
-        "gather.landed_missions.rmc_site",
-        "gather.landed_missions.rmc_drive",
+        {
+            "path": "gather.landed_missions.planet_day_number",
+            "sub": "gather.lighting_geometry.solar_longitude"
+        },
+        { "path": "gather.landed_missions.rmc_site", "sub": "gather.landed_missions.rmc_drive" },
         "gather.common.instrument_name",
         "gather.common.product_type_name",
-        "gather.lighting_geometry.solar_longitude",
         "gather.time.start_time",
         "gather.landed_missions.frame_type",
-        "gather.landed_missions.site_instrument_azimuth",
-        "gather.landed_missions.site_instrument_elevation",
+        {
+            "path": "gather.landed_missions.site_instrument_elevation",
+            "sub": "gather.landed_missions.site_instrument_azimuth"
+        },
         "gather.time.spacecraft_clock_start_count",
         "gather.common.mission_phase_name",
         "gather.pds_archive.data_set_id"

@@ -4,12 +4,14 @@ import {
     defaultProfile,
     emptyStates,
     fields,
+    icons,
     instanceProfiles,
     mappingSnapshot,
     profiles,
 } from '../../src/config/recordDetail'
 import { FORMATTER_NAMES } from '../../src/core/recordPresentation'
 import { TOKEN } from '../../src/core/recordPresentation/resolve'
+import tileIcons from '../../src/pages/Record/Content/Views/Overview/tileIcons.js'
 
 const ALLOWED_PATHS = new Set(mappingSnapshot.paths)
 const CAPTION_KEYS = ['caption', 'shortCaption', 'altText', 'citation']
@@ -46,9 +48,26 @@ test.describe('record detail config', () => {
 
     test('every tile path is catalogued', () => {
         layers().forEach(({ name, layer }) => {
-            ;(layer.tiles || []).forEach((path) => {
-                expect(fields[path], `${name}: tile ${path} is not in the field catalog`).toBeTruthy()
+            ;(layer.tiles || []).forEach((entry) => {
+                const paths =
+                    typeof entry === 'string'
+                        ? [entry]
+                        : [entry.path, entry.sub].filter((p) => p != null)
+                expect(paths.length, `${name}: tile entry has no path`).toBeGreaterThan(0)
+                paths.forEach((path) => {
+                    expect(
+                        fields[path],
+                        `${name}: tile ${path} is not in the field catalog`
+                    ).toBeTruthy()
+                })
             })
+        })
+    })
+
+    test('every catalogued field has an icon the UI can render', () => {
+        Object.entries(fields).forEach(([path, field]) => {
+            expect(icons, `${path} has an unknown icon`).toContain(field.icon)
+            expect(tileIcons[field.icon], `${field.icon} has no component`).toBeTruthy()
         })
     })
 
