@@ -43,7 +43,9 @@ export const resolveProfile = ({ mission, pds_standard, instrument, instance } =
         if (pds_standard) profile = mergeLayer(profile, profiles[`${mission}.${pds_standard}`])
 
         const instanceProfile = instance ? instanceProfiles[instance] : null
-        const instanceMission = instanceProfile ? getIn(instanceProfile, ['missions', mission]) : null
+        const instanceMission = instanceProfile
+            ? getIn(instanceProfile, ['missions', mission])
+            : null
         if (instanceMission) {
             profile = mergeLayer(profile, instanceMission)
             if (instrument)
@@ -148,6 +150,9 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
     const separator = profile.separator != null ? profile.separator : CAPTION_SEPARATOR
 
     return {
+        // Description fragments are whole sentences, so a dropped clause leaves
+        // grammatical prose behind.
+        description: renderFragments(recordData, profile.description, ' '),
         caption: renderFragments(recordData, profile.caption, separator),
         captionTitle: renderFragments(recordData, profile.captionTitle, separator),
         captionChips: readChips(recordData, profile.captionChips),

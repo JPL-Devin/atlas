@@ -21,6 +21,12 @@
         "files"
     ],
     "separator": ", ",
+    "description": [
+        "This is a {{gather.common.product_type}} image from {{gather.common.instrument_name}} aboard {{gather.common.spacecraft}}.",
+        "It was acquired on orbit {{gather.orbital_missions.orbit}} over {{gather.common.target}} at {{gather.common.geo_location}}.",
+        "The observation was made during the {{gather.common.mission_phase_name}} mission phase through the {{gather.common.filter}} filter.",
+        "The product is archived in {{gather.pds_archive.data_set_id}}."
+    ],
     "captionTitle": [
         "{{gather.common.instrument_name}}",
         "orbit {{gather.orbital_missions.orbit}}"

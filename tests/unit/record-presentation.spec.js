@@ -144,6 +144,19 @@ test.describe('resolvePresentation', () => {
         expect(pds4.captionChips.length).toBeLessThan(4)
     })
 
+    test('description clauses drop whole so the prose stays grammatical', () => {
+        const m2020 = resolvePresentation(mars2020Navcam)
+        expect(m2020.description).toContain('on sol 818')
+        expect(m2020.description).not.toContain('undefined')
+        expect(m2020.description).not.toMatch(/\s\./)
+
+        // No normalized instrument on this record, so the lead sentence drops
+        // and the rest still reads as prose.
+        const pds4 = resolvePresentation(mslPds4)
+        expect(pds4.description).not.toContain('aboard')
+        expect(pds4.description.startsWith('It observes Mars.')).toBe(true)
+    })
+
     test('sections carry only fields with a valid normalized value', () => {
         const p = resolvePresentation(mslPds3)
         const ids = p.sections.map((s) => s.id)

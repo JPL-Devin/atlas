@@ -28,6 +28,12 @@
         "geometry_orbital",
         "files"
     ],
+    "description": [
+        "This is a {{gather.common.product_type}} product from {{gather.common.instrument}} aboard {{gather.common.spacecraft}}.",
+        "It was acquired on orbit {{gather.orbital_missions.orbit}} over {{gather.common.target}} at {{gather.common.geo_location}}.",
+        "The Sun was {{gather.lighting_geometry.incidence_angle}} from zenith, viewed at {{gather.lighting_geometry.emission_angle}} emission and {{gather.lighting_geometry.phase_angle}} phase.",
+        "The product is archived in {{gather.pds_archive.data_set_id}}."
+    ],
     "captionTitle": [
         "{{gather.common.instrument}}",
         "orbit {{gather.orbital_missions.orbit}}"

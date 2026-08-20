@@ -16,6 +16,7 @@ import tileIcons from '../../src/pages/Record/Content/Views/Overview/tileIcons.j
 
 const ALLOWED_PATHS = new Set(mappingSnapshot.paths)
 const CAPTION_KEYS = [
+    'description',
     'caption',
     'shortCaption',
     'captionTitle',
@@ -127,9 +128,10 @@ test.describe('record detail config', () => {
     test('tile lists are long enough to survive drop-out', () => {
         Object.entries(profiles).forEach(([name, profile]) => {
             const maxTiles = profile.maxTiles != null ? profile.maxTiles : 8
-            expect(profile.tiles.length, `${name} cannot fill ${maxTiles} tiles`).toBeGreaterThanOrEqual(
-                maxTiles
-            )
+            expect(
+                profile.tiles.length,
+                `${name} cannot fill ${maxTiles} tiles`
+            ).toBeGreaterThanOrEqual(maxTiles)
         })
     })
 })

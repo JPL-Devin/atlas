@@ -201,6 +201,12 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey400,
         marginBottom: '10px',
     },
+    description: {
+        fontSize: '13px',
+        lineHeight: '20px',
+        color: theme.palette.swatches.grey.grey150,
+        marginBottom: '20px',
+    },
     tiles: {
         display: 'grid',
         gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
@@ -599,6 +605,14 @@ const Overview = (props) => {
                                 </Select>
                             </FormControl>
                         </div>
+                    )}
+                    {!isNarrow && presentation.description != null && (
+                        <>
+                            <div className={c.heading}>About this product</div>
+                            <div className={c.description} aria-label="record description">
+                                {presentation.description}
+                            </div>
+                        </>
                     )}
                     <div className={c.heading}>At a glance</div>
                     <div className={c.tiles}>

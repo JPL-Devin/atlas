@@ -43,6 +43,13 @@
         "files"
     ],
     "separator": ", ",
+    "description": [
+        "This is a {{gather.common.product_type}} image from the {{gather.common.instrument}} camera aboard {{gather.common.spacecraft}}.",
+        "It was taken on sol {{gather.landed_missions.planet_day_number}} at {{gather.landed_missions.start_local_true_solar_time}} local true solar time.",
+        "The rover was at site {{gather.landed_missions.rmc_site}}, drive {{gather.landed_missions.rmc_drive}}.",
+        "The camera pointed {{gather.landed_missions.site_instrument_azimuth}} azimuth, {{gather.landed_missions.site_instrument_elevation}} elevation.",
+        "The product is archived in bundle {{gather.pds_archive.bundle_id}}, release {{gather.pds_archive.release_id}}."
+    ],
     "captionTitle": [
         "{{gather.common.instrument}}",
         "Sol {{gather.landed_missions.planet_day_number}}",

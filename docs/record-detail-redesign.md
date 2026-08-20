@@ -1522,6 +1522,13 @@ implementation left out:
   or clause whose path is missing drops whole. Prose profiles set
   `"separator": ", "` so the caption reads as a sentence rather than a
   `·`-joined list. Phones show title + short caption only.
+- **About this product.** The mockup's prose block is back (it was cut in §3.4
+  and restored in review): a profile `description` list rendered above the
+  tiles. Unlike captions, description fragments are whole sentences joined with
+  a space, so a clause whose path is missing drops without leaving a fragment
+  of a sentence behind — an MSL PDS4 record with no normalized instrument opens
+  on "It observes Mars." rather than a broken lead. Hidden under `md`, where
+  the short caption carries the page.
 - **Field filter.** One input filters every row in the panel by label or value.
   Filtering expands all sections so a match is never hidden behind a collapsed
   header.

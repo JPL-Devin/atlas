@@ -20,6 +20,12 @@
         "observation",
         "files"
     ],
+    "description": [
+        "This is a {{gather.common.product_type}} product from {{gather.common.instrument}} aboard {{gather.common.spacecraft}}.",
+        "It observes {{gather.common.target}}.",
+        "The observation started at {{gather.time.start_time}}.",
+        "The product is archived in bundle {{gather.pds_archive.bundle_id}}, collection {{gather.pds_archive.collection_id}}."
+    ],
     "captionTitle": [
         "{{gather.common.instrument}}",
         "{{gather.common.product_type}}"
