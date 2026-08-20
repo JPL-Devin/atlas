@@ -504,7 +504,9 @@ const Overview = (props) => {
             ) : (
                 <OpenSeadragonViewer
                     image={{ src: imgURL }}
-                    settings={{ defaultZoomLevel: 0.5 }}
+                    // 0 opens at the home zoom, so the image fills the viewer's
+                    // constraining dimension.
+                    settings={{ defaultZoomLevel: 0 }}
                     onOpenFailed={() => setViewerFailed(true)}
                 />
             )
