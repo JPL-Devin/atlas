@@ -406,20 +406,9 @@ const useStyles = makeStyles((theme) => ({
     actionIcon: {
         color: theme.palette.swatches.grey.grey200,
     },
-    versionRow: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        marginBottom: '16px',
-    },
-    versionLabel: {
-        fontSize: '12px',
-        textTransform: 'uppercase',
-        letterSpacing: '0.04em',
-        color: theme.palette.swatches.grey.grey400,
-    },
     select: {
-        'fontSize': '14px',
+        'fontSize': '12px',
+        'marginLeft': '4px',
         'color': theme.palette.swatches.grey.grey0,
         '& .MuiOutlinedInput-notchedOutline': {
             borderColor: theme.palette.swatches.grey.grey500,
@@ -535,9 +524,58 @@ const Overview = (props) => {
             .filter((row) => row.value !== '' && row.value !== 'null')
     }, [recordData, pds_standard])
 
+    // The version selector reads as an Identification field, as in the mockup.
+    const showVersions = pds_standard === 'pds4' && versions.length > 0
+    const versionRow = showVersions
+        ? {
+              label: 'Version',
+              value:
+                  activeVersion != null && versions[activeVersion] != null
+                      ? String(versions[activeVersion].version)
+                      : '',
+              node: (
+                  <>
+                      {versions.length > 1 && (
+                          <FormControl size="small" variant="standard">
+                              <Select
+                                  className={c.select}
+                                  MenuProps={{ className: c.selectMenu }}
+                                  aria-label="record version"
+                                  renderValue={() =>
+                                      `${versions.length} version${
+                                          versions.length === 1 ? '' : 's'
+                                      }`
+                                  }
+                                  displayEmpty
+                                  onChange={(e) => {
+                                      navigate(
+                                          `${HASH_PATHS.record}?uri=${
+                                              versions[e.target.value].uri
+                                          }`
+                                      )
+                                  }}
+                                  value={activeVersion == null ? '' : activeVersion}
+                              >
+                                  {versions.map((v, idx) => (
+                                      <MenuItem key={idx} value={idx}>
+                                          {v.version}
+                                      </MenuItem>
+                                  ))}
+                              </Select>
+                          </FormControl>
+                      )}
+                  </>
+              ),
+          }
+        : null
+
     const filter = filterString.trim().toLowerCase()
     const sections = [
-        ...presentation.sections,
+        ...presentation.sections.map((section) =>
+            section.id === 'identification' && versionRow != null
+                ? { ...section, rows: [...section.rows, versionRow] }
+                : section
+        ),
         ...(rawNames ? [{ id: RAW_SECTION_ID, title: 'All label fields', rows: rawRows }] : []),
     ]
         .map((section) => ({
@@ -548,7 +586,6 @@ const Overview = (props) => {
 
     const fieldCount = sections.reduce((total, section) => total + section.rows.length, 0)
     const downloadProducts = getDownloadProducts(recordData)
-    const showVersions = pds_standard === 'pds4' && versions.length > 0
 
     const copy = (text, message) => {
         copyToClipboard(text)
@@ -612,32 +649,6 @@ const Overview = (props) => {
             )}
             <div className={c.metadata}>
                 <div className={c.metadataScroll}>
-                    {showVersions && (
-                        <div className={c.versionRow}>
-                            <div className={c.versionLabel}>Version</div>
-                            <FormControl size="small">
-                                <Select
-                                    className={c.select}
-                                    MenuProps={{ className: c.selectMenu }}
-                                    aria-label="record version"
-                                    onChange={(e) => {
-                                        navigate(
-                                            `${HASH_PATHS.record}?uri=${
-                                                versions[e.target.value].uri
-                                            }`
-                                        )
-                                    }}
-                                    value={activeVersion == null ? '' : activeVersion}
-                                >
-                                    {versions.map((v, idx) => (
-                                        <MenuItem key={idx} value={idx}>
-                                            {v.version}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </div>
-                    )}
                     {!isNarrow && presentation.description != null && (
                         <>
                             <div className={c.heading}>About this product</div>
@@ -735,6 +746,7 @@ const Overview = (props) => {
                                             <div className={c.rowLabel}>{row.label}</div>
                                             <div className={c.rowValue}>
                                                 {row.value}
+                                                {row.node}
                                                 <Tooltip title="Copy value" arrow>
                                                     <IconButton
                                                         className={c.rowCopy}

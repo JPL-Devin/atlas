@@ -71,22 +71,24 @@ const useStyles = makeStyles((theme) => ({
     bottomRight: {
         paddingBottom: theme.spacing(2),
     },
+    // The controls sit over a dark image surface, so they're dark too.
     button: {
         'display': 'block !important',
         'pointerEvents': 'all',
-        'background': theme.palette.swatches.grey.grey150,
+        'background': theme.palette.swatches.grey.grey700,
+        'color': theme.palette.swatches.grey.grey150,
         'padding': theme.spacing(1),
         'margin': theme.spacing(0, 1),
         'borderRadius': 0,
         '&:hover': {
-            background: theme.palette.swatches.grey.grey200,
+            background: theme.palette.swatches.grey.grey600,
         },
     },
     gap: {
         marginBottom: theme.spacing(2),
     },
     joiner: {
-        borderBottom: '1px solid rgba(0,0,0,0.17)',
+        borderBottom: '1px solid rgba(255,255,255,0.13)',
     },
     loadingWrapper: {
         position: 'absolute',
