@@ -1566,6 +1566,23 @@ profile names, token counts or edit affordances, per §3's constraint as
 clarified in review — the rendered *result* of a template is fine in the UI, an
 in-page template editor is not.
 
+### 12.10 Viewer chrome, and the version row
+
+- **Version is an Identification row.** The mockup puts the PDS4 version in the
+  Identification section — value plus an `N versions` affordance — not above the
+  panel, so the selector moved into that section as a normal row: it is counted
+  by the field filter and reachable by searching "version". PDS3 records and
+  single-version products render no selector.
+- **The viewer controls are dark**, like the mockup's: `grey700` buttons with
+  `grey150` icons across every OpenSeadragon view, since they all sit over a dark
+  image surface.
+
+Moving the version control surfaced a real bug: `Record.js` watched
+`location.href`, which react-router's location object does not have, so the
+record never refetched when only the `uri` query param changed — picking a
+version updated the URL and left the previous product on screen. It now watches
+`location.search`.
+
 One mockup element is still absent and is a product decision, not an
 implementation gap: the **Related Products tab** (no such tab exists in
 `Content.js` today — the mockup shows one). The mockup's viewer toolbar
