@@ -531,7 +531,7 @@ const Overview = (props) => {
               label: 'Version',
               value:
                   activeVersion != null && versions[activeVersion] != null
-                      ? String(versions[activeVersion].version)
+                      ? String(versions[activeVersion].versionRaw)
                       : '',
               node: (
                   <>
@@ -558,7 +558,7 @@ const Overview = (props) => {
                               >
                                   {versions.map((v, idx) => (
                                       <MenuItem key={idx} value={idx}>
-                                          {v.version}
+                                          {v.versionRaw}
                                       </MenuItem>
                                   ))}
                               </Select>

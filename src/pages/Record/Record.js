@@ -53,9 +53,10 @@ const Record = (props) => {
         }
     }, [])
 
+    // `uri` lives in the query string, so the record refetches when it changes.
     useEffect(() => {
         dispatch(searchRecordByURI())
-    }, [location.href])
+    }, [location.search])
 
     // Query for different product versions
     useEffect(() => {
