@@ -1544,9 +1544,14 @@ implementation left out:
   shows catalogued normalized fields.
 - **File name section.** A `File name` section below the field list renders the
   same per-mission filename grammar as the title bar, but with room to explain
-  it: the colour-coded name on top and one leader-lined entry per segment
-  carrying its value, label, decoded meaning and description, plus the spec
-  reference. Colours come from `src/pages/Record/filenameColors.js`, which keeps
+  it: the colour-coded name on top, then a flat colour-coded list carrying each
+  segment's value, label, decoded meaning and description, plus the spec
+  reference. Hovering (or focusing) a segment in the name narrows the list to
+  that segment alone and dims the rest of the name; a click pins it, since a
+  touch device never hovers. An indented tree was tried first and dropped — a
+  54-character M20 name has 20 segments, so the indentation ran off the panel
+  and the leader lines stopped tracking their segment.
+  Colours come from `src/pages/Record/filenameColors.js`, which keeps
   a light set for the title bar and a dark set for this panel. Missions with no
   filename spec, and names that do not match the spec's grammar, render plain
   text in the title and omit this section rather than inventing a breakdown.

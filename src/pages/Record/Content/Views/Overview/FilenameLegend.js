@@ -1,13 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles } from '@mui/styles'
 
 import { DARK_COLORS } from '../../../filenameColors'
-
-// Entries line up under their segment, but a late segment would run off the
-// panel, so the indent stops here.
-const MAX_INDENT = 14
 
 const useStyles = makeStyles((theme) => ({
     filename: {
@@ -16,34 +12,23 @@ const useStyles = makeStyles((theme) => ({
         letterSpacing: '0.02em',
         whiteSpace: 'nowrap',
         overflowX: 'auto',
-        paddingBottom: '4px',
+        paddingBottom: '6px',
     },
-    piece: {
-        borderBottom: '2px solid transparent',
+    segment: {
+        'font': 'inherit',
+        'padding': 0,
+        'border': 'none',
+        'background': 'none',
+        'borderBottom': '2px solid',
+        'cursor': 'help',
     },
-    entries: {
-        paddingTop: '4px',
+    segmentDim: {
+        opacity: 0.4,
     },
     entry: {
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: '6px',
-        padding: '2px 0',
-    },
-    // A stem down from the segment, elbowing into its description.
-    elbow: {
-        width: '10px',
-        height: '11px',
-        marginTop: '2px',
-        flexShrink: 0,
-        borderLeft: '1px solid',
-        borderBottom: '1px solid',
-        borderBottomLeftRadius: '3px',
-    },
-    entryText: {
-        minWidth: 0,
         fontSize: '12px',
         lineHeight: '16px',
+        padding: '3px 0',
     },
     entryValue: {
         fontFamily: 'monospace',
@@ -70,50 +55,58 @@ const FilenameLegend = (props) => {
 
     const c = useStyles()
 
-    let offset = 0
-    const pieces = parsed.pieces.map((piece) => {
-        const start = offset
-        offset += piece.text.length
-        return { ...piece, start, color: DARK_COLORS[piece.color] || 'inherit' }
-    })
-    const entries = pieces.filter((piece) => piece.label != null)
+    // Hover narrows the list to one segment; a click pins it, since a touch
+    // device never hovers.
+    const [hovered, setHovered] = useState(null)
+    const [pinned, setPinned] = useState(null)
+    const active = hovered != null ? hovered : pinned
+
+    const pieces = parsed.pieces.map((piece, idx) => ({
+        ...piece,
+        idx,
+        color: DARK_COLORS[piece.color] || 'inherit',
+    }))
+    const labelled = pieces.filter((piece) => piece.label != null)
+    const entries = active != null ? labelled.filter((piece) => piece.idx === active) : labelled
 
     return (
         <div aria-label="filename breakdown">
             <div className={c.filename}>
-                {pieces.map((piece, idx) => (
-                    <span
-                        className={c.piece}
-                        style={{ color: piece.color, borderBottomColor: piece.color }}
-                        key={idx}
-                    >
+                {pieces.map((piece) =>
+                    piece.label == null ? (
+                        <span key={piece.idx}>{piece.text}</span>
+                    ) : (
+                        <button
+                            type="button"
+                            className={`${c.segment} ${
+                                active != null && active !== piece.idx ? c.segmentDim : ''
+                            }`}
+                            style={{ color: piece.color, borderBottomColor: piece.color }}
+                            aria-label={`${piece.label}: ${piece.text}`}
+                            onMouseEnter={() => setHovered(piece.idx)}
+                            onMouseLeave={() => setHovered(null)}
+                            onFocus={() => setHovered(piece.idx)}
+                            onBlur={() => setHovered(null)}
+                            onClick={() => setPinned(pinned === piece.idx ? null : piece.idx)}
+                            key={piece.idx}
+                        >
+                            {piece.text}
+                        </button>
+                    )
+                )}
+            </div>
+            {entries.map((piece) => (
+                <div className={c.entry} key={piece.idx}>
+                    <span className={c.entryValue} style={{ color: piece.color }}>
                         {piece.text}
                     </span>
-                ))}
-            </div>
-            <div className={c.entries}>
-                {entries.map((piece, idx) => (
-                    <div
-                        className={c.entry}
-                        style={{ marginLeft: `${Math.min(piece.start, MAX_INDENT)}ch` }}
-                        key={idx}
-                    >
-                        <div className={c.elbow} style={{ borderColor: piece.color }} />
-                        <div className={c.entryText}>
-                            <span className={c.entryValue} style={{ color: piece.color }}>
-                                {piece.text}
-                            </span>
-                            <span className={c.entryLabel}>{piece.label}</span>
-                            {piece.meaning != null && (
-                                <div className={c.entryMeaning}>{piece.meaning}</div>
-                            )}
-                            {piece.description != null && (
-                                <div className={c.entryDescription}>{piece.description}</div>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
+                    <span className={c.entryLabel}>{piece.label}</span>
+                    {piece.meaning != null && <div className={c.entryMeaning}>{piece.meaning}</div>}
+                    {piece.description != null && (
+                        <div className={c.entryDescription}>{piece.description}</div>
+                    )}
+                </div>
+            ))}
             {parsed.reference != null && <div className={c.reference}>{parsed.reference}</div>}
         </div>
     )
