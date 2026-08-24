@@ -7,7 +7,6 @@ import clsx from 'clsx'
 
 import { makeStyles } from '@mui/styles'
 
-import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
@@ -23,6 +22,7 @@ import Tooltip from '@mui/material/Tooltip'
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined'
 
 import './OpenSeadragon.css'
+import ViewerLoading from '../ViewerLoading/ViewerLoading'
 
 const useStyles = makeStyles((theme) => ({
     OpenSeadragonViewer: {
@@ -89,45 +89,6 @@ const useStyles = makeStyles((theme) => ({
     },
     joiner: {
         borderBottom: '1px solid rgba(255,255,255,0.13)',
-    },
-    loadingWrapper: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        pointerEvents: 'none',
-        opacity: 1,
-        transition: 'opacity 0.4s ease-out',
-    },
-    loadingHidden: {
-        opacity: 0,
-    },
-    loadingPaper: {
-        'background': theme.palette.accent.main,
-        'pointerEvents': 'none',
-        '& > div': {
-            padding: `${theme.spacing(4)} ${theme.spacing(6)}`,
-            display: 'flex',
-            alignItems: 'center',
-        },
-    },
-    loadingProgress: {
-        'marginTop': '1px',
-        'marginRight': theme.spacing(2),
-        '& .MuiCircularProgress-colorPrimary': {
-            color: theme.palette.text.secondary,
-        },
-    },
-    loadingText: {
-        color: theme.palette.text.secondary,
-        fontSize: '14px',
-        fontWeight: 'bold',
-        letterSpacing: '1px',
-        textAlign: 'center',
     },
     openFailedWrapper: {
         opacity: 0,
@@ -372,20 +333,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed
                     </IconButton>
                 </div>
             </div>
-            <div
-                className={clsx(c.loadingWrapper, {
-                    [c.loadingHidden]: !imageLoading || openFailed,
-                })}
-            >
-                <Paper className={c.loadingPaper} elevation={2}>
-                    <div>
-                        <div className={c.loadingProgress}>
-                            <CircularProgress size={20} />
-                        </div>
-                        <div className={c.loadingText}>LOADING</div>
-                    </div>
-                </Paper>
-            </div>
+            <ViewerLoading hidden={!imageLoading || openFailed} />
             <div className={clsx(c.openFailedWrapper, { [c.openFailedShown]: openFailed })}>
                 <div className={clsx(c.status, { [c.statusHidden]: !openFailed })}>
                     <Paper className={c.statusPaper} elevation={2}>

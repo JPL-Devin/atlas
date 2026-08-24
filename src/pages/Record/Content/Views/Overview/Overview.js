@@ -9,13 +9,11 @@ import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
 import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 import Input from '@mui/material/Input'
 import InputAdornment from '@mui/material/InputAdornment'
 import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import FormControl from '@mui/material/FormControl'
@@ -52,6 +50,7 @@ import tileIcons from './tileIcons.js'
 import SplitButton from '../../../../../components/SplitButton/SplitButton'
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import ThreeViewer from '../../../../../components/ThreeViewer/ThreeViewer'
+import ViewerLoading from '../../../../../components/ViewerLoading/ViewerLoading'
 
 const useStyles = makeStyles((theme) => ({
     Overview: {
@@ -171,31 +170,9 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '13px',
         maxWidth: '360px',
     },
-    // Matches the viewers' own indicator, so a pending record and a pending
-    // image look the same.
-    loading: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        pointerEvents: 'none',
-    },
-    loadingPaper: {
-        background: theme.palette.accent.main,
-        display: 'flex',
-        alignItems: 'center',
-        gap: theme.spacing(2),
-        padding: `${theme.spacing(4)} ${theme.spacing(6)}`,
-        color: theme.palette.text.secondary,
-    },
-    loadingText: {
-        fontSize: '14px',
-        fontWeight: 'bold',
-        letterSpacing: '1px',
+    // The viewers paint their own surface, so match it while they're absent.
+    loadingBody: {
+        background: theme.palette.swatches.grey.grey800,
     },
     skeleton: {
         backgroundColor: theme.palette.swatches.grey.grey700,
@@ -678,26 +655,44 @@ const Overview = (props) => {
     // The panel keeps its shape while the record resolves, so nothing shifts
     // once the real values arrive.
     const renderSkeleton = () => (
-        <div className={c.metadataScroll} aria-hidden="true">
-            <div className={c.heading}>At a glance</div>
-            <div className={c.tiles}>
-                {Array.from({ length: 9 }).map((_, idx) => (
-                    <div className={c.tile} key={idx}>
-                        <Skeleton className={c.skeleton} variant="text" width="60%" />
-                        <Skeleton className={c.skeleton} variant="text" width="85%" height={20} />
+        <>
+            <div className={c.metadataScroll} aria-hidden="true">
+                <div className={c.heading}>At a glance</div>
+                <div className={c.tiles}>
+                    {Array.from({ length: 9 }).map((_, idx) => (
+                        <div className={c.tile} key={idx}>
+                            <Skeleton className={c.skeleton} variant="text" width="60%" />
+                            <Skeleton
+                                className={c.skeleton}
+                                variant="text"
+                                width="85%"
+                                height={20}
+                            />
+                        </div>
+                    ))}
+                </div>
+                <div className={c.filter}>
+                    <Skeleton className={c.skeleton} variant="text" width="100%" height={32} />
+                </div>
+                {Array.from({ length: 8 }).map((_, idx) => (
+                    <div className={c.row} key={idx}>
+                        <Skeleton className={c.skeleton} variant="text" width="30%" />
+                        <Skeleton className={c.skeleton} variant="text" width="45%" />
                     </div>
                 ))}
             </div>
-            <div className={c.filter}>
-                <Skeleton className={c.skeleton} variant="text" width="100%" height={32} />
+            <div className={c.actions} aria-hidden="true">
+                {['96px', '110px', '104px'].map((width) => (
+                    <Skeleton
+                        className={c.skeleton}
+                        variant="rounded"
+                        width={width}
+                        height={30}
+                        key={width}
+                    />
+                ))}
             </div>
-            {Array.from({ length: 8 }).map((_, idx) => (
-                <div className={c.row} key={idx}>
-                    <Skeleton className={c.skeleton} variant="text" width="30%" />
-                    <Skeleton className={c.skeleton} variant="text" width="45%" />
-                </div>
-            ))}
-        </div>
+        </>
     )
 
     return (
@@ -705,12 +700,27 @@ const Overview = (props) => {
             {(hasViewable || isLoading || !isNarrow) && (
                 <div className={c.viewerColumn}>
                     {isLoading ? (
-                        <div className={c.viewerBody}>
-                            <div className={c.loading} aria-label="record loading">
-                                <Paper className={c.loadingPaper} elevation={2}>
-                                    <CircularProgress size={20} color="inherit" />
-                                    <div className={c.loadingText}>LOADING</div>
-                                </Paper>
+                        <div className={`${c.viewerBody} ${c.loadingBody}`}>
+                            <ViewerLoading label="record loading" />
+                            <div className={c.captionCard} aria-hidden="true">
+                                <div className={c.captionChips}>
+                                    {['64px', '52px', '78px'].map((width) => (
+                                        <Skeleton
+                                            className={c.skeleton}
+                                            variant="rounded"
+                                            width={width}
+                                            height={18}
+                                            key={width}
+                                        />
+                                    ))}
+                                </div>
+                                <Skeleton
+                                    className={c.skeleton}
+                                    variant="text"
+                                    width="45%"
+                                    height={20}
+                                />
+                                <Skeleton className={c.skeleton} variant="text" width="80%" />
                             </div>
                         </div>
                     ) : hasViewable ? (
