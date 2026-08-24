@@ -1549,7 +1549,7 @@ implementation left out:
   name and dims the others, clicking it again clears it, and an `*` button
   beside the name shows every segment's details at once (with the spec
   reference). Only one segment is explained at a time, so a 20-segment M20 name
-  costs four lines at rest instead of sixty. The name is set at 17px and wraps
+  costs four lines at rest instead of sixty. The name is set at 15px and wraps
   rather than scrolling (a scrolled box hid its `.IMG` tail), the panel is 520px
   wide to give it room, and the details block keeps a 76px min-height so
   switching segments does not shift the panel below it. Two earlier attempts were dropped: an indented

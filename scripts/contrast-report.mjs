@@ -105,8 +105,8 @@ const checks = [
 ]
 
 Object.entries(DARK_COLORS).forEach(([name, value]) => {
-    checks.push([`filename segment ${name}`, value, g.grey800, 17, false])
-    checks.push([`filename segment ${name} (dimmed)`, value, g.grey800, 17, false, 0.7])
+    checks.push([`filename segment ${name}`, value, g.grey800, 15, false])
+    checks.push([`filename segment ${name} (dimmed)`, value, g.grey800, 15, false, 0.7])
 })
 
 const required = (px, bold) => (px >= 24 || (bold && px >= 18.66) ? 3 : 4.5)

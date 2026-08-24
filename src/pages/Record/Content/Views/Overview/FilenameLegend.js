@@ -21,8 +21,8 @@ const useStyles = makeStyles((theme) => ({
     filename: {
         flex: 1,
         fontFamily: 'monospace',
-        fontSize: '17px',
-        lineHeight: '25px',
+        fontSize: '15px',
+        lineHeight: '23px',
         letterSpacing: '0.02em',
         wordBreak: 'break-all',
         paddingBottom: '2px',
