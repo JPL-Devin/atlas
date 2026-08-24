@@ -14,10 +14,15 @@ test.describe('Topbar shell controls', () => {
         await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
     })
 
-    test('topbar exposes the info button', async ({ page }) => {
+    test('the info button is the last icon on the right of the topbar', async ({ page }) => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
-        await expect(page.getByRole('button', { name: 'info button' })).toBeVisible()
+        const info = page.getByRole('button', { name: 'info button' })
+        await expect(info).toBeVisible()
+
+        const infoBox = await info.boundingBox()
+        const cartBox = await page.getByRole('button', { name: /go to cart/i }).boundingBox()
+        expect(infoBox.x).toBeGreaterThan(cartBox.x)
     })
 
     test('the removed rail controls are gone', async ({ page }) => {

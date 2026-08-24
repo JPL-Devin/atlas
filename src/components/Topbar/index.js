@@ -275,16 +275,6 @@ const Topbar = () => {
                 </div>
             </div>
             <div className={c.right}>
-                <Tooltip title={`About ${getAppConfig().appTitle}`} arrow placement="bottom">
-                    <IconButton
-                        className={clsx(c.button)}
-                        aria-label="info button"
-                        onClick={() => dispatch(setModal('information'))}
-                        size="large"
-                    >
-                        <InfoOutlinedIcon fontSize="inherit" />
-                    </IconButton>
-                </Tooltip>
                 <Tooltip title="API Documentation" arrow placement="bottom">
                     <IconButton
                         className={clsx(c.button)}
@@ -351,6 +341,17 @@ const Topbar = () => {
                         </IconButton>
                     </Tooltip>
                 )}
+
+                <Tooltip title={`About ${getAppConfig().appTitle}`} arrow placement="bottom">
+                    <IconButton
+                        className={clsx(c.button)}
+                        aria-label="info button"
+                        onClick={() => dispatch(setModal('information'))}
+                        size="large"
+                    >
+                        <InfoOutlinedIcon fontSize="inherit" />
+                    </IconButton>
+                </Tooltip>
             </div>
         </div>
     )

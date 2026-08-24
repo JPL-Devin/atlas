@@ -103,7 +103,7 @@ but not a hard rule.
 | OpenSeadragon viewer controls | `button` | `aria-label="image view home"`, `"image view zoom in/out"`, `"image view rotate clockwise/counter clockwise"`, `"image view fullscreen"` |
 | RemoveFromCartModal buttons | `button` | `aria-label="yes button"`, `"no button"`, `"close modal"` (literal strings, not regex matches) |
 | Title back button | `button` | Conditional: `aria-label={back === 'page' ? 'go back a page' : 'return to search'}` — use Playwright's `.or()` |
-| Topbar nav buttons | `button` | `name=/go to cart/i`, `"navigation"` (drawer toggle, left of the NASA logo), `"info button"` (information modal) |
+| Topbar nav buttons | `button` | `name=/go to cart/i`, `"navigation"` (drawer toggle, left of the NASA logo), `"info button"` (information modal, last icon at the far right) |
 | Results heading Filters button | `button` | `"filters"` (exact) — label reads `Filters` or `Filters · 3`; `aria-pressed` mirrors sidebar state. Opens a full-screen sheet below `md`. |
 | ResultsPanel Split toggle | `button` | `"split map"` — MUI `ToggleButton`, `aria-pressed`, disabled while the `Map` tab is selected. Desktop only; the map renders to the LEFT of the active view. |
 | Mobile bottom bar (below `md`) | `button` | `"filters view"` / `"results view"` / `"map view"` — MUI `BottomNavigation`. The `Map` tab does NOT exist below `md`; the map lives here instead. |
