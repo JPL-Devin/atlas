@@ -69,6 +69,11 @@ test.describe('record detail config', () => {
                         `${name}: tile ${path} is not in the field catalog`
                     ).toBeTruthy()
                 })
+                if (typeof entry !== 'string' && entry.format != null)
+                    expect(
+                        FORMATTER_NAMES,
+                        `${name}: tile ${entry.path} overrides with an unknown formatter`
+                    ).toContain(entry.format)
             })
         })
     })

@@ -16,8 +16,14 @@
                     "sub": "gather.landed_missions.rmc_drive"
                 },
                 "gather.ancillary.color_filter",
-                "gather.time.start_time",
-                "gather.time.earth_received_start_time"
+                {
+                    "path": "gather.time.start_time",
+                    "format": "datetime_short"
+                },
+                {
+                    "path": "gather.time.earth_received_start_time",
+                    "format": "datetime_short"
+                }
             ],
             "maxTiles": 6,
             "priorityTiles": 3,
@@ -43,10 +49,14 @@
                         },
                         {
                             "path": "gather.landed_missions.site_instrument_elevation",
-                            "sub": "gather.landed_missions.site_instrument_azimuth"
+                            "sub": "gather.landed_missions.site_instrument_azimuth",
+                            "inline": true
                         },
                         "gather.ancillary.eye_type",
-                        "gather.time.start_time",
+                        {
+                            "path": "gather.time.start_time",
+                            "format": "datetime_short"
+                        },
                         "gather.ancillary.color_filter"
                     ],
                     "maxTiles": 6,
@@ -69,10 +79,14 @@
                         },
                         {
                             "path": "gather.landed_missions.site_instrument_elevation",
-                            "sub": "gather.landed_missions.site_instrument_azimuth"
+                            "sub": "gather.landed_missions.site_instrument_azimuth",
+                            "inline": true
                         },
                         "gather.ancillary.eye_type",
-                        "gather.time.start_time",
+                        {
+                            "path": "gather.time.start_time",
+                            "format": "datetime_short"
+                        },
                         "gather.ancillary.color_filter"
                     ],
                     "maxTiles": 6,

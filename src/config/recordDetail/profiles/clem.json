@@ -16,7 +16,10 @@
             "sub": "gather.lighting_geometry.emission_angle"
         },
         "gather.lighting_geometry.phase_angle",
-        "gather.time.start_time",
+        {
+            "path": "gather.time.start_time",
+            "format": "datetime_short"
+        },
         "gather.pds_archive.data_set_id"
     ],
     "maxTiles": 9,

@@ -19,7 +19,10 @@
             "sub": "gather.orbital_missions.sub_spacecraft_longitude"
         },
         "gather.common.filter",
-        "gather.time.start_time",
+        {
+            "path": "gather.time.start_time",
+            "format": "datetime_short"
+        },
         "gather.pds_archive.data_set_id"
     ],
     "maxTiles": 9,

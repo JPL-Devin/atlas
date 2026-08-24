@@ -1642,6 +1642,29 @@ convention config. Mars 2020 ships first.
 The vocabulary is deliberately partial: the exact codes are the common ones plus
 every RDR family, and the parser is what guarantees the rest still render.
 
+### 12.13 Two-line tiles, non-wrapping row labels, citation author
+
+Most at-a-glance cards were three lines high for a sub-line that was not worth
+the row height, so §12.3's pairing gained two config options and the profiles
+were retuned:
+
+- **`inline: true` on a tile entry** puts the sub beside the value instead of
+  under it (`-32.9° az 137.2°`), which is what the azimuth/elevation pairs use.
+  They stay one card each and lose the third line.
+- **`format` on a tile entry** overrides the catalogued formatter for that tile
+  only. `gather.time.start_time` uses the new `datetime_short`
+  (`2021-03-05 10:16Z`) so the timestamp fits one line, while the Observation &
+  time row keeps full seconds from the catalog.
+- **The LTST sub-line under LMST and the Ls sub-line under Sol are gone.** LTST
+  is redundant once LMST leads (§12.11) and Ls needed an explanation the card
+  had no room for; both remain available to profiles as ordinary tiles.
+- **Row labels no longer wrap** (`whiteSpace: nowrap` plus a non-shrinking
+  label), so only the value wraps and a long label can't stack into three lines
+  against a short value.
+- **`citation` starts with an author fragment**, `NASA/JPL` in `_default`. It is
+  a literal fragment, so it never drops and any profile or instance layer can
+  restate the list with a different author.
+
 One mockup element is still absent and is a product decision, not an
 implementation gap: the **Related Products tab** (no such tab exists in
 `Content.js` today — the mockup shows one). The mockup's viewer toolbar

@@ -56,9 +56,11 @@ export const resolveProfile = ({ mission, pds_standard, instrument, instance } =
     return profile
 }
 
-const readTile = (recordData, path) => {
-    const field = fields[path]
-    if (field == null) return null
+const readTile = (recordData, path, format) => {
+    const catalogued = fields[path]
+    if (catalogued == null) return null
+    // A tile may ask for a more compact format than the catalogued one.
+    const field = format != null ? { ...catalogued, format } : catalogued
     const raw = getIn(recordData, path)
     if (!isValidValue(raw, field)) return null
     const value = formatValue(raw, field)
@@ -71,19 +73,25 @@ const readTile = (recordData, path) => {
     }
 }
 
-// A tile is a path, or { path, sub } where `sub` adds a second field on a
-// smaller line under the value. The sub-line drops on its own.
+// A tile is a path, or { path, sub, inline, format } where `sub` adds a second
+// field beside (inline) or under the value. The sub drops on its own.
 const readTileEntry = (recordData, entry) => {
     const path = typeof entry === 'string' ? entry : entry.path
-    const tile = readTile(recordData, path)
+    const format = typeof entry === 'string' ? null : entry.format
+    const tile = readTile(recordData, path, format)
     if (tile == null) return null
-    if (typeof entry === 'string' || entry.sub == null) return { ...tile, sub: null }
+    const empty = { ...tile, sub: null, inline: false }
+    if (typeof entry === 'string' || entry.sub == null) return empty
 
-    const sub = readTile(recordData, entry.sub)
-    if (sub == null) return { ...tile, sub: null }
+    const sub = readTile(recordData, entry.sub, entry.subFormat)
+    if (sub == null) return empty
     const microLabel = getIn(fields, [entry.sub, 'microLabel'])
     const prefix = microLabel != null ? microLabel : sub.shortLabel
-    return { ...tile, sub: prefix === '' ? sub.value : `${prefix} ${sub.value}` }
+    return {
+        ...tile,
+        sub: prefix === '' ? sub.value : `${prefix} ${sub.value}`,
+        inline: entry.inline === true,
+    }
 }
 
 // Sections are named groups of normalized paths (config/recordDetail/sections.json);

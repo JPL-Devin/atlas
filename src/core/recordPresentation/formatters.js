@@ -32,6 +32,11 @@ const formatters = {
         const m = moment.utc(String(value))
         return m.isValid() ? m.format('YYYY-MM-DD HH:mm:ss[Z]') : String(value)
     },
+    // Drops seconds so a timestamp fits a tile on one line.
+    datetime_short: (value) => {
+        const m = moment.utc(String(value))
+        return m.isValid() ? m.format('YYYY-MM-DD HH:mm[Z]') : String(value)
+    },
     clock: (value) => {
         const str = String(value)
         const match = str.match(/(\d{1,2}:\d{2}(:\d{2})?)/)

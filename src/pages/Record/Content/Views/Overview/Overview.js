@@ -278,6 +278,14 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey300,
         wordBreak: 'break-word',
     },
+    // An inline sub sits beside the value, keeping paired fields (azimuth and
+    // elevation) two lines high instead of three.
+    tileValueRow: {
+        display: 'flex',
+        alignItems: 'baseline',
+        flexWrap: 'wrap',
+        columnGap: '6px',
+    },
     filter: {
         display: 'flex',
         alignItems: 'center',
@@ -366,12 +374,14 @@ const useStyles = makeStyles((theme) => ({
     },
     rowLabel: {
         color: theme.palette.swatches.grey.grey400,
-        overflowWrap: 'anywhere',
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
     },
     rowValue: {
         display: 'flex',
         alignItems: 'flex-start',
         gap: '4px',
+        minWidth: 0,
         color: theme.palette.swatches.grey.grey0,
         textAlign: 'right',
         overflowWrap: 'anywhere',
@@ -706,10 +716,12 @@ const Overview = (props) => {
                                                 {tile.shortLabel}
                                             </span>
                                         </div>
-                                        <div className={c.tileValue}>{tile.value}</div>
-                                        {tile.sub != null && (
-                                            <div className={c.tileSub}>{tile.sub}</div>
-                                        )}
+                                        <div className={tile.inline ? c.tileValueRow : undefined}>
+                                            <span className={c.tileValue}>{tile.value}</span>
+                                            {tile.sub != null && (
+                                                <span className={c.tileSub}>{tile.sub}</span>
+                                            )}
+                                        </div>
                                     </div>
                                 )
                             })}

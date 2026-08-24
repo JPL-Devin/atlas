@@ -7,7 +7,10 @@
         "gather.common.instrument",
         "gather.common.product_type",
         "gather.common.target",
-        "gather.time.start_time",
+        {
+            "path": "gather.time.start_time",
+            "format": "datetime_short"
+        },
         "gather.common.mission_phase_name",
         "gather.pds_archive.data_set_id",
         "gather.pds_archive.bundle_id",
@@ -48,6 +51,7 @@
         "of {{gather.common.target}}"
     ],
     "citation": [
+        "NASA/JPL",
         "{{gather.common.spacecraft}}",
         "{{gather.common.instrument_name}}",
         "{{gather.pds_archive.product_id}}",

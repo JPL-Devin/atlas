@@ -39,7 +39,8 @@ test.describe('resolvePresentation', () => {
         // The caption fragment referencing the missing instrument drops whole,
         // leaving no separator artifact behind.
         expect(p.caption).toBe('Mars')
-        expect(valueOf(p, 'Start time')).toBe('2012-12-25 18:07:49Z')
+        // A tile asks for the compact format so the timestamp fits one line.
+        expect(valueOf(p, 'Start time')).toBe('2012-12-25 18:07Z')
     })
 
     test('mars 2020 renders rover geometry with units', () => {
@@ -123,6 +124,7 @@ test.describe('resolvePresentation', () => {
         expect(serialized).not.toContain('{{')
         expect(Object.keys(p.tiles[0]).sort()).toEqual([
             'icon',
+            'inline',
             'label',
             'shortLabel',
             'sub',
@@ -136,15 +138,28 @@ test.describe('resolvePresentation', () => {
         expect(p.priorityTiles).toBe(6)
     })
 
-    test('tiles carry icons and sub-lines from the paired field', () => {
+    test('tiles carry icons, and sol and lmst stand alone on two lines', () => {
         const msl = resolvePresentation(mslPds3)
         expect(tileOf(msl, 'Sol').icon).toBe('sun')
-        expect(tileOf(msl, 'Sol').sub).toBe('Ls 25.4°')
+        expect(tileOf(msl, 'Sol').sub).toBe(null)
 
         const m2020 = resolvePresentation(mars2020Navcam)
         expect(tileOf(m2020, 'Site').icon).toBe('place')
         expect(valueOf(m2020, 'Drive')).toBe('1469')
-        expect(tileOf(m2020, 'Local mean solar time').sub).toBe('LTST 14:28:56')
+        expect(tileOf(m2020, 'Local mean solar time').sub).toBe(null)
+    })
+
+    test('azimuth pairs with elevation on one line', () => {
+        const p = resolvePresentation(mars2020Navcam)
+        const instrument = tileOf(p, 'Instrument elevation')
+        expect(instrument.inline).toBe(true)
+        expect(instrument.sub).toBe('az 0.2°')
+        expect(tileOf(p, 'Solar elevation').inline).toBe(true)
+    })
+
+    test('citation names its author', () => {
+        const p = resolvePresentation(mars2020Navcam)
+        expect(p.citation.startsWith('NASA/JPL, ')).toBe(true)
     })
 
     test('citation never ends on dangling punctuation when a fragment drops', () => {

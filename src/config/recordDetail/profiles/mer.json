@@ -9,19 +9,21 @@
         "gather.landed_missions.planet_day_number",
         "gather.landed_missions.rmc_site",
         "gather.landed_missions.rmc_drive",
-        {
-            "path": "gather.landed_missions.start_local_mean_solar_time",
-            "sub": "gather.landed_missions.start_local_true_solar_time"
-        },
+        "gather.landed_missions.start_local_mean_solar_time",
         {
             "path": "gather.landed_missions.site_solar_elevation",
-            "sub": "gather.landed_missions.site_solar_azimuth"
+            "sub": "gather.landed_missions.site_solar_azimuth",
+            "inline": true
         },
         {
             "path": "gather.landed_missions.site_instrument_elevation",
-            "sub": "gather.landed_missions.site_instrument_azimuth"
+            "sub": "gather.landed_missions.site_instrument_azimuth",
+            "inline": true
         },
-        "gather.time.start_time",
+        {
+            "path": "gather.time.start_time",
+            "format": "datetime_short"
+        },
         "gather.landed_missions.frame_type",
         "gather.common.product_type_name",
         "gather.common.filter",
