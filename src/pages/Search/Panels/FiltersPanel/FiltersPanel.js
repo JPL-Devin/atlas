@@ -163,7 +163,7 @@ const FiltersPanel = (props) => {
     }
 
     // A sheet over the results on phones, a sidebar otherwise
-    if (mobile && !w.filters) return null
+    if (mobile && !w.mobileFilters) return null
 
     let width = 0
     if (mobile) width = '100%'
@@ -226,7 +226,7 @@ const FiltersPanel = (props) => {
                             <IconButton
                                 aria-label="close filters"
                                 size="small"
-                                onClick={() => dispatch(setWorkspace({ ...w, filters: false }))}
+                                onClick={() => dispatch(setWorkspace({ ...w, mobileFilters: false }))}
                             >
                                 <CloseIcon fontSize="inherit" />
                             </IconButton>

@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
 
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { makeStyles } from '@mui/styles'
@@ -14,7 +13,6 @@ import EditColumnsModal from './Modals/EditColumnsModal/EditColumnsModal'
 import AdvancedFilterModal from './Modals/AdvancedFilterModal/AdvancedFilterModal'
 import AdvancedFilterReturnModal from './Modals/AdvancedFilterReturnModal/AdvancedFilterReturnModal'
 
-import { setWorkspace } from '../../core/redux/actions/actions.js'
 import { getAppConfig } from '../../core/appConfig'
 
 const useStyles = makeStyles((theme) => ({
@@ -41,19 +39,9 @@ const Search = () => {
     }, [])
 
     const c = useStyles()
-    const dispatch = useDispatch()
-
-    const w = useSelector((state) => {
-        return state.getIn(['workspace', 'main'])
-    }).toJS()
 
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-
-    // Filters are a sheet over the results on phones, so they start closed
-    useEffect(() => {
-        if (isMobile && w.filters) dispatch(setWorkspace({ ...w, filters: false }))
-    }, [isMobile])
 
     return (
         <div className={c.Search}>

@@ -140,7 +140,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const Heading = (props) => {
-    const { activeView } = props
+    const { activeView, mobile } = props
 
     const c = useStyles()
     const dispatch = useDispatch()
@@ -154,6 +154,10 @@ const Heading = (props) => {
     const w = useSelector((state) => state.getIn(['workspace', 'main'])).toJS()
     const activeFilters = useSelector((state) => state.getIn(['activeFilters'])).toJS()
     const activeFilterCount = getActiveFilterChips(activeFilters).length
+
+    // Phones open the filters as a sheet, which starts closed
+    const filtersKey = mobile ? 'mobileFilters' : 'filters'
+    const filtersOpen = w[filtersKey]
 
     const resultKeysChecked = useSelector((state) => state.getIn(['resultKeysChecked'])).toJS()
 
@@ -181,15 +185,17 @@ const Heading = (props) => {
         <div className={c.Heading}>
             <div className={c.left}>
                 <div className={c.title}>Results</div>
-                <Tooltip title={w.filters ? 'Hide Filters' : 'Show Filters'} arrow>
+                <Tooltip title={filtersOpen ? 'Hide Filters' : 'Show Filters'} arrow>
                     <Button
                         className={clsx(c.filtersButton, {
-                            [c.filtersButtonActive]: w.filters,
+                            [c.filtersButtonActive]: filtersOpen,
                         })}
                         aria-label="filters"
-                        aria-pressed={w.filters}
+                        aria-pressed={filtersOpen}
                         size="small"
-                        onClick={() => dispatch(setWorkspace({ ...w, filters: !w.filters }))}
+                        onClick={() =>
+                            dispatch(setWorkspace({ ...w, [filtersKey]: !filtersOpen }))
+                        }
                         startIcon={<FilterListIcon />}
                     >
                         {activeFilterCount > 0 ? `Filters \u00b7 ${activeFilterCount}` : 'Filters'}
@@ -380,6 +386,7 @@ const Heading = (props) => {
 
 Heading.propTypes = {
     activeView: PropTypes.string,
+    mobile: PropTypes.bool,
 }
 
 export default Heading

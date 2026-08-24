@@ -215,7 +215,7 @@ const ResultsPanel = (props) => {
     return (
         <div className={c.ResultsPanel}>
             <div className={c.contents}>
-                <Heading activeView={activeView} />
+                <Heading activeView={activeView} mobile={mobile} />
                 <div className={c.tabs}>
                     <div className={c.tabsLeft}>
                         <StyledTabs

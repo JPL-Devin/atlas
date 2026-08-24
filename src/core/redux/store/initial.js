@@ -32,6 +32,7 @@ export const INITIAL = (() => {
         workspace: {
             main: {
                 filters: true,
+                mobileFilters: false,
                 filtersSize: '360px',
                 advancedFiltersSize: '520px',
                 mapSize: '50%',
