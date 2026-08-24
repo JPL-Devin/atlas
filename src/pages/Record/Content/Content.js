@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const Content = (props) => {
-    const { recordData, versions, activeVersion } = props
+    const { recordData, versions, activeVersion, loading } = props
     const c = useStyles()
 
     const dispatch = useDispatch()
@@ -85,6 +85,7 @@ const Content = (props) => {
                     recordData={recordData}
                     versions={versions}
                     activeVersion={activeVersion}
+                    loading={loading}
                 />
             </div>
         </div>
@@ -93,6 +94,7 @@ const Content = (props) => {
 
 Content.propTypes = {
     recordData: PropTypes.object.isRequired,
+    loading: PropTypes.bool,
 }
 
 export default Content

@@ -1102,7 +1102,8 @@ export const searchRecordByURI = (uri) => {
             size: 1,
         }
 
-        axios
+        // Returned so callers can tell a pending record from an unresolvable one.
+        return axios
             .post(`${domain}${endpoints.search}`, dsl, getHeader())
             .then((response) => {
                 const newRecordData = getIn(response, ['data', 'hits', 'hits', 0, '_source'], {})
@@ -1715,11 +1716,7 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
                                 )
                                 if (lastMatch == -1) lastMatch = rawPath.lastIndexOf(`/${key}`)
                                 const uri =
-                                    uriPrefix +
-                                    rawPath.substring(
-                                        0,
-                                        lastMatch + key.length + 1
-                                    )
+                                    uriPrefix + rawPath.substring(0, lastMatch + key.length + 1)
                                 // || rawPathFinal === key
 
                                 dispatch(
@@ -1975,7 +1972,9 @@ export const queryFilexColumn = (columnId, isLast, cb) => {
                         results.buckets = results.buckets.concat(bundleBuckets)
                     }
                     results.buckets = results.buckets.sort((a, b) =>
-                        String(a.key).localeCompare(String(b.key), undefined, { sensitivity: 'base' })
+                        String(a.key).localeCompare(String(b.key), undefined, {
+                            sensitivity: 'base',
+                        })
                     )
                 }
                 if (column.type === 'filter') {

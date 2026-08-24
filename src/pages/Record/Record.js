@@ -40,6 +40,7 @@ const Record = (props) => {
 
     const [versions, setVersions] = useState([])
     const [activeVersion, setActiveVersion] = useState(null)
+    const [loading, setLoading] = useState(true)
 
     const recordData = useSelector((state) => {
         return state.get('recordData')
@@ -55,7 +56,8 @@ const Record = (props) => {
 
     // `uri` lives in the query string, so the record refetches when it changes.
     useEffect(() => {
-        dispatch(searchRecordByURI())
+        setLoading(true)
+        Promise.resolve(dispatch(searchRecordByURI())).then(() => setLoading(false))
     }, [location.search])
 
     // Query for different product versions
@@ -136,7 +138,12 @@ const Record = (props) => {
     return (
         <div className={c.Record}>
             <Title recordData={recordData} versions={versions} activeVersion={activeVersion} />
-            <Content recordData={recordData} versions={versions} activeVersion={activeVersion} />
+            <Content
+                recordData={recordData}
+                versions={versions}
+                activeVersion={activeVersion}
+                loading={loading}
+            />
             {/*<Footer />*/}
         </div>
     )
