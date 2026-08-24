@@ -462,7 +462,6 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const FILENAME_SECTION_ID = 'file_name'
 // Sections open on load; the rest start collapsed, as in the mockup.
 const OPEN_SECTIONS = ['identification', 'observation']
 
@@ -595,10 +594,8 @@ const Overview = (props) => {
         .filter((section) => section.rows.length > 0)
 
     const fieldCount = sections.reduce((total, section) => total + section.rows.length, 0)
-    // The filename breakdown is its own section, so it has no rows to filter.
     // Missions with no filename spec have nothing to explain.
     const parsedFilename = parseRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
-    const filenameOpen = collapsed[FILENAME_SECTION_ID] !== true
     const downloadProducts = getDownloadProducts(recordData)
 
     const copy = (text, message) => {
@@ -647,6 +644,7 @@ const Overview = (props) => {
     const renderSkeleton = () => (
         <>
             <div className={c.metadataScroll} aria-hidden="true">
+                <Skeleton className={c.skeleton} variant="text" width="90%" />
                 <div className={c.heading}>At a glance</div>
                 <div className={c.tiles}>
                     {Array.from({ length: 9 }).map((_, idx) => (
@@ -737,6 +735,9 @@ const Overview = (props) => {
                 ) : (
                     <>
                         <div className={c.metadataScroll}>
+                            {parsedFilename != null && (
+                                <FilenameLegend parsed={parsedFilename} />
+                            )}
                             {!isNarrow && presentation.description != null && (
                                 <>
                                     <div className={c.heading}>About this product</div>
@@ -861,32 +862,6 @@ const Overview = (props) => {
                                     </div>
                                 )
                             })}
-                            {parsedFilename != null && (
-                                <div className={c.section}>
-                                    <button
-                                        className={c.sectionHead}
-                                        aria-expanded={filenameOpen}
-                                        onClick={() =>
-                                            setCollapsed({
-                                                ...collapsed,
-                                                [FILENAME_SECTION_ID]: filenameOpen,
-                                            })
-                                        }
-                                    >
-                                        <span>
-                                            {filenameOpen ? (
-                                                <ExpandMoreIcon />
-                                            ) : (
-                                                <ChevronRightIcon />
-                                            )}
-                                            File name
-                                        </span>
-                                    </button>
-                                    <Collapse in={filenameOpen} unmountOnExit>
-                                        <FilenameLegend parsed={parsedFilename} />
-                                    </Collapse>
-                                </div>
-                            )}
                             {presentation.citation != null &&
                                 getAppConfig().enableRecordCitation && (
                                     <>

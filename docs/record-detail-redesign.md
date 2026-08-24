@@ -1542,19 +1542,20 @@ implementation left out:
   start collapsed. Every row has a copy-value button. There is no raw-label
   section: the earlier **Raw names** toggle was removed, so the panel only ever
   shows catalogued normalized fields.
-- **File name section.** A `File name` section below the field list renders the
-  same per-mission filename grammar as the title bar, but with room to explain
-  it: the colour-coded name on top, then a flat colour-coded list carrying each
-  segment's value, label, decoded meaning and description, plus the spec
-  reference. Hovering (or focusing) a segment in the name narrows the list to
-  that segment alone and dims the rest of the name; a click pins it, since a
-  touch device never hovers. An indented tree was tried first and dropped — a
-  54-character M20 name has 20 segments, so the indentation ran off the panel
-  and the leader lines stopped tracking their segment.
-  Colours come from `src/pages/Record/filenameColors.js`, which keeps
-  a light set for the title bar and a dark set for this panel. Missions with no
-  filename spec, and names that do not match the spec's grammar, render plain
-  text in the title and omit this section rather than inventing a breakdown.
+- **File name.** The colour-coded filename opens the panel, above *About this
+  product*, with no section header of its own — it is the product's identity, so
+  it reads first. Clicking a segment shows that one segment's value, label,
+  decoded meaning and description below the name and dims the other segments;
+  clicking it again clears it, and an `*` button beside the name shows every
+  segment's details at once (with the spec reference). Only the clicked segment
+  is explained, so a 20-segment M20 name costs four lines at rest instead of
+  sixty. Two earlier attempts were dropped: an indented tree (the indentation
+  ran off the panel past the seventh segment) and a hover-filtered full list
+  (the whole panel moved as the pointer crossed the name).
+  Colours come from `src/pages/Record/filenameColors.js`. The title bar shows
+  the plain filename — the breakdown lives in one place. Missions with no
+  filename spec, and names that do not match the spec's grammar, omit the
+  breakdown rather than inventing one.
 - **Citation.** Under a `Citation` heading, with the author (`citationAuthor`,
   `NASA/JPL` by default) as its own profile field so it can be overridden per
   instance; the caption card repeats just the author in its bottom-right.
@@ -1618,9 +1619,9 @@ version updated the URL and left the previous product on screen. It now watches
 
 ### 12.12 The filename breakdown
 
-The record title bar renders the source product filename as labelled,
-colour-coded segments with a tooltip per segment, from a per-mission naming
-convention config. Mars 2020 ships first.
+The top of the metadata panel renders the source product filename as labelled,
+colour-coded segments from a per-mission naming convention config. Mars 2020
+ships first.
 
 - **Config**: `src/config/recordDetail/filenames/<mission>.json`, keyed in
   `filenameSpecs` by `<mission>` or `<mission>.<pds_standard>`, so a mission can
@@ -1642,12 +1643,11 @@ convention config. Mars 2020 ships first.
   matches the mission, or when the filename fails the spec's regex. That is what
   keeps the M2020 **mosaic** and **terrain** conventions (both distinct from the
   single-frame one, SIS §18) safe until they get their own specs.
-- **Presentation**: each segment is a `<button>` inside an MUI `Tooltip`, so the
-  breakdown works on hover, on keyboard focus and on touch; the tooltip carries
-  field name, raw value, decoded meaning and description, and the group exposes
-  the whole filename as its accessible name. Colours are named in the config
-  (`blue`, `teal`, …) and mapped to values readable on the light title bar in
-  `FilenameBreakdown`, so the config never carries hex.
+- **Presentation**: each segment is a `<button>`, so it works on click and on
+  keyboard, on touch as on desktop; the details appear below the name rather than
+  in a tooltip, where there is room for meaning and description. Colours are
+  named in the config (`blue`, `teal`, …) and mapped to values readable on the
+  dark panel in `filenameColors.js`, so the config never carries hex.
 
 The vocabulary is deliberately partial: the exact codes are the common ones plus
 every RDR family, and the parser is what guarantees the rest still render.
