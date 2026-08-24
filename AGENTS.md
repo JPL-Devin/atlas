@@ -108,6 +108,7 @@ but not a hard rule.
 | ResultsPanel Split toggle | `button` | `"split map"` — MUI `ToggleButton`, `aria-pressed`, disabled while the `Map` tab is selected. Desktop only. |
 | FiltersPanel heading actions | `button` | `"reset filters"` (dispatches `resetFilters()`), `"close filters"` (mobile sheet only) |
 | FileX (`/archive-explorer`) heading | `button` | `"Reset path"` (clears the column path and URL) |
+| Results heading add-to-cart | `button` | `"add all query results to cart"` / `"add selected results to cart"` — desktop only; below `md` these live in the heading's `"menu"` overflow. Never click either. |
 
 The old left icon rail (`src/components/Toolbar/*`) was deleted along with
 its `"filters panel"` / `"Map Panel"` / `"Results Panel"` / `"options"` /

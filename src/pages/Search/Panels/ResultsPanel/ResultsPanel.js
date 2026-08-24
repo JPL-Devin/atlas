@@ -91,6 +91,8 @@ const useStyles = makeStyles((theme) => ({
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
         display: 'flex',
         justifyContent: 'space-between',
+        minWidth: 0,
+        overflow: 'hidden',
     },
     footing: {
         width: '100%',
@@ -106,6 +108,8 @@ const useStyles = makeStyles((theme) => ({
     numResults: {
         lineHeight: `${theme.headHeights[2]}px`,
         padding: '0px 20px',
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
         color: theme.palette.swatches.grey.grey700,
     },
     maxPage: {
@@ -163,6 +167,12 @@ const StyledTab = withStyles((theme) => ({
         'minWidth': 88,
         '&:focus': {
             opacity: 1,
+        },
+        // Four tabs have to fit a phone alongside the result count
+        [theme.breakpoints.down('md')]: {
+            minWidth: 60,
+            marginRight: 0,
+            padding: '12px 8px',
         },
     },
 }))((props) => <Tab disableRipple {...props} />)

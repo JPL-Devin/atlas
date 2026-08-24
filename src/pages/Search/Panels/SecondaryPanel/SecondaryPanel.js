@@ -11,6 +11,7 @@ const useStyles = makeStyles((theme) => ({
     SecondaryPanel: {
         height: '100%',
         flexShrink: 0,
+        minWidth: 0,
         transition: 'width 0.4s ease-out',
         overflow: 'hidden',
         position: 'relative',
@@ -42,8 +43,10 @@ const SecondaryPanel = (props) => {
     const mainRef = useRef()
     const [firstOpen, setFirstOpen] = useState(false)
 
+    // A closed map keeps its controls out of the tab and accessibility trees
     const style = {
         width,
+        visibility: width === 0 ? 'hidden' : 'visible',
     }
 
     // This is so that the map never loads in the background on start up

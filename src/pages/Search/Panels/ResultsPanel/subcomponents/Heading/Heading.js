@@ -9,7 +9,6 @@ import { useTheme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 
 import Button from '@mui/material/Button'
-import ButtonGroup from '@mui/material/ButtonGroup'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
@@ -44,6 +43,8 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         justifyContent: 'space-between',
         boxSizing: 'border-box',
+        minWidth: 0,
+        overflow: 'hidden',
         background: theme.palette.swatches.grey.grey100,
     },
     title: {
@@ -57,6 +58,8 @@ const useStyles = makeStyles((theme) => ({
     left: {
         display: 'flex',
         alignItems: 'center',
+        flexShrink: 0,
+        minWidth: 0,
     },
     filtersButton: {
         'color': theme.palette.text.primary,
@@ -74,11 +77,15 @@ const useStyles = makeStyles((theme) => ({
     },
     middle: {
         flex: 1,
+        minWidth: 0,
+        overflow: 'hidden',
         padding: '4px 12px',
     },
     right: {
         display: 'flex',
         justifyContent: 'space-between',
+        flexShrink: 0,
+        minWidth: 0,
     },
     rotateButton: {
         'width': theme.headHeights[1],
@@ -184,7 +191,7 @@ const Heading = (props) => {
     return (
         <div className={c.Heading}>
             <div className={c.left}>
-                <div className={c.title}>Results</div>
+                {!mobile && <div className={c.title}>Results</div>}
                 <Tooltip title={filtersOpen ? 'Hide Filters' : 'Show Filters'} arrow>
                     <Button
                         className={clsx(c.filtersButton, {
@@ -275,7 +282,7 @@ const Heading = (props) => {
                         Edit Columns
                     </Button>
                 )}
-                {getAppConfig().enableCart && (
+                {getAppConfig().enableCart && !mobile && (
                 <Tooltip
                     title={
                         resultKeysChecked.length > 0
@@ -342,7 +349,7 @@ const Heading = (props) => {
                     return (<MenuButton
                     options={menuOptions}
                     buttonComponent={<MoreVertIcon className={c.menuButton} />}
-                    onChange={(option, idx) => {
+                    onChange={(option) => {
                         switch (option) {
                             case 'Add Selected Results to Cart':
                                 dispatch(addToCart('image', 'checkedResults'))

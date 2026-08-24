@@ -41,14 +41,19 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         display: 'flex',
         justifyContent: 'space-between',
+        minWidth: 0,
+        overflow: 'hidden',
         background: theme.palette.swatches.grey.grey100,
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     left: {
         display: 'flex',
         alignItems: 'center',
+        minWidth: 0,
+        overflow: 'hidden',
     },
     navButton: {
+        'flexShrink': 0,
         'width': theme.headHeights[1],
         'height': theme.headHeights[1],
         'borderRadius': 0,
@@ -61,8 +66,10 @@ const useStyles = makeStyles((theme) => ({
     },
     right: {
         display: 'flex',
+        flexShrink: 0,
     },
     logoDiv: {
+        flexShrink: 0,
         width: theme.headHeights[1],
         height: theme.headHeights[1],
         padding: 4,
@@ -78,8 +85,12 @@ const useStyles = makeStyles((theme) => ({
     appTitle: {
         'display': 'flex',
         'flexFlow': 'column',
+        'minWidth': 0,
+        'overflow': 'hidden',
+        'whiteSpace': 'nowrap',
         '& > div:last-child': {
             display: 'flex',
+            flexWrap: 'nowrap',
             marginTop: '-5px',
         },
     },

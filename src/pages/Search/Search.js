@@ -20,6 +20,8 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         height: '100%',
         display: 'flex',
+        minWidth: 0,
+        overflow: 'hidden',
         color: theme.palette.text.primary,
     },
     mainWorkspace: {
@@ -30,6 +32,8 @@ const useStyles = makeStyles((theme) => ({
     workspace: {
         display: 'flex',
         flex: 1,
+        minWidth: 0,
+        overflow: 'hidden',
     },
 }))
 

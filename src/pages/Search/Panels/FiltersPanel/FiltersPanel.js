@@ -32,6 +32,7 @@ import { makeStyles } from '@mui/styles'
 const useStyles = makeStyles((theme) => ({
     FiltersPanel: {
         height: '100%',
+        minWidth: 0,
         transition: 'width 0.4s ease-out',
         overflow: 'hidden',
         position: 'relative',
@@ -55,8 +56,9 @@ const useStyles = makeStyles((theme) => ({
         top: 0,
         left: 0,
         width: '100% !important',
+        maxWidth: '100vw',
         height: '100%',
-        zIndex: theme.zIndex.drawer,
+        zIndex: theme.zIndex.drawer + 100,
     },
     left: {
         display: 'flex',
@@ -172,7 +174,11 @@ const FiltersPanel = (props) => {
     const style = {
         width,
     }
-    if (width == 0) style.border = 'unset'
+    // A collapsed sidebar keeps its controls out of the tab and accessibility trees
+    if (width == 0) {
+        style.border = 'unset'
+        style.visibility = 'hidden'
+    }
 
     return (
         <div className={clsx(c.FiltersPanel, { [c.sheet]: mobile })} style={style}>

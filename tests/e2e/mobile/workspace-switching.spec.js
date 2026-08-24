@@ -62,6 +62,20 @@ test.describe('Mobile - search workspace', () => {
     test('the results heading does not overflow horizontally at 375x667', async ({ page }) => {
         await navigateToSearch(page)
 
+        // An ancestor clips overflow, so document width alone can hide clipped controls
+        const clipped = await page.evaluate(() => {
+            const width = document.documentElement.clientWidth
+            return [...document.querySelectorAll('button, [role="tab"]')]
+                .filter((el) => el.checkVisibility({ visibilityProperty: true }))
+                .map((el) => ({
+                    name: el.getAttribute('aria-label') || el.textContent.trim(),
+                    left: Math.round(el.getBoundingClientRect().left),
+                    right: Math.round(el.getBoundingClientRect().right),
+                }))
+                .filter((box) => box.right > width + 1)
+        })
+        expect(clipped).toEqual([])
+
         const overflows = await page.evaluate(() => {
             return document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
         })
