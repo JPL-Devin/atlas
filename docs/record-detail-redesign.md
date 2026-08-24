@@ -1544,13 +1544,16 @@ implementation left out:
   shows catalogued normalized fields.
 - **File name.** The colour-coded filename opens the panel, above *About this
   product*, with no section header of its own — it is the product's identity, so
-  it reads first. Clicking a segment shows that one segment's value, label,
-  decoded meaning and description below the name and dims the other segments;
-  clicking it again clears it, and an `*` button beside the name shows every
-  segment's details at once (with the spec reference). Only the clicked segment
-  is explained, so a 20-segment M20 name costs four lines at rest instead of
-  sixty. Two earlier attempts were dropped: an indented tree (the indentation
-  ran off the panel past the seventh segment) and a hover-filtered full list
+  it reads first. It opens explaining its first segment; clicking any segment
+  shows that segment's value, label, decoded meaning and description below the
+  name and dims the others, clicking it again clears it, and an `*` button
+  beside the name shows every segment's details at once (with the spec
+  reference). Only one segment is explained at a time, so a 20-segment M20 name
+  costs four lines at rest instead of sixty. The name wraps onto a second line
+  rather than scrolling, since a 58-character name is wider than the panel and
+  a scrolled box hid its tail. Two earlier attempts were dropped: an indented
+  tree (the indentation ran off the panel past the seventh segment) and a
+  hover-filtered full list
   (the whole panel moved as the pointer crossed the name).
   Colours come from `src/pages/Record/filenameColors.js`. The title bar shows
   the plain filename — the breakdown lives in one place. Missions with no
