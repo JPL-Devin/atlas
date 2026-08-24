@@ -17,14 +17,15 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'flex-start',
         gap: '6px',
     },
+    // The name wraps rather than scrolling, so its tail is never hidden.
     filename: {
         flex: 1,
         fontFamily: 'monospace',
         fontSize: '12px',
+        lineHeight: '20px',
         letterSpacing: '0.02em',
-        whiteSpace: 'nowrap',
-        overflowX: 'auto',
-        paddingBottom: '6px',
+        wordBreak: 'break-all',
+        paddingBottom: '2px',
     },
     segment: {
         'font': 'inherit',
@@ -85,16 +86,17 @@ const FilenameLegend = (props) => {
 
     const c = useStyles()
 
-    // Clicking a segment shows only its description; the * button shows them all.
-    const [selected, setSelected] = useState(null)
-    const [showAll, setShowAll] = useState(false)
-
     const pieces = parsed.pieces.map((piece, idx) => ({
         ...piece,
         idx,
         color: DARK_COLORS[piece.color] || 'inherit',
     }))
     const labelled = pieces.filter((piece) => piece.label != null)
+
+    // Clicking a segment shows only its description; the * button shows them
+    // all. The first segment is explained on load.
+    const [selected, setSelected] = useState(labelled.length > 0 ? labelled[0].idx : null)
+    const [showAll, setShowAll] = useState(false)
     const entries = showAll
         ? labelled
         : labelled.filter((piece) => selected != null && piece.idx === selected)
