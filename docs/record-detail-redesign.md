@@ -1665,6 +1665,24 @@ were retuned:
   a literal fragment, so it never drops and any profile or instance layer can
   restate the list with a different author.
 
+### 12.14 Loading, and cards that stay two lines
+
+- **Loading is a skeleton, not a screen.** The metadata column always renders;
+  while the record request is pending it shows a heading, nine tile skeletons,
+  a filter and eight row skeletons, plus a skeleton caption card and action bar,
+  so nothing moves when the values arrive. The only spinner is
+  `components/ViewerLoading`, extracted from `OpenSeadragonViewer` and shared
+  with it, centred in the viewer body — so a pending record and a pending image
+  are the same indicator, and it works whichever viewer (OSD or `ThreeViewer`)
+  the product resolves to. The loading body paints the viewers' own `grey800`.
+- **Tile values never wrap** (`nowrap` + ellipsis, full text on `title`), and
+  every profile sub is `inline`, so a card is always exactly two lines. Without
+  this a long value (`NAVCAM_LEFT` with an inline `color F`, or a compact
+  timestamp) broke into a third line — mid-word, since flex siblings carry no
+  separating whitespace.
+- **The caption card is frosted**: `rgba(16,16,19,0.62)` behind
+  `blur(8px) saturate(140%)`, verified legible over bright Martian sand.
+
 One mockup element is still absent and is a product decision, not an
 implementation gap: the **Related Products tab** (no such tab exists in
 `Content.js` today — the mockup shows one). The mockup's viewer toolbar
