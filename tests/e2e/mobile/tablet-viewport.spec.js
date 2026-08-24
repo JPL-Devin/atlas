@@ -35,10 +35,15 @@ test.describe('Tablet viewports', () => {
             await page.goto('/search', { waitUntil: 'domcontentloaded' })
             await waitForAppReady(page)
 
-            // The filters sidebar is always shown at tablet size.
-            await expect(page.getByRole('button', { name: 'add filter' })).toBeVisible({
+            // Below md the bottom bar owns the filters sheet
+            await expect(page.getByRole('button', { name: 'filters view' })).toBeVisible({
                 timeout: 20_000,
             })
+            await expect(page.getByRole('button', { name: 'add filter' })).toHaveCount(0)
+
+            await page.getByRole('button', { name: 'filters view' }).click()
+            await expect(page.getByRole('button', { name: 'add filter' })).toBeVisible()
+            await expect(page.getByRole('button', { name: 'close filters' })).toBeVisible()
 
             expect(filterCriticalJsErrors(errors)).toEqual([])
         } finally {
