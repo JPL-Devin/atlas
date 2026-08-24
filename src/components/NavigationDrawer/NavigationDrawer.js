@@ -29,22 +29,20 @@ const useStyles = makeStyles((theme) => ({
         width: drawerWidth,
         borderRight: `1px solid ${theme.palette.swatches.grey.grey700}`,
     },
-    // Sits where the Topbar trigger is so the same click target closes the drawer
-    header: {
-        display: 'flex',
-        alignItems: 'center',
-        height: theme.headHeights[1],
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
-    },
+    // The whole row closes the drawer, with the icon where the Topbar trigger is
     closeButton: {
-        'width': theme.headHeights[1],
+        'width': '100%',
         'height': theme.headHeights[1],
+        'justifyContent': 'flex-start',
+        'padding': `0px ${(theme.headHeights[1] - 24) / 2}px`,
         'borderRadius': 0,
+        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey700}`,
         'fontSize': 24,
         'color': theme.palette.swatches.grey.grey400,
-        'transition': 'color 0.2s ease-out',
+        'transition': 'color 0.2s ease-out, background 0.2s ease-out',
         '&:hover': {
             color: theme.palette.text.secondary,
+            background: theme.palette.swatches.grey.grey700,
         },
     },
     list: {
@@ -244,15 +242,13 @@ const NavigationDrawer = ({ open, onClose }) => {
             onClose={onClose}
             PaperProps={{ className: c.drawer }}
         >
-            <div className={c.header}>
-                <IconButton
-                    className={c.closeButton}
-                    aria-label="close navigation"
-                    onClick={onClose}
-                >
-                    <MenuOpenIcon />
-                </IconButton>
-            </div>
+            <IconButton
+                className={c.closeButton}
+                aria-label="close navigation"
+                onClick={onClose}
+            >
+                <MenuOpenIcon />
+            </IconButton>
             <List className={c.list}>
                 {drawerItems.map((item, idx) => (
                     <ListItem

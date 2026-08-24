@@ -28,14 +28,16 @@ test.describe('Navigation drawer', () => {
         await expect(page.getByRole('link', { name: 'Cart', exact: true })).toBeVisible()
     })
 
-    test('the drawer closes from its own menu icon', async ({ page }) => {
+    test('the drawer closes from anywhere along its top row', async ({ page }) => {
         await navigateToSearch(page)
 
         await page.getByRole('button', { name: 'navigation' }).click()
         const close = page.getByRole('button', { name: 'close navigation' })
         await expect(close).toBeVisible()
 
-        await close.click()
+        // The whole row is the close target, not just the icon
+        const box = await close.boundingBox()
+        await page.mouse.click(box.x + box.width - 8, box.y + box.height / 2)
         await expect(page.getByRole('link', { name: 'Search Images' }).first()).toBeHidden()
     })
 
