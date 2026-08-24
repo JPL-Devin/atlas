@@ -10,13 +10,15 @@
         "gather.common.target",
         {
             "path": "gather.lighting_geometry.incidence_angle",
-            "sub": "gather.lighting_geometry.emission_angle"
+            "sub": "gather.lighting_geometry.emission_angle",
+            "inline": true
         },
         "gather.lighting_geometry.phase_angle",
         "gather.orbital_missions.spacecraft_altitude",
         {
             "path": "gather.orbital_missions.sub_spacecraft_latitude",
-            "sub": "gather.orbital_missions.sub_spacecraft_longitude"
+            "sub": "gather.orbital_missions.sub_spacecraft_longitude",
+            "inline": true
         },
         "gather.common.filter",
         {

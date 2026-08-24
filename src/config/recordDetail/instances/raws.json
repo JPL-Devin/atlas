@@ -5,15 +5,18 @@
             "tiles": [
                 {
                     "path": "gather.landed_missions.planet_day_number",
-                    "sub": "gather.landed_missions.start_local_mean_solar_time"
+                    "sub": "gather.landed_missions.start_local_mean_solar_time",
+                    "inline": true
                 },
                 {
                     "path": "gather.common.instrument",
-                    "sub": "gather.ancillary.eye_type"
+                    "sub": "gather.ancillary.eye_type",
+                    "inline": true
                 },
                 {
                     "path": "gather.landed_missions.rmc_site",
-                    "sub": "gather.landed_missions.rmc_drive"
+                    "sub": "gather.landed_missions.rmc_drive",
+                    "inline": true
                 },
                 "gather.ancillary.color_filter",
                 {
@@ -41,11 +44,13 @@
                     "tiles": [
                         {
                             "path": "gather.landed_missions.planet_day_number",
-                            "sub": "gather.landed_missions.start_local_mean_solar_time"
+                            "sub": "gather.landed_missions.start_local_mean_solar_time",
+                            "inline": true
                         },
                         {
                             "path": "gather.landed_missions.rmc_site",
-                            "sub": "gather.landed_missions.rmc_drive"
+                            "sub": "gather.landed_missions.rmc_drive",
+                            "inline": true
                         },
                         {
                             "path": "gather.landed_missions.site_instrument_elevation",
@@ -71,11 +76,13 @@
                     "tiles": [
                         {
                             "path": "gather.landed_missions.planet_day_number",
-                            "sub": "gather.landed_missions.start_local_mean_solar_time"
+                            "sub": "gather.landed_missions.start_local_mean_solar_time",
+                            "inline": true
                         },
                         {
                             "path": "gather.landed_missions.rmc_site",
-                            "sub": "gather.landed_missions.rmc_drive"
+                            "sub": "gather.landed_missions.rmc_drive",
+                            "inline": true
                         },
                         {
                             "path": "gather.landed_missions.site_instrument_elevation",

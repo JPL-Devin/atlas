@@ -11,12 +11,14 @@
         "gather.common.filter",
         {
             "path": "gather.lighting_geometry.incidence_angle",
-            "sub": "gather.lighting_geometry.emission_angle"
+            "sub": "gather.lighting_geometry.emission_angle",
+            "inline": true
         },
         "gather.lighting_geometry.phase_angle",
         {
             "path": "gather.orbital_missions.target_distance",
-            "sub": "gather.orbital_missions.solar_distance"
+            "sub": "gather.orbital_missions.solar_distance",
+            "inline": true
         },
         {
             "path": "gather.time.start_time",

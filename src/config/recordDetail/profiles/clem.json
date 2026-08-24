@@ -13,7 +13,8 @@
         "gather.common.geo_location",
         {
             "path": "gather.lighting_geometry.incidence_angle",
-            "sub": "gather.lighting_geometry.emission_angle"
+            "sub": "gather.lighting_geometry.emission_angle",
+            "inline": true
         },
         "gather.lighting_geometry.phase_angle",
         {

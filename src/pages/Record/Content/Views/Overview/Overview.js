@@ -253,24 +253,31 @@ const useStyles = makeStyles((theme) => ({
         overflow: 'hidden',
         textOverflow: 'ellipsis',
     },
+    // Values never wrap, so a card is always exactly two lines; the full text
+    // stays available as a tooltip and in the sections below.
     tileValue: {
         fontSize: '14px',
         lineHeight: '20px',
-        wordBreak: 'break-word',
+        minWidth: 0,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
     },
     tileSub: {
         fontSize: '11px',
         lineHeight: '16px',
         color: theme.palette.swatches.grey.grey300,
-        wordBreak: 'break-word',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
     },
     // An inline sub sits beside the value, keeping paired fields (azimuth and
     // elevation) two lines high instead of three.
     tileValueRow: {
         display: 'flex',
         alignItems: 'baseline',
-        flexWrap: 'wrap',
         columnGap: '6px',
+        minWidth: 0,
     },
     filter: {
         display: 'flex',
@@ -773,9 +780,13 @@ const Overview = (props) => {
                                             <div
                                                 className={tile.inline ? c.tileValueRow : undefined}
                                             >
-                                                <span className={c.tileValue}>{tile.value}</span>
+                                                <div className={c.tileValue} title={tile.value}>
+                                                    {tile.value}
+                                                </div>
                                                 {tile.sub != null && (
-                                                    <span className={c.tileSub}>{tile.sub}</span>
+                                                    <div className={c.tileSub} title={tile.sub}>
+                                                        {tile.sub}
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
