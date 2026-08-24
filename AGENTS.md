@@ -96,15 +96,24 @@ but not a hard rule.
 
 | Component | Role | Notes |
 |---|---|---|
-| MUI `<Tab>` (e.g. ResultsPanel grid/list/table, Record Overview/Product Label) | `tab` | NOT `button`. Wrapped in `<Tabs role="tablist">`. |
+| MUI `<Tab>` (e.g. ResultsPanel `Grid`/`List`/`Table`/`Map`, Record Overview/Product Label) | `tab` | NOT `button`. Wrapped in `<Tabs role="tablist">`. Names are capitalized. |
 | MUI `<MenuItem>` | `menuitem` | Composed accessible name = checkbox `aria-label` (`"select"` / `"selected"`) + option text. Use a non-anchored regex like `/basic filters/i`, NOT `/^basic filters$/i`. |
 | MUI `<Dialog>` | `dialog` | Has `aria-labelledby="responsive-dialog-title"`. Close button typically `aria-label="close"`. |
 | MUI `<IconButton>` (custom MenuButton trigger) | `button` | Has `aria-label="menu"`. Multiple per page (Topbar, FiltersPanel, ResultsPanel) — disambiguate by proximity. |
 | OpenSeadragon viewer controls | `button` | `aria-label="image view home"`, `"image view zoom in/out"`, `"image view rotate clockwise/counter clockwise"`, `"image view fullscreen"` |
 | RemoveFromCartModal buttons | `button` | `aria-label="yes button"`, `"no button"`, `"close modal"` (literal strings, not regex matches) |
 | Title back button | `button` | Conditional: `aria-label={back === 'page' ? 'go back a page' : 'return to search'}` — use Playwright's `.or()` |
-| Topbar nav buttons | `button` | `name=/go to cart/i`, `"navigation"` (drawer toggle) |
-| Toolbar workspace switches (mobile) | `button` | `"filters panel"`, `"Map Panel"`, `"Results Panel"` |
+| Topbar nav buttons | `button` | `name=/go to cart/i`, `"navigation"` (drawer toggle, left of the NASA logo), `"info button"` (information modal) |
+| Results heading Filters button | `button` | `"filters"` (exact) — label reads `Filters` or `Filters · 3`; `aria-pressed` mirrors sidebar state. Opens a full-screen sheet below `md`. |
+| ResultsPanel Split toggle | `button` | `"split map"` — MUI `ToggleButton`, `aria-pressed`, disabled while the `Map` tab is selected. Desktop only. |
+| FiltersPanel heading actions | `button` | `"reset filters"` (dispatches `resetFilters()`), `"close filters"` (mobile sheet only) |
+| FileX (`/archive-explorer`) heading | `button` | `"Reset path"` (clears the column path and URL) |
+
+The old left icon rail (`src/components/Toolbar/*`) was deleted along with
+its `"filters panel"` / `"Map Panel"` / `"Results Panel"` / `"options"` /
+`"help button"` / `"Restart search"` labels, and `workspace.mobile` no longer
+exists — results are always the page, filters are a sidebar/sheet, and the map
+is a results view. Don't select on those labels.
 
 ### Modals (Redux `modal` slice)
 

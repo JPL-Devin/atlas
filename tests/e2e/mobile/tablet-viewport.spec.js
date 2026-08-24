@@ -35,10 +35,9 @@ test.describe('Tablet viewports', () => {
             await page.goto('/search', { waitUntil: 'domcontentloaded' })
             await waitForAppReady(page)
 
-            // Mobile workspace switcher exposes "filters panel" /
-            // "Map Panel" / "Results Panel" buttons.
+            // The results heading owns the Filters button at every size.
             await expect(
-                page.getByRole('button', { name: 'filters panel' }),
+                page.getByRole('button', { name: 'filters', exact: true }),
             ).toBeVisible({ timeout: 20_000 })
 
             expect(filterCriticalJsErrors(errors)).toEqual([])

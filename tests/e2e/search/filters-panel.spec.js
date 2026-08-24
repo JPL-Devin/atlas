@@ -8,8 +8,26 @@ test.describe('Search - Filters Panel', () => {
         await expect(page.getByRole('button', { name: 'add filter' })).toBeVisible()
     })
 
-    test('filters panel toggle in toolbar is reachable', async ({ page }) => {
+    test('the Filters button in the results heading hides and shows the sidebar', async ({
+        page,
+    }) => {
         await navigateToSearch(page)
-        await expect(page.getByRole('button', { name: 'filters panel' })).toBeVisible()
+
+        const filters = page.getByRole('button', { name: 'filters', exact: true })
+        await expect(filters).toBeVisible()
+        await expect(filters).toHaveAttribute('aria-pressed', 'true')
+
+        await filters.click()
+        await expect(filters).toHaveAttribute('aria-pressed', 'false')
+        await expect(page.getByRole('button', { name: 'add filter' })).toBeHidden()
+
+        await filters.click()
+        await expect(filters).toHaveAttribute('aria-pressed', 'true')
+        await expect(page.getByRole('button', { name: 'add filter' })).toBeVisible()
+    })
+
+    test('"Reset filters" lives in the filters heading', async ({ page }) => {
+        await navigateToSearch(page)
+        await expect(page.getByRole('button', { name: 'reset filters', exact: true })).toBeVisible()
     })
 })

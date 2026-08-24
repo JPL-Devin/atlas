@@ -34,12 +34,8 @@ export const INITIAL = (() => {
                 filters: true,
                 filtersSize: '360px',
                 advancedFiltersSize: '520px',
-                secondary: false,
-                secondarySize: '50%',
-                results: true,
-                resultsSize: 'fill',
+                mapSize: '50%',
             },
-            mobile: 'results',
         },
         // Which modal are on
         modals: {

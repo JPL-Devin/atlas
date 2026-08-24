@@ -20,11 +20,12 @@ test.describe('Search Page', () => {
         await expect(page.locator('h2', { hasText: /image search/i })).toBeVisible()
     })
 
-    test('Toolbar exposes the three panel toggle buttons', async ({ page }) => {
+    test('Results heading exposes the Filters button and the view tabs', async ({ page }) => {
         await navigateToSearch(page)
-        await expect(page.getByRole('button', { name: 'filters panel' })).toBeVisible()
-        await expect(page.getByRole('button', { name: 'Map Panel' })).toBeVisible()
-        await expect(page.getByRole('button', { name: 'Results Panel' })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'filters', exact: true })).toBeVisible()
+        for (const name of ['Grid', 'List', 'Table', 'Map']) {
+            await expect(page.getByRole('tab', { name, exact: true })).toBeVisible()
+        }
     })
 
     test('Topbar exposes navigation buttons to other routes', async ({ page }) => {

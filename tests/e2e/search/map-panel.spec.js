@@ -4,10 +4,9 @@ import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-hel
 /**
  * SecondaryPanel — Leaflet map.
  *
- * /search shows a Leaflet/CartoCosmos-driven map between the
- * FiltersPanel and the ResultsPanel. Until this spec, the map's
- * presence was implicitly assumed by the per-route smoke tests but
- * never asserted directly. Two regression surfaces:
+ * The map is a results view: Grid / List / Table / Map tabs in the
+ * ResultsPanel, plus a Split toggle that shows the map beside the
+ * active view. Two regression surfaces:
  *
  *   1. The Leaflet container fails to mount (e.g. Leaflet's CSS or
  *      JS regresses, or the SecondaryPanel's `width === 0` guard
@@ -29,25 +28,17 @@ import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-hel
  */
 
 test.describe('Search - secondary (map) panel', () => {
-    test('toggling the Map Panel mounts a Leaflet container', async ({ page }) => {
+    test('the Map results view mounts a Leaflet container', async ({ page }) => {
         const errors = []
         page.on('pageerror', (e) => errors.push(e.message))
 
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await waitForAppReady(page)
 
-        // The secondary (map) panel is off by default — see
-        // `src/core/redux/store/initial.js` `workspace.main.secondary`.
-        // The Toolbar exposes an aria-label="Map Panel" toggle button.
-        const mapToggle = page.getByRole('button', { name: 'Map Panel', exact: true })
-        await expect(mapToggle).toBeVisible({ timeout: 20_000 })
-        await mapToggle.click()
-
-        // Heading reads "Map" (per SecondaryPanel.js heading.title)
-        // once the panel is mounted.
-        await expect(page.getByText('Map', { exact: true })).toBeVisible({
-            timeout: 20_000,
-        })
+        // Map is the fourth results view tab, off by default.
+        const mapTab = page.getByRole('tab', { name: 'Map', exact: true })
+        await expect(mapTab).toBeVisible({ timeout: 20_000 })
+        await mapTab.click()
 
         // The TargetDropdown <Select> is the only MUI Select on the
         // /search page that accepts planet/moon names. If no target
@@ -73,6 +64,28 @@ test.describe('Search - secondary (map) panel', () => {
         await expect(page.locator('.leaflet-map-pane').first()).toBeAttached({
             timeout: 20_000,
         })
+
+        expect(filterCriticalJsErrors(errors)).toEqual([])
+    })
+
+    test('the Split toggle shows the map beside the active view', async ({ page }) => {
+        const errors = []
+        page.on('pageerror', (e) => errors.push(e.message))
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        const split = page.getByRole('button', { name: 'split map', exact: true })
+        await expect(split).toBeVisible({ timeout: 20_000 })
+        await expect(split).toHaveAttribute('aria-pressed', 'false')
+        await split.click()
+        await expect(split).toHaveAttribute('aria-pressed', 'true')
+
+        // Grid is still the selected view while the map shares the row.
+        await expect(page.getByRole('tab', { name: 'Grid', exact: true })).toHaveAttribute(
+            'aria-selected',
+            'true'
+        )
 
         expect(filterCriticalJsErrors(errors)).toEqual([])
     })

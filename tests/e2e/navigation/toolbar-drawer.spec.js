@@ -2,19 +2,19 @@ import { test, expect } from '@playwright/test'
 import { navigateToSearch } from '../../helpers/atlas-helpers.js'
 
 /**
- * Toolbar-drawer (left-rail hamburger) tests.
+ * Navigation-drawer (Topbar hamburger) tests.
  *
- * The drawer is implemented as MUI `<Drawer variant="persistent">` and
+ * The drawer is implemented as MUI `<Drawer variant="temporary">` and
  * opens when the user clicks the "navigation" IconButton. It contains
  * the section headers (Atlas, Data) and link items including:
  *   Home / Search Images / Browse Archive / Cart / Documentation /
  *   Volumes / Holdings / Portal / Release Calendar / Tools & Tutorials /
  *   Help.
  *
- * See `src/components/Toolbar/Toolbar.js` for the drawerItems array.
+ * See `src/components/NavigationDrawer/NavigationDrawer.js` for the drawerItems array.
  */
 
-test.describe('Toolbar drawer', () => {
+test.describe('Navigation drawer', () => {
     test('clicking "navigation" reveals the drawer items', async ({ page }) => {
         await navigateToSearch(page)
 

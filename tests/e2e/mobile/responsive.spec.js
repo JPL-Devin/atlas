@@ -22,19 +22,20 @@ test.describe('Mobile Responsive Behavior', () => {
         await expect(body).toBeVisible()
     })
 
-    test('Toolbar navigation hamburger remains visible on mobile', async ({ page }) => {
+    test('Topbar navigation hamburger remains visible on mobile', async ({ page }) => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
         await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
     })
 
-    test('mobile workspace shows panel toggle buttons so users can switch panels', async ({ page }) => {
+    test('mobile shows the results with a Filters button opening the sheet', async ({ page }) => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
-        // The Search component renders one panel at a time on mobile, but
-        // the workspace toggles are still rendered so the user can switch.
-        await expect(page.getByRole('button', { name: 'filters panel' })).toBeVisible()
-        await expect(page.getByRole('button', { name: 'Results Panel' })).toBeVisible()
+        // Results are always the page; filters open as a full-screen sheet.
+        const filters = page.getByRole('button', { name: 'filters', exact: true })
+        await expect(filters).toBeVisible()
+        await filters.click()
+        await expect(page.getByRole('button', { name: 'close filters' })).toBeVisible()
     })
 
     test('no horizontal scrollbar on mobile viewport', async ({ page }) => {

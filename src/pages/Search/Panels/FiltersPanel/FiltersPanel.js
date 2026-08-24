@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
+import clsx from 'clsx'
 
 import {
     setModal,
     setFilterType,
+    setWorkspace,
+    resetFilters,
     copyToClipboardAction,
 } from '../../../../core/redux/actions/actions.js'
 
@@ -15,6 +18,8 @@ import Tooltip from '@mui/material/Tooltip'
 
 import AddIcon from '@mui/icons-material/Add'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import CloseIcon from '@mui/icons-material/Close'
 
 import FilterList from './subcomponents/FilterList/FilterList'
 import AdvancedFilter from './subcomponents/AdvancedFilter/AdvancedFilter'
@@ -44,6 +49,33 @@ const useStyles = makeStyles((theme) => ({
     content: {
         overflowY: 'auto',
         flex: 1,
+    },
+    sheet: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100% !important',
+        height: '100%',
+        zIndex: theme.zIndex.drawer,
+    },
+    left: {
+        display: 'flex',
+        alignItems: 'center',
+        minWidth: 0,
+    },
+    resetFilters: {
+        'color': theme.palette.swatches.grey.grey600,
+        'fontSize': '11px',
+        'lineHeight': '11px',
+        'marginLeft': theme.spacing(1),
+        'whiteSpace': 'nowrap',
+        '& .MuiButton-startIcon': {
+            marginRight: '3px',
+        },
+        '& svg': {
+            fontSize: '16px !important',
+            transform: 'rotateY(180deg)',
+        },
     },
     heading: {
         width: '100%',
@@ -130,6 +162,9 @@ const FiltersPanel = (props) => {
         }
     }
 
+    // A sheet over the results on phones, a sidebar otherwise
+    if (mobile && !w.filters) return null
+
     let width = 0
     if (mobile) width = '100%'
     else width = w.filters ? (filterType === 'basic' ? w.filtersSize : w.advancedFiltersSize) : 0
@@ -140,11 +175,22 @@ const FiltersPanel = (props) => {
     if (width == 0) style.border = 'unset'
 
     return (
-        <div className={c.FiltersPanel} style={style}>
+        <div className={clsx(c.FiltersPanel, { [c.sheet]: mobile })} style={style}>
             <div className={c.contents}>
                 <div className={c.heading}>
                     <div className={c.left}>
                         <div className={c.title}>{FILTER_TYPES[filterType]}</div>
+                        <Tooltip title="Reset All Search Settings" arrow>
+                            <Button
+                                className={c.resetFilters}
+                                aria-label="reset filters"
+                                size="small"
+                                onClick={() => dispatch(resetFilters())}
+                                startIcon={<RefreshIcon />}
+                            >
+                                Reset filters
+                            </Button>
+                        </Tooltip>
                     </div>
                     <div className={c.right}>
                         {filterType === 'basic' && getAppConfig().enableAddFilters && (
@@ -176,6 +222,15 @@ const FiltersPanel = (props) => {
                                 onChange={handleMenuChange}
                             />
                         </div>
+                        {mobile && (
+                            <IconButton
+                                aria-label="close filters"
+                                size="small"
+                                onClick={() => dispatch(setWorkspace({ ...w, filters: false }))}
+                            >
+                                <CloseIcon fontSize="inherit" />
+                            </IconButton>
+                        )}
                     </div>
                 </div>
                 <div
@@ -219,6 +274,8 @@ const FiltersPanel = (props) => {
     )
 }
 
-FiltersPanel.propTypes = {}
+FiltersPanel.propTypes = {
+    mobile: PropTypes.bool,
+}
 
 export default FiltersPanel

@@ -54,15 +54,15 @@ test.describe('Click-driven route navigation', () => {
         expect(page.url()).toContain('/search')
     })
 
-    test('Toolbar "Restart search" button is wired and clickable', async ({ page }) => {
+    test('Filters heading "Reset filters" button is wired and clickable', async ({ page }) => {
         await navigateToSearch(page)
 
-        const btn = page.getByRole('button', { name: 'Restart search' })
+        const btn = page.getByRole('button', { name: 'reset filters', exact: true })
         await expect(btn).toBeVisible()
         await expect(btn).toBeEnabled()
 
         // We deliberately do NOT verify post-click state here: in test
-        // environments where the PDS API is unreachable, Restart search
+        // environments where the PDS API is unreachable, Reset filters
         // dispatches a re-fetch that the offline API rejects, and the
         // resulting Redux/immutable.js exceptions can collapse the
         // React tree. Catching that regression requires the API to be

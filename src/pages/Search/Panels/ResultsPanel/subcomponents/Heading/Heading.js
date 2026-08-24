@@ -14,6 +14,7 @@ import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
 import MoreVertIcon from '@mui/icons-material/MoreVert'
+import FilterListIcon from '@mui/icons-material/FilterList'
 import RotateRightIcon from '@mui/icons-material/RotateRight'
 import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 import PhotoSizeSelectLargeIcon from '@mui/icons-material/PhotoSizeSelectLarge'
@@ -24,6 +25,7 @@ import ResultsSorter from '../../../../../../components/ResultsSorter/ResultsSor
 import MenuButton from '../../../../../../components/MenuButton/MenuButton'
 
 import ChippedFilters from '../ChippedFilters/ChippedFilters'
+import { getActiveFilterChips } from '../ChippedFilters/activeFilterChips'
 
 import {
     addToCart,
@@ -31,6 +33,7 @@ import {
     setGridSize,
     setModal,
     setSnackBarText,
+    setWorkspace,
 } from '../../../../../../core/redux/actions/actions.js'
 import { getAppConfig } from '../../../../../../core/appConfig'
 
@@ -53,6 +56,21 @@ const useStyles = makeStyles((theme) => ({
     },
     left: {
         display: 'flex',
+        alignItems: 'center',
+    },
+    filtersButton: {
+        'color': theme.palette.text.primary,
+        'fontSize': '11px',
+        'lineHeight': '11px',
+        'margin': '7px 3px 7px 8px',
+        'whiteSpace': 'nowrap',
+        'border': `1px solid ${theme.palette.swatches.grey.grey300}`,
+        '& svg': {
+            fontSize: '16px !important',
+        },
+    },
+    filtersButtonActive: {
+        background: theme.palette.swatches.grey.grey150,
     },
     middle: {
         flex: 1,
@@ -133,6 +151,10 @@ const Heading = (props) => {
     const filterType = useSelector((state) => state.getIn(['filterType']))
     const gridSize = useSelector((state) => state.getIn(['gridSize']))
 
+    const w = useSelector((state) => state.getIn(['workspace', 'main'])).toJS()
+    const activeFilters = useSelector((state) => state.getIn(['activeFilters'])).toJS()
+    const activeFilterCount = getActiveFilterChips(activeFilters).length
+
     const resultKeysChecked = useSelector((state) => state.getIn(['resultKeysChecked'])).toJS()
 
     const gridSizes = isMobile ? [92, 128, 256] : [128, 192, 256]
@@ -159,11 +181,25 @@ const Heading = (props) => {
         <div className={c.Heading}>
             <div className={c.left}>
                 <div className={c.title}>Results</div>
+                <Tooltip title={w.filters ? 'Hide Filters' : 'Show Filters'} arrow>
+                    <Button
+                        className={clsx(c.filtersButton, {
+                            [c.filtersButtonActive]: w.filters,
+                        })}
+                        aria-label="filters"
+                        aria-pressed={w.filters}
+                        size="small"
+                        onClick={() => dispatch(setWorkspace({ ...w, filters: !w.filters }))}
+                        startIcon={<FilterListIcon />}
+                    >
+                        {activeFilterCount > 0 ? `Filters \u00b7 ${activeFilterCount}` : 'Filters'}
+                    </Button>
+                </Tooltip>
             </div>
             <div className={c.middle}>{filterType === 'basic' && <ChippedFilters />}</div>
             <div className={c.right}>
                 <ResultsSorter />
-                {activeView === 'grid' && !isMobile && (
+                {activeView === 'Grid' && !isMobile && (
                     <div className={c.gridSize}>
                         <Tooltip title="Small Grid Images" arrow>
                             <IconButton
@@ -209,7 +245,7 @@ const Heading = (props) => {
                         </Tooltip>
                     </div>
                 )}
-                {activeView === 'grid' && !isMobile && (
+                {activeView === 'Grid' && !isMobile && (
                     <Tooltip title="Rotate Images 90°" arrow>
                         <IconButton
                             className={c.rotateButton}
@@ -222,7 +258,7 @@ const Heading = (props) => {
                         </IconButton>
                     </Tooltip>
                 )}
-                {activeView === 'table' && !isMobile && (
+                {activeView === 'Table' && !isMobile && (
                     <Button
                         className={c.button1}
                         variant="contained"
@@ -283,7 +319,7 @@ const Heading = (props) => {
                     ] : []
                     const menuOptions = !isMobile
                         ? cartOptions
-                        : activeView === 'table'
+                        : activeView === 'Table'
                         ? [
                               ...(cartOptions.length > 0 ? [...cartOptions, '-'] : []),
                               'Edit Columns',
@@ -342,6 +378,8 @@ const Heading = (props) => {
     )
 }
 
-Heading.propTypes = {}
+Heading.propTypes = {
+    activeView: PropTypes.string,
+}
 
 export default Heading
