@@ -19,6 +19,8 @@ import ody from './profiles/ody.json'
 
 import raws from './instances/raws.json'
 
+import mars_2020_filename from './filenames/mars_2020.json'
+
 // Keyed by `<mission>` or `<mission>.<pds_standard>`; the standard-specific
 // profile is merged over the mission one when both exist.
 export const profiles = {
@@ -41,5 +43,11 @@ export const instanceProfiles = {
 }
 
 export const defaultProfile = _default
+
+// Filename naming conventions, keyed by `<mission>` or `<mission>.<pds_standard>`.
+// A mission with no spec renders its filename as plain text.
+export const filenameSpecs = {
+    mars_2020: mars_2020_filename,
+}
 
 export { emptyStates, fields, icons, sections, validity, mappingSnapshot }

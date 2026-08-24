@@ -1,0 +1,348 @@
+{
+    "title": "Mars 2020 single-frame filename",
+    "reference": "M2020 Camera Data Products SIS (JPL D-99960), Table 18-1",
+    "match": "^[A-Z0-9_]{54}\\.[A-Za-z]{3}$",
+    "segments": [
+        {
+            "start": 1,
+            "length": 2,
+            "label": "Instrument",
+            "color": "blue",
+            "description": "Camera that acquired the product.",
+            "values": {
+                "FL": "Front Hazcam Left (RCE-A)",
+                "FR": "Front Hazcam Right (RCE-A)",
+                "FA": "Front Hazcam Anaglyph (RCE-A)",
+                "FG": "Front Hazcam Colorglyph (RCE-A)",
+                "BL": "Front Hazcam Left (RCE-B)",
+                "BR": "Front Hazcam Right (RCE-B)",
+                "BA": "Front Hazcam Anaglyph (RCE-B)",
+                "BG": "Front Hazcam Colorglyph (RCE-B)",
+                "RL": "Rear Hazcam Left",
+                "RR": "Rear Hazcam Right",
+                "RA": "Rear Hazcam Anaglyph",
+                "RG": "Rear Hazcam Colorglyph",
+                "NL": "Navcam Left",
+                "NR": "Navcam Right",
+                "NA": "Navcam Anaglyph",
+                "NG": "Navcam Colorglyph",
+                "ZL": "Mastcam-Z Left",
+                "ZR": "Mastcam-Z Right",
+                "ZA": "Mastcam-Z Anaglyph",
+                "ZG": "Mastcam-Z Colorglyph",
+                "CC": "CacheCam",
+                "PC": "PIXL Micro Context Camera (MCC)",
+                "LR": "SuperCam RMI",
+                "SC": "SHERLOC Context Imager (ACI)",
+                "SI": "SHERLOC Imaging (WATSON)",
+                "SE": "SHERLOC Engineering imagers",
+                "SA": "SHERLOC WATSON/ACI Anaglyph",
+                "SG": "SHERLOC WATSON/ACI Colorglyph",
+                "SL": "SHERLOC WATSON/ACI as left eye",
+                "SR": "SHERLOC WATSON/ACI as right eye",
+                "WS": "MEDA Skycam",
+                "EA": "EDL Parachute Uplook Camera A",
+                "EB": "EDL Parachute Uplook Camera B",
+                "EC": "EDL Parachute Uplook Camera C",
+                "ED": "EDL Rover Downlook Camera",
+                "EL": "EDL Lander Vision System (LCAM)",
+                "EM": "EDL Microphone",
+                "ES": "EDL Descent Stage Downlook Camera",
+                "EU": "EDL Rover Uplook Camera",
+                "HN": "Ingenuity Navigation Camera",
+                "HS": "Ingenuity Return-To-Earth Camera",
+                "HA": "Ingenuity Nav Anaglyph",
+                "HG": "Ingenuity RTE Colorglyph",
+                "AA": "Enhanced Auto-Nav module (onboard)",
+                "AC": "Robotic arm collision model (onboard)",
+                "WE": "MEDA Environment",
+                "OX": "MOXIE",
+                "PE": "PIXL Engineering",
+                "PS": "PIXL Spectrometer",
+                "LS": "SuperCam non-imaging",
+                "SS": "SHERLOC Spectrometer",
+                "XM": "RIMFAX Mobile",
+                "XS": "RIMFAX Stationary"
+            }
+        },
+        {
+            "start": 3,
+            "length": 1,
+            "label": "Color / filter",
+            "color": "teal",
+            "description": "Colour space band, filter position or illumination state.",
+            "values": {
+                "E": "Raw Bayer pattern",
+                "M": "Grayscale (monochrome / panchromatic)",
+                "A": "Upper green Bayer cells (G1)",
+                "D": "Lower green Bayer cells (G2), or PIXL dense SLI-A illumination",
+                "O": "Other",
+                "_": "Not applicable",
+                "F": "RGB, all three bands",
+                "R": "RGB band 1 (red), or PIXL red LEDs",
+                "G": "RGB band 2 (green), or PIXL green LEDs",
+                "B": "RGB band 3 (blue), or PIXL blue LEDs",
+                "T": "XYZ, all three bands",
+                "X": "XYZ band 1",
+                "Y": "XYZ band 2",
+                "Z": "XYZ band 3",
+                "C": "xyY, all three bands",
+                "J": "xyY band 1",
+                "K": "xyY band 2",
+                "L": "xyY band 3",
+                "P": "HSI, all three bands",
+                "H": "HSI band 1 (hue)",
+                "S": "HSI band 2 (saturation), or PIXL sparse SLI-B illumination",
+                "I": "HSI band 3 (intensity)",
+                "W": "PIXL multiple LED colours",
+                "U": "PIXL UV LEDs",
+                "0": "Mastcam-Z filter 0, or SHERLOC cover closed with LEDs off",
+                "1": "Mastcam-Z filter 1, or SHERLOC cover open with LEDs off",
+                "2": "Mastcam-Z filter 2, or SHERLOC cover closed with LEDs on",
+                "3": "Mastcam-Z filter 3, or SHERLOC cover open with LEDs on",
+                "4": "Mastcam-Z filter 4",
+                "5": "Mastcam-Z filter 5",
+                "6": "Mastcam-Z filter 6",
+                "7": "Mastcam-Z filter 7"
+            }
+        },
+        {
+            "start": 4,
+            "length": 1,
+            "label": "Special processing",
+            "color": "slate",
+            "description": "Marks off-nominal processing; the meaning of each letter is assigned per sol. EDRs are always \"_\".",
+            "values": { "_": "Nominal processing" }
+        },
+        {
+            "start": 5,
+            "length": 4,
+            "label": "Sol",
+            "color": "orange",
+            "description": "Primary timestamp. On the surface this is the Mars solar day; in cruise and ground test it is an encoded Earth year and day-of-year instead.",
+            "values": { "____": "Out of range" },
+            "patterns": [{ "match": "^[0-9]{4}$", "meaning": "Sol {number}" }]
+        },
+        {
+            "start": 9,
+            "length": 1,
+            "label": "Venue",
+            "color": "slate",
+            "description": "Where the data came from.",
+            "values": {
+                "_": "Flight (surface or cruise)",
+                "A": "AVSTB testbed",
+                "F": "FSWTB testbed",
+                "M": "MSTB testbed",
+                "R": "ROASTT testbed",
+                "S": "Scarecrow testbed",
+                "V": "VSTB testbed"
+            }
+        },
+        {
+            "start": 10,
+            "length": 10,
+            "label": "Spacecraft clock",
+            "color": "amber",
+            "description": "Secondary timestamp: whole seconds of the spacecraft clock at the start of the observation (Earth-received time in ground tests where the clock resets).",
+            "values": { "__________": "Out of range" },
+            "patterns": [{ "match": "^[0-9]{10}$", "meaning": "SCLK {number} seconds" }]
+        },
+        {
+            "start": 20,
+            "length": 1,
+            "label": "Separator",
+            "color": "slate",
+            "description": "Underscore for readability. On single-frame meshes it carries the mesh geometry code instead.",
+            "values": {
+                "_": "Separator",
+                "M": "Mesh from masked XYZ",
+                "X": "Mesh from unmasked XYZ"
+            }
+        },
+        {
+            "start": 21,
+            "length": 3,
+            "label": "Milliseconds",
+            "color": "amber",
+            "description": "Milliseconds of the spacecraft clock or UTC timestamp.",
+            "patterns": [{ "match": "^[0-9]{3}$", "meaning": "{number} ms" }]
+        },
+        {
+            "start": 24,
+            "length": 3,
+            "label": "Product type",
+            "color": "violet",
+            "description": "What kind of product this is — raw EDR, decompanded, radiometrically corrected, geometry, and so on.",
+            "values": {
+                "ECM": "EDR — original companded image, as downlinked",
+                "EJP": "EDR — JPEG-compressed image, as downlinked",
+                "ECV": "EDR — single frame of a video sequence",
+                "ECZ": "EDR — onboard best-focus Z-stack",
+                "EDM": "EDR — Z-stack depth map",
+                "ECR": "EDR — recovered product, metadata unavailable",
+                "EDR": "EDR — decompanded image (nominal product)",
+                "EVD": "EDR — decompanded video frame",
+                "EZS": "EDR — decompanded Z-stack",
+                "ERD": "EDR — decompanded recovered product",
+                "EBY": "EDR — de-bayered colour image",
+                "EAU": "EDR — audio",
+                "ERS": "EDR — row-summed array",
+                "ECS": "EDR — column-summed array",
+                "ERP": "EDR — Skycam reference pixels",
+                "EHG": "EDR — DN histogram",
+                "EID": "EDR — image data product header only",
+                "FDR": "FDR — full data record, reassembled image",
+                "FAU": "FDR — reassembled audio",
+                "TDR": "FDR — terrain-corrected data record"
+            },
+            "valueGroups": [
+                { "codes": "DEM MXY XOZ XRM XRR XRZ XXF XXX XYE XYF XYM XYO XYR XYZ YYF YYY ZIH ZZF ZZZ", "meaning": "RDR — XYZ surface coordinate map" },
+                { "codes": "ARK ARM ARO MAR", "meaning": "RDR — arm reachability map" },
+                { "codes": "DNB DNF DNG DNR DNS DPB DPD DPF DPG DPS DSB DSD DSF DSG DSS DWB DWD DWF DWG DWS", "meaning": "RDR — colour product from raw DN" },
+                { "codes": "CNB CNF CNG CNR CNS CPB CPD CPF CPG CPS CSB CSD CSF CSG CSS CWB CWD CWF CWG CWS", "meaning": "RDR — colour product, energy-to-camera" },
+                { "codes": "AGS MNB MNF MNG MNR MNS MPB MPD MPF MPG MPS MSB MSD MSF MSG MSS MWB MWD MWF MWG MWS", "meaning": "RDR — masked colour product" },
+                { "codes": "AGM", "meaning": "RDR — metadata product" },
+                { "codes": "ICM IDM IDX IEF IEP MSK TEN TER", "meaning": "RDR — miscellaneous product" },
+                { "codes": "IOF IOI RAD RAF RAG RAS RAY RDM RIE RIF RSM RZD RZF RZS RZY", "meaning": "RDR — radiometrically corrected image" },
+                { "codes": "RNE RNF RNG RNM RNO RNR RXY", "meaning": "RDR — range map" },
+                { "codes": "SEN SHD SHO SLO SLP SMG SMO SNO SNT SRD", "meaning": "RDR — slope product" },
+                { "codes": "COE COF DDD DDL DDS DFF DFL DFS DSE DSL DSP DSR MDS", "meaning": "RDR — stereo correlation product" },
+                { "codes": "FST GRA GRC GRN GSR GUA GUC GUH GUN SLH", "meaning": "RDR — stereo goodness map" },
+                { "codes": "TFH UIH UUF UUU UVF UVO UVP UVS UVT UVW VVF VVV WWF WWW", "meaning": "RDR — surface normal product" },
+                { "codes": "RUC RUF RUH RUS", "meaning": "RDR — surface roughness map" },
+                { "codes": "ZNB ZNF ZNG ZNR ZNS ZPB ZPD ZPF ZPG ZPS ZSB ZSD ZSF ZSG ZSS ZWB ZWD ZWF ZWG ZWS", "meaning": "RDR — zenith-scaled colour product" }
+            ]
+        },
+        {
+            "start": 27,
+            "length": 1,
+            "label": "Geometry",
+            "color": "green",
+            "description": "Whether the image has been geometrically linearized. All EDRs are raw geometry.",
+            "values": {
+                "_": "Raw geometry, not linearized (CacheCam: mirror-flipped to natural view)",
+                "L": "Linearized against its actual stereo partner",
+                "T": "PIXL MCC trapezoidal correction applied",
+                "U": "CacheCam uncorrected, not mirror-flipped"
+            }
+        },
+        {
+            "start": 28,
+            "length": 1,
+            "label": "Thumbnail",
+            "color": "green",
+            "description": "Thumbnail flag.",
+            "values": {
+                "T": "Thumbnail",
+                "N": "Full frame, sub-frame or downsampled — not a thumbnail"
+            }
+        },
+        {
+            "start": 29,
+            "length": 3,
+            "label": "Site",
+            "color": "red",
+            "description": "First element of the Rover Motion Counter: the site the rover was at (flight number for Ingenuity, set number for LCAM). Values above 999 are alpha-encoded.",
+            "values": { "___": "Out of range" },
+            "patterns": [{ "match": "^[0-9]{3}$", "meaning": "Site {number}" }]
+        },
+        {
+            "start": 32,
+            "length": 4,
+            "label": "Drive",
+            "color": "red",
+            "description": "Second element of the Rover Motion Counter: the drive within the site (position for Ingenuity, instance for LCAM). Values above 9999 are alpha-encoded.",
+            "values": { "____": "Out of range" },
+            "patterns": [{ "match": "^[0-9]{4}$", "meaning": "Drive {number}" }]
+        },
+        {
+            "start": 36,
+            "length": 9,
+            "label": "Sequence ID",
+            "color": "pink",
+            "description": "Identifier of the command sequence the image was acquired from — or, for PIXL only, the round-trip tracking token."
+        },
+        {
+            "start": 45,
+            "length": 4,
+            "label": "Camera specific",
+            "color": "brown",
+            "description": "Per-instrument field: Mastcam-Z focal length, SuperCam point number, SHERLOC experiment, PIXL motion counter, ECAM tile or reconstruction counter, video frame or audio clip index. The stereo partner counter is \"_\" on all EDRs."
+        },
+        {
+            "start": 49,
+            "length": 1,
+            "label": "Downsample",
+            "color": "cyan",
+            "description": "Downsampling applied to the image, as 2ⁿ × 2ⁿ.",
+            "values": {
+                "0": "Full resolution (1×1)",
+                "1": "2×2 downsampled",
+                "2": "4×4 downsampled",
+                "3": "8×8 downsampled",
+                "4": "16×16 downsampled"
+            }
+        },
+        {
+            "start": 50,
+            "length": 2,
+            "label": "Compression",
+            "color": "cyan",
+            "description": "Compression the image was downlinked with.",
+            "values": {
+                "00": "Thumbnail, or JPEG at unknown quality",
+                "A0": "JPEG quality level 100",
+                "I9": "ICER, more than 8 bits per pixel",
+                "LI": "Lossless ICER",
+                "LL": "Lossless LOCO",
+                "LM": "Lossless MSSS",
+                "LU": "Uncompressed",
+                "FH": "Frame extracted from H.264 video"
+            },
+            "patterns": [
+                { "match": "^0[1-9]$|^[1-9][0-9]$", "meaning": "JPEG quality level {number}" },
+                { "match": "^I([1-8])$", "meaning": "ICER, {1} bits per pixel" }
+            ]
+        },
+        {
+            "start": 52,
+            "length": 1,
+            "label": "Producer",
+            "color": "indigo",
+            "description": "Institution or team that produced the product.",
+            "values": {
+                "J": "JPL (IDS/MIPL)",
+                "A": "ASU — Mastcam-Z team",
+                "P": "Instrument principal investigator",
+                "_": "Undefined"
+            }
+        },
+        {
+            "start": 53,
+            "length": 2,
+            "label": "Version",
+            "color": "slate",
+            "description": "Product version, incremented whenever an otherwise identical filename already exists. Values above 99 are alpha-encoded.",
+            "values": { "__": "Out of range" },
+            "patterns": [{ "match": "^[0-9]{2}$", "meaning": "Version {number}" }]
+        },
+        {
+            "start": 56,
+            "length": 3,
+            "label": "Extension",
+            "color": "slate",
+            "description": "File format.",
+            "values": {
+                "IMG": "VICAR image with an attached ODL label",
+                "VIC": "VICAR image",
+                "DAT": "Binary table (spectra, state of health)",
+                "PNG": "PNG image",
+                "JPG": "JPEG image",
+                "TXT": "Text",
+                "CSV": "Comma-separated values",
+                "WAV": "Audio"
+            }
+        }
+    ]
+}

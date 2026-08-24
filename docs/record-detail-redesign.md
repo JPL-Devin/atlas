@@ -1606,6 +1606,42 @@ version updated the URL and left the previous product on screen. It now watches
   the same map turns `curiosity` into `MSL - Curiosity`, where the tile wants
   `Curiosity`.
 
+### 12.12 The filename breakdown
+
+The record title bar renders the source product filename as labelled,
+colour-coded segments with a tooltip per segment, from a per-mission naming
+convention config. Mars 2020 ships first.
+
+- **Config**: `src/config/recordDetail/filenames/<mission>.json`, keyed in
+  `filenameSpecs` by `<mission>` or `<mission>.<pds_standard>`, so a mission can
+  ship one spec per PDS standard when the conventions diverge. Missions with no
+  spec render the plain filename — nothing else changes for them.
+- **Grammar**: fixed character positions, per the M2020 Camera Data Products SIS
+  (JPL D-99960) Table 18-1: a 54-character stem plus `.` plus a 3-character
+  extension, 20 fields — instrument, colour/filter, special processing, sol,
+  venue, spacecraft clock, mesh, milliseconds, product type, geometry, thumbnail,
+  site, drive, sequence ID, camera-specific, downsample, compression, producer,
+  version, extension.
+- **Meanings** resolve in three steps: exact code (`NR` → Navcam Right), then a
+  code group (the SIS's RDR product-type families, e.g. 20 zenith-scaled colour
+  codes sharing one meaning), then ordered regexes for the ranged fields
+  (`0818` → `Sol 818`, `LL` → lossless LOCO, `I3` → ICER at 3 bits per pixel).
+  An unrecognized code keeps its label, raw value and field description but
+  claims no meaning, so new product types degrade instead of lying.
+- **Fallback**: `parseFilename` returns `null` — plain text — when no spec
+  matches the mission, or when the filename fails the spec's regex. That is what
+  keeps the M2020 **mosaic** and **terrain** conventions (both distinct from the
+  single-frame one, SIS §18) safe until they get their own specs.
+- **Presentation**: each segment is a `<button>` inside an MUI `Tooltip`, so the
+  breakdown works on hover, on keyboard focus and on touch; the tooltip carries
+  field name, raw value, decoded meaning and description, and the group exposes
+  the whole filename as its accessible name. Colours are named in the config
+  (`blue`, `teal`, …) and mapped to values readable on the light title bar in
+  `FilenameBreakdown`, so the config never carries hex.
+
+The vocabulary is deliberately partial: the exact codes are the common ones plus
+every RDR family, and the parser is what guarantees the rest still render.
+
 One mockup element is still absent and is a product decision, not an
 implementation gap: the **Related Products tab** (no such tab exists in
 `Content.js` today — the mockup shows one). The mockup's viewer toolbar

@@ -18,6 +18,7 @@ import {
 import { streamDownloadFile } from '../../../core/downloaders/ZipStream.js'
 import { addToCart, setSnackBarText } from '../../../core/redux/actions/actions'
 import SplitButton from '../../../components/SplitButton/SplitButton'
+import FilenameBreakdown from './FilenameBreakdown'
 
 import { makeStyles } from '@mui/styles'
 
@@ -229,7 +230,10 @@ const Title = (props) => {
                 <div className={c.name}>
                     <div className={c.mlChipsContainer}>
                         <Typography className={c.nameTitle} variant="h2">
-                            {getIn(recordData, ES_PATHS.file_name, '--')}
+                            <FilenameBreakdown
+                                filename={getIn(recordData, ES_PATHS.file_name, '--')}
+                                recordData={recordData}
+                            />
                         </Typography>
                         {mlClassifications.length > 0 &&
                             mlClassifications.map((classification, idx) => (
