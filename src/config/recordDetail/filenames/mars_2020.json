@@ -231,7 +231,7 @@
             "start": 28,
             "length": 1,
             "label": "Thumbnail",
-            "color": "brown",
+            "color": "blue",
             "description": "Thumbnail flag.",
             "values": {
                 "T": "Thumbnail",
