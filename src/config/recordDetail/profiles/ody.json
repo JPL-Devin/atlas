@@ -3,6 +3,8 @@
         "mission": "ody"
     },
     "tiles": [
+        "gather.common.mission",
+        "gather.common.spacecraft",
         "gather.common.instrument",
         "gather.common.product_type",
         {
@@ -19,8 +21,8 @@
         "gather.time.start_time",
         "gather.pds_archive.data_set_id"
     ],
-    "maxTiles": 8,
-    "priorityTiles": 4,
+    "maxTiles": 9,
+    "priorityTiles": 6,
     "sections": [
         "identification",
         "observation",

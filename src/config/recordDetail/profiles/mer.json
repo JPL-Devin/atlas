@@ -3,21 +3,33 @@
         "mission": "mer"
     },
     "tiles": [
+        "gather.common.mission",
+        "gather.common.spacecraft",
+        "gather.common.instrument_name",
         "gather.landed_missions.planet_day_number",
         "gather.landed_missions.rmc_site",
         "gather.landed_missions.rmc_drive",
-        "gather.common.instrument_name",
-        "gather.common.product_type_name",
-        "gather.landed_missions.frame_type",
-        "gather.landed_missions.site_instrument_azimuth",
-        "gather.landed_missions.site_instrument_elevation",
-        "gather.common.filter",
+        {
+            "path": "gather.landed_missions.start_local_mean_solar_time",
+            "sub": "gather.landed_missions.start_local_true_solar_time"
+        },
+        {
+            "path": "gather.landed_missions.site_solar_elevation",
+            "sub": "gather.landed_missions.site_solar_azimuth"
+        },
+        {
+            "path": "gather.landed_missions.site_instrument_elevation",
+            "sub": "gather.landed_missions.site_instrument_azimuth"
+        },
         "gather.time.start_time",
+        "gather.landed_missions.frame_type",
+        "gather.common.product_type_name",
+        "gather.common.filter",
         "gather.common.mission_phase_name",
         "gather.pds_archive.data_set_id"
     ],
-    "maxTiles": 8,
-    "priorityTiles": 4,
+    "maxTiles": 12,
+    "priorityTiles": 6,
     "sections": [
         "identification",
         "observation",
@@ -36,6 +48,7 @@
     ],
     "captionChips": [
         "Sol {{gather.landed_missions.planet_day_number}}",
+        "{{gather.landed_missions.start_local_mean_solar_time}} LMST",
         "Site {{gather.landed_missions.rmc_site}}",
         "Drive {{gather.landed_missions.rmc_drive}}",
         "{{gather.common.instrument_name}}",
@@ -44,6 +57,7 @@
     "caption": [
         "{{gather.common.instrument_name}}",
         "Sol {{gather.landed_missions.planet_day_number}}",
+        "{{gather.landed_missions.start_local_mean_solar_time}} LMST",
         "Site {{gather.landed_missions.rmc_site}}",
         "Drive {{gather.landed_missions.rmc_drive}}"
     ],

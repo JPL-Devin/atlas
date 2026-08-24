@@ -22,7 +22,10 @@ test.describe('resolvePresentation', () => {
         const p = resolvePresentation(mslPds3)
         expect(valueOf(p, 'Sol')).toBe('2407')
         expect(valueOf(p, 'Site')).toBe('75')
-        expect(tileOf(p, 'Site').sub).toBe('drive 1420')
+        expect(valueOf(p, 'Drive')).toBe('1420')
+        // No LMST in this record, so its tile and caption clause drop.
+        expect(labels(p)).not.toContain('Local mean solar time')
+        expect(p.caption).not.toContain('local mean solar time')
         expect(p.caption).toContain('on sol 2407')
         expect(p.caption).toContain('from site 75 drive 1420')
         expect(p.shortCaption).toBe('MAHLI, Sol 2407')
@@ -42,10 +45,23 @@ test.describe('resolvePresentation', () => {
     test('mars 2020 renders rover geometry with units', () => {
         const p = resolvePresentation(mars2020Navcam)
         expect(valueOf(p, 'Sol')).toBe('818')
-        expect(valueOf(p, 'Local true solar time')).toBe('14:28:56')
+        expect(valueOf(p, 'Local mean solar time')).toBe('14:19:46')
+        expect(labels(p)).not.toContain('Local true solar time')
         expect(valueOf(p, 'Instrument elevation')).toBe('-32.9°')
         expect(p.caption).toContain('NAVCAM_RIGHT')
-        expect(p.caption).toContain('14:28:56 local true solar time')
+        expect(p.caption).toContain('14:19:46 local mean solar time')
+    })
+
+    test('landed at-a-glance leads with mission, spacecraft, instrument then sol, site, drive', () => {
+        const p = resolvePresentation(mars2020Navcam)
+        expect(labels(p).slice(0, 6)).toEqual([
+            'Mission',
+            'Spacecraft',
+            'Instrument',
+            'Sol',
+            'Site',
+            'Drive',
+        ])
     })
 
     test('raws overrides mars 2020 navcam without touching the shared profile', () => {
@@ -105,8 +121,8 @@ test.describe('resolvePresentation', () => {
 
     test('tile count honours maxTiles and priorityTiles', () => {
         const p = resolvePresentation(mars2020Navcam)
-        expect(p.tiles.length).toBeLessThanOrEqual(8)
-        expect(p.priorityTiles).toBe(4)
+        expect(p.tiles.length).toBeLessThanOrEqual(12)
+        expect(p.priorityTiles).toBe(6)
     })
 
     test('tiles carry icons and sub-lines from the paired field', () => {
@@ -116,8 +132,8 @@ test.describe('resolvePresentation', () => {
 
         const m2020 = resolvePresentation(mars2020Navcam)
         expect(tileOf(m2020, 'Site').icon).toBe('place')
-        expect(tileOf(m2020, 'Site').sub).toBe('drive 1469')
-        expect(tileOf(m2020, 'Local true solar time').sub).toBe('LMST 14:19:46')
+        expect(valueOf(m2020, 'Drive')).toBe('1469')
+        expect(tileOf(m2020, 'Local mean solar time').sub).toBe('LTST 14:28:56')
     })
 
     test('citation never ends on dangling punctuation when a fragment drops', () => {

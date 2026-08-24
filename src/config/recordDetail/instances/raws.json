@@ -5,7 +5,7 @@
             "tiles": [
                 {
                     "path": "gather.landed_missions.planet_day_number",
-                    "sub": "gather.landed_missions.start_local_true_solar_time"
+                    "sub": "gather.landed_missions.start_local_mean_solar_time"
                 },
                 {
                     "path": "gather.common.instrument",
@@ -24,7 +24,7 @@
             "caption": [
                 "{{gather.common.instrument}}",
                 "Sol {{gather.landed_missions.planet_day_number}}",
-                "{{gather.landed_missions.start_local_true_solar_time}} LTST"
+                "{{gather.landed_missions.start_local_mean_solar_time}} LMST"
             ],
             "shortCaption": [
                 "Sol {{gather.landed_missions.planet_day_number}}",
@@ -35,7 +35,7 @@
                     "tiles": [
                         {
                             "path": "gather.landed_missions.planet_day_number",
-                            "sub": "gather.landed_missions.start_local_true_solar_time"
+                            "sub": "gather.landed_missions.start_local_mean_solar_time"
                         },
                         {
                             "path": "gather.landed_missions.rmc_site",
@@ -53,7 +53,7 @@
                     "caption": [
                         "Navcam Left",
                         "Sol {{gather.landed_missions.planet_day_number}}",
-                        "{{gather.landed_missions.start_local_true_solar_time}} LTST",
+                        "{{gather.landed_missions.start_local_mean_solar_time}} LMST",
                         "looking {{gather.landed_missions.site_instrument_azimuth}} azimuth"
                     ]
                 },
@@ -61,7 +61,7 @@
                     "tiles": [
                         {
                             "path": "gather.landed_missions.planet_day_number",
-                            "sub": "gather.landed_missions.start_local_true_solar_time"
+                            "sub": "gather.landed_missions.start_local_mean_solar_time"
                         },
                         {
                             "path": "gather.landed_missions.rmc_site",
@@ -79,7 +79,7 @@
                     "caption": [
                         "Navcam Right",
                         "Sol {{gather.landed_missions.planet_day_number}}",
-                        "{{gather.landed_missions.start_local_true_solar_time}} LTST",
+                        "{{gather.landed_missions.start_local_mean_solar_time}} LMST",
                         "looking {{gather.landed_missions.site_instrument_azimuth}} azimuth"
                     ]
                 }

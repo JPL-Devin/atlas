@@ -1583,6 +1583,22 @@ record never refetched when only the `uri` query param changed — picking a
 version updated the URL and left the previous product on screen. It now watches
 `location.search`.
 
+### 12.11 At-a-glance order, LMST, and whole rows
+
+- **LMST is the primary time-of-day field**, LTST demoted to its sub-line
+  (`LMST 14:19:46` / `LTST 14:28:56`), and the caption chips and prose clauses
+  now read LMST. Landed profiles (`mars_2020`, `msl.pds3`, `mer`, the RAWS
+  override) all follow.
+- **Landed tile order is the requested 3×3+**: Mission · Spacecraft · Instrument
+  / Sol · Site · Drive / LMST · solar el(az) · instrument el(az) / start time ·
+  Eye · product type. Site and Drive are separate tiles now rather than one tile
+  with a sub-line, and orbiter profiles gained the same leading Mission ·
+  Spacecraft · Instrument row.
+- **The grid never renders a partly filled row.** Profiles cap at 12 tiles (9
+  for the orbiters), and the Overview trims the resolved list to a multiple of
+  the active column count — 3 wide, 2 between `sm` and `lg`, 1 on phones — so
+  drop-out can shrink the block by a whole row but never leave a ragged one.
+
 One mockup element is still absent and is a product decision, not an
 implementation gap: the **Related Products tab** (no such tab exists in
 `Content.js` today — the mockup shows one). The mockup's viewer toolbar

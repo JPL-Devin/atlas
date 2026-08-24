@@ -1,6 +1,8 @@
 {
     "match": {},
     "tiles": [
+        "gather.common.mission",
+        "gather.common.spacecraft",
         "gather.common.instrument_name",
         "gather.common.instrument",
         "gather.common.product_type",
@@ -11,8 +13,8 @@
         "gather.pds_archive.bundle_id",
         "archive.size"
     ],
-    "maxTiles": 8,
-    "priorityTiles": 4,
+    "maxTiles": 9,
+    "priorityTiles": 6,
     "sections": [
         "identification",
         "observation",

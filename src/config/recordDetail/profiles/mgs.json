@@ -3,6 +3,8 @@
         "mission": "mgs"
     },
     "tiles": [
+        "gather.common.mission",
+        "gather.common.spacecraft",
         "gather.orbital_missions.orbit",
         "gather.common.instrument_name",
         "gather.common.product_type",
@@ -12,8 +14,8 @@
         "gather.pds_archive.data_set_id",
         "archive.size"
     ],
-    "maxTiles": 8,
-    "priorityTiles": 4,
+    "maxTiles": 9,
+    "priorityTiles": 6,
     "sections": [
         "identification",
         "observation",

@@ -456,6 +456,10 @@ const Overview = (props) => {
     const dispatch = useDispatch()
     const theme = useTheme()
     const isNarrow = useMediaQuery(theme.breakpoints.down('md'))
+    const isPhone = useMediaQuery(theme.breakpoints.down('sm'))
+    const isTwoUp = useMediaQuery(theme.breakpoints.down('lg'))
+    // Mirrors the tile grid's own breakpoints.
+    const tileColumns = isPhone ? 1 : isTwoUp ? 2 : 3
     const [viewerFailed, setViewerFailed] = useState(false)
     const [filterString, setFilterString] = useState('')
     const [collapsed, setCollapsed] = useState({})
@@ -501,10 +505,12 @@ const Overview = (props) => {
             )
 
     // Phones show only the priority tiles; wider viewports show the configured
-    // maximum in the same configured order.
-    const tiles = isNarrow
+    // maximum in the same configured order. Either way the grid keeps whole
+    // rows, so no row is left partly filled.
+    const available = isNarrow
         ? presentation.tiles.slice(0, presentation.priorityTiles)
         : presentation.tiles
+    const tiles = available.slice(0, Math.floor(available.length / tileColumns) * tileColumns)
     const caption = isNarrow ? presentation.shortCaption : presentation.caption
 
     // The raw label, flattened, is the one place field names appear as the

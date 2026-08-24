@@ -4,28 +4,36 @@
         "pds_standard": "pds3"
     },
     "tiles": [
+        "gather.common.mission",
+        "gather.common.spacecraft",
+        "gather.common.instrument_name",
         {
             "path": "gather.landed_missions.planet_day_number",
             "sub": "gather.lighting_geometry.solar_longitude"
         },
+        "gather.landed_missions.rmc_site",
+        "gather.landed_missions.rmc_drive",
         {
-            "path": "gather.landed_missions.rmc_site",
-            "sub": "gather.landed_missions.rmc_drive"
+            "path": "gather.landed_missions.start_local_mean_solar_time",
+            "sub": "gather.landed_missions.start_local_true_solar_time"
         },
-        "gather.common.instrument_name",
-        "gather.common.product_type_name",
-        "gather.time.start_time",
-        "gather.landed_missions.frame_type",
+        {
+            "path": "gather.landed_missions.site_solar_elevation",
+            "sub": "gather.landed_missions.site_solar_azimuth"
+        },
         {
             "path": "gather.landed_missions.site_instrument_elevation",
             "sub": "gather.landed_missions.site_instrument_azimuth"
         },
+        "gather.time.start_time",
+        "gather.landed_missions.frame_type",
+        "gather.common.product_type_name",
         "gather.time.spacecraft_clock_start_count",
         "gather.common.mission_phase_name",
         "gather.pds_archive.data_set_id"
     ],
-    "maxTiles": 8,
-    "priorityTiles": 4,
+    "maxTiles": 12,
+    "priorityTiles": 6,
     "sections": [
         "identification",
         "observation",
@@ -46,6 +54,7 @@
     ],
     "captionChips": [
         "Sol {{gather.landed_missions.planet_day_number}}",
+        "{{gather.landed_missions.start_local_mean_solar_time}} LMST",
         "Site {{gather.landed_missions.rmc_site}}",
         "Drive {{gather.landed_missions.rmc_drive}}",
         "{{gather.common.instrument_name}}",
@@ -54,6 +63,7 @@
     "caption": [
         "Imaged by {{gather.common.instrument_name}} aboard {{gather.common.spacecraft}}",
         "on sol {{gather.landed_missions.planet_day_number}}",
+        "at {{gather.landed_missions.start_local_mean_solar_time}} local mean solar time",
         "from site {{gather.landed_missions.rmc_site}} drive {{gather.landed_missions.rmc_drive}}",
         "pointing {{gather.landed_missions.site_instrument_azimuth}} azimuth and {{gather.landed_missions.site_instrument_elevation}} elevation",
         "at Ls {{gather.lighting_geometry.solar_longitude}}"

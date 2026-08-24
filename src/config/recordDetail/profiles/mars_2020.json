@@ -3,21 +3,21 @@
         "mission": "mars_2020"
     },
     "tiles": [
+        "gather.common.mission",
+        "gather.common.spacecraft",
+        {
+            "path": "gather.common.instrument",
+            "sub": "gather.ancillary.color_filter"
+        },
         {
             "path": "gather.landed_missions.planet_day_number",
             "sub": "gather.lighting_geometry.solar_longitude"
         },
+        "gather.landed_missions.rmc_site",
+        "gather.landed_missions.rmc_drive",
         {
-            "path": "gather.landed_missions.start_local_true_solar_time",
-            "sub": "gather.landed_missions.start_local_mean_solar_time"
-        },
-        {
-            "path": "gather.landed_missions.rmc_site",
-            "sub": "gather.landed_missions.rmc_drive"
-        },
-        {
-            "path": "gather.common.instrument",
-            "sub": "gather.ancillary.color_filter"
+            "path": "gather.landed_missions.start_local_mean_solar_time",
+            "sub": "gather.landed_missions.start_local_true_solar_time"
         },
         {
             "path": "gather.landed_missions.site_solar_elevation",
@@ -27,15 +27,14 @@
             "path": "gather.landed_missions.site_instrument_elevation",
             "sub": "gather.landed_missions.site_instrument_azimuth"
         },
+        "gather.time.start_time",
         {
             "path": "gather.ancillary.eye_type"
         },
-        "gather.time.start_time",
-        "gather.pds_archive.bundle_id",
         "gather.common.product_type"
     ],
-    "maxTiles": 8,
-    "priorityTiles": 4,
+    "maxTiles": 12,
+    "priorityTiles": 6,
     "sections": [
         "identification",
         "observation",
@@ -45,7 +44,7 @@
     "separator": ", ",
     "description": [
         "{{gather.common.product_type}} image from the {{gather.common.instrument}} camera aboard {{gather.common.spacecraft}}.",
-        "It was taken on sol {{gather.landed_missions.planet_day_number}} at {{gather.landed_missions.start_local_true_solar_time}} local true solar time.",
+        "It was taken on sol {{gather.landed_missions.planet_day_number}} at {{gather.landed_missions.start_local_mean_solar_time}} local mean solar time.",
         "The rover was at site {{gather.landed_missions.rmc_site}}, drive {{gather.landed_missions.rmc_drive}}.",
         "The camera pointed {{gather.landed_missions.site_instrument_azimuth}} azimuth, {{gather.landed_missions.site_instrument_elevation}} elevation.",
         "The product is archived in bundle {{gather.pds_archive.bundle_id}}, release {{gather.pds_archive.release_id}}."
@@ -53,11 +52,11 @@
     "captionTitle": [
         "{{gather.common.instrument}}",
         "Sol {{gather.landed_missions.planet_day_number}}",
-        "{{gather.landed_missions.start_local_true_solar_time}} LTST"
+        "{{gather.landed_missions.start_local_mean_solar_time}} LMST"
     ],
     "captionChips": [
         "Sol {{gather.landed_missions.planet_day_number}}",
-        "{{gather.landed_missions.start_local_true_solar_time}} LTST",
+        "{{gather.landed_missions.start_local_mean_solar_time}} LMST",
         "Site {{gather.landed_missions.rmc_site}}",
         "Drive {{gather.landed_missions.rmc_drive}}",
         "{{gather.common.instrument}}",
@@ -65,7 +64,7 @@
     ],
     "caption": [
         "Imaged by {{gather.common.instrument}} aboard {{gather.common.spacecraft}}",
-        "on sol {{gather.landed_missions.planet_day_number}} at {{gather.landed_missions.start_local_true_solar_time}} local true solar time",
+        "on sol {{gather.landed_missions.planet_day_number}} at {{gather.landed_missions.start_local_mean_solar_time}} local mean solar time",
         "from site {{gather.landed_missions.rmc_site}} drive {{gather.landed_missions.rmc_drive}}",
         "pointing {{gather.landed_missions.site_instrument_azimuth}} azimuth and {{gather.landed_missions.site_instrument_elevation}} elevation",
         "with the Sun {{gather.landed_missions.site_solar_elevation}} above the horizon at Ls {{gather.lighting_geometry.solar_longitude}}"
