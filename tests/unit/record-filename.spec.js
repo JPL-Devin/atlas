@@ -134,6 +134,18 @@ test.describe('filename spec config', () => {
         })
     })
 
+    test('neighbouring segments never share a colour', () => {
+        Object.keys(filenameSpecs).forEach((key) => {
+            const segments = filenameSpecs[key].segments
+            segments.forEach((s, i) => {
+                if (i === 0) return
+                expect(s.color, `${key} ${segments[i - 1].label} / ${s.label}`).not.toBe(
+                    segments[i - 1].color
+                )
+            })
+        })
+    })
+
     test('no code is claimed twice within a segment', () => {
         Object.keys(filenameSpecs).forEach((key) => {
             filenameSpecs[key].segments.forEach((s) => {

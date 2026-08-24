@@ -69,7 +69,7 @@
             "start": 3,
             "length": 1,
             "label": "Color / filter",
-            "color": "teal",
+            "color": "green",
             "description": "Colour space band, filter position or illumination state.",
             "values": {
                 "E": "Raw Bayer pattern",
@@ -143,7 +143,7 @@
             "start": 10,
             "length": 10,
             "label": "Spacecraft clock",
-            "color": "amber",
+            "color": "teal",
             "description": "Secondary timestamp: whole seconds of the spacecraft clock at the start of the observation (Earth-received time in ground tests where the clock resets).",
             "values": { "__________": "Out of range" },
             "patterns": [{ "match": "^[0-9]{10}$", "meaning": "SCLK {number} seconds" }]
@@ -231,7 +231,7 @@
             "start": 28,
             "length": 1,
             "label": "Thumbnail",
-            "color": "green",
+            "color": "brown",
             "description": "Thumbnail flag.",
             "values": {
                 "T": "Thumbnail",
@@ -251,7 +251,7 @@
             "start": 32,
             "length": 4,
             "label": "Drive",
-            "color": "red",
+            "color": "indigo",
             "description": "Second element of the Rover Motion Counter: the drive within the site (position for Ingenuity, instance for LCAM). Values above 9999 are alpha-encoded.",
             "values": { "____": "Out of range" },
             "patterns": [{ "match": "^[0-9]{4}$", "meaning": "Drive {number}" }]
@@ -260,14 +260,14 @@
             "start": 36,
             "length": 9,
             "label": "Sequence ID",
-            "color": "pink",
+            "color": "amber",
             "description": "Identifier of the command sequence the image was acquired from — or, for PIXL only, the round-trip tracking token."
         },
         {
             "start": 45,
             "length": 4,
             "label": "Camera specific",
-            "color": "brown",
+            "color": "pink",
             "description": "Per-instrument field: Mastcam-Z focal length, SuperCam point number, SHERLOC experiment, PIXL motion counter, ECAM tile or reconstruction counter, video frame or audio clip index. The stereo partner counter is \"_\" on all EDRs."
         },
         {
@@ -288,7 +288,7 @@
             "start": 50,
             "length": 2,
             "label": "Compression",
-            "color": "cyan",
+            "color": "orange",
             "description": "Compression the image was downlinked with.",
             "values": {
                 "00": "Thumbnail, or JPEG at unknown quality",
@@ -309,7 +309,7 @@
             "start": 52,
             "length": 1,
             "label": "Producer",
-            "color": "indigo",
+            "color": "green",
             "description": "Institution or team that produced the product.",
             "values": {
                 "J": "JPL (IDS/MIPL)",
@@ -331,7 +331,7 @@
             "start": 56,
             "length": 3,
             "label": "Extension",
-            "color": "slate",
+            "color": "teal",
             "description": "File format.",
             "values": {
                 "IMG": "VICAR image with an attached ODL label",
