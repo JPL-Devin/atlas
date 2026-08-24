@@ -1549,9 +1549,10 @@ implementation left out:
   name and dims the others, clicking it again clears it, and an `*` button
   beside the name shows every segment's details at once (with the spec
   reference). Only one segment is explained at a time, so a 20-segment M20 name
-  costs four lines at rest instead of sixty. The name wraps onto a second line
-  rather than scrolling, since a 58-character name is wider than the panel and
-  a scrolled box hid its tail. Two earlier attempts were dropped: an indented
+  costs four lines at rest instead of sixty. The name is set at 17px and wraps
+  rather than scrolling (a scrolled box hid its `.IMG` tail), the panel is 520px
+  wide to give it room, and the details block keeps a 76px min-height so
+  switching segments does not shift the panel below it. Two earlier attempts were dropped: an indented
   tree (the indentation ran off the panel past the seventh segment) and a
   hover-filtered full list
   (the whole panel moved as the pointer crossed the name).
@@ -1695,6 +1696,25 @@ were retuned:
   separating whitespace.
 - **The caption card is frosted**: `rgba(16,16,19,0.62)` behind
   `blur(8px) saturate(140%)`, verified legible over bright Martian sand.
+
+### 12.15 Contrast
+
+`scripts/contrast-report.mjs` computes WCAG contrast for every text pair on the
+record detail page — panel, tiles, caption card, filename segments (lit and
+dimmed), action bar and the light title bar — reading the hexes straight out of
+`themes/light.js` and `filenameColors.js` so it cannot drift from the theme. All
+57 pairs now clear AA (4.5:1 body, 3:1 large). What it found:
+
+- **Dimmed filename segments were unreadable.** Unselected segments sat at
+  `opacity: 0.4`, i.e. 2.4:1 — the name is content you read even when a
+  different segment is selected. They are `0.7` now (≥4.6:1) and lose their
+  solid underline instead, which carries the selection cue.
+- **White on `blue700` is 4.2:1**, so the caption card's lead chip uses
+  `blue800` (5.5:1). The title bar's copy-link button also rested at
+  `opacity: 0.5` (3.9:1) and is `0.65` now.
+
+Untouched: the Product Label and ML Classification tabs are still the app's
+light surfaces and outside this redesign.
 
 One mockup element is still absent and is a product decision, not an
 implementation gap: the **Related Products tab** (no such tab exists in

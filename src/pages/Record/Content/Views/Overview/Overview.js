@@ -118,8 +118,9 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey100,
         whiteSpace: 'nowrap',
     },
+    // blue800 rather than blue700: white on blue700 is only 4.2:1.
     chipLead: {
-        background: theme.palette.swatches.blue.blue700,
+        background: theme.palette.swatches.blue.blue800,
         color: theme.palette.swatches.grey.grey0,
     },
     captionTitle: {
@@ -187,7 +188,7 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: theme.palette.swatches.grey.grey700,
     },
     metadata: {
-        width: '480px',
+        width: '520px',
         height: '100%',
         boxSizing: 'border-box',
         display: 'flex',

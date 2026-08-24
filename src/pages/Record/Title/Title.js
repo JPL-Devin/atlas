@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme) => ({
     copyButton: {
         'padding': 10,
         'borderRadius': 0,
-        'opacity': 0.5,
+        'opacity': 0.65,
         'transition': 'opacity 0.2s ease-out',
         '&:hover': {
             opacity: 1,

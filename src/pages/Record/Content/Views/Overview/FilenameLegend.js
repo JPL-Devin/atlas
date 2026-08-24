@@ -21,8 +21,8 @@ const useStyles = makeStyles((theme) => ({
     filename: {
         flex: 1,
         fontFamily: 'monospace',
-        fontSize: '12px',
-        lineHeight: '20px',
+        fontSize: '17px',
+        lineHeight: '25px',
         letterSpacing: '0.02em',
         wordBreak: 'break-all',
         paddingBottom: '2px',
@@ -35,8 +35,11 @@ const useStyles = makeStyles((theme) => ({
         'borderBottom': '2px solid',
         'cursor': 'pointer',
     },
+    // Unselected segments stay readable (WCAG AA), so they lose the solid
+    // underline rather than most of their contrast.
     segmentDim: {
-        opacity: 0.4,
+        opacity: 0.7,
+        borderBottomStyle: 'dotted',
     },
     allButton: {
         'font': 'inherit',
@@ -51,6 +54,14 @@ const useStyles = makeStyles((theme) => ({
             background: theme.palette.swatches.grey.grey700,
             color: theme.palette.swatches.grey.grey0,
         },
+    },
+    // A single segment's details keep a fixed height, so switching segments
+    // never shifts the panel below.
+    details: {
+        minHeight: '76px',
+    },
+    detailsAll: {
+        minHeight: 0,
     },
     hint: {
         fontSize: '11px',
@@ -141,21 +152,25 @@ const FilenameLegend = (props) => {
                     </button>
                 </Tooltip>
             </div>
-            {entries.length === 0 && (
-                <div className={c.hint}>Select a part of the name to see what it means.</div>
-            )}
-            {entries.map((piece) => (
-                <div className={c.entry} key={piece.idx}>
-                    <span className={c.entryValue} style={{ color: piece.color }}>
-                        {piece.text}
-                    </span>
-                    <span className={c.entryLabel}>{piece.label}</span>
-                    {piece.meaning != null && <div className={c.entryMeaning}>{piece.meaning}</div>}
-                    {piece.description != null && (
-                        <div className={c.entryDescription}>{piece.description}</div>
-                    )}
-                </div>
-            ))}
+            <div className={`${c.details} ${showAll ? c.detailsAll : ''}`}>
+                {entries.length === 0 && (
+                    <div className={c.hint}>Select a part of the name to see what it means.</div>
+                )}
+                {entries.map((piece) => (
+                    <div className={c.entry} key={piece.idx}>
+                        <span className={c.entryValue} style={{ color: piece.color }}>
+                            {piece.text}
+                        </span>
+                        <span className={c.entryLabel}>{piece.label}</span>
+                        {piece.meaning != null && (
+                            <div className={c.entryMeaning}>{piece.meaning}</div>
+                        )}
+                        {piece.description != null && (
+                            <div className={c.entryDescription}>{piece.description}</div>
+                        )}
+                    </div>
+                ))}
+            </div>
             {entries.length > 0 && parsed.reference != null && (
                 <div className={c.reference}>{parsed.reference}</div>
             )}
