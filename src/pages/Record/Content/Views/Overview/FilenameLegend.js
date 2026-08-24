@@ -3,8 +3,6 @@ import PropTypes from 'prop-types'
 
 import { makeStyles } from '@mui/styles'
 
-import { getIn } from '../../../../../core/utils'
-import { parseFilename, resolveFilenameSpec } from '../../../../../core/recordPresentation'
 import { DARK_COLORS } from '../../../filenameColors'
 
 // Entries line up under their segment, but a late segment would run off the
@@ -67,19 +65,10 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const first = (value) => (Array.isArray(value) ? value[0] : value)
-
 const FilenameLegend = (props) => {
-    const { filename, recordData } = props
+    const { parsed } = props
 
     const c = useStyles()
-
-    const spec = resolveFilenameSpec({
-        mission: first(getIn(recordData, 'gather.common.mission')),
-        pds_standard: first(getIn(recordData, 'gather.pds_archive.pds_standard')),
-    })
-    const parsed = parseFilename(filename, spec)
-    if (parsed == null) return null
 
     let offset = 0
     const pieces = parsed.pieces.map((piece) => {
@@ -131,8 +120,7 @@ const FilenameLegend = (props) => {
 }
 
 FilenameLegend.propTypes = {
-    filename: PropTypes.string,
-    recordData: PropTypes.object,
+    parsed: PropTypes.object,
 }
 
 export default FilenameLegend

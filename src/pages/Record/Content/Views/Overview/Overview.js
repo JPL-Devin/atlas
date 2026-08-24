@@ -36,7 +36,7 @@ import {
 import { HASH_PATHS, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../../core/constants.js'
 import { getAppConfig, getAppInstanceKey } from '../../../../../core/appConfig.js'
 import { getDownloadProducts } from '../../../../../core/recordDownloads.js'
-import { resolvePresentation } from '../../../../../core/recordPresentation'
+import { parseRecordFilename, resolvePresentation } from '../../../../../core/recordPresentation'
 import { emptyStates } from '../../../../../config/recordDetail'
 import { streamDownloadFile } from '../../../../../core/downloaders/ZipStream.js'
 import {
@@ -596,7 +596,8 @@ const Overview = (props) => {
 
     const fieldCount = sections.reduce((total, section) => total + section.rows.length, 0)
     // The filename breakdown is its own section, so it has no rows to filter.
-    const fileName = getIn(recordData, ES_PATHS.file_name)
+    // Missions with no filename spec have nothing to explain.
+    const parsedFilename = parseRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
     const filenameOpen = collapsed[FILENAME_SECTION_ID] !== true
     const downloadProducts = getDownloadProducts(recordData)
 
@@ -860,7 +861,7 @@ const Overview = (props) => {
                                     </div>
                                 )
                             })}
-                            {fileName != null && (
+                            {parsedFilename != null && (
                                 <div className={c.section}>
                                     <button
                                         className={c.sectionHead}
@@ -882,10 +883,7 @@ const Overview = (props) => {
                                         </span>
                                     </button>
                                     <Collapse in={filenameOpen} unmountOnExit>
-                                        <FilenameLegend
-                                            filename={fileName}
-                                            recordData={recordData}
-                                        />
+                                        <FilenameLegend parsed={parsedFilename} />
                                     </Collapse>
                                 </div>
                             )}

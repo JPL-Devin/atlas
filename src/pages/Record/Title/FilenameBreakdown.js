@@ -4,8 +4,7 @@ import PropTypes from 'prop-types'
 import { makeStyles } from '@mui/styles'
 import Tooltip from '@mui/material/Tooltip'
 
-import { getIn } from '../../../core/utils'
-import { parseFilename, resolveFilenameSpec } from '../../../core/recordPresentation'
+import { parseRecordFilename } from '../../../core/recordPresentation'
 import { LIGHT_COLORS } from '../filenameColors'
 
 const useStyles = makeStyles((theme) => ({
@@ -45,18 +44,12 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const first = (value) => (Array.isArray(value) ? value[0] : value)
-
 const FilenameBreakdown = (props) => {
     const { filename, recordData } = props
 
     const c = useStyles()
 
-    const spec = resolveFilenameSpec({
-        mission: first(getIn(recordData, 'gather.common.mission')),
-        pds_standard: first(getIn(recordData, 'gather.pds_archive.pds_standard')),
-    })
-    const parsed = parseFilename(filename, spec)
+    const parsed = parseRecordFilename(filename, recordData)
 
     if (parsed == null) return <>{filename}</>
 

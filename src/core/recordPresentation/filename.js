@@ -1,3 +1,4 @@
+import { getIn } from '../utils'
 import { filenameSpecs } from '../../config/recordDetail'
 
 const CAPTURE = /\{(number|value|[1-9])\}/g
@@ -72,3 +73,16 @@ export const parseFilename = (filename, spec) => {
 
     return { title: spec.title || null, reference: spec.reference || null, pieces }
 }
+
+const first = (value) => (Array.isArray(value) ? value[0] : value)
+
+// Resolves the spec from the record itself, so callers share one gate on
+// whether a filename has a breakdown at all.
+export const parseRecordFilename = (filename, recordData) =>
+    parseFilename(
+        filename,
+        resolveFilenameSpec({
+            mission: first(getIn(recordData, 'gather.common.mission')),
+            pds_standard: first(getIn(recordData, 'gather.pds_archive.pds_standard')),
+        })
+    )
