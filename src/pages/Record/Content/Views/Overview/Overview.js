@@ -94,8 +94,8 @@ const useStyles = makeStyles((theme) => ({
         padding: '10px 14px 12px 14px',
         borderRadius: '3px',
         border: `1px solid ${theme.palette.swatches.grey.grey700}`,
-        background: 'rgba(16,16,19,0.88)',
-        backdropFilter: 'blur(2px)',
+        background: 'rgba(16,16,19,0.62)',
+        backdropFilter: 'blur(8px) saturate(140%)',
         [theme.breakpoints.down('md')]: {
             left: '8px',
             right: '8px',
