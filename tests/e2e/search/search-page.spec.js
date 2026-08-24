@@ -20,9 +20,8 @@ test.describe('Search Page', () => {
         await expect(page.locator('h2', { hasText: /image search/i })).toBeVisible()
     })
 
-    test('Results heading exposes the Filters button and the view tabs', async ({ page }) => {
+    test('Results heading exposes the view tabs', async ({ page }) => {
         await navigateToSearch(page)
-        await expect(page.getByRole('button', { name: 'filters', exact: true })).toBeVisible()
         for (const name of ['Grid', 'List', 'Table', 'Map']) {
             await expect(page.getByRole('tab', { name, exact: true })).toBeVisible()
         }

@@ -40,10 +40,11 @@ test.describe('Topbar shell controls', () => {
         }
     })
 
-    test('the results heading exposes a Filters button', async ({ page }) => {
+    test('the filters sidebar is always shown on desktop', async ({ page }) => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
-        await expect(page.getByRole('button', { name: 'filters', exact: true })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'filters', exact: true })).toHaveCount(0)
+        await expect(page.getByRole('button', { name: 'add filter' })).toBeVisible()
     })
 
     test('topbar exposes route navigation links to all main routes', async ({ page }) => {

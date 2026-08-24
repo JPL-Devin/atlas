@@ -28,11 +28,11 @@ test.describe('Mobile Responsive Behavior', () => {
         await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
     })
 
-    test('mobile shows the results with a Filters button opening the sheet', async ({ page }) => {
+    test('mobile opens the filters sheet from the bottom bar', async ({ page }) => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
         // Results are always the page; filters open as a full-screen sheet.
-        const filters = page.getByRole('button', { name: 'filters', exact: true })
+        const filters = page.getByRole('button', { name: 'filters view' })
         await expect(filters).toBeVisible()
         await filters.click()
         await expect(page.getByRole('button', { name: 'close filters' })).toBeVisible()

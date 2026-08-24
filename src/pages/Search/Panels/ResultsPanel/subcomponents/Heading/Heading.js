@@ -13,7 +13,6 @@ import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
 import MoreVertIcon from '@mui/icons-material/MoreVert'
-import FilterListIcon from '@mui/icons-material/FilterList'
 import RotateRightIcon from '@mui/icons-material/RotateRight'
 import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 import PhotoSizeSelectLargeIcon from '@mui/icons-material/PhotoSizeSelectLarge'
@@ -24,7 +23,6 @@ import ResultsSorter from '../../../../../../components/ResultsSorter/ResultsSor
 import MenuButton from '../../../../../../components/MenuButton/MenuButton'
 
 import ChippedFilters from '../ChippedFilters/ChippedFilters'
-import { getActiveFilterChips } from '../ChippedFilters/activeFilterChips'
 
 import {
     addToCart,
@@ -32,7 +30,6 @@ import {
     setGridSize,
     setModal,
     setSnackBarText,
-    setWorkspace,
 } from '../../../../../../core/redux/actions/actions.js'
 import { getAppConfig } from '../../../../../../core/appConfig'
 
@@ -60,20 +57,6 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         flexShrink: 0,
         minWidth: 0,
-    },
-    filtersButton: {
-        'color': theme.palette.text.primary,
-        'fontSize': '11px',
-        'lineHeight': '11px',
-        'margin': '7px 3px 7px 8px',
-        'whiteSpace': 'nowrap',
-        'border': `1px solid ${theme.palette.swatches.grey.grey300}`,
-        '& svg': {
-            fontSize: '16px !important',
-        },
-    },
-    filtersButtonActive: {
-        background: theme.palette.swatches.grey.grey150,
     },
     middle: {
         flex: 1,
@@ -158,14 +141,6 @@ const Heading = (props) => {
     const filterType = useSelector((state) => state.getIn(['filterType']))
     const gridSize = useSelector((state) => state.getIn(['gridSize']))
 
-    const w = useSelector((state) => state.getIn(['workspace', 'main'])).toJS()
-    const activeFilters = useSelector((state) => state.getIn(['activeFilters'])).toJS()
-    const activeFilterCount = getActiveFilterChips(activeFilters).length
-
-    // Phones open the filters as a sheet, which starts closed
-    const filtersKey = mobile ? 'mobileFilters' : 'filters'
-    const filtersOpen = w[filtersKey]
-
     const resultKeysChecked = useSelector((state) => state.getIn(['resultKeysChecked'])).toJS()
 
     const gridSizes = isMobile ? [92, 128, 256] : [128, 192, 256]
@@ -191,23 +166,7 @@ const Heading = (props) => {
     return (
         <div className={c.Heading}>
             <div className={c.left}>
-                {!mobile && <div className={c.title}>Results</div>}
-                <Tooltip title={filtersOpen ? 'Hide Filters' : 'Show Filters'} arrow>
-                    <Button
-                        className={clsx(c.filtersButton, {
-                            [c.filtersButtonActive]: filtersOpen,
-                        })}
-                        aria-label="filters"
-                        aria-pressed={filtersOpen}
-                        size="small"
-                        onClick={() =>
-                            dispatch(setWorkspace({ ...w, [filtersKey]: !filtersOpen }))
-                        }
-                        startIcon={<FilterListIcon />}
-                    >
-                        {activeFilterCount > 0 ? `Filters \u00b7 ${activeFilterCount}` : 'Filters'}
-                    </Button>
-                </Tooltip>
+                <div className={c.title}>Results</div>
             </div>
             <div className={c.middle}>{filterType === 'basic' && <ChippedFilters />}</div>
             <div className={c.right}>

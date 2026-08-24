@@ -5,8 +5,7 @@ import { navigateToSearch, filterCriticalJsErrors } from '../../helpers/atlas-he
  * Mobile search workspace.
  *
  * Results are always the page. A bottom bar switches between the
- * filters sheet, the results and the map; filters can also be opened
- * from the `filters` button in the results heading.
+ * filters sheet, the results and the map.
  *
  * Reference: `src/pages/Search/Search.js`,
  * `src/pages/Search/Panels/FiltersPanel/FiltersPanel.js`.
@@ -20,7 +19,7 @@ test.describe('Mobile - search workspace', () => {
     test('results are shown with the filters sheet closed', async ({ page }) => {
         await navigateToSearch(page)
 
-        await expect(page.getByRole('button', { name: 'filters', exact: true })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'results view' })).toBeVisible()
         await expect(page.getByRole('tab', { name: 'Grid', exact: true })).toBeVisible()
         // The sheet is closed, so its close affordance is absent.
         await expect(page.getByRole('button', { name: 'close filters' })).toHaveCount(0)
@@ -32,7 +31,7 @@ test.describe('Mobile - search workspace', () => {
 
         await navigateToSearch(page)
 
-        await page.getByRole('button', { name: 'filters', exact: true }).click()
+        await page.getByRole('button', { name: 'filters view' }).click()
         const close = page.getByRole('button', { name: 'close filters' })
         await expect(close).toBeVisible()
         await expect(page.getByRole('button', { name: 'reset filters', exact: true })).toBeVisible()

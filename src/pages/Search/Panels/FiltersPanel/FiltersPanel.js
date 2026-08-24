@@ -68,15 +68,9 @@ const useStyles = makeStyles((theme) => ({
     },
     resetFilters: {
         'color': theme.palette.swatches.grey.grey600,
-        'fontSize': '11px',
-        'lineHeight': '11px',
-        'marginLeft': theme.spacing(1),
-        'whiteSpace': 'nowrap',
-        '& .MuiButton-startIcon': {
-            marginRight: '3px',
-        },
+        'marginLeft': theme.spacing(0.5),
         '& svg': {
-            fontSize: '16px !important',
+            fontSize: '18px !important',
             transform: 'rotateY(180deg)',
         },
     },
@@ -187,16 +181,15 @@ const FiltersPanel = (props) => {
                 <div className={c.heading}>
                     <div className={c.left}>
                         <div className={c.title}>{FILTER_TYPES[filterType]}</div>
-                        <Tooltip title="Reset All Search Settings" arrow>
-                            <Button
+                        <Tooltip title="Reset Filters" arrow>
+                            <IconButton
                                 className={c.resetFilters}
                                 aria-label="reset filters"
                                 size="small"
                                 onClick={() => dispatch(resetFilters())}
-                                startIcon={<RefreshIcon />}
                             >
-                                Reset filters
-                            </Button>
+                                <RefreshIcon fontSize="inherit" />
+                            </IconButton>
                         </Tooltip>
                     </div>
                     <div className={c.right}>

@@ -23,7 +23,7 @@ test.describe('Routing', () => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
         await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
-        await expect(page.getByRole('button', { name: 'filters', exact: true })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'reset filters', exact: true })).toBeVisible()
     })
 
     test('Topbar ATLAS heading is rendered on /search', async ({ page }) => {
