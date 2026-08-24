@@ -22,6 +22,7 @@ const CAPTION_KEYS = [
     'captionTitle',
     'captionChips',
     'altText',
+    'citationAuthor',
     'citation',
 ]
 

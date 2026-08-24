@@ -157,6 +157,11 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
     // never leave a dangling dash or comma behind.
     const separator = profile.separator != null ? profile.separator : CAPTION_SEPARATOR
 
+    // The author leads the citation and also stands alone on the caption card.
+    const citationAuthor = renderFragments(recordData, profile.citationAuthor, ', ')
+    const citationBody = renderFragments(recordData, profile.citation, ', ')
+    const citation = [citationAuthor, citationBody].filter((part) => part != null).join(', ')
+
     return {
         // Description fragments are whole sentences, so a dropped clause leaves
         // grammatical prose behind.
@@ -169,7 +174,8 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
             renderFragments(recordData, profile.shortCaption, separator) ||
             renderFragments(recordData, profile.caption, separator),
         altText: renderFragments(recordData, profile.altText),
-        citation: renderFragments(recordData, profile.citation, ', '),
+        citationAuthor,
+        citation: citation === '' ? null : citation,
         tiles,
         priorityTiles: profile.priorityTiles != null ? profile.priorityTiles : tiles.length,
         emptyState: profile.emptyState || 'no_browse_generic',

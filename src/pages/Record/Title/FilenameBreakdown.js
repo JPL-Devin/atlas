@@ -6,23 +6,7 @@ import Tooltip from '@mui/material/Tooltip'
 
 import { getIn } from '../../../core/utils'
 import { parseFilename, resolveFilenameSpec } from '../../../core/recordPresentation'
-
-// Segment colours, referenced by name from the filename specs. Tuned for at
-// least 4.5:1 on the light title bar; the swatch has too few hues to reuse.
-const COLORS = {
-    blue: '#0B62C4',
-    teal: '#00796B',
-    green: '#2E7D32',
-    cyan: '#006782',
-    indigo: '#3F51B5',
-    violet: '#7B1FA2',
-    pink: '#C2185B',
-    red: '#C62828',
-    orange: '#B04A00',
-    amber: '#7A5F00',
-    brown: '#6D4C41',
-    slate: '#5F6B76',
-}
+import { LIGHT_COLORS } from '../filenameColors'
 
 const useStyles = makeStyles((theme) => ({
     FilenameBreakdown: {
@@ -103,7 +87,7 @@ const FilenameBreakdown = (props) => {
                         <button
                             type="button"
                             className={c.segment}
-                            style={{ color: COLORS[piece.color] || 'inherit' }}
+                            style={{ color: LIGHT_COLORS[piece.color] || 'inherit' }}
                             aria-label={`${piece.label}: ${piece.text}${
                                 piece.meaning ? `, ${piece.meaning}` : ''
                             }`}>

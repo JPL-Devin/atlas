@@ -50,8 +50,10 @@
         "{{gather.common.instrument_name}} image",
         "of {{gather.common.target}}"
     ],
+    "citationAuthor": [
+        "NASA/JPL"
+    ],
     "citation": [
-        "NASA/JPL",
         "{{gather.common.spacecraft}}",
         "{{gather.common.instrument_name}}",
         "{{gather.pds_archive.product_id}}",

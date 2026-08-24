@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import flat from 'flat'
 
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
@@ -47,6 +46,7 @@ import {
 } from '../../../../../core/redux/actions/actions.js'
 
 import tileIcons from './tileIcons.js'
+import FilenameLegend from './FilenameLegend'
 import SplitButton from '../../../../../components/SplitButton/SplitButton'
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import ThreeViewer from '../../../../../components/ThreeViewer/ThreeViewer'
@@ -135,7 +135,16 @@ const useStyles = makeStyles((theme) => ({
         marginTop: '2px',
     },
     captionFoot: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '8px',
         marginTop: '6px',
+    },
+    captionAuthor: {
+        fontSize: '11px',
+        color: theme.palette.swatches.grey.grey300,
+        whiteSpace: 'nowrap',
     },
     smallAction: {
         'fontSize': '11px',
@@ -301,24 +310,6 @@ const useStyles = makeStyles((theme) => ({
             opacity: 1,
         },
     },
-    rawNames: {
-        'flexShrink': 0,
-        'fontSize': '10px',
-        'letterSpacing': '0.04em',
-        'color': theme.palette.swatches.grey.grey300,
-        'border': `1px solid ${theme.palette.swatches.grey.grey600}`,
-        'borderRadius': '9px',
-        'padding': '0 8px',
-        'minWidth': 0,
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey700,
-        },
-    },
-    rawNamesOn: {
-        background: theme.palette.swatches.blue.blue700,
-        color: theme.palette.swatches.grey.grey0,
-        borderColor: theme.palette.swatches.blue.blue700,
-    },
     clearFilter: {
         color: theme.palette.swatches.grey.grey300,
         transition: 'opacity 0.2s ease-out',
@@ -393,8 +384,16 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey400,
         padding: '8px 0',
     },
+    citationHeading: {
+        fontSize: '12px',
+        fontWeight: 'bold',
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase',
+        color: theme.palette.swatches.grey.grey400,
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        padding: '12px 0 6px 0',
+    },
     citation: {
-        marginTop: '16px',
         fontSize: '12px',
         lineHeight: '18px',
         color: theme.palette.swatches.grey.grey400,
@@ -463,12 +462,9 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const RAW_SECTION_ID = 'raw'
+const FILENAME_SECTION_ID = 'file_name'
 // Sections open on load; the rest start collapsed, as in the mockup.
 const OPEN_SECTIONS = ['identification', 'observation']
-// ES_PATHS.pds4_label is shadowed by a nested object of the same name, so the
-// raw label paths are spelled out here.
-const LABEL_PATHS = { pds3: ['pds3_label'], pds4: ['pds4_label'] }
 
 const matches = (row, filter) =>
     filter === '' ||
@@ -489,7 +485,6 @@ const Overview = (props) => {
     const [viewerFailed, setViewerFailed] = useState(false)
     const [filterString, setFilterString] = useState('')
     const [collapsed, setCollapsed] = useState({})
-    const [rawNames, setRawNames] = useState(false)
 
     const release_id = getIn(recordData, ES_PATHS.release_id)
     const browse_uri = getIn(recordData, ES_PATHS.browse)
@@ -543,23 +538,6 @@ const Overview = (props) => {
     const tiles = available.slice(0, Math.floor(available.length / tileColumns) * tileColumns)
     const caption = isNarrow ? presentation.shortCaption : presentation.caption
 
-    // The raw label, flattened, is the one place field names appear as the
-    // archive spells them, so it sits behind the raw-names toggle.
-    const rawRows = useMemo(() => {
-        const labelData = getIn(
-            recordData,
-            pds_standard === 'pds4' ? LABEL_PATHS.pds4 : LABEL_PATHS.pds3,
-            {}
-        )
-        const flattened = flat.flatten(labelData, { delimiter: ' · ' })
-        return Object.keys(flattened)
-            .sort()
-            .map((key) => ({ label: key, value: flattened[key] }))
-            .filter((row) => ['string', 'number', 'boolean'].includes(typeof row.value))
-            .map((row) => ({ label: row.label, value: String(row.value) }))
-            .filter((row) => row.value !== '' && row.value !== 'null')
-    }, [recordData, pds_standard])
-
     // The version selector reads as an Identification field, as in the mockup.
     const showVersions = pds_standard === 'pds4' && versions.length > 0
     const versionRow = showVersions
@@ -604,14 +582,12 @@ const Overview = (props) => {
         : null
 
     const filter = filterString.trim().toLowerCase()
-    const sections = [
-        ...presentation.sections.map((section) =>
+    const sections = presentation.sections
+        .map((section) =>
             section.id === 'identification' && versionRow != null
                 ? { ...section, rows: [...section.rows, versionRow] }
                 : section
-        ),
-        ...(rawNames ? [{ id: RAW_SECTION_ID, title: 'All label fields', rows: rawRows }] : []),
-    ]
+        )
         .map((section) => ({
             ...section,
             rows: section.rows.filter((row) => matches(row, filter)),
@@ -619,6 +595,9 @@ const Overview = (props) => {
         .filter((section) => section.rows.length > 0)
 
     const fieldCount = sections.reduce((total, section) => total + section.rows.length, 0)
+    // The filename breakdown is its own section, so it has no rows to filter.
+    const fileName = getIn(recordData, ES_PATHS.file_name)
+    const filenameOpen = collapsed[FILENAME_SECTION_ID] !== true
     const downloadProducts = getDownloadProducts(recordData)
 
     const copy = (text, message) => {
@@ -653,6 +632,9 @@ const Overview = (props) => {
                         >
                             Copy caption
                         </Button>
+                        {presentation.citationAuthor != null && (
+                            <div className={c.captionAuthor}>{presentation.citationAuthor}</div>
+                        )}
                     </div>
                 )}
             </div>
@@ -821,15 +803,6 @@ const Overview = (props) => {
                                     }
                                     onChange={(e) => setFilterString(e.target.value)}
                                 />
-                                <Button
-                                    className={`${c.rawNames} ${rawNames ? c.rawNamesOn : ''}`}
-                                    size="small"
-                                    aria-pressed={rawNames}
-                                    disabled={rawRows.length === 0}
-                                    onClick={() => setRawNames(!rawNames)}
-                                >
-                                    Raw names
-                                </Button>
                             </div>
                             {sections.length === 0 && (
                                 <div className={c.noMatches}>No fields match “{filterString}”</div>
@@ -887,9 +860,41 @@ const Overview = (props) => {
                                     </div>
                                 )
                             })}
+                            {fileName != null && (
+                                <div className={c.section}>
+                                    <button
+                                        className={c.sectionHead}
+                                        aria-expanded={filenameOpen}
+                                        onClick={() =>
+                                            setCollapsed({
+                                                ...collapsed,
+                                                [FILENAME_SECTION_ID]: filenameOpen,
+                                            })
+                                        }
+                                    >
+                                        <span>
+                                            {filenameOpen ? (
+                                                <ExpandMoreIcon />
+                                            ) : (
+                                                <ChevronRightIcon />
+                                            )}
+                                            File name
+                                        </span>
+                                    </button>
+                                    <Collapse in={filenameOpen} unmountOnExit>
+                                        <FilenameLegend
+                                            filename={fileName}
+                                            recordData={recordData}
+                                        />
+                                    </Collapse>
+                                </div>
+                            )}
                             {presentation.citation != null &&
                                 getAppConfig().enableRecordCitation && (
-                                    <div className={c.citation}>{presentation.citation}</div>
+                                    <>
+                                        <div className={c.citationHeading}>Citation</div>
+                                        <div className={c.citation}>{presentation.citation}</div>
+                                    </>
                                 )}
                         </div>
                         <div className={c.actions}>

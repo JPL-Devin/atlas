@@ -1531,23 +1531,28 @@ implementation left out:
   the short caption carries the page.
 - **Field filter.** One input filters every row in the panel by label or value,
   with the live field count in its placeholder. Filtering expands all sections
-  so a match is never hidden behind a collapsed header. A **Raw names** toggle
-  beside it adds the raw-label section; with it off, every visible row carries a
-  catalogued label, so `gather.*` paths stay out of the UI by default.
+  so a match is never hidden behind a collapsed header. Every visible row
+  carries a catalogued label, so `gather.*` paths stay out of the UI entirely.
 - **Collapsible sections.** `sections.json` groups catalogued normalized paths
   into `identification`, `observation`, `geometry_surface`,
   `geometry_orbital` and `files`; a profile lists the ids it wants, so an
   orbiter never renders a surface-geometry section. Rows resolve through the
   same catalog and validity gate as tiles, so absent fields — and then empty
   sections — drop out. Identification and Observation open on load, the rest
-  start collapsed. Behind **Raw names**, a final **All label fields** section
-  flattens `pds3_label`/`pds4_label`, skipping object-valued keys so no row
-  renders `[object Object]`. Every row has a copy-value button.
-
-  Note `ES_PATHS.pds4_label` is shadowed in `constants.js` by a nested object of
-  the same name, so `getIn` with it returns the whole record. This view spells
-  the two label paths out locally; `ProductLabel.js` still uses the shadowed
-  constant and is worth a separate look.
+  start collapsed. Every row has a copy-value button. There is no raw-label
+  section: the earlier **Raw names** toggle was removed, so the panel only ever
+  shows catalogued normalized fields.
+- **File name section.** A `File name` section below the field list renders the
+  same per-mission filename grammar as the title bar, but with room to explain
+  it: the colour-coded name on top and one leader-lined entry per segment
+  carrying its value, label, decoded meaning and description, plus the spec
+  reference. Colours come from `src/pages/Record/filenameColors.js`, which keeps
+  a light set for the title bar and a dark set for this panel. Missions with no
+  filename spec, and names that do not match the spec's grammar, render plain
+  text in the title and omit this section rather than inventing a breakdown.
+- **Citation.** Under a `Citation` heading, with the author (`citationAuthor`,
+  `NASA/JPL` by default) as its own profile field so it can be overridden per
+  instance; the caption card repeats just the author in its bottom-right.
 - **Action bar.** Download (`SplitButton` over the record's related products),
   Add to cart, Copy citation, View full label and copy-link, pinned below the
   scrolling panel. Download and cart reuse the same
