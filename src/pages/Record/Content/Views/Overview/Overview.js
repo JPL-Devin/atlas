@@ -217,7 +217,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
         letterSpacing: '0.06em',
         textTransform: 'uppercase',
-        color: theme.palette.swatches.grey.grey400,
+        color: theme.palette.swatches.grey.grey0,
         marginBottom: '10px',
     },
     description: {
@@ -251,7 +251,7 @@ const useStyles = makeStyles((theme) => ({
         'fontSize': '11px',
         'textTransform': 'uppercase',
         'letterSpacing': '0.04em',
-        'color': theme.palette.swatches.grey.grey400,
+        'color': theme.palette.swatches.grey.grey300,
         'whiteSpace': 'nowrap',
         'overflow': 'hidden',
         '& > svg': {
@@ -289,11 +289,15 @@ const useStyles = makeStyles((theme) => ({
         columnGap: '6px',
         minWidth: 0,
     },
+    fieldsHeading: {
+        marginTop: '20px',
+        marginBottom: 0,
+    },
     filter: {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        margin: '20px 0 8px 0',
+        margin: '4px 0 8px 0',
     },
     filterInput: {
         'flex': 1,
@@ -304,10 +308,10 @@ const useStyles = makeStyles((theme) => ({
         },
         '& .MuiSvgIcon-root': {
             fontSize: '18px',
-            color: theme.palette.swatches.grey.grey400,
+            color: theme.palette.swatches.grey.grey300,
         },
         '& input::placeholder': {
-            color: theme.palette.swatches.grey.grey400,
+            color: theme.palette.swatches.grey.grey300,
             opacity: 1,
         },
     },
@@ -344,7 +348,7 @@ const useStyles = makeStyles((theme) => ({
     sectionCount: {
         fontSize: '11px',
         fontWeight: 'normal',
-        color: theme.palette.swatches.grey.grey400,
+        color: theme.palette.swatches.grey.grey300,
     },
     row: {
         'display': 'flex',
@@ -358,7 +362,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     rowLabel: {
-        color: theme.palette.swatches.grey.grey400,
+        color: theme.palette.swatches.grey.grey300,
         whiteSpace: 'nowrap',
         flexShrink: 0,
     },
@@ -382,7 +386,7 @@ const useStyles = makeStyles((theme) => ({
     },
     noMatches: {
         fontSize: '12px',
-        color: theme.palette.swatches.grey.grey400,
+        color: theme.palette.swatches.grey.grey300,
         padding: '8px 0',
     },
     citationHeading: {
@@ -390,14 +394,14 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
         letterSpacing: '0.06em',
         textTransform: 'uppercase',
-        color: theme.palette.swatches.grey.grey400,
+        color: theme.palette.swatches.grey.grey0,
         borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
         padding: '12px 0 6px 0',
     },
     citation: {
         fontSize: '12px',
         lineHeight: '18px',
-        color: theme.palette.swatches.grey.grey400,
+        color: theme.palette.swatches.grey.grey300,
         overflowWrap: 'anywhere',
     },
     labelButton: {
@@ -660,6 +664,7 @@ const Overview = (props) => {
                         </div>
                     ))}
                 </div>
+                <div className={`${c.heading} ${c.fieldsHeading}`}>Fields</div>
                 <div className={c.filter}>
                     <Skeleton className={c.skeleton} variant="text" width="100%" height={32} />
                 </div>
@@ -778,6 +783,7 @@ const Overview = (props) => {
                                     )
                                 })}
                             </div>
+                            <div className={`${c.heading} ${c.fieldsHeading}`}>Fields</div>
                             <div className={c.filter}>
                                 <Input
                                     className={c.filterInput}

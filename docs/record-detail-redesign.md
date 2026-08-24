@@ -1506,8 +1506,9 @@ Instrument) onto its own.
 ### 12.8 The record body is dark, per the mockup
 
 The Overview renders on the mockup's dark surface, not Atlas's light one: the
-metadata column is `grey800` with `grey850` tiles, labels `grey400`, values
-`grey0`; the viewer column stays `grey900`. The shell above it (topbar,
+metadata column is `grey800` with `grey850` tiles, secondary text (row and tile
+labels, hints, citation) `grey300`, section headings and values `grey0`; the
+viewer column stays `grey900`. The shell above it (topbar,
 branding, icon rail, title bar, tabs) is untouched.
 
 ### 12.9 The full metadata panel and the caption card
@@ -1529,7 +1530,8 @@ implementation left out:
   of a sentence behind — an MSL PDS4 record with no normalized instrument opens
   on "It observes Mars." rather than a broken lead. Hidden under `md`, where
   the short caption carries the page.
-- **Field filter.** One input filters every row in the panel by label or value,
+- **Field filter.** Under a `Fields` heading, matching the other blocks, one
+  input filters every row in the panel by label or value,
   with the live field count in its placeholder. Filtering expands all sections
   so a match is never hidden behind a collapsed header. Every visible row
   carries a catalogued label, so `gather.*` paths stay out of the UI entirely.
@@ -1704,7 +1706,7 @@ were retuned:
 record detail page — panel, tiles, caption card, filename segments (lit and
 dimmed), action bar and the light title bar — reading the hexes straight out of
 `themes/light.js` and `filenameColors.js` so it cannot drift from the theme. All
-57 pairs now clear AA (4.5:1 body, 3:1 large). What it found:
+58 pairs now clear AA (4.5:1 body, 3:1 large). What it found:
 
 - **Dimmed filename segments were unreadable.** Unselected segments sat at
   `opacity: 0.4`, i.e. 2.4:1 — the name is content you read even when a

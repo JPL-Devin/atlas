@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
     },
     hint: {
         fontSize: '11px',
-        color: theme.palette.swatches.grey.grey400,
+        color: theme.palette.swatches.grey.grey300,
     },
     entry: {
         fontSize: '12px',
@@ -80,12 +80,12 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey0,
     },
     entryDescription: {
-        color: theme.palette.swatches.grey.grey400,
+        color: theme.palette.swatches.grey.grey300,
     },
     reference: {
         marginTop: '8px',
         fontSize: '11px',
-        color: theme.palette.swatches.grey.grey400,
+        color: theme.palette.swatches.grey.grey300,
     },
 }))
 
