@@ -1544,16 +1544,16 @@ implementation left out:
   shows catalogued normalized fields.
 - **File name.** The colour-coded filename opens the panel, above *About this
   product*, with no section header of its own — it is the product's identity, so
-  it reads first. It opens explaining its first segment; clicking any segment
-  shows that segment's value, label, decoded meaning and description below the
-  name and dims the others, clicking it again clears it, and an `*` button
+  it reads first. It opens with nothing selected (a one-line hint); clicking any
+  segment shows that segment's value, label, decoded meaning and description
+  below the name and dims the others, clicking it again clears it, and an `*` button
   beside the name shows every segment's details at once (with the spec
   reference). Only one segment is explained at a time, so a 20-segment M20 name
   costs four lines at rest instead of sixty. The name is set at 15px and wraps
   rather than scrolling (a scrolled box hid its `.IMG` tail), the panel is 520px
-  wide to give it room, and the details block — the entry plus the always-shown
-  SIS reference — keeps a 104px min-height so switching or clearing the
-  selection does not shift the panel below it. Two earlier attempts were dropped: an indented
+  wide to give it room, and an open segment's details block (entry plus SIS
+  reference) reserves 104px so switching segments does not shift the panel below
+  it; with nothing selected it collapses to the one-line hint. Two earlier attempts were dropped: an indented
   tree (the indentation ran off the panel past the seventh segment) and a
   hover-filtered full list
   (the whole panel moved as the pointer crossed the name).

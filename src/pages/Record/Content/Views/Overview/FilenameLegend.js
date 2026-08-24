@@ -55,13 +55,10 @@ const useStyles = makeStyles((theme) => ({
             color: theme.palette.swatches.grey.grey0,
         },
     },
-    // A single segment's details keep a fixed height, so switching segments
+    // An open segment's details keep a fixed height, so switching segments
     // never shifts the panel below.
     details: {
         minHeight: '104px',
-    },
-    detailsAll: {
-        minHeight: 0,
     },
     hint: {
         fontSize: '11px',
@@ -104,9 +101,8 @@ const FilenameLegend = (props) => {
     }))
     const labelled = pieces.filter((piece) => piece.label != null)
 
-    // Clicking a segment shows only its description; the * button shows them
-    // all. The first segment is explained on load.
-    const [selected, setSelected] = useState(labelled.length > 0 ? labelled[0].idx : null)
+    // Clicking a segment shows only its description; the * button shows them all.
+    const [selected, setSelected] = useState(null)
     const [showAll, setShowAll] = useState(false)
     const entries = showAll
         ? labelled
@@ -152,7 +148,7 @@ const FilenameLegend = (props) => {
                     </button>
                 </Tooltip>
             </div>
-            <div className={`${c.details} ${showAll ? c.detailsAll : ''}`}>
+            <div className={entries.length === 1 ? c.details : ''}>
                 {entries.length === 0 && (
                     <div className={c.hint}>Select a part of the name to see what it means.</div>
                 )}
@@ -170,7 +166,7 @@ const FilenameLegend = (props) => {
                         )}
                     </div>
                 ))}
-                {parsed.reference != null && (
+                {entries.length > 0 && parsed.reference != null && (
                     <div className={c.reference}>{parsed.reference}</div>
                 )}
             </div>
