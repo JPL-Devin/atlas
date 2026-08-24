@@ -781,6 +781,7 @@ const Overview = (props) => {
                 </div>
                 <div className={c.actions}>
                     <SplitButton
+                        ariaLabel="download record products"
                         forceName="Download"
                         type="checklist"
                         items={downloadProducts}
@@ -798,6 +799,7 @@ const Overview = (props) => {
                         <Button
                             className={c.actionButton}
                             size="small"
+                            aria-label="add record to cart"
                             variant="outlined"
                             startIcon={<AddShoppingCartIcon />}
                             onClick={() => {
@@ -837,7 +839,7 @@ const Overview = (props) => {
                     <Tooltip title="Copy link" arrow>
                         <IconButton
                             className={c.actionIcon}
-                            aria-label="copy link to record page"
+                            aria-label="copy record link"
                             size="small"
                             onClick={() => copy(window.location.href, 'Copied URL to clipboard!')}
                         >
