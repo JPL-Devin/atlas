@@ -15,7 +15,9 @@ import IconButton from '@mui/material/IconButton'
 import Input from '@mui/material/Input'
 import InputAdornment from '@mui/material/InputAdornment'
 import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
+import Skeleton from '@mui/material/Skeleton'
 import FormControl from '@mui/material/FormControl'
 import Tooltip from '@mui/material/Tooltip'
 
@@ -169,27 +171,34 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '13px',
         maxWidth: '360px',
     },
+    // Matches the viewers' own indicator, so a pending record and a pending
+    // image look the same.
     loading: {
-        'flex': 1,
-        'display': 'flex',
-        'alignItems': 'center',
-        'justifyContent': 'center',
-        'gap': '10px',
-        'color': theme.palette.swatches.grey.grey200,
-        'padding': '32px',
-        '& .MuiCircularProgress-colorPrimary': {
-            color: theme.palette.swatches.grey.grey200,
-        },
-        [theme.breakpoints.down('md')]: {
-            flex: 'unset',
-            height: '55vh',
-            padding: 0,
-        },
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        pointerEvents: 'none',
+    },
+    loadingPaper: {
+        background: theme.palette.accent.main,
+        display: 'flex',
+        alignItems: 'center',
+        gap: theme.spacing(2),
+        padding: `${theme.spacing(4)} ${theme.spacing(6)}`,
+        color: theme.palette.text.secondary,
     },
     loadingText: {
-        fontSize: '13px',
+        fontSize: '14px',
         fontWeight: 'bold',
         letterSpacing: '1px',
+    },
+    skeleton: {
+        backgroundColor: theme.palette.swatches.grey.grey700,
     },
     metadata: {
         width: '480px',
@@ -666,14 +675,43 @@ const Overview = (props) => {
         )
     }
 
+    // The panel keeps its shape while the record resolves, so nothing shifts
+    // once the real values arrive.
+    const renderSkeleton = () => (
+        <div className={c.metadataScroll} aria-hidden="true">
+            <div className={c.heading}>At a glance</div>
+            <div className={c.tiles}>
+                {Array.from({ length: 9 }).map((_, idx) => (
+                    <div className={c.tile} key={idx}>
+                        <Skeleton className={c.skeleton} variant="text" width="60%" />
+                        <Skeleton className={c.skeleton} variant="text" width="85%" height={20} />
+                    </div>
+                ))}
+            </div>
+            <div className={c.filter}>
+                <Skeleton className={c.skeleton} variant="text" width="100%" height={32} />
+            </div>
+            {Array.from({ length: 8 }).map((_, idx) => (
+                <div className={c.row} key={idx}>
+                    <Skeleton className={c.skeleton} variant="text" width="30%" />
+                    <Skeleton className={c.skeleton} variant="text" width="45%" />
+                </div>
+            ))}
+        </div>
+    )
+
     return (
         <div className={c.Overview}>
             {(hasViewable || isLoading || !isNarrow) && (
                 <div className={c.viewerColumn}>
                     {isLoading ? (
-                        <div className={c.loading} aria-label="record loading">
-                            <CircularProgress size={20} />
-                            <div className={c.loadingText}>LOADING</div>
+                        <div className={c.viewerBody}>
+                            <div className={c.loading} aria-label="record loading">
+                                <Paper className={c.loadingPaper} elevation={2}>
+                                    <CircularProgress size={20} color="inherit" />
+                                    <div className={c.loadingText}>LOADING</div>
+                                </Paper>
+                            </div>
                         </div>
                     ) : hasViewable ? (
                         <>
@@ -693,209 +731,223 @@ const Overview = (props) => {
                     )}
                 </div>
             )}
-            {!isLoading && (
-                <div className={c.metadata}>
-                    <div className={c.metadataScroll}>
-                        {!isNarrow && presentation.description != null && (
-                            <>
-                                <div className={c.heading}>About this product</div>
-                                <div className={c.description} aria-label="record description">
-                                    {presentation.description}
-                                </div>
-                            </>
-                        )}
-                        <div className={c.heading}>At a glance</div>
-                        <div className={c.tiles}>
-                            {tiles.map((tile, idx) => {
-                                const Icon = tileIcons[tile.icon]
+            <div className={c.metadata}>
+                {isLoading ? (
+                    renderSkeleton()
+                ) : (
+                    <>
+                        <div className={c.metadataScroll}>
+                            {!isNarrow && presentation.description != null && (
+                                <>
+                                    <div className={c.heading}>About this product</div>
+                                    <div className={c.description} aria-label="record description">
+                                        {presentation.description}
+                                    </div>
+                                </>
+                            )}
+                            <div className={c.heading}>At a glance</div>
+                            <div className={c.tiles}>
+                                {tiles.map((tile, idx) => {
+                                    const Icon = tileIcons[tile.icon]
+                                    return (
+                                        <div className={c.tile} key={idx}>
+                                            <div className={c.tileLabel}>
+                                                {Icon && <Icon />}
+                                                <span
+                                                    className={c.tileLabelText}
+                                                    title={tile.label}
+                                                >
+                                                    {tile.shortLabel}
+                                                </span>
+                                            </div>
+                                            <div
+                                                className={tile.inline ? c.tileValueRow : undefined}
+                                            >
+                                                <span className={c.tileValue}>{tile.value}</span>
+                                                {tile.sub != null && (
+                                                    <span className={c.tileSub}>{tile.sub}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                            <div className={c.filter}>
+                                <Input
+                                    className={c.filterInput}
+                                    value={filterString}
+                                    placeholder={`Filter ${fieldCount} field${
+                                        fieldCount === 1 ? '' : 's'
+                                    }…`}
+                                    inputProps={{ 'aria-label': 'filter record fields' }}
+                                    startAdornment={
+                                        <InputAdornment position="start">
+                                            <SearchIcon />
+                                        </InputAdornment>
+                                    }
+                                    endAdornment={
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                className={c.clearFilter}
+                                                aria-label="clear field filter"
+                                                size="small"
+                                                style={{ opacity: filterString.length > 0 ? 1 : 0 }}
+                                                onClick={() => setFilterString('')}
+                                            >
+                                                <CloseIcon fontSize="inherit" />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    }
+                                    onChange={(e) => setFilterString(e.target.value)}
+                                />
+                                <Button
+                                    className={`${c.rawNames} ${rawNames ? c.rawNamesOn : ''}`}
+                                    size="small"
+                                    aria-pressed={rawNames}
+                                    disabled={rawRows.length === 0}
+                                    onClick={() => setRawNames(!rawNames)}
+                                >
+                                    Raw names
+                                </Button>
+                            </div>
+                            {sections.length === 0 && (
+                                <div className={c.noMatches}>No fields match “{filterString}”</div>
+                            )}
+                            {sections.map((section) => {
+                                // Filtering expands everything so matches are never hidden.
+                                const open =
+                                    filter !== '' ||
+                                    (collapsed[section.id] == null
+                                        ? OPEN_SECTIONS.includes(section.id)
+                                        : !collapsed[section.id])
                                 return (
-                                    <div className={c.tile} key={idx}>
-                                        <div className={c.tileLabel}>
-                                            {Icon && <Icon />}
-                                            <span className={c.tileLabelText} title={tile.label}>
-                                                {tile.shortLabel}
+                                    <div className={c.section} key={section.id}>
+                                        <button
+                                            className={c.sectionHead}
+                                            aria-expanded={open}
+                                            onClick={() =>
+                                                setCollapsed({ ...collapsed, [section.id]: open })
+                                            }
+                                        >
+                                            <span>
+                                                {open ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                                                {section.title}
                                             </span>
-                                        </div>
-                                        <div className={tile.inline ? c.tileValueRow : undefined}>
-                                            <span className={c.tileValue}>{tile.value}</span>
-                                            {tile.sub != null && (
-                                                <span className={c.tileSub}>{tile.sub}</span>
-                                            )}
-                                        </div>
+                                            <span className={c.sectionCount}>
+                                                {section.rows.length}
+                                            </span>
+                                        </button>
+                                        <Collapse in={open} unmountOnExit>
+                                            {section.rows.map((row, idx) => (
+                                                <div className={c.row} key={idx}>
+                                                    <div className={c.rowLabel}>{row.label}</div>
+                                                    <div className={c.rowValue}>
+                                                        {row.value}
+                                                        {row.node}
+                                                        <Tooltip title="Copy value" arrow>
+                                                            <IconButton
+                                                                className={c.rowCopy}
+                                                                aria-label={`copy ${row.label}`}
+                                                                size="small"
+                                                                onClick={() =>
+                                                                    copy(
+                                                                        row.value,
+                                                                        'Copied value to clipboard!'
+                                                                    )
+                                                                }
+                                                            >
+                                                                <ContentCopyIcon />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </Collapse>
                                     </div>
                                 )
                             })}
+                            {presentation.citation != null &&
+                                getAppConfig().enableRecordCitation && (
+                                    <div className={c.citation}>{presentation.citation}</div>
+                                )}
                         </div>
-                        <div className={c.filter}>
-                            <Input
-                                className={c.filterInput}
-                                value={filterString}
-                                placeholder={`Filter ${fieldCount} field${
-                                    fieldCount === 1 ? '' : 's'
-                                }…`}
-                                inputProps={{ 'aria-label': 'filter record fields' }}
-                                startAdornment={
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                }
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            className={c.clearFilter}
-                                            aria-label="clear field filter"
-                                            size="small"
-                                            style={{ opacity: filterString.length > 0 ? 1 : 0 }}
-                                            onClick={() => setFilterString('')}
-                                        >
-                                            <CloseIcon fontSize="inherit" />
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                                onChange={(e) => setFilterString(e.target.value)}
+                        <div className={c.actions}>
+                            <SplitButton
+                                ariaLabel="download record products"
+                                forceName="Download"
+                                type="checklist"
+                                items={downloadProducts}
+                                onClick={(checked) => {
+                                    checked.forEach((item) => {
+                                        if (item.uri)
+                                            streamDownloadFile(
+                                                getPDSUrl(item.uri, item.release_id),
+                                                getFilename(item.uri)
+                                            )
+                                    })
+                                }}
                             />
-                            <Button
-                                className={`${c.rawNames} ${rawNames ? c.rawNamesOn : ''}`}
-                                size="small"
-                                aria-pressed={rawNames}
-                                disabled={rawRows.length === 0}
-                                onClick={() => setRawNames(!rawNames)}
-                            >
-                                Raw names
-                            </Button>
-                        </div>
-                        {sections.length === 0 && (
-                            <div className={c.noMatches}>No fields match “{filterString}”</div>
-                        )}
-                        {sections.map((section) => {
-                            // Filtering expands everything so matches are never hidden.
-                            const open =
-                                filter !== '' ||
-                                (collapsed[section.id] == null
-                                    ? OPEN_SECTIONS.includes(section.id)
-                                    : !collapsed[section.id])
-                            return (
-                                <div className={c.section} key={section.id}>
-                                    <button
-                                        className={c.sectionHead}
-                                        aria-expanded={open}
+                            {getAppConfig().enableCart && (
+                                <Button
+                                    className={c.actionButton}
+                                    size="small"
+                                    aria-label="add record to cart"
+                                    variant="outlined"
+                                    startIcon={<AddShoppingCartIcon />}
+                                    onClick={() => {
+                                        dispatch(
+                                            addToCart('image', {
+                                                uri,
+                                                related: getIn(recordData, ES_PATHS.related),
+                                                release_id,
+                                            })
+                                        )
+                                        dispatch(setSnackBarText('Added to Cart!', 'success'))
+                                    }}
+                                >
+                                    Add to cart
+                                </Button>
+                            )}
+                            {presentation.citation != null &&
+                                getAppConfig().enableRecordCitation && (
+                                    <Button
+                                        className={c.actionButton}
+                                        size="small"
+                                        variant="outlined"
                                         onClick={() =>
-                                            setCollapsed({ ...collapsed, [section.id]: open })
+                                            copy(
+                                                presentation.citation,
+                                                'Copied citation to clipboard!'
+                                            )
                                         }
                                     >
-                                        <span>
-                                            {open ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                                            {section.title}
-                                        </span>
-                                        <span className={c.sectionCount}>
-                                            {section.rows.length}
-                                        </span>
-                                    </button>
-                                    <Collapse in={open} unmountOnExit>
-                                        {section.rows.map((row, idx) => (
-                                            <div className={c.row} key={idx}>
-                                                <div className={c.rowLabel}>{row.label}</div>
-                                                <div className={c.rowValue}>
-                                                    {row.value}
-                                                    {row.node}
-                                                    <Tooltip title="Copy value" arrow>
-                                                        <IconButton
-                                                            className={c.rowCopy}
-                                                            aria-label={`copy ${row.label}`}
-                                                            size="small"
-                                                            onClick={() =>
-                                                                copy(
-                                                                    row.value,
-                                                                    'Copied value to clipboard!'
-                                                                )
-                                                            }
-                                                        >
-                                                            <ContentCopyIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </Collapse>
-                                </div>
-                            )
-                        })}
-                        {presentation.citation != null && getAppConfig().enableRecordCitation && (
-                            <div className={c.citation}>{presentation.citation}</div>
-                        )}
-                    </div>
-                    <div className={c.actions}>
-                        <SplitButton
-                            ariaLabel="download record products"
-                            forceName="Download"
-                            type="checklist"
-                            items={downloadProducts}
-                            onClick={(checked) => {
-                                checked.forEach((item) => {
-                                    if (item.uri)
-                                        streamDownloadFile(
-                                            getPDSUrl(item.uri, item.release_id),
-                                            getFilename(item.uri)
-                                        )
-                                })
-                            }}
-                        />
-                        {getAppConfig().enableCart && (
-                            <Button
-                                className={c.actionButton}
-                                size="small"
-                                aria-label="add record to cart"
-                                variant="outlined"
-                                startIcon={<AddShoppingCartIcon />}
-                                onClick={() => {
-                                    dispatch(
-                                        addToCart('image', {
-                                            uri,
-                                            related: getIn(recordData, ES_PATHS.related),
-                                            release_id,
-                                        })
-                                    )
-                                    dispatch(setSnackBarText('Added to Cart!', 'success'))
-                                }}
-                            >
-                                Add to cart
-                            </Button>
-                        )}
-                        {presentation.citation != null && getAppConfig().enableRecordCitation && (
+                                        Copy citation
+                                    </Button>
+                                )}
                             <Button
                                 className={c.actionButton}
                                 size="small"
                                 variant="outlined"
-                                onClick={() =>
-                                    copy(presentation.citation, 'Copied citation to clipboard!')
-                                }
+                                onClick={() => dispatch(setRecordViewTab('product label'))}
                             >
-                                Copy citation
+                                View full label
                             </Button>
-                        )}
-                        <Button
-                            className={c.actionButton}
-                            size="small"
-                            variant="outlined"
-                            onClick={() => dispatch(setRecordViewTab('product label'))}
-                        >
-                            View full label
-                        </Button>
-                        <Tooltip title="Copy link" arrow>
-                            <IconButton
-                                className={c.actionIcon}
-                                aria-label="copy record link"
-                                size="small"
-                                onClick={() =>
-                                    copy(window.location.href, 'Copied URL to clipboard!')
-                                }
-                            >
-                                <LinkIcon fontSize="small" />
-                            </IconButton>
-                        </Tooltip>
-                    </div>
-                </div>
-            )}
+                            <Tooltip title="Copy link" arrow>
+                                <IconButton
+                                    className={c.actionIcon}
+                                    aria-label="copy record link"
+                                    size="small"
+                                    onClick={() =>
+                                        copy(window.location.href, 'Copied URL to clipboard!')
+                                    }
+                                >
+                                    <LinkIcon fontSize="small" />
+                                </IconButton>
+                            </Tooltip>
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     )
 }
