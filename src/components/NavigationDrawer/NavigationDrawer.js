@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 
+import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
@@ -11,6 +12,7 @@ import Drawer from '@mui/material/Drawer'
 
 import { makeStyles } from '@mui/styles'
 
+import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import ImageSearchIcon from '@mui/icons-material/ImageSearch'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
@@ -26,6 +28,24 @@ const useStyles = makeStyles((theme) => ({
         background: theme.palette.swatches.grey.grey900,
         width: drawerWidth,
         borderRight: `1px solid ${theme.palette.swatches.grey.grey700}`,
+    },
+    // Sits where the Topbar trigger is so the same click target closes the drawer
+    header: {
+        display: 'flex',
+        alignItems: 'center',
+        height: theme.headHeights[1],
+        borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
+    },
+    closeButton: {
+        'width': theme.headHeights[1],
+        'height': theme.headHeights[1],
+        'borderRadius': 0,
+        'fontSize': 24,
+        'color': theme.palette.swatches.grey.grey400,
+        'transition': 'color 0.2s ease-out',
+        '&:hover': {
+            color: theme.palette.text.secondary,
+        },
     },
     list: {
         'minWidth': 150,
@@ -224,6 +244,15 @@ const NavigationDrawer = ({ open, onClose }) => {
             onClose={onClose}
             PaperProps={{ className: c.drawer }}
         >
+            <div className={c.header}>
+                <IconButton
+                    className={c.closeButton}
+                    aria-label="close navigation"
+                    onClick={onClose}
+                >
+                    <MenuOpenIcon />
+                </IconButton>
+            </div>
             <List className={c.list}>
                 {drawerItems.map((item, idx) => (
                     <ListItem

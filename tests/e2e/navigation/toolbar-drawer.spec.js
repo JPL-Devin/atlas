@@ -28,6 +28,17 @@ test.describe('Navigation drawer', () => {
         await expect(page.getByRole('link', { name: 'Cart', exact: true })).toBeVisible()
     })
 
+    test('the drawer closes from its own menu icon', async ({ page }) => {
+        await navigateToSearch(page)
+
+        await page.getByRole('button', { name: 'navigation' }).click()
+        const close = page.getByRole('button', { name: 'close navigation' })
+        await expect(close).toBeVisible()
+
+        await close.click()
+        await expect(page.getByRole('link', { name: 'Search Images' }).first()).toBeHidden()
+    })
+
     test('drawer "Cart" link navigates to /cart', async ({ page }) => {
         await navigateToSearch(page)
 

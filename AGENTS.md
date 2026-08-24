@@ -105,7 +105,9 @@ but not a hard rule.
 | Title back button | `button` | Conditional: `aria-label={back === 'page' ? 'go back a page' : 'return to search'}` — use Playwright's `.or()` |
 | Topbar nav buttons | `button` | `name=/go to cart/i`, `"navigation"` (drawer toggle, left of the NASA logo), `"info button"` (information modal) |
 | Results heading Filters button | `button` | `"filters"` (exact) — label reads `Filters` or `Filters · 3`; `aria-pressed` mirrors sidebar state. Opens a full-screen sheet below `md`. |
-| ResultsPanel Split toggle | `button` | `"split map"` — MUI `ToggleButton`, `aria-pressed`, disabled while the `Map` tab is selected. Desktop only. |
+| ResultsPanel Split toggle | `button` | `"split map"` — MUI `ToggleButton`, `aria-pressed`, disabled while the `Map` tab is selected. Desktop only; the map renders to the LEFT of the active view. |
+| Mobile bottom bar (below `md`) | `button` | `"filters view"` / `"results view"` / `"map view"` — MUI `BottomNavigation`. The `Map` tab does NOT exist below `md`; the map lives here instead. |
+| NavigationDrawer close | `button` | `"close navigation"` — sits at the top of the drawer, where the Topbar `"navigation"` trigger is. |
 | FiltersPanel heading actions | `button` | `"reset filters"` (dispatches `resetFilters()`), `"close filters"` (mobile sheet only) |
 | FileX (`/archive-explorer`) heading | `button` | `"Reset path"` (clears the column path and URL) |
 | Results heading add-to-cart | `button` | `"add all query results to cart"` / `"add selected results to cart"` — desktop only; below `md` these live in the heading's `"menu"` overflow. Never click either. |

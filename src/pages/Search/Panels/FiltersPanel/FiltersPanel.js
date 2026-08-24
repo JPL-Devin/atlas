@@ -57,7 +57,8 @@ const useStyles = makeStyles((theme) => ({
         left: 0,
         width: '100% !important',
         maxWidth: '100vw',
-        height: '100%',
+        // Stops above the mobile bottom bar so the view switcher stays usable
+        height: 'calc(100% - 48px)',
         zIndex: theme.zIndex.drawer + 100,
     },
     left: {

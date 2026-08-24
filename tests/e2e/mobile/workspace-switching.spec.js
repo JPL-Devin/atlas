@@ -4,9 +4,9 @@ import { navigateToSearch, filterCriticalJsErrors } from '../../helpers/atlas-he
 /**
  * Mobile search workspace.
  *
- * There is no mobile panel switcher any more: results are always the
- * page, filters open as a full-screen sheet from the `filters` button
- * in the results heading, and the map is a results view tab.
+ * Results are always the page. A bottom bar switches between the
+ * filters sheet, the results and the map; filters can also be opened
+ * from the `filters` button in the results heading.
  *
  * Reference: `src/pages/Search/Search.js`,
  * `src/pages/Search/Panels/FiltersPanel/FiltersPanel.js`.
@@ -44,17 +44,24 @@ test.describe('Mobile - search workspace', () => {
         expect(filterCriticalJsErrors(errors)).toEqual([])
     })
 
-    test('switching to the Map view keeps the page interactive', async ({ page }) => {
+    test('the bottom bar switches between filters, results and the map', async ({ page }) => {
         const errors = []
         page.on('pageerror', (e) => errors.push(e.message))
 
         await navigateToSearch(page)
 
-        for (const name of ['Map', 'Grid']) {
-            const tab = page.getByRole('tab', { name, exact: true })
-            await tab.click()
-            await expect(tab).toHaveAttribute('aria-selected', 'true')
-        }
+        // The map is a bottom bar destination on phones, not a fourth tab
+        await expect(page.getByRole('tab', { name: 'Map', exact: true })).toHaveCount(0)
+
+        await page.getByRole('button', { name: 'map view' }).click()
+        await expect(page.locator('.leaflet-container')).toBeVisible()
+
+        await page.getByRole('button', { name: 'filters view' }).click()
+        await expect(page.getByRole('button', { name: 'close filters' })).toBeVisible()
+
+        await page.getByRole('button', { name: 'results view' }).click()
+        await expect(page.getByRole('button', { name: 'close filters' })).toHaveCount(0)
+        await expect(page.getByRole('tab', { name: 'Grid', exact: true })).toBeVisible()
 
         expect(filterCriticalJsErrors(errors)).toEqual([])
     })

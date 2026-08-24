@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import Url from 'url-parse'
+import clsx from 'clsx'
 
 import { makeStyles, withStyles } from '@mui/styles'
 
@@ -15,9 +16,14 @@ import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import Tooltip from '@mui/material/Tooltip'
 import ToggleButton from '@mui/material/ToggleButton'
+import BottomNavigation from '@mui/material/BottomNavigation'
+import BottomNavigationAction from '@mui/material/BottomNavigationAction'
 import VerticalSplitIcon from '@mui/icons-material/VerticalSplit'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import ViewModuleIcon from '@mui/icons-material/ViewModule'
+import PublicIcon from '@mui/icons-material/Public'
 
-import { search } from '../../../../core/redux/actions/actions.js'
+import { search, setWorkspace } from '../../../../core/redux/actions/actions.js'
 import { abbreviateNumber } from '../../../../core/utils.js'
 import { getAppConfig } from '../../../../core/appConfig'
 
@@ -40,6 +46,23 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         height: `calc(100% - ${theme.headHeights[1] + theme.headHeights[2]}px)`,
         display: 'flex',
+    },
+    contentMobile: {
+        height: `calc(100% - ${theme.headHeights[1] + theme.headHeights[2] + 48}px)`,
+    },
+    bottomBar: {
+        'width': '100%',
+        'height': '48px',
+        'flexShrink': 0,
+        'background': theme.palette.swatches.grey.grey100,
+        'borderTop': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        '& button': {
+            color: theme.palette.swatches.grey.grey600,
+            minWidth: 0,
+        },
+        '& button.Mui-selected': {
+            color: theme.palette.text.primary,
+        },
     },
     resultsViews: {
         flex: 1,
@@ -189,9 +212,12 @@ const ResultsPanel = (props) => {
     const dispatch = useDispatch()
 
     const mapEnabled = getAppConfig().enableMap
-    const activeViews = mapEnabled ? ['Grid', 'List', 'Table', 'Map'] : ['Grid', 'List', 'Table']
+    // On phones the map is a bottom bar destination instead of a fourth tab
+    const activeViews =
+        mapEnabled && !mobile ? ['Grid', 'List', 'Table', 'Map'] : ['Grid', 'List', 'Table']
     const [activeView, setActiveView] = useState('Grid')
     const [split, setSplit] = useState(false)
+    const [mobileMap, setMobileMap] = useState(false)
 
     const atlasMapping = useSelector((state) => {
         return state.getIn(['mappings', 'atlas'])
@@ -217,9 +243,11 @@ const ResultsPanel = (props) => {
     const paging = useSelector((state) => state.getIn(['resultsPaging'])).toJS()
 
     const mapView = activeView === 'Map'
+    const showMap = mapView || (mobile && mobileMap)
+    const mobileTab = w.mobileFilters ? 'filters' : mobileMap ? 'map' : 'results'
     // Full-bleed map, or the active view beside a half-width map
     let mapWidth = 0
-    if (mapEnabled && mapView) mapWidth = '100%'
+    if (mapEnabled && showMap) mapWidth = '100%'
     else if (mapEnabled && split && !mobile) mapWidth = w.mapSize
 
     return (
@@ -272,8 +300,9 @@ const ResultsPanel = (props) => {
                                    of ${abbreviateNumber(paging.total)}`}
                     </div>
                 </div>
-                <div className={c.content}>
-                    {!mapView && (
+                <div className={clsx(c.content, { [c.contentMobile]: mobile })}>
+                    {mapEnabled && <SecondaryPanel width={mapWidth} />}
+                    {!showMap && (
                         <div className={c.resultsViews}>
                             {activeView === 'Grid' ? (
                                 <GridView results={results} paging={paging} />
@@ -287,8 +316,39 @@ const ResultsPanel = (props) => {
                             <ResultsStatus />
                         </div>
                     )}
-                    {mapEnabled && <SecondaryPanel width={mapWidth} />}
                 </div>
+                {mobile && (
+                    <BottomNavigation
+                        className={c.bottomBar}
+                        value={mobileTab}
+                        showLabels
+                        onChange={(e, v) => {
+                            dispatch(setWorkspace({ ...w, mobileFilters: v === 'filters' }))
+                            if (v !== 'filters') setMobileMap(v === 'map')
+                        }}
+                    >
+                        <BottomNavigationAction
+                            label="Filters"
+                            value="filters"
+                            aria-label="filters view"
+                            icon={<FilterListIcon />}
+                        />
+                        <BottomNavigationAction
+                            label="Results"
+                            value="results"
+                            aria-label="results view"
+                            icon={<ViewModuleIcon />}
+                        />
+                        {mapEnabled && (
+                            <BottomNavigationAction
+                                label="Map"
+                                value="map"
+                                aria-label="map view"
+                                icon={<PublicIcon />}
+                            />
+                        )}
+                    </BottomNavigation>
+                )}
                 <div className={c.footing}>
                     <div className={c.left}>
                         <div
