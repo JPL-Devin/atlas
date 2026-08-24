@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
     // A single segment's details keep a fixed height, so switching segments
     // never shifts the panel below.
     details: {
-        minHeight: '76px',
+        minHeight: '104px',
     },
     detailsAll: {
         minHeight: 0,
@@ -170,10 +170,10 @@ const FilenameLegend = (props) => {
                         )}
                     </div>
                 ))}
+                {parsed.reference != null && (
+                    <div className={c.reference}>{parsed.reference}</div>
+                )}
             </div>
-            {entries.length > 0 && parsed.reference != null && (
-                <div className={c.reference}>{parsed.reference}</div>
-            )}
         </div>
     )
 }

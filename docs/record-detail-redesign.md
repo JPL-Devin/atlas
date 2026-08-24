@@ -1551,8 +1551,9 @@ implementation left out:
   reference). Only one segment is explained at a time, so a 20-segment M20 name
   costs four lines at rest instead of sixty. The name is set at 15px and wraps
   rather than scrolling (a scrolled box hid its `.IMG` tail), the panel is 520px
-  wide to give it room, and the details block keeps a 76px min-height so
-  switching segments does not shift the panel below it. Two earlier attempts were dropped: an indented
+  wide to give it room, and the details block — the entry plus the always-shown
+  SIS reference — keeps a 104px min-height so switching or clearing the
+  selection does not shift the panel below it. Two earlier attempts were dropped: an indented
   tree (the indentation ran off the panel past the seventh segment) and a
   hover-filtered full list
   (the whole panel moved as the pointer crossed the name).
