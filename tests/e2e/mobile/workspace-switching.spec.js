@@ -53,7 +53,13 @@ test.describe('Mobile - search workspace', () => {
         await expect(page.getByRole('tab', { name: 'Map', exact: true })).toHaveCount(0)
 
         await page.getByRole('button', { name: 'map view' }).click()
-        await expect(page.locator('.leaflet-container')).toBeVisible()
+        // Without a target body the map shows its picker instead of a Leaflet map
+        await expect(
+            page
+                .locator('.leaflet-container')
+                .or(page.getByText('Select a target body to get started'))
+                .first()
+        ).toBeVisible({ timeout: 20_000 })
 
         await page.getByRole('button', { name: 'filters view' }).click()
         await expect(page.getByRole('button', { name: 'close filters' })).toBeVisible()
