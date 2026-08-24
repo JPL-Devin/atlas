@@ -171,7 +171,7 @@ export default function SplitButton(props) {
                 variant={variant || 'contained'}
                 color="secondary"
                 size="small"
-                aria-label={ariaLabel || 'split button'}
+                aria-label="split button"
             >
                 <Button aria-label={ariaLabel} startIcon={startIcon} onClick={handleClick}>
                     {name}
