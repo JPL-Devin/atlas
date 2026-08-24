@@ -1,14 +1,23 @@
 import moment from 'moment'
 
 import { prettify } from '../utils'
+import { DISPLAY_NAME_MAPPINGS } from '../constants'
 
 const asNumber = (value) => (typeof value === 'number' ? value : Number(String(value).trim()))
+
+// Atlas's own display names, so a tile never shows a raw code like `Mgs`. The
+// mission form drops the trailing gloss (`MSL - Mars Science Laboratory`).
+const displayName = (value, field) => {
+    const mapped = DISPLAY_NAME_MAPPINGS[String(value).toLowerCase()]
+    if (mapped == null) return prettify(String(value))
+    return field.vocabulary === 'mission' ? mapped.split(' - ')[0] : mapped
+}
 
 const formatters = {
     text: (value) => String(value),
     uppercase: (value) => String(value).toUpperCase(),
     titlecase: (value) => prettify(String(value)),
-    vocabulary: (value) => prettify(String(value)),
+    vocabulary: (value, field) => displayName(value, field),
     integer: (value) => {
         const n = asNumber(value)
         return Number.isNaN(n) ? String(value) : String(Math.round(n))

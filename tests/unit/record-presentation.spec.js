@@ -84,6 +84,12 @@ test.describe('resolvePresentation', () => {
         expect(p.captionTitle).toBe('MOC Wide Angle, orbit 2272')
     })
 
+    test('mission and spacecraft tiles use Atlas display names, not raw codes', () => {
+        expect(valueOf(resolvePresentation(mgsMoc), 'Mission')).toBe('Mars Global Surveyor')
+        expect(valueOf(resolvePresentation(mslPds3), 'Mission')).toBe('MSL')
+        expect(valueOf(resolvePresentation(mars2020Navcam), 'Mission')).toBe('Mars 2020')
+    })
+
     test('cassini sentinel geometry drops out', () => {
         const p = resolvePresentation(cassini)
         expect(labels(p)).not.toContain('Incidence angle')
