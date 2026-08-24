@@ -1598,6 +1598,13 @@ version updated the URL and left the previous product on screen. It now watches
   for the orbiters), and the Overview trims the resolved list to a multiple of
   the active column count — 3 wide, 2 between `sm` and `lg`, 1 on phones — so
   drop-out can shrink the block by a whole row but never leave a ragged one.
+- **Mission codes resolve through Atlas's own display names.** With Mission as
+  the first tile, `prettify('mgs')` rendering `Mgs` became visible, so the
+  `vocabulary` formatter now looks up a `vocabulary: "mission"` value in
+  `DISPLAY_NAME_MAPPINGS` and drops the trailing gloss (`msl` →
+  `MSL - Mars Science Laboratory` → `MSL`). Spacecraft is deliberately excluded:
+  the same map turns `curiosity` into `MSL - Curiosity`, where the tile wants
+  `Curiosity`.
 
 One mockup element is still absent and is a product decision, not an
 implementation gap: the **Related Products tab** (no such tab exists in
