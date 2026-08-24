@@ -5,12 +5,12 @@ import { DISPLAY_NAME_MAPPINGS } from '../constants'
 
 const asNumber = (value) => (typeof value === 'number' ? value : Number(String(value).trim()))
 
-// Atlas's own display names, so a tile never shows a raw code like `Mgs`. The
-// mission form drops the trailing gloss (`MSL - Mars Science Laboratory`).
+// Missions use Atlas's own display names so a tile never shows a raw code like
+// `Mgs`, minus the trailing gloss (`MSL - Mars Science Laboratory`).
 const displayName = (value, field) => {
-    const mapped = DISPLAY_NAME_MAPPINGS[String(value).toLowerCase()]
-    if (mapped == null) return prettify(String(value))
-    return field.vocabulary === 'mission' ? mapped.split(' - ')[0] : mapped
+    const mapped =
+        field.vocabulary === 'mission' ? DISPLAY_NAME_MAPPINGS[String(value).toLowerCase()] : null
+    return mapped != null ? mapped.split(' - ')[0] : prettify(String(value))
 }
 
 const formatters = {
