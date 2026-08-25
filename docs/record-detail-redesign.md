@@ -1555,10 +1555,12 @@ implementation left out:
   product*, with no section header of its own — it is the product's identity, so
   it reads first. It opens with nothing selected (a one-line hint); clicking any
   segment shows that segment's value, label, decoded meaning and description
-  below the name and dims the others, clicking it again clears it, and an `*` button
+  below the name, clicking it again clears it, and an `*` button
   beside the name shows every segment's details at once (with the spec
   reference). Only one segment is explained at a time, so a 20-segment M20 name
-  costs four lines at rest instead of sixty. The name is set at 15px and wraps
+  costs four lines at rest instead of sixty. Segments are grey until hovered,
+  selected or shown through `*`, so the name reads as a name at rest and the
+  colour coding only appears where it is being used. The name is set at 18px and wraps
   rather than scrolling (a scrolled box hid its `.IMG` tail), the panel is 520px
   wide to give it room, and an open segment's details block (entry plus SIS
   reference) reserves 104px so switching segments does not shift the panel below

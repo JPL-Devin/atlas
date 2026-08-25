@@ -21,31 +21,37 @@ const useStyles = makeStyles((theme) => ({
     filename: {
         flex: 1,
         fontFamily: 'monospace',
-        fontSize: '15px',
-        lineHeight: '23px',
+        fontSize: '18px',
+        lineHeight: '26px',
         letterSpacing: '0.02em',
         wordBreak: 'break-all',
         paddingBottom: '2px',
     },
+    // A segment only takes its colour once it is hovered, selected or shown
+    // through the * button; at rest the whole name reads as plain text.
     segment: {
         'font': 'inherit',
         'padding': 0,
         'border': 'none',
         'background': 'none',
-        'borderBottom': '2px solid',
+        'borderBottom': '2px solid transparent',
         'cursor': 'pointer',
+        'color': theme.palette.swatches.grey.grey300,
+        '&:hover, &:focus-visible': {
+            color: 'var(--segment-color)',
+            borderBottomColor: 'var(--segment-color)',
+        },
     },
-    // Unselected segments stay readable (WCAG AA), so they lose the solid
-    // underline rather than most of their contrast.
-    segmentDim: {
-        opacity: 0.7,
-        borderBottomStyle: 'dotted',
+    segmentActive: {
+        color: 'var(--segment-color)',
+        borderBottomColor: 'var(--segment-color)',
     },
     allButton: {
-        'font': 'inherit',
-        'lineHeight': '12px',
+        'fontFamily': 'inherit',
+        'fontSize': '18px',
+        'lineHeight': '18px',
         'padding': '0 4px',
-        'border': `1px solid ${theme.palette.swatches.grey.grey600}`,
+        'border': 'none',
         'borderRadius': '3px',
         'background': 'none',
         'color': theme.palette.swatches.grey.grey300,
@@ -66,8 +72,8 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey300,
     },
     entry: {
-        fontSize: '12px',
-        lineHeight: '16px',
+        fontSize: '13px',
+        lineHeight: '17px',
         padding: '3px 0',
     },
     entryValue: {
@@ -120,11 +126,9 @@ const FilenameLegend = (props) => {
                             <button
                                 type="button"
                                 className={`${c.segment} ${
-                                    !showAll && selected != null && selected !== piece.idx
-                                        ? c.segmentDim
-                                        : ''
+                                    showAll || selected === piece.idx ? c.segmentActive : ''
                                 }`}
-                                style={{ color: piece.color, borderBottomColor: piece.color }}
+                                style={{ '--segment-color': piece.color }}
                                 aria-label={`${piece.label}: ${piece.text}`}
                                 aria-pressed={selected === piece.idx}
                                 onClick={() =>

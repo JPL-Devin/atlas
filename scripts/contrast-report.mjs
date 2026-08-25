@@ -88,10 +88,11 @@ const checks = [
     ['viewer empty state', g.grey200, g.grey800, 13, false],
     ['citation copy icon', g.grey200, g.grey800, 13, false],
     ['version select', g.grey200, g.grey800, 12, false],
-    ['filename * button', g.grey300, g.grey800, 12, false],
-    ['filename segment label', g.grey300, g.grey800, 12, false],
-    ['filename segment meaning', g.grey0, g.grey800, 12, false],
-    ['filename segment description', g.grey300, g.grey800, 12, false],
+    ['filename * button', g.grey300, g.grey800, 18, false],
+    ['filename segment at rest', g.grey300, g.grey800, 18, false],
+    ['filename segment label', g.grey300, g.grey800, 13, false],
+    ['filename segment meaning', g.grey0, g.grey800, 13, false],
+    ['filename segment description', g.grey300, g.grey800, 13, false],
     ['filename SIS reference', g.grey300, g.grey800, 11, false],
     ['filename hint', g.grey300, g.grey800, 12, false],
     ['primary action', g.grey0, blue.blue800, 13, false],
@@ -104,9 +105,9 @@ const checks = [
     ['title ML chip', g.grey800, '#FF9800', 11, true],
 ]
 
+// Segment colours only appear when hovered, selected or shown through *.
 Object.entries(DARK_COLORS).forEach(([name, value]) => {
-    checks.push([`filename segment ${name}`, value, g.grey800, 15, false])
-    checks.push([`filename segment ${name} (dimmed)`, value, g.grey800, 15, false, 0.7])
+    checks.push([`filename segment ${name}`, value, g.grey800, 18, false])
 })
 
 const required = (px, bold) => (px >= 24 || (bold && px >= 18.66) ? 3 : 4.5)
