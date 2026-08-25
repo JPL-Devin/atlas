@@ -187,6 +187,8 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed
                 minZoomLevel: 0.35,
                 visibilityRatio: 0.95,
                 zoomPerScroll: 2,
+                // Fill the viewer on load rather than letterboxing the image.
+                homeFillsViewer: true,
                 showNavigator: true,
                 showRotationControl: true,
                 degrees: window.atlasGlobal.imageRotation || 0,

@@ -110,17 +110,14 @@ const useStyles = makeStyles((theme) => ({
     download: {
         flexShrink: 0,
     },
-    iconAction: {
-        'padding': '2px',
-        'borderRadius': '2px',
-        'color': 'inherit',
-        'opacity': 0.7,
+    // Matches the label controls so the whole row reads as one set.
+    copyAction: {
         'flexShrink': 0,
+        'color': theme.palette.swatches.grey.grey700,
+        'borderColor': theme.palette.swatches.grey.grey300,
         '&:hover': {
-            opacity: 1,
-        },
-        '& .MuiSvgIcon-root': {
-            fontSize: '18px',
+            borderColor: theme.palette.swatches.grey.grey500,
+            background: theme.palette.swatches.grey.grey150,
         },
     },
     tabs: {
@@ -259,24 +256,28 @@ const PanelHeader = (props) => {
                     }}
                 />
                 <Tooltip title="Copy link to this record" arrow>
-                    <IconButton
-                        className={c.iconAction}
-                        aria-label="copy link to record page"
+                    <Button
+                        className={c.copyAction}
+                        variant="outlined"
                         size="small"
+                        aria-label="copy link to record page"
+                        startIcon={<LinkIcon fontSize="small" />}
                         onClick={() => {
                             copyToClipboard(window.location.href)
                             dispatch(setSnackBarText('Copied URL to clipboard!', 'success'))
                         }}
                     >
-                        <LinkIcon />
-                    </IconButton>
+                        Copy Link
+                    </Button>
                 </Tooltip>
                 {presentation.citation != null && getAppConfig().enableRecordCitation && (
                     <Tooltip title="Copy citation" arrow>
-                        <IconButton
-                            className={c.iconAction}
-                            aria-label="copy record citation"
+                        <Button
+                            className={c.copyAction}
+                            variant="outlined"
                             size="small"
+                            aria-label="copy record citation"
+                            startIcon={<FormatQuoteIcon fontSize="small" />}
                             onClick={() => {
                                 copyToClipboard(presentation.citation)
                                 dispatch(
@@ -284,8 +285,8 @@ const PanelHeader = (props) => {
                                 )
                             }}
                         >
-                            <FormatQuoteIcon />
-                        </IconButton>
+                            Copy Citation
+                        </Button>
                     </Tooltip>
                 )}
             </div>
