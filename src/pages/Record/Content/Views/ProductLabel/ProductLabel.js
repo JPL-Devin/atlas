@@ -25,8 +25,6 @@ import { useSpring, animated } from '@react-spring/web'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
 import { makeStyles, withStyles } from '@mui/styles'
 import { styled, useTheme } from '@mui/material/styles'
@@ -35,6 +33,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import MenuButton from '../../../../../components/MenuButton/MenuButton'
 import PanelHeader from '../../PanelHeader/PanelHeader'
+import LabelActions from '../../PanelHeader/LabelActions'
 import Highlighter from 'react-highlight-words'
 import flat from 'flat'
 
@@ -396,16 +395,6 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         padding: '4px 2px 4px 0px',
     },
-    button1: {
-        height: 30,
-        margin: '0px 3px',
-        color: theme.palette.text.primary,
-        border: "1px solid rgba(0, 0, 0, 0.23)",
-        "&:hover": {
-          border: "1px solid rgba(0, 0, 0, 0.23)",
-          'background': "#0000000a",
-        },
-    },
     snackbar: {
         fontSize: 14,
         fontWeight: 'bold',
@@ -437,9 +426,6 @@ const ProductLabel = (props) => {
         imgURL = getPDSUrl(uri, release_id)
         type = getExtension(imgURL, true)
     }
-
-    const label_uri = getIn(recordData, ES_PATHS.label)
-    const labelURL = getPDSUrl(label_uri, release_id)
 
     const label_id = getIn(recordData, ['atlas', 'label_id'], '')
     const pdsStandard = getIn(recordData, ES_PATHS.pds_standard)
@@ -476,39 +462,7 @@ const ProductLabel = (props) => {
                     <PanelHeader
                         recordData={recordData}
                         extraActions={
-                            !isMobile ? (
-                                <>
-                                    <Button
-                                        className={c.button1}
-                                        variant="outlined"
-                                        aria-label="copy label json button"
-                                        size="small"
-                                        onClick={() => {
-                                            copyToClipboard(JSON.stringify(labelDataRaw, null, 2))
-                                            dispatch(
-                                                setSnackBarText(
-                                                    'Copied Label JSON to Clipboard!',
-                                                    'success'
-                                                )
-                                            )
-                                        }}
-                                        startIcon={<ContentCopyIcon fontSize="small" />}
-                                    >
-                                        Copy Label JSON
-                                    </Button>
-                                    <Button
-                                        className={c.button1}
-                                        variant="outlined"
-                                        aria-label="view raw label button"
-                                        size="small"
-                                        href={labelURL}
-                                        target="_blank"
-                                        startIcon={<OpenInNewIcon fontSize="small" />}
-                                    >
-                                        View Raw Label
-                                    </Button>
-                                </>
-                            ) : null
+                            !isMobile ? <LabelActions recordData={recordData} /> : null
                         }
                     />
                     <div className={c.top}>

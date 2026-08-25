@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import Tooltip from '@mui/material/Tooltip'
 import { makeStyles } from '@mui/styles'
 
-import { DARK_COLORS } from '../../../filenameColors'
+import { LIGHT_COLORS } from '../../../filenameColors'
 
 const useStyles = makeStyles((theme) => ({
     filenameRow: {
@@ -57,12 +57,12 @@ const useStyles = makeStyles((theme) => ({
         // Borderless at rest, but it lights up on hover so it reads as a
         // control rather than a stray glyph.
         '&:hover, &:focus-visible': {
-            background: theme.palette.swatches.grey.grey700,
-            color: theme.palette.swatches.grey.grey0,
+            background: theme.palette.swatches.grey.grey150,
+            color: theme.palette.swatches.grey.grey900,
         },
         '&[aria-pressed=true]': {
-            background: theme.palette.swatches.grey.grey600,
-            color: theme.palette.swatches.grey.grey0,
+            background: theme.palette.swatches.grey.grey200,
+            color: theme.palette.swatches.grey.grey900,
         },
     },
     // An open segment's details keep a fixed height, so switching segments
@@ -84,18 +84,18 @@ const useStyles = makeStyles((theme) => ({
         marginRight: '6px',
     },
     entryLabel: {
-        color: theme.palette.swatches.grey.grey300,
+        color: theme.palette.swatches.grey.grey500,
     },
     entryMeaning: {
-        color: theme.palette.swatches.grey.grey0,
+        color: theme.palette.text.primary,
     },
     entryDescription: {
-        color: theme.palette.swatches.grey.grey300,
+        color: theme.palette.swatches.grey.grey600,
     },
     reference: {
         marginTop: '8px',
         fontSize: '11px',
-        color: theme.palette.swatches.grey.grey300,
+        color: theme.palette.swatches.grey.grey500,
     },
 }))
 
@@ -108,7 +108,7 @@ export const useFilenameSelection = (parsed) => {
     const pieces = (parsed?.pieces || []).map((piece, idx) => ({
         ...piece,
         idx,
-        color: DARK_COLORS[piece.color] || 'inherit',
+        color: LIGHT_COLORS[piece.color] || 'inherit',
     }))
     const labelled = pieces.filter((piece) => piece.label != null)
 

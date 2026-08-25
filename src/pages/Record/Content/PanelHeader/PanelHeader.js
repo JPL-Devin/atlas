@@ -32,18 +32,6 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.text.primary,
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
-    // The record's own surface, so the header reads as part of the panel.
-    dark: {
-        'background': theme.palette.swatches.grey.grey800,
-        'color': theme.palette.swatches.grey.grey0,
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey700}`,
-        '& .MuiTab-root': {
-            color: theme.palette.swatches.grey.grey300,
-        },
-        '& .MuiTab-root.Mui-selected': {
-            color: theme.palette.swatches.grey.grey0,
-        },
-    },
     identity: {
         display: 'flex',
         alignItems: 'center',
@@ -116,7 +104,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const PanelHeader = (props) => {
-    const { recordData, dark, name, extraActions } = props
+    const { recordData, name, extraActions } = props
 
     const c = useStyles()
 
@@ -155,7 +143,7 @@ const PanelHeader = (props) => {
     }
 
     return (
-        <div className={`${c.PanelHeader} ${dark ? c.dark : ''}`}>
+        <div className={c.PanelHeader}>
             <div className={c.identity}>
                 <Tooltip title={back === 'page' ? 'Back' : 'Back to Search'} arrow>
                     <IconButton
@@ -258,7 +246,6 @@ const PanelHeader = (props) => {
 
 PanelHeader.propTypes = {
     recordData: PropTypes.object.isRequired,
-    dark: PropTypes.bool,
     name: PropTypes.node,
     extraActions: PropTypes.node,
 }

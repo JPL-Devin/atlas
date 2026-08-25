@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     OpenSeadragonViewer: {
         'width': '100%',
         'height': '100%',
-        'background': theme.palette.swatches.grey.grey850,
+        'background': theme.palette.swatches.grey.grey0,
         'position': 'relative',
         // The minimap is too cramped to be useful at phone width.
         '& #openSeadragon .navigator': {

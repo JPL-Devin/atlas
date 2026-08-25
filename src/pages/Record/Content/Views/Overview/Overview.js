@@ -32,6 +32,7 @@ import { setSnackBarText } from '../../../../../core/redux/actions/actions.js'
 
 import tileIcons from './tileIcons.js'
 import PanelHeader from '../../PanelHeader/PanelHeader'
+import LabelActions from '../../PanelHeader/LabelActions'
 import { useFilenameSelection, FilenameName, FilenameDetails } from './FilenameLegend'
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import ThreeViewer from '../../../../../components/ThreeViewer/ThreeViewer'
@@ -41,8 +42,8 @@ const useStyles = makeStyles((theme) => ({
     Overview: {
         width: '100%',
         height: '100%',
-        background: theme.palette.swatches.grey.grey800,
-        color: theme.palette.swatches.grey.grey0,
+        background: theme.palette.swatches.grey.grey100,
+        color: theme.palette.text.primary,
         display: 'flex',
         [theme.breakpoints.down('md')]: {
             flexFlow: 'column',
@@ -54,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
         height: '100%',
         display: 'flex',
         flexFlow: 'column',
-        background: theme.palette.swatches.grey.grey900,
+        background: theme.palette.swatches.grey.grey0,
         minWidth: 0,
         [theme.breakpoints.down('md')]: {
             // Stacked, the image leads and the panel follows it.
@@ -74,7 +75,7 @@ const useStyles = makeStyles((theme) => ({
             inset: 0,
             pointerEvents: 'none',
             zIndex: 2,
-            boxShadow: 'inset 0 8px 12px -8px rgba(0,0,0,0.85)',
+            boxShadow: 'inset 0 8px 12px -8px rgba(0,0,0,0.35)',
         },
         [theme.breakpoints.down('md')]: {
             flex: 'unset',
@@ -89,8 +90,8 @@ const useStyles = makeStyles((theme) => ({
         boxSizing: 'border-box',
         padding: '10px 14px 12px 14px',
         borderRadius: '3px',
-        border: `1px solid ${theme.palette.swatches.grey.grey700}`,
-        background: 'rgba(16,16,19,0.62)',
+        border: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        background: 'rgba(255,255,255,0.72)',
         backdropFilter: 'blur(8px) saturate(140%)',
         [theme.breakpoints.down('md')]: {
             left: '8px',
@@ -110,8 +111,8 @@ const useStyles = makeStyles((theme) => ({
         lineHeight: '18px',
         padding: '0 8px',
         borderRadius: '9px',
-        background: theme.palette.swatches.grey.grey700,
-        color: theme.palette.swatches.grey.grey100,
+        background: theme.palette.swatches.grey.grey150,
+        color: theme.palette.swatches.grey.grey800,
         whiteSpace: 'nowrap',
     },
     // blue800 rather than blue700: white on blue700 is only 4.2:1.
@@ -123,12 +124,12 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '14px',
         fontWeight: 'bold',
         lineHeight: '20px',
-        color: theme.palette.swatches.grey.grey0,
+        color: theme.palette.text.primary,
     },
     captionText: {
         fontSize: '13px',
         lineHeight: '19px',
-        color: theme.palette.swatches.grey.grey150,
+        color: theme.palette.swatches.grey.grey600,
         marginTop: '2px',
     },
     captionFoot: {
@@ -140,10 +141,10 @@ const useStyles = makeStyles((theme) => ({
     },
     captionCopy: {
         'padding': '2px',
-        'color': theme.palette.swatches.grey.grey200,
+        'color': theme.palette.swatches.grey.grey500,
         '&:hover': {
-            color: theme.palette.swatches.grey.grey0,
-            background: theme.palette.swatches.grey.grey700,
+            color: theme.palette.swatches.grey.grey900,
+            background: theme.palette.swatches.grey.grey150,
         },
         '& .MuiSvgIcon-root': {
             fontSize: '15px',
@@ -151,7 +152,7 @@ const useStyles = makeStyles((theme) => ({
     },
     captionAuthor: {
         fontSize: '11px',
-        color: theme.palette.swatches.grey.grey300,
+        color: theme.palette.swatches.grey.grey500,
         whiteSpace: 'nowrap',
     },
     emptyState: {
@@ -161,7 +162,7 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        color: theme.palette.swatches.grey.grey200,
+        color: theme.palette.swatches.grey.grey500,
         padding: '32px',
         [theme.breakpoints.down('md')]: {
             flex: 'unset',
@@ -179,10 +180,10 @@ const useStyles = makeStyles((theme) => ({
     },
     // The viewers paint their own surface, so match it while they're absent.
     loadingBody: {
-        background: theme.palette.swatches.grey.grey850,
+        background: theme.palette.swatches.grey.grey0,
     },
     skeleton: {
-        backgroundColor: theme.palette.swatches.grey.grey700,
+        backgroundColor: theme.palette.swatches.grey.grey150,
     },
     metadata: {
         width: '520px',
@@ -190,13 +191,13 @@ const useStyles = makeStyles((theme) => ({
         boxSizing: 'border-box',
         display: 'flex',
         flexFlow: 'column',
-        background: theme.palette.swatches.grey.grey800,
-        borderRight: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        background: theme.palette.swatches.grey.grey100,
+        borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
         [theme.breakpoints.down('md')]: {
             width: '100%',
             height: 'unset',
             borderRight: 'none',
-            borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
+            borderTop: `1px solid ${theme.palette.swatches.grey.grey200}`,
         },
     },
     // A slim scrollbar keeps the gutter from cutting into the heading rules.
@@ -206,12 +207,12 @@ const useStyles = makeStyles((theme) => ({
         'overflowY': 'auto',
         'padding': '16px 20px 20px 20px',
         'scrollbarWidth': 'thin',
-        'scrollbarColor': `${theme.palette.swatches.grey.grey600} transparent`,
+        'scrollbarColor': `${theme.palette.swatches.grey.grey300} transparent`,
         '&::-webkit-scrollbar': {
             width: '8px',
         },
         '&::-webkit-scrollbar-thumb': {
-            background: theme.palette.swatches.grey.grey600,
+            background: theme.palette.swatches.grey.grey300,
             borderRadius: '4px',
         },
         [theme.breakpoints.down('md')]: {
@@ -224,9 +225,9 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
         letterSpacing: '0.06em',
         textTransform: 'uppercase',
-        // yellow700 is the site titlebar's goldenrod, lightened for the dark panel.
-        color: theme.palette.swatches.yellow.yellow700,
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        // The site titlebar's goldenrod, which reads on the light panel.
+        color: theme.palette.swatches.yellow.yellow800,
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey200}`,
         // Negative margins pull the rule out to the panel edges.
         margin: '0 -20px 10px -20px',
         padding: '12px 20px 0 20px',
@@ -243,8 +244,8 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     tile: {
-        background: theme.palette.swatches.grey.grey850,
-        border: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        background: theme.palette.swatches.grey.grey0,
+        border: `1px solid ${theme.palette.swatches.grey.grey200}`,
         borderRadius: '2px',
         padding: '8px 10px',
         minWidth: 0,
@@ -256,7 +257,7 @@ const useStyles = makeStyles((theme) => ({
         'fontSize': '11px',
         'textTransform': 'uppercase',
         'letterSpacing': '0.04em',
-        'color': theme.palette.swatches.grey.grey300,
+        'color': theme.palette.swatches.grey.grey500,
         'whiteSpace': 'nowrap',
         'overflow': 'hidden',
         '& > svg': {
@@ -281,7 +282,7 @@ const useStyles = makeStyles((theme) => ({
     tileSub: {
         fontSize: '11px',
         lineHeight: '16px',
-        color: theme.palette.swatches.grey.grey300,
+        color: theme.palette.swatches.grey.grey500,
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -307,25 +308,25 @@ const useStyles = makeStyles((theme) => ({
     filterInput: {
         'flex': 1,
         'fontSize': '13px',
-        'color': theme.palette.swatches.grey.grey0,
+        'color': theme.palette.text.primary,
         '&:before': {
-            borderBottom: `1px solid ${theme.palette.swatches.grey.grey600}`,
+            borderBottom: `1px solid ${theme.palette.swatches.grey.grey300}`,
         },
         '& .MuiSvgIcon-root': {
             fontSize: '18px',
-            color: theme.palette.swatches.grey.grey300,
+            color: theme.palette.swatches.grey.grey500,
         },
         '& input::placeholder': {
-            color: theme.palette.swatches.grey.grey300,
+            color: theme.palette.swatches.grey.grey500,
             opacity: 1,
         },
     },
     clearFilter: {
-        color: theme.palette.swatches.grey.grey300,
+        color: theme.palette.swatches.grey.grey500,
         transition: 'opacity 0.2s ease-out',
     },
     section: {
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     sectionHead: {
         'display': 'flex',
@@ -338,7 +339,7 @@ const useStyles = makeStyles((theme) => ({
         'cursor': 'pointer',
         // Gold marks the panel's top-level headings; a group inside `Fields` is
         // a level down, so it stays grey.
-        'color': theme.palette.swatches.grey.grey150,
+        'color': theme.palette.swatches.grey.grey700,
         'fontSize': '13px',
         'fontWeight': 'bold',
         'textAlign': 'left',
@@ -349,13 +350,13 @@ const useStyles = makeStyles((theme) => ({
         },
         '& .MuiSvgIcon-root': {
             fontSize: '18px',
-            color: theme.palette.swatches.grey.grey300,
+            color: theme.palette.swatches.grey.grey500,
         },
     },
     sectionCount: {
         fontSize: '11px',
         fontWeight: 'normal',
-        color: theme.palette.swatches.grey.grey300,
+        color: theme.palette.swatches.grey.grey500,
     },
     // One grid, so every label and every value share a column edge instead of
     // meeting at a ragged gutter.
@@ -371,7 +372,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     rowLabel: {
-        color: theme.palette.swatches.grey.grey300,
+        color: theme.palette.swatches.grey.grey500,
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -381,13 +382,13 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'flex-start',
         gap: '4px',
         minWidth: 0,
-        color: theme.palette.swatches.grey.grey0,
+        color: theme.palette.text.primary,
         overflowWrap: 'anywhere',
     },
     rowCopy: {
         'opacity': 0,
         'padding': '1px',
-        'color': theme.palette.swatches.grey.grey300,
+        'color': theme.palette.swatches.grey.grey500,
         'transition': 'opacity 0.15s ease-out',
         '& .MuiSvgIcon-root': {
             fontSize: '13px',
@@ -395,7 +396,7 @@ const useStyles = makeStyles((theme) => ({
     },
     noMatches: {
         fontSize: '12px',
-        color: theme.palette.swatches.grey.grey300,
+        color: theme.palette.swatches.grey.grey500,
         padding: '8px 0',
     },
     citationHeading: {
@@ -407,17 +408,17 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
         letterSpacing: '0.06em',
         textTransform: 'uppercase',
-        color: theme.palette.swatches.yellow.yellow700,
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        color: theme.palette.swatches.yellow.yellow800,
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey200}`,
         margin: '0 -20px 0 -20px',
         padding: '12px 20px 6px 20px',
     },
     citationCopy: {
         'padding': '2px',
-        'color': theme.palette.swatches.grey.grey300,
+        'color': theme.palette.swatches.grey.grey500,
         '&:hover': {
-            color: theme.palette.swatches.grey.grey0,
-            background: theme.palette.swatches.grey.grey700,
+            color: theme.palette.swatches.grey.grey900,
+            background: theme.palette.swatches.grey.grey150,
         },
         '& .MuiSvgIcon-root': {
             fontSize: '15px',
@@ -426,27 +427,27 @@ const useStyles = makeStyles((theme) => ({
     citation: {
         fontSize: '13px',
         lineHeight: '19px',
-        color: theme.palette.swatches.grey.grey300,
+        color: theme.palette.swatches.grey.grey600,
         overflowWrap: 'anywhere',
     },
     select: {
         'fontSize': '12px',
         'marginLeft': '4px',
-        'color': theme.palette.swatches.grey.grey0,
+        'color': theme.palette.text.primary,
         '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: theme.palette.swatches.grey.grey500,
+            borderColor: theme.palette.swatches.grey.grey300,
         },
         '& .MuiSvgIcon-root': {
-            color: theme.palette.swatches.grey.grey300,
+            color: theme.palette.swatches.grey.grey500,
         },
     },
     selectMenu: {
         '& .MuiPaper-root': {
-            background: theme.palette.swatches.grey.grey850,
-            color: theme.palette.swatches.grey.grey0,
+            background: theme.palette.swatches.grey.grey0,
+            color: theme.palette.text.primary,
         },
         '& .MuiMenuItem-root.Mui-selected, & .MuiMenuItem-root:hover': {
-            background: theme.palette.swatches.grey.grey700,
+            background: theme.palette.swatches.grey.grey150,
         },
     },
     // Describes the image for screen readers; the viewer itself is a canvas.
@@ -682,7 +683,7 @@ const Overview = (props) => {
             <div className={c.metadata}>
                 <PanelHeader
                     recordData={recordData}
-                    dark
+                    extraActions={!isNarrow ? <LabelActions recordData={recordData} /> : null}
                     name={
                         parsedFilename != null ? (
                             <FilenameName selection={filenameSelection} />
