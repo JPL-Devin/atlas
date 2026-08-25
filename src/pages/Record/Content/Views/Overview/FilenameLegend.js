@@ -66,11 +66,6 @@ const useStyles = makeStyles((theme) => ({
     details: {
         minHeight: '104px',
     },
-    hint: {
-        fontSize: '12px',
-        fontStyle: 'italic',
-        color: theme.palette.swatches.grey.grey300,
-    },
     entry: {
         fontSize: '13px',
         lineHeight: '17px',
@@ -154,9 +149,6 @@ const FilenameLegend = (props) => {
                 </Tooltip>
             </div>
             <div className={entries.length === 1 ? c.details : ''}>
-                {entries.length === 0 && (
-                    <div className={c.hint}>Select a part of the name to see what it means.</div>
-                )}
                 {entries.map((piece) => (
                     <div className={c.entry} key={piece.idx}>
                         <span className={c.entryValue} style={{ color: piece.color }}>

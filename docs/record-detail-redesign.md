@@ -1507,13 +1507,12 @@ Instrument) onto its own.
 
 The Overview renders on the mockup's dark surface, not Atlas's light one: the
 metadata column is `grey800` with `grey850` tiles, secondary text (row and tile
-labels, hints, citation) `grey300`, values `grey0`, and every heading
+labels, citation) `grey300`, values `grey0`, and every heading
 (including the collapsible section headers) `yellow700` — the site titlebar's
 darkgoldenrod lightened to 10.8:1 on the panel; the
 viewer column stays `grey900`. Every panel heading carries a `grey700` rule
 across the full panel width (negative `20px` side margins against the scroll
-container's padding), field rows and the citation are `13px`, and the filename
-hint is `12px` italic. The viewer body draws an inset top shadow through a
+container's padding), field rows and the citation are `13px`, The viewer body draws an inset top shadow through a
 `pointer-events: none` overlay so it sits above the viewers' own canvases. The
 shell above it (topbar,
 branding, icon rail, title bar, tabs) is untouched.
@@ -1553,18 +1552,18 @@ implementation left out:
   shows catalogued normalized fields.
 - **File name.** The colour-coded filename opens the panel, above *About this
   product*, with no section header of its own — it is the product's identity, so
-  it reads first. It opens with nothing selected (a one-line hint); clicking any
+  it reads first. It opens with nothing selected and nothing below the name; clicking any
   segment shows that segment's value, label, decoded meaning and description
   below the name, clicking it again clears it, and an `*` button
   beside the name shows every segment's details at once (with the spec
   reference). Only one segment is explained at a time, so a 20-segment M20 name
-  costs four lines at rest instead of sixty. Segments are grey until hovered,
+  costs nothing at rest instead of sixty lines. Segments are grey until hovered,
   selected or shown through `*`, so the name reads as a name at rest and the
   colour coding only appears where it is being used. The name is set at 18px and wraps
   rather than scrolling (a scrolled box hid its `.IMG` tail), the panel is 520px
   wide to give it room, and an open segment's details block (entry plus SIS
   reference) reserves 104px so switching segments does not shift the panel below
-  it; with nothing selected it collapses to the one-line hint. Two earlier attempts were dropped: an indented
+  it; with nothing selected it collapses to nothing. Two earlier attempts were dropped: an indented
   tree (the indentation ran off the panel past the seventh segment) and a
   hover-filtered full list
   (the whole panel moved as the pointer crossed the name).

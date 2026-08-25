@@ -94,7 +94,6 @@ const checks = [
     ['filename segment meaning', g.grey0, g.grey800, 13, false],
     ['filename segment description', g.grey300, g.grey800, 13, false],
     ['filename SIS reference', g.grey300, g.grey800, 11, false],
-    ['filename hint', g.grey300, g.grey800, 12, false],
     ['primary action', g.grey0, blue.blue800, 13, false],
     // Title bar (light surface)
     ['title filename', '#000000', g.grey100, 16, true],
