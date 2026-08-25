@@ -12,6 +12,7 @@ import Tooltip from '@mui/material/Tooltip'
 
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import FormatQuoteIcon from '@mui/icons-material/FormatQuote'
 import LinkIcon from '@mui/icons-material/Link'
 
 import { HASH_PATHS, ES_PATHS } from '../../../../core/constants'
@@ -19,11 +20,11 @@ import { getIn, copyToClipboard, getPDSUrl, getFilename } from '../../../../core
 import { streamDownloadFile } from '../../../../core/downloaders/ZipStream.js'
 import { addToCart, setSnackBarText } from '../../../../core/redux/actions/actions'
 import { getDownloadProducts } from '../../../../core/recordDownloads'
-import { getAppConfig } from '../../../../core/appConfig'
+import { getAppConfig, getAppInstanceKey } from '../../../../core/appConfig'
 import SplitButton from '../../../../components/SplitButton/SplitButton'
 import ViewTabs from '../ViewTabs/ViewTabs'
 import { getVisibleViewTabs } from '../../viewTabs'
-import { parseRecordFilename } from '../../../../core/recordPresentation'
+import { parseRecordFilename, resolvePresentation } from '../../../../core/recordPresentation'
 import { useFilenameSelection, FilenameName, FilenameDetails } from './FilenameLegend'
 
 const useStyles = makeStyles((theme) => ({
@@ -109,7 +110,7 @@ const useStyles = makeStyles((theme) => ({
     download: {
         flexShrink: 0,
     },
-    copyLink: {
+    iconAction: {
         'padding': '2px',
         'borderRadius': '2px',
         'color': 'inherit',
@@ -136,6 +137,8 @@ const PanelHeader = (props) => {
     const dispatch = useDispatch()
 
     const recordViewTab = useSelector((state) => state.get('recordViewTab'))
+
+    const presentation = resolvePresentation(recordData, { instance: getAppInstanceKey() })
 
     // Missions with no filename spec have nothing to explain.
     const parsedFilename = parseRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
@@ -210,7 +213,13 @@ const PanelHeader = (props) => {
                     </div>
                 )}
             </div>
+            {parsedFilename != null && (
+                <div className={c.details}>
+                    <FilenameDetails parsed={parsedFilename} selection={filenameSelection} />
+                </div>
+            )}
             <div className={c.actions} aria-label="record actions">
+                {extraActions}
                 {getAppConfig().enableCart && (
                     <Button
                         className={c.cart}
@@ -249,10 +258,9 @@ const PanelHeader = (props) => {
                         })
                     }}
                 />
-                {extraActions}
                 <Tooltip title="Copy link to this record" arrow>
                     <IconButton
-                        className={c.copyLink}
+                        className={c.iconAction}
                         aria-label="copy link to record page"
                         size="small"
                         onClick={() => {
@@ -263,12 +271,24 @@ const PanelHeader = (props) => {
                         <LinkIcon />
                     </IconButton>
                 </Tooltip>
+                {presentation.citation != null && getAppConfig().enableRecordCitation && (
+                    <Tooltip title="Copy citation" arrow>
+                        <IconButton
+                            className={c.iconAction}
+                            aria-label="copy record citation"
+                            size="small"
+                            onClick={() => {
+                                copyToClipboard(presentation.citation)
+                                dispatch(
+                                    setSnackBarText('Copied citation to clipboard!', 'success')
+                                )
+                            }}
+                        >
+                            <FormatQuoteIcon />
+                        </IconButton>
+                    </Tooltip>
+                )}
             </div>
-            {parsedFilename != null && (
-                <div className={c.details}>
-                    <FilenameDetails parsed={parsedFilename} selection={filenameSelection} />
-                </div>
-            )}
             <div className={c.tabs}>
                 <ViewTabs
                     recordViewTab={recordViewTab}

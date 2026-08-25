@@ -48,21 +48,6 @@ const LabelActions = (props) => {
 
     return (
         <>
-            <Tooltip title="Copy Label JSON" arrow>
-                <Button
-                    className={c.button}
-                    variant="outlined"
-                    aria-label="copy label json button"
-                    size="small"
-                    startIcon={<ContentCopyIcon fontSize="small" />}
-                    onClick={() => {
-                        copyToClipboard(JSON.stringify(labelData, null, 2))
-                        dispatch(setSnackBarText('Copied Label JSON to Clipboard!', 'success'))
-                    }}
-                >
-                    Copy JSON
-                </Button>
-            </Tooltip>
             <Tooltip title="View Raw Label" arrow>
                 <Button
                     className={c.button}
@@ -74,6 +59,21 @@ const LabelActions = (props) => {
                     startIcon={<OpenInNewIcon fontSize="small" />}
                 >
                     Raw Label
+                </Button>
+            </Tooltip>
+            <Tooltip title="Copy the label metadata as JSON" arrow>
+                <Button
+                    className={c.button}
+                    variant="outlined"
+                    aria-label="copy label json button"
+                    size="small"
+                    startIcon={<ContentCopyIcon fontSize="small" />}
+                    onClick={() => {
+                        copyToClipboard(JSON.stringify(labelData, null, 2))
+                        dispatch(setSnackBarText('Copied Label JSON to Clipboard!', 'success'))
+                    }}
+                >
+                    Copy Metadata
                 </Button>
             </Tooltip>
         </>

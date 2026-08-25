@@ -353,17 +353,6 @@ const useStyles = makeStyles((theme) => ({
         margin: '0 -20px 0 -20px',
         padding: '12px 20px 6px 20px',
     },
-    citationCopy: {
-        'padding': '2px',
-        'color': theme.palette.swatches.grey.grey500,
-        '&:hover': {
-            color: theme.palette.swatches.grey.grey900,
-            background: theme.palette.swatches.grey.grey150,
-        },
-        '& .MuiSvgIcon-root': {
-            fontSize: '15px',
-        },
-    },
     citation: {
         fontSize: '13px',
         lineHeight: '19px',
@@ -724,21 +713,6 @@ const Overview = (props) => {
                             <>
                                 <div className={c.citationHeading}>
                                     <span>Citation</span>
-                                    <Tooltip title="Copy citation" arrow>
-                                        <IconButton
-                                            className={c.citationCopy}
-                                            aria-label="copy record citation"
-                                            size="small"
-                                            onClick={() =>
-                                                copy(
-                                                    presentation.citation,
-                                                    'Copied citation to clipboard!'
-                                                )
-                                            }
-                                        >
-                                            <ContentCopyIcon />
-                                        </IconButton>
-                                    </Tooltip>
                                 </div>
                                 <div className={c.citation}>{presentation.citation}</div>
                             </>

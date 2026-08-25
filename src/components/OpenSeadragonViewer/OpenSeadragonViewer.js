@@ -41,12 +41,6 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         height: '100%',
     },
-    // Clear the top-right control column so the minimap sits beside it.
-    navigatorInset: {
-        '& #openSeadragon .navigator': {
-            marginRight: '45px !important',
-        },
-    },
     uiOverlay: {
         position: 'absolute',
         top: 0,
@@ -71,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
     bottomRight: {
         paddingBottom: theme.spacing(2),
     },
-    // The controls sit over a dark image surface, so they're dark too.
+    // The controls sit over a white image surface, so they're light too.
     button: {
         // Flex (still block-level, so the controls stack) keeps the box square.
         'display': 'flex !important',
@@ -81,20 +75,23 @@ const useStyles = makeStyles((theme) => ({
         'width': '40px',
         'height': '40px',
         'pointerEvents': 'all',
-        'background': theme.palette.swatches.grey.grey700,
-        'color': theme.palette.swatches.grey.grey150,
+        'background': theme.palette.swatches.grey.grey100,
+        'color': theme.palette.swatches.grey.grey700,
+        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
         'padding': 0,
         'margin': theme.spacing(0, 1),
         'borderRadius': 0,
         '&:hover': {
-            background: theme.palette.swatches.grey.grey600,
+            background: theme.palette.swatches.grey.grey150,
+            color: theme.palette.swatches.grey.grey800,
         },
     },
     gap: {
         marginBottom: theme.spacing(2),
     },
+    // Stacked controls share one border between them.
     joiner: {
-        borderBottom: '1px solid rgba(255,255,255,0.13)',
+        borderBottom: 'none',
     },
     openFailedWrapper: {
         opacity: 0,
@@ -193,8 +190,8 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed
                 showNavigator: true,
                 showRotationControl: true,
                 degrees: window.atlasGlobal.imageRotation || 0,
-                navigatorPosition: 'TOP_RIGHT',
-                navigatorSizeRatio: 0.14,
+                navigatorPosition: 'BOTTOM_RIGHT',
+                navigatorSizeRatio: 0.09,
                 ...settings,
             })
         )
@@ -261,7 +258,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed
     }, [viewer])
 
     return (
-        <div className={clsx(c.OpenSeadragonViewer, { [c.navigatorInset]: !!onLayers })}>
+        <div className={c.OpenSeadragonViewer}>
             <div id="openSeadragon" className={c.OpenSeadragonContainer}></div>
             <div className={c.uiOverlay}>
                 <div className={c.topLeft}>
