@@ -62,7 +62,7 @@ test.describe('record detail config', () => {
                 const paths =
                     typeof entry === 'string'
                         ? [entry]
-                        : [entry.path, entry.sub].filter((p) => p != null)
+                        : [entry.path, entry.pair].filter((p) => p != null)
                 expect(paths.length, `${name}: tile entry has no path`).toBeGreaterThan(0)
                 paths.forEach((path) => {
                     expect(

@@ -9,14 +9,12 @@
         "gather.common.product_type",
         {
             "path": "gather.orbital_missions.orbit",
-            "sub": "gather.orbital_missions.spacecraft_altitude",
-            "inline": true
+            "pair": "gather.orbital_missions.spacecraft_altitude"
         },
         "gather.common.geo_location",
         {
             "path": "gather.lighting_geometry.incidence_angle",
-            "sub": "gather.lighting_geometry.emission_angle",
-            "inline": true
+            "pair": "gather.lighting_geometry.emission_angle"
         },
         "gather.lighting_geometry.phase_angle",
         "gather.orbital_missions.solar_longitude",

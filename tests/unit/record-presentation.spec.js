@@ -53,16 +53,16 @@ test.describe('resolvePresentation', () => {
         expect(p.caption).toContain('14:19:46 local mean solar time')
     })
 
-    test('landed at-a-glance leads with mission, spacecraft, instrument then sol, site, drive', () => {
+    test('landed at-a-glance leads with mission, spacecraft, instrument then sol, site', () => {
         const p = resolvePresentation(mars2020Navcam)
-        expect(labels(p).slice(0, 6)).toEqual([
+        expect(labels(p).slice(0, 5)).toEqual([
             'Mission',
             'Spacecraft',
             'Instrument',
             'Sol',
             'Site',
-            'Drive',
         ])
+        expect(tileOf(p, 'Site').pair.label).toBe('Drive')
     })
 
     test('raws overrides mars 2020 navcam without touching the shared profile', () => {
@@ -124,10 +124,9 @@ test.describe('resolvePresentation', () => {
         expect(serialized).not.toContain('{{')
         expect(Object.keys(p.tiles[0]).sort()).toEqual([
             'icon',
-            'inline',
             'label',
+            'pair',
             'shortLabel',
-            'sub',
             'value',
         ])
     })
@@ -138,23 +137,20 @@ test.describe('resolvePresentation', () => {
         expect(p.priorityTiles).toBe(6)
     })
 
-    test('tiles carry icons, and sol and lmst stand alone on two lines', () => {
+    test('tiles carry icons, and an unpaired tile has no second field', () => {
         const msl = resolvePresentation(mslPds3)
         expect(tileOf(msl, 'Sol').icon).toBe('sun')
-        expect(tileOf(msl, 'Sol').sub).toBe(null)
+        expect(tileOf(msl, 'Sol').pair).toBe(null)
 
         const m2020 = resolvePresentation(mars2020Navcam)
         expect(tileOf(m2020, 'Site').icon).toBe('place')
-        expect(valueOf(m2020, 'Drive')).toBe('1469')
-        expect(tileOf(m2020, 'Local mean solar time').sub).toBe(null)
     })
 
-    test('azimuth pairs with elevation on one line', () => {
+    test('paired tiles carry a second field of equal weight', () => {
         const p = resolvePresentation(mars2020Navcam)
-        const instrument = tileOf(p, 'Instrument elevation')
-        expect(instrument.inline).toBe(true)
-        expect(instrument.sub).toBe('az 0.2°')
-        expect(tileOf(p, 'Solar elevation').inline).toBe(true)
+        expect(tileOf(p, 'Instrument elevation').pair.value).toBe('0.2°')
+        expect(tileOf(p, 'Site').pair.label).toBe('Drive')
+        expect(tileOf(p, 'Local mean solar time').pair.shortLabel).toBe('LTST')
     })
 
     test('citation names its author', () => {
@@ -243,10 +239,10 @@ test.describe('resolvePresentation', () => {
         expect(other.rows.some((row) => inLabel.includes(row.label))).toBe(false)
     })
 
-    test('a sub-line drops on its own when its field is missing', () => {
+    test('an unpaired tile carries no second field', () => {
         const p = resolvePresentation(mars2020Navcam)
         const sol = tileOf(p, 'Sol')
         expect(sol.value).toBeTruthy()
-        expect(sol.sub).toBe(null)
+        expect(sol.pair).toBe(null)
     })
 })

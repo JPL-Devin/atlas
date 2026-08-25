@@ -7,25 +7,29 @@
         "gather.common.spacecraft",
         "gather.common.instrument",
         "gather.landed_missions.planet_day_number",
-        "gather.landed_missions.rmc_site",
-        "gather.landed_missions.rmc_drive",
-        "gather.landed_missions.start_local_mean_solar_time",
+        {
+            "path": "gather.landed_missions.rmc_site",
+            "pair": "gather.landed_missions.rmc_drive"
+        },
+        {
+            "path": "gather.landed_missions.start_local_mean_solar_time",
+            "pair": "gather.landed_missions.start_local_true_solar_time"
+        },
         {
             "path": "gather.landed_missions.site_solar_elevation",
-            "sub": "gather.landed_missions.site_solar_azimuth",
-            "inline": true
+            "pair": "gather.landed_missions.site_solar_azimuth"
         },
         {
             "path": "gather.landed_missions.site_instrument_elevation",
-            "sub": "gather.landed_missions.site_instrument_azimuth",
-            "inline": true
+            "pair": "gather.landed_missions.site_instrument_azimuth"
         },
         {
             "path": "gather.time.start_time",
             "format": "datetime_short"
         },
         "gather.ancillary.eye_type",
-        "gather.common.product_type"
+        "gather.common.product_type",
+        "gather.lighting_geometry.solar_longitude"
     ],
     "maxTiles": 12,
     "priorityTiles": 6,

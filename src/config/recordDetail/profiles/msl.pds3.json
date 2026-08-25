@@ -13,13 +13,11 @@
         "gather.landed_missions.start_local_mean_solar_time",
         {
             "path": "gather.landed_missions.site_solar_elevation",
-            "sub": "gather.landed_missions.site_solar_azimuth",
-            "inline": true
+            "pair": "gather.landed_missions.site_solar_azimuth"
         },
         {
             "path": "gather.landed_missions.site_instrument_elevation",
-            "sub": "gather.landed_missions.site_instrument_azimuth",
-            "inline": true
+            "pair": "gather.landed_missions.site_instrument_azimuth"
         },
         {
             "path": "gather.time.start_time",

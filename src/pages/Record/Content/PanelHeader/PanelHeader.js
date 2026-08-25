@@ -93,6 +93,7 @@ const useStyles = makeStyles((theme) => ({
         'justifyContent': 'center',
         'gap': '4px',
         'padding': '10px 8px',
+        'background': theme.palette.swatches.grey.grey0,
         'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
         '& .MuiButton-root': {
             fontSize: '12px',

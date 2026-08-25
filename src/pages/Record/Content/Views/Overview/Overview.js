@@ -173,7 +173,7 @@ const useStyles = makeStyles((theme) => ({
         'whiteSpace': 'nowrap',
         'overflow': 'hidden',
         '& > svg': {
-            fontSize: '12px',
+            fontSize: '15px',
             flexShrink: 0,
         },
     },
@@ -191,21 +191,21 @@ const useStyles = makeStyles((theme) => ({
         overflow: 'hidden',
         textOverflow: 'ellipsis',
     },
-    tileSub: {
-        fontSize: '11px',
-        lineHeight: '16px',
-        color: theme.palette.swatches.grey.grey500,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-    },
-    // An inline sub sits beside the value, keeping paired fields (azimuth and
-    // elevation) two lines high instead of three.
-    tileValueRow: {
+    // A paired tile splits into two equal halves, so both fields read at full
+    // size with only a rule between them.
+    tileHalves: {
         display: 'flex',
-        alignItems: 'baseline',
-        columnGap: '6px',
+        alignItems: 'stretch',
         minWidth: 0,
+    },
+    tileHalf: {
+        flex: 1,
+        minWidth: 0,
+    },
+    tileHalfPaired: {
+        paddingLeft: '10px',
+        marginLeft: '10px',
+        borderLeft: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     fieldsHeading: {
         display: 'flex',
@@ -430,6 +430,25 @@ const Overview = (props) => {
     const tiles = available.slice(0, Math.floor(available.length / tileColumns) * tileColumns)
     const caption = presentation.caption || presentation.shortCaption
 
+    // Both fields of a paired tile render identically; only the second gets a
+    // dividing rule.
+    const renderTileHalf = (part, paired = false) => {
+        const Icon = tileIcons[part.icon]
+        return (
+            <div className={`${c.tileHalf} ${paired ? c.tileHalfPaired : ''}`}>
+                <div className={c.tileLabel}>
+                    {Icon && <Icon />}
+                    <span className={c.tileLabelText} title={part.label}>
+                        {part.shortLabel}
+                    </span>
+                </div>
+                <div className={c.tileValue} title={part.value}>
+                    {part.value}
+                </div>
+            </div>
+        )
+    }
+
     // The version selector reads as an Identification field, as in the mockup.
     const showVersions = pds_standard === 'pds4' && versions.length > 0
     const versionRow = showVersions
@@ -598,29 +617,14 @@ const Overview = (props) => {
                         {renderCaptionCard()}
                         <div className={c.heading}>At a glance</div>
                         <div className={c.tiles}>
-                            {tiles.map((tile, idx) => {
-                                const Icon = tileIcons[tile.icon]
-                                return (
-                                    <div className={c.tile} key={idx}>
-                                        <div className={c.tileLabel}>
-                                            {Icon && <Icon />}
-                                            <span className={c.tileLabelText} title={tile.label}>
-                                                {tile.shortLabel}
-                                            </span>
-                                        </div>
-                                        <div className={tile.inline ? c.tileValueRow : undefined}>
-                                            <div className={c.tileValue} title={tile.value}>
-                                                {tile.value}
-                                            </div>
-                                            {tile.sub != null && (
-                                                <div className={c.tileSub} title={tile.sub}>
-                                                    {tile.sub}
-                                                </div>
-                                            )}
-                                        </div>
+                            {tiles.map((tile, idx) => (
+                                <div className={c.tile} key={idx}>
+                                    <div className={c.tileHalves}>
+                                        {renderTileHalf(tile)}
+                                        {tile.pair != null && renderTileHalf(tile.pair, true)}
                                     </div>
-                                )
-                            })}
+                                </div>
+                            ))}
                         </div>
                         <div className={`${c.heading} ${c.fieldsHeading}`}>
                             <span>General Fields</span>

@@ -75,25 +75,19 @@ const readTile = (recordData, path, format) => {
     }
 }
 
-// A tile is a path, or { path, sub, inline, format } where `sub` adds a second
-// field beside (inline) or under the value. The sub drops on its own.
+// A tile is a path, or { path, pair, format } where `pair` shows a second field
+// of equal weight beside the first. The pair drops on its own.
 const readTileEntry = (recordData, entry) => {
     const path = typeof entry === 'string' ? entry : entry.path
     const format = typeof entry === 'string' ? null : entry.format
     const tile = readTile(recordData, path, format)
     if (tile == null) return null
-    const empty = { ...tile, sub: null, inline: false }
-    if (typeof entry === 'string' || entry.sub == null) return empty
+    const empty = { ...tile, pair: null }
+    if (typeof entry === 'string' || entry.pair == null) return empty
 
-    const sub = readTile(recordData, entry.sub, entry.subFormat)
-    if (sub == null) return empty
-    const microLabel = getIn(fields, [entry.sub, 'microLabel'])
-    const prefix = microLabel != null ? microLabel : sub.shortLabel
-    return {
-        ...tile,
-        sub: prefix === '' ? sub.value : `${prefix} ${sub.value}`,
-        inline: entry.inline === true,
-    }
+    const pair = readTile(recordData, entry.pair, entry.pairFormat)
+    if (pair == null) return empty
+    return { ...tile, pair }
 }
 
 // Sections are named groups of normalized paths (config/recordDetail/sections.json);
@@ -167,10 +161,7 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
         tiles.push(tile)
         const path = typeof entry === 'string' ? entry : entry.path
         tiled[path] = tile.value
-        if (typeof entry !== 'string' && entry.sub != null && tile.sub != null) {
-            const sub = readTile(recordData, entry.sub, entry.subFormat)
-            if (sub != null) tiled[entry.sub] = sub.value
-        }
+        if (tile.pair != null) tiled[entry.pair] = tile.pair.value
     })
 
     // Fragments carry no separators of their own, so a dropped fragment can
