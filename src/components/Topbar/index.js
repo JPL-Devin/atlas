@@ -1,5 +1,5 @@
-import React from 'react'
-import { useSelector } from 'react-redux'
+import React, { useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -15,7 +15,13 @@ import Badge from '@mui/material/Badge'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
 import ImageSearchIcon from '@mui/icons-material/ImageSearch'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
+import MenuIcon from '@mui/icons-material/Menu'
+import MenuOpenIcon from '@mui/icons-material/MenuOpen'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 
+import NavigationDrawer from '../NavigationDrawer/NavigationDrawer'
+
+import { setModal } from '../../core/redux/actions/actions.js'
 import { HASH_PATHS, publicUrl } from '../../core/constants'
 import { getPublicUrl } from '../../core/runtimeConfig'
 import { getAppConfig } from '../../core/appConfig'
@@ -35,17 +41,35 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         display: 'flex',
         justifyContent: 'space-between',
+        minWidth: 0,
+        overflow: 'hidden',
         background: theme.palette.swatches.grey.grey100,
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     left: {
         display: 'flex',
-        marginLeft: theme.spacing(1.5),
+        alignItems: 'center',
+        minWidth: 0,
+        overflow: 'hidden',
+    },
+    navButton: {
+        'flexShrink': 0,
+        'width': theme.headHeights[1],
+        'height': theme.headHeights[1],
+        'borderRadius': 0,
+        'fontSize': 24,
+        'color': theme.palette.text.muted,
+        'transition': 'color 0.2s ease-out',
+        '&:hover': {
+            color: theme.palette.text.primary,
+        },
     },
     right: {
         display: 'flex',
+        flexShrink: 0,
     },
     logoDiv: {
+        flexShrink: 0,
         width: theme.headHeights[1],
         height: theme.headHeights[1],
         padding: 4,
@@ -61,8 +85,12 @@ const useStyles = makeStyles((theme) => ({
     appTitle: {
         'display': 'flex',
         'flexFlow': 'column',
+        'minWidth': 0,
+        'overflow': 'hidden',
+        'whiteSpace': 'nowrap',
         '& > div:last-child': {
             display: 'flex',
+            flexWrap: 'nowrap',
             marginTop: '-5px',
         },
     },
@@ -168,9 +196,11 @@ const Topbar = () => {
 
     const location = useLocation()
     const navigate = useNavigate()
+    const dispatch = useDispatch()
+
+    const [drawerOpen, setDrawerOpen] = useState(false)
 
     const theme = useTheme()
-    const isMobileSm = useMediaQuery(theme.breakpoints.down('md'))
     const isMobileXs = useMediaQuery(theme.breakpoints.down('sm'))
 
     const cart = useSelector((state) => {
@@ -196,7 +226,21 @@ const Topbar = () => {
 
     return (
         <div className={c.Topbar}>
+            <NavigationDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
             <div className={c.left}>
+                <Tooltip title="Navigation" arrow placement="bottom">
+                    <IconButton
+                        className={c.navButton}
+                        aria-label="navigation"
+                        onClick={() => setDrawerOpen(!drawerOpen)}
+                    >
+                        {drawerOpen ? (
+                            <MenuOpenIcon fontSize="inherit" />
+                        ) : (
+                            <MenuIcon fontSize="inherit" />
+                        )}
+                    </IconButton>
+                </Tooltip>
                 <div className={c.logoDiv}>
                     <img className={c.logo} src={getNASALogoUrl()} alt="NASA logo" />
                 </div>
@@ -297,6 +341,17 @@ const Topbar = () => {
                         </IconButton>
                     </Tooltip>
                 )}
+
+                <Tooltip title={`About ${getAppConfig().appTitle}`} arrow placement="bottom">
+                    <IconButton
+                        className={clsx(c.button)}
+                        aria-label="info button"
+                        onClick={() => dispatch(setModal('information'))}
+                        size="large"
+                    >
+                        <InfoOutlinedIcon fontSize="inherit" />
+                    </IconButton>
+                </Tooltip>
             </div>
         </div>
     )

@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 import Topbar from '../../components/Topbar'
-import Toolbar from '../../components/Toolbar/Toolbar'
 import SnackBar from '../../components/SnackBar/SnackBar'
 
 import Search from '../../pages/Search/Search'
@@ -35,7 +34,6 @@ export const AppRoutes = () => {
                 basename={publicUrl}
                 future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
             >
-                <Toolbar />
                 <div className="routeMain">
                     <Topbar />
                     <div className="routeContent">

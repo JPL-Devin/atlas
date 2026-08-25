@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
+import clsx from 'clsx'
 
 import {
     setModal,
     setFilterType,
+    setWorkspace,
+    resetFilters,
     copyToClipboardAction,
 } from '../../../../core/redux/actions/actions.js'
 
@@ -15,6 +18,8 @@ import Tooltip from '@mui/material/Tooltip'
 
 import AddIcon from '@mui/icons-material/Add'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import CloseIcon from '@mui/icons-material/Close'
 
 import FilterList from './subcomponents/FilterList/FilterList'
 import AdvancedFilter from './subcomponents/AdvancedFilter/AdvancedFilter'
@@ -27,6 +32,7 @@ import { makeStyles } from '@mui/styles'
 const useStyles = makeStyles((theme) => ({
     FiltersPanel: {
         height: '100%',
+        minWidth: 0,
         transition: 'width 0.4s ease-out',
         overflow: 'hidden',
         position: 'relative',
@@ -44,6 +50,29 @@ const useStyles = makeStyles((theme) => ({
     content: {
         overflowY: 'auto',
         flex: 1,
+    },
+    sheet: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100% !important',
+        maxWidth: '100vw',
+        // Stops above the mobile bottom bar so the view switcher stays usable
+        height: 'calc(100% - 48px)',
+        zIndex: theme.zIndex.drawer + 100,
+    },
+    left: {
+        display: 'flex',
+        alignItems: 'center',
+        minWidth: 0,
+    },
+    resetFilters: {
+        'color': theme.palette.swatches.grey.grey600,
+        'marginLeft': theme.spacing(0.5),
+        '& svg': {
+            fontSize: '18px !important',
+            transform: 'rotateY(180deg)',
+        },
     },
     heading: {
         width: '100%',
@@ -130,6 +159,9 @@ const FiltersPanel = (props) => {
         }
     }
 
+    // A sheet over the results on phones, a sidebar otherwise
+    if (mobile && !w.mobileFilters) return null
+
     let width = 0
     if (mobile) width = '100%'
     else width = w.filters ? (filterType === 'basic' ? w.filtersSize : w.advancedFiltersSize) : 0
@@ -137,14 +169,28 @@ const FiltersPanel = (props) => {
     const style = {
         width,
     }
-    if (width == 0) style.border = 'unset'
+    // A collapsed sidebar keeps its controls out of the tab and accessibility trees
+    if (width == 0) {
+        style.border = 'unset'
+        style.visibility = 'hidden'
+    }
 
     return (
-        <div className={c.FiltersPanel} style={style}>
+        <div className={clsx(c.FiltersPanel, { [c.sheet]: mobile })} style={style}>
             <div className={c.contents}>
                 <div className={c.heading}>
                     <div className={c.left}>
                         <div className={c.title}>{FILTER_TYPES[filterType]}</div>
+                        <Tooltip title="Reset Filters" arrow>
+                            <IconButton
+                                className={c.resetFilters}
+                                aria-label="reset filters"
+                                size="small"
+                                onClick={() => dispatch(resetFilters())}
+                            >
+                                <RefreshIcon fontSize="inherit" />
+                            </IconButton>
+                        </Tooltip>
                     </div>
                     <div className={c.right}>
                         {filterType === 'basic' && getAppConfig().enableAddFilters && (
@@ -176,6 +222,15 @@ const FiltersPanel = (props) => {
                                 onChange={handleMenuChange}
                             />
                         </div>
+                        {mobile && (
+                            <IconButton
+                                aria-label="close filters"
+                                size="small"
+                                onClick={() => dispatch(setWorkspace({ ...w, mobileFilters: false }))}
+                            >
+                                <CloseIcon fontSize="inherit" />
+                            </IconButton>
+                        )}
                     </div>
                 </div>
                 <div
@@ -219,6 +274,8 @@ const FiltersPanel = (props) => {
     )
 }
 
-FiltersPanel.propTypes = {}
+FiltersPanel.propTypes = {
+    mobile: PropTypes.bool,
+}
 
 export default FiltersPanel

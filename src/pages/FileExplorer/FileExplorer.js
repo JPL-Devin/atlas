@@ -105,10 +105,6 @@ const FileExplorer = (props) => {
     const rightRef = useRef(null)
     const dragRef = useRef(null)
 
-    const mobileWorkspace = useSelector((state) => {
-        return state.getIn(['workspace', 'mobile'])
-    })
-
     let [sort, setSort] = useState('Folders')
 
     let [showMobilePreview, setShowMobilePreview] = useState(false)
