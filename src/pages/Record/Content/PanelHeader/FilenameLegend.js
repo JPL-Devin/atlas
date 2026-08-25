@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 
 import Tooltip from '@mui/material/Tooltip'
 import { makeStyles } from '@mui/styles'
 
 import { LIGHT_COLORS } from '../../filenameColors'
+import { setRecordFilenamePart } from '../../../../core/redux/actions/actions'
 
 const useStyles = makeStyles((theme) => ({
     filenameRow: {
@@ -71,6 +73,12 @@ const useStyles = makeStyles((theme) => ({
         minHeight: '104px',
         marginBottom: '4px',
     },
+    // Every segment at once is far taller than the header can be, so it scrolls.
+    detailsAll: {
+        maxHeight: '40vh',
+        overflowY: 'auto',
+        marginBottom: '4px',
+    },
     detailsEmpty: {
         marginBottom: '4px',
     },
@@ -99,11 +107,16 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-// Colours the parsed segments and tracks which one is open, so the name and its
-// descriptions can live in different parts of the page.
+// Colours the parsed segments and tracks which one is open. The selection lives
+// in redux so it survives switching record tabs.
 export const useFilenameSelection = (parsed) => {
-    const [selected, setSelected] = useState(null)
-    const [showAll, setShowAll] = useState(false)
+    const dispatch = useDispatch()
+    const part = useSelector((state) => state.get('recordFilenamePart'))
+
+    const selected = part?.get('selected') ?? null
+    const showAll = part?.get('showAll') ?? false
+    const setSelected = (next) => dispatch(setRecordFilenamePart(next, showAll))
+    const setShowAll = (next) => dispatch(setRecordFilenamePart(selected, next))
 
     const pieces = (parsed?.pieces || []).map((piece, idx) => ({
         ...piece,
@@ -178,8 +191,10 @@ export const FilenameDetails = (props) => {
 
     const c = useStyles()
 
+    const size = { 0: c.detailsEmpty, 1: c.details }[entries.length] || c.detailsAll
+
     return (
-        <div className={entries.length === 1 ? c.details : c.detailsEmpty}>
+        <div className={size}>
             {entries.map((piece) => (
                 <div className={c.entry} key={piece.idx}>
                     <span className={c.entryValue} style={{ color: piece.color }}>

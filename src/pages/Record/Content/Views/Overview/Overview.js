@@ -176,7 +176,7 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: theme.palette.swatches.grey.grey150,
     },
     metadata: {
-        width: '700px',
+        width: 'var(--record-panel-width, 700px)',
         height: '100%',
         boxSizing: 'border-box',
         display: 'flex',

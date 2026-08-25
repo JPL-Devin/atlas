@@ -67,6 +67,7 @@ let flatActions = [
     'SET_RECORD_DATA',
     'SET_LABEL_DATA',
     'SET_RECORD_VIEW_TAB',
+    'SET_RECORD_FILENAME_PART',
 
     // ================= FILE-EXPLORER RELATED =================
     'ADD_FILEX_COLUMN',
@@ -1493,6 +1494,23 @@ export const setRecordViewTab = (newRecordViewTab) => {
         type: ACTIONS.SET_RECORD_VIEW_TAB,
         payload: {
             newRecordViewTab,
+        },
+    }
+}
+
+/**
+ * sets which filename segment the record page explains
+ *
+ * @param {number|null} selected - segment index, or null for none
+ * @param {boolean} showAll - explain every segment at once
+ * @return {Object} redux action
+ */
+export const setRecordFilenamePart = (selected, showAll) => {
+    return {
+        type: ACTIONS.SET_RECORD_FILENAME_PART,
+        payload: {
+            selected,
+            showAll,
         },
     }
 }

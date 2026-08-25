@@ -128,6 +128,8 @@ export const INITIAL = (() => {
         labelData: {},
         // Which record view tab are we on
         recordViewTab: 'overview',
+        // Which filename segment the record page explains
+        recordFilenamePart: { selected: null, showAll: false },
 
         // ================= FILE-EXPLORER RELATED =================
         columns: [],

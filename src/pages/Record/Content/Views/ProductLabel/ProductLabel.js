@@ -338,11 +338,8 @@ const useStyles = makeStyles((theme) => ({
         height: '100%',
         boxSizing: 'border-box',
         borderRight: `1px solid ${theme.palette.swatches.grey.grey150}`,
-        width: '960px',
+        width: 'var(--record-panel-width, 960px)',
         background: theme.palette.swatches.grey.grey100,
-        [theme.breakpoints.down('lg')]: {
-            width: '660px',
-        },
         [theme.breakpoints.down('md')]: {
             width: '100%',
             borderRight: 'none',
