@@ -176,7 +176,7 @@ const useStyles = makeStyles((theme) => ({
     },
     // The viewers paint their own surface, so match it while they're absent.
     loadingBody: {
-        background: theme.palette.swatches.grey.grey800,
+        background: theme.palette.swatches.grey.grey850,
     },
     skeleton: {
         backgroundColor: theme.palette.swatches.grey.grey700,

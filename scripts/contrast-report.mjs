@@ -85,7 +85,7 @@ const checks = [
     ['caption title', g.grey0, 'rgba(16,16,19,0.62)', 15, true],
     ['caption prose', g.grey150, 'rgba(16,16,19,0.62)', 12, false],
     ['caption author', g.grey300, 'rgba(16,16,19,0.62)', 11, false],
-    ['viewer empty state', g.grey200, g.grey800, 13, false],
+    ['viewer empty state', g.grey200, g.grey850, 13, false],
     ['citation copy icon', g.grey200, g.grey800, 13, false],
     ['version select', g.grey200, g.grey800, 12, false],
     ['filename * button', g.grey300, g.grey800, 18, false],

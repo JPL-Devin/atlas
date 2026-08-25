@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     ThreeViewer: {
         width: '100%',
         height: '100%',
-        background: theme.palette.swatches.grey.grey50,
+        background: theme.palette.swatches.grey.grey850,
         position: 'relative',
     },
     ThreeContainer: {

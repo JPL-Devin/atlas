@@ -5,11 +5,7 @@
     "tiles": [
         "gather.common.mission",
         "gather.common.spacecraft",
-        {
-            "path": "gather.common.instrument",
-            "sub": "gather.ancillary.color_filter",
-            "inline": true
-        },
+        "gather.common.instrument",
         "gather.landed_missions.planet_day_number",
         "gather.landed_missions.rmc_site",
         "gather.landed_missions.rmc_drive",

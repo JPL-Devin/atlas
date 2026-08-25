@@ -1510,7 +1510,8 @@ metadata column is `grey800` with `grey850` tiles, secondary text (row and tile
 labels, citation) `grey300`, values `grey0`, and every heading
 (including the collapsible section headers) `yellow700` — the site titlebar's
 darkgoldenrod lightened to 10.8:1 on the panel; the
-viewer column stays `grey900`. Every panel heading carries a `grey700` rule
+viewer surface (OpenSeadragon and ThreeViewer alike, plus the loading state) is
+`grey850`, one shade below the panel, over a `grey900` column. Every panel heading carries a `grey700` rule
 across the full panel width (negative `20px` side margins against the scroll
 container's padding), field rows and the citation are `13px`, The viewer body draws an inset top shadow through a
 `pointer-events: none` overlay so it sits above the viewers' own canvases. The
