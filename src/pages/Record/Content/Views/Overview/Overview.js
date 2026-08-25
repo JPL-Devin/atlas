@@ -76,10 +76,19 @@ const useStyles = makeStyles((theme) => ({
             flex: 'unset',
         },
     },
+    // The shadow rides on an overlay so the viewers' own canvases don't cover it.
     viewerBody: {
-        position: 'relative',
-        flex: 1,
-        minHeight: 0,
+        'position': 'relative',
+        'flex': 1,
+        'minHeight': 0,
+        '&:after': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            zIndex: 2,
+            boxShadow: 'inset 0 8px 12px -8px rgba(0,0,0,0.85)',
+        },
         [theme.breakpoints.down('md')]: {
             flex: 'unset',
             height: '55vh',
@@ -218,7 +227,10 @@ const useStyles = makeStyles((theme) => ({
         letterSpacing: '0.06em',
         textTransform: 'uppercase',
         color: theme.palette.swatches.grey.grey0,
-        marginBottom: '10px',
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        // Negative margins pull the rule out to the panel edges.
+        margin: '0 -20px 10px -20px',
+        padding: '12px 20px 0 20px',
     },
     description: {
         fontSize: '13px',
@@ -355,8 +367,8 @@ const useStyles = makeStyles((theme) => ({
         'justifyContent': 'space-between',
         'gap': '16px',
         'padding': '4px 0',
-        'fontSize': '12px',
-        'lineHeight': '18px',
+        'fontSize': '13px',
+        'lineHeight': '19px',
         '&:hover $rowCopy': {
             opacity: 1,
         },
@@ -396,11 +408,12 @@ const useStyles = makeStyles((theme) => ({
         textTransform: 'uppercase',
         color: theme.palette.swatches.grey.grey0,
         borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
-        padding: '12px 0 6px 0',
+        margin: '0 -20px 0 -20px',
+        padding: '12px 20px 6px 20px',
     },
     citation: {
-        fontSize: '12px',
-        lineHeight: '18px',
+        fontSize: '13px',
+        lineHeight: '19px',
         color: theme.palette.swatches.grey.grey300,
         overflowWrap: 'anywhere',
     },
@@ -418,14 +431,21 @@ const useStyles = makeStyles((theme) => ({
         zIndex: 1,
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
-        flexWrap: 'wrap',
+        gap: '6px',
+        flexWrap: 'nowrap',
         padding: '10px 20px',
         borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
         background: theme.palette.swatches.grey.grey850,
+        [theme.breakpoints.down('md')]: {
+            flexWrap: 'wrap',
+        },
     },
+    // Every action shares one row, so labels stay put and the type tightens.
     actionButton: {
         'flexShrink': 0,
+        'fontSize': '11px',
+        'padding': '3px 8px',
+        'whiteSpace': 'nowrap',
         'color': theme.palette.swatches.grey.grey0,
         'borderColor': theme.palette.swatches.grey.grey500,
         '&:hover': {

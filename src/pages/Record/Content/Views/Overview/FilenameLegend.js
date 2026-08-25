@@ -61,7 +61,8 @@ const useStyles = makeStyles((theme) => ({
         minHeight: '104px',
     },
     hint: {
-        fontSize: '11px',
+        fontSize: '12px',
+        fontStyle: 'italic',
         color: theme.palette.swatches.grey.grey300,
     },
     entry: {
