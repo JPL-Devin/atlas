@@ -34,10 +34,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import MenuButton from '../../../../../components/MenuButton/MenuButton'
-import SplitButton from '../../../../../components/SplitButton/SplitButton'
-import { getDownloadProducts } from '../../../../../core/recordDownloads.js'
-import { streamDownloadFile } from '../../../../../core/downloaders/ZipStream.js'
-import { getFilename } from '../../../../../core/utils.js'
+import PanelHeader from '../../PanelHeader/PanelHeader'
 import Highlighter from 'react-highlight-words'
 import flat from 'flat'
 
@@ -337,6 +334,10 @@ const useStyles = makeStyles((theme) => ({
         flex: 1,
     },
     panel: {
+        display: 'flex',
+        flexFlow: 'column',
+        height: '100%',
+        boxSizing: 'border-box',
         borderRight: `1px solid ${theme.palette.swatches.grey.grey150}`,
         width: '960px',
         background: theme.palette.swatches.grey.grey100,
@@ -349,6 +350,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     top: {
+        flexShrink: 0,
         height: `${theme.headHeights[2]}px`,
         display: 'flex',
         justifyContent: 'space-between',
@@ -357,9 +359,10 @@ const useStyles = makeStyles((theme) => ({
         background: theme.palette.swatches.grey.grey0,
     },
     bottom: {
+        flex: 1,
+        minHeight: 0,
         overflowX: 'hidden',
         overflowY: 'auto',
-        height: `calc(100% - ${theme.headHeights[2]}px)`,
         padding: `4px 8px`,
         boxSizing: 'border-box',
     },
@@ -402,10 +405,6 @@ const useStyles = makeStyles((theme) => ({
           border: "1px solid rgba(0, 0, 0, 0.23)",
           'background': "#0000000a",
         },
-    },
-    splitButton: {
-        height: 30,
-        margin: '0px 3px',
     },
     snackbar: {
         fontSize: 14,
@@ -461,9 +460,12 @@ const ProductLabel = (props) => {
     if (Object.keys(labelData).length === 0)
         return (
             <div className={c.ProductLabel}>
-                <Box className={c.notFound}>
-                    <div>Label Not Found</div>
-                </Box>
+                <div className={c.panel}>
+                    <PanelHeader recordData={recordData} />
+                    <Box className={c.notFound}>
+                        <div>Label Not Found</div>
+                    </Box>
+                </div>
             </div>
         )
     else {
@@ -471,6 +473,44 @@ const ProductLabel = (props) => {
         return (
             <div className={c.ProductLabel}>
                 <div className={c.panel}>
+                    <PanelHeader
+                        recordData={recordData}
+                        extraActions={
+                            !isMobile ? (
+                                <>
+                                    <Button
+                                        className={c.button1}
+                                        variant="outlined"
+                                        aria-label="copy label json button"
+                                        size="small"
+                                        onClick={() => {
+                                            copyToClipboard(JSON.stringify(labelDataRaw, null, 2))
+                                            dispatch(
+                                                setSnackBarText(
+                                                    'Copied Label JSON to Clipboard!',
+                                                    'success'
+                                                )
+                                            )
+                                        }}
+                                        startIcon={<ContentCopyIcon fontSize="small" />}
+                                    >
+                                        Copy Label JSON
+                                    </Button>
+                                    <Button
+                                        className={c.button1}
+                                        variant="outlined"
+                                        aria-label="view raw label button"
+                                        size="small"
+                                        href={labelURL}
+                                        target="_blank"
+                                        startIcon={<OpenInNewIcon fontSize="small" />}
+                                    >
+                                        View Raw Label
+                                    </Button>
+                                </>
+                            ) : null
+                        }
+                    />
                     <div className={c.top}>
                         <div className={c.search}>
                             <Input
@@ -501,55 +541,6 @@ const ProductLabel = (props) => {
                             />
                         </div>
 
-                        {!isMobile && (
-                            <div className={c.buttons}>
-                                <Button
-                                    className={c.button1}
-                                    variant="outlined"
-                                    aria-label="copy label json button"
-                                    size="small"
-                                    onClick={() => {
-                                        copyToClipboard(JSON.stringify(labelDataRaw, null, 2))
-                                        dispatch(
-                                            setSnackBarText(
-                                                'Copied Label JSON to Clipboard!',
-                                                'success'
-                                            )
-                                        )
-                                    }}
-                                    startIcon={<ContentCopyIcon fontSize="small" />}
-                                >
-                                    Copy Label JSON
-                                </Button>
-                                <Button
-                                    className={c.button1}
-                                    variant="outlined"
-                                    aria-label="view raw label button"
-                                    size="small"
-                                    href={labelURL}
-                                    target="_blank"
-                                    startIcon={<OpenInNewIcon fontSize="small" />}
-                                >
-                                    View Raw Label
-                                </Button>
-                                <SplitButton
-                                    className={c.splitButton}
-                                    forceName="Download"
-                                    ariaLabel="download record products"
-                                    type="checklist"
-                                    items={getDownloadProducts(recordData)}
-                                    onClick={(checked) => {
-                                        checked.forEach((item) => {
-                                            if (item.uri)
-                                                streamDownloadFile(
-                                                    getPDSUrl(item.uri, item.release_id),
-                                                    getFilename(item.uri)
-                                                )
-                                        })
-                                    }}
-                                />
-                            </div>
-                        )}
                         {isMobile && (
                             <div>
                                 <MenuButton

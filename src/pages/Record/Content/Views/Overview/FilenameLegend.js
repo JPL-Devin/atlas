@@ -7,28 +7,19 @@ import { makeStyles } from '@mui/styles'
 import { DARK_COLORS } from '../../../filenameColors'
 
 const useStyles = makeStyles((theme) => ({
-    // The name stays put while the rest of the panel scrolls under it, so the
-    // row is a direct child of the scroll container rather than of a wrapper.
     filenameRow: {
         display: 'flex',
         alignItems: 'flex-start',
         gap: '6px',
-        position: 'sticky',
-        // Offset by the scroll container's top padding, so nothing shows above.
-        top: '-16px',
-        zIndex: 2,
-        background: theme.palette.swatches.grey.grey800,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
-        // Negative margins let it span the panel's full width.
-        margin: '-16px -20px 8px -20px',
-        padding: '12px 20px 8px 20px',
+        width: '100%',
+        minWidth: 0,
     },
     // The name wraps rather than scrolling, so its tail is never hidden.
     filename: {
         flex: 1,
         fontSize: '18px',
         fontWeight: 'bold',
-        lineHeight: '26px',
+        lineHeight: '23px',
         letterSpacing: '0.02em',
         textAlign: 'center',
         wordBreak: 'break-all',
@@ -42,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
         'background': 'none',
         'borderBottom': '2px solid transparent',
         'cursor': 'pointer',
-        'color': theme.palette.swatches.grey.grey300,
+        'color': 'inherit',
         '&:hover, &:focus-visible': {
             color: 'var(--segment-color)',
             borderBottomColor: 'var(--segment-color)',
@@ -61,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
         'border': 'none',
         'borderRadius': '3px',
         'background': 'none',
-        'color': theme.palette.swatches.grey.grey300,
+        'color': 'inherit',
         'cursor': 'pointer',
         // Borderless at rest, but it lights up on hover so it reads as a
         // control rather than a stray glyph.
@@ -108,91 +99,107 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const FilenameLegend = (props) => {
-    const { parsed } = props
+// Colours the parsed segments and tracks which one is open, so the name and its
+// descriptions can live in different parts of the page.
+export const useFilenameSelection = (parsed) => {
+    const [selected, setSelected] = useState(null)
+    const [showAll, setShowAll] = useState(false)
 
-    const c = useStyles()
-
-    const pieces = parsed.pieces.map((piece, idx) => ({
+    const pieces = (parsed?.pieces || []).map((piece, idx) => ({
         ...piece,
         idx,
         color: DARK_COLORS[piece.color] || 'inherit',
     }))
     const labelled = pieces.filter((piece) => piece.label != null)
 
-    // Clicking a segment shows only its description; the * button shows them all.
-    const [selected, setSelected] = useState(null)
-    const [showAll, setShowAll] = useState(false)
-    const entries = showAll
-        ? labelled
-        : labelled.filter((piece) => selected != null && piece.idx === selected)
+    return {
+        pieces,
+        entries: showAll
+            ? labelled
+            : labelled.filter((piece) => selected != null && piece.idx === selected),
+        selected,
+        setSelected,
+        showAll,
+        setShowAll,
+    }
+}
+
+export const FilenameName = (props) => {
+    const { selection } = props
+    const { pieces, selected, setSelected, showAll, setShowAll } = selection
+
+    const c = useStyles()
 
     return (
-        <>
-            <div className={c.filenameRow} aria-label="filename breakdown">
-                <div className={c.filename}>
-                    {pieces.map((piece) =>
-                        piece.label == null ? (
-                            <span key={piece.idx}>{piece.text}</span>
-                        ) : (
-                            <button
-                                type="button"
-                                className={`${c.segment} ${
-                                    showAll || selected === piece.idx ? c.segmentActive : ''
-                                }`}
-                                style={{ '--segment-color': piece.color }}
-                                aria-label={`${piece.label}: ${piece.text}`}
-                                aria-pressed={selected === piece.idx}
-                                onClick={() =>
-                                    setSelected(selected === piece.idx ? null : piece.idx)
-                                }
-                                key={piece.idx}
-                            >
-                                {piece.text}
-                            </button>
-                        )
-                    )}
-                </div>
-                <Tooltip
-                    title={showAll ? 'Hide all field details' : 'Show all field details'}
-                    arrow
-                >
-                    <button
-                        type="button"
-                        className={c.allButton}
-                        aria-label="show all filename field details"
-                        aria-pressed={showAll}
-                        onClick={() => setShowAll(!showAll)}
-                    >
-                        *
-                    </button>
-                </Tooltip>
-            </div>
-            <div className={entries.length === 1 ? c.details : c.detailsEmpty}>
-                {entries.map((piece) => (
-                    <div className={c.entry} key={piece.idx}>
-                        <span className={c.entryValue} style={{ color: piece.color }}>
+        <div className={c.filenameRow} aria-label="filename breakdown">
+            <div className={c.filename}>
+                {pieces.map((piece) =>
+                    piece.label == null ? (
+                        <span key={piece.idx}>{piece.text}</span>
+                    ) : (
+                        <button
+                            type="button"
+                            className={`${c.segment} ${
+                                showAll || selected === piece.idx ? c.segmentActive : ''
+                            }`}
+                            style={{ '--segment-color': piece.color }}
+                            aria-label={`${piece.label}: ${piece.text}`}
+                            aria-pressed={selected === piece.idx}
+                            onClick={() => setSelected(selected === piece.idx ? null : piece.idx)}
+                            key={piece.idx}
+                        >
                             {piece.text}
-                        </span>
-                        <span className={c.entryLabel}>{piece.label}</span>
-                        {piece.meaning != null && (
-                            <div className={c.entryMeaning}>{piece.meaning}</div>
-                        )}
-                        {piece.description != null && (
-                            <div className={c.entryDescription}>{piece.description}</div>
-                        )}
-                    </div>
-                ))}
-                {entries.length > 0 && parsed.reference != null && (
-                    <div className={c.reference}>{parsed.reference}</div>
+                        </button>
+                    )
                 )}
             </div>
-        </>
+            <Tooltip title={showAll ? 'Hide all field details' : 'Show all field details'} arrow>
+                <button
+                    type="button"
+                    className={c.allButton}
+                    aria-label="show all filename field details"
+                    aria-pressed={showAll}
+                    onClick={() => setShowAll(!showAll)}
+                >
+                    *
+                </button>
+            </Tooltip>
+        </div>
     )
 }
 
-FilenameLegend.propTypes = {
-    parsed: PropTypes.object,
+FilenameName.propTypes = {
+    selection: PropTypes.object.isRequired,
 }
 
-export default FilenameLegend
+export const FilenameDetails = (props) => {
+    const { parsed, selection } = props
+    const { entries } = selection
+
+    const c = useStyles()
+
+    return (
+        <div className={entries.length === 1 ? c.details : c.detailsEmpty}>
+            {entries.map((piece) => (
+                <div className={c.entry} key={piece.idx}>
+                    <span className={c.entryValue} style={{ color: piece.color }}>
+                        {piece.text}
+                    </span>
+                    <span className={c.entryLabel}>{piece.label}</span>
+                    {piece.meaning != null && <div className={c.entryMeaning}>{piece.meaning}</div>}
+                    {piece.description != null && (
+                        <div className={c.entryDescription}>{piece.description}</div>
+                    )}
+                </div>
+            ))}
+            {entries.length > 0 && parsed.reference != null && (
+                <div className={c.reference}>{parsed.reference}</div>
+            )}
+        </div>
+    )
+}
+
+FilenameDetails.propTypes = {
+    parsed: PropTypes.object.isRequired,
+    selection: PropTypes.object.isRequired,
+}

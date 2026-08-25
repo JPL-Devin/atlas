@@ -14,7 +14,6 @@ import { ES_PATHS, domain, endpoints } from '../../core/constants'
 import { getIn, getHeader } from '../../core/utils'
 import { getAppConfig } from '../../core/appConfig'
 
-import Title from './Title/Title'
 import Content from './Content/Content'
 import Footer from './Footer/Footer'
 
@@ -137,7 +136,6 @@ const Record = (props) => {
 
     return (
         <div className={c.Record}>
-            <Title recordData={recordData} versions={versions} activeVersion={activeVersion} />
             <Content
                 recordData={recordData}
                 versions={versions}

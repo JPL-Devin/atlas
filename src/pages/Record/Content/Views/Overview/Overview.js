@@ -7,7 +7,6 @@ import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-import Button from '@mui/material/Button'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 import Input from '@mui/material/Input'
@@ -23,26 +22,17 @@ import CloseIcon from '@mui/icons-material/Close'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import SearchIcon from '@mui/icons-material/Search'
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 
-import {
-    copyToClipboard,
-    getIn,
-    getPDSUrl,
-    getExtension,
-    getFilename,
-} from '../../../../../core/utils.js'
+import { copyToClipboard, getIn, getPDSUrl, getExtension } from '../../../../../core/utils.js'
 import { HASH_PATHS, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../../core/constants.js'
 import { getAppConfig, getAppInstanceKey } from '../../../../../core/appConfig.js'
 import { parseRecordFilename, resolvePresentation } from '../../../../../core/recordPresentation'
 import { emptyStates } from '../../../../../config/recordDetail'
-import { addToCart, setSnackBarText } from '../../../../../core/redux/actions/actions.js'
-import { getDownloadProducts } from '../../../../../core/recordDownloads.js'
-import { streamDownloadFile } from '../../../../../core/downloaders/ZipStream.js'
-import SplitButton from '../../../../../components/SplitButton/SplitButton'
+import { setSnackBarText } from '../../../../../core/redux/actions/actions.js'
 
 import tileIcons from './tileIcons.js'
-import FilenameLegend from './FilenameLegend'
+import PanelHeader from '../../PanelHeader/PanelHeader'
+import { useFilenameSelection, FilenameName, FilenameDetails } from './FilenameLegend'
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import ThreeViewer from '../../../../../components/ThreeViewer/ThreeViewer'
 import ViewerLoading from '../../../../../components/ViewerLoading/ViewerLoading'
@@ -208,24 +198,6 @@ const useStyles = makeStyles((theme) => ({
             borderRight: 'none',
             borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
         },
-    },
-    // The record's actions, pinned below the scrolling metadata.
-    panelActions: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '2px',
-        flexShrink: 0,
-        padding: '6px 12px',
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
-    },
-    // Download anchors the right end; Add to cart stays left.
-    panelDownload: {
-        marginLeft: 'auto',
-    },
-    panelCart: {
-        fontSize: '13px',
-        textTransform: 'none',
-        whiteSpace: 'nowrap',
     },
     // A slim scrollbar keeps the gutter from cutting into the heading rules.
     metadataScroll: {
@@ -512,7 +484,6 @@ const Overview = (props) => {
     const [collapsed, setCollapsed] = useState({})
 
     const release_id = getIn(recordData, ES_PATHS.release_id)
-    const downloadProducts = getDownloadProducts(recordData)
     const browse_uri = getIn(recordData, ES_PATHS.browse)
     const uri = getIn(recordData, ES_PATHS.source)
     const supplemental = getIn(recordData, ES_PATHS.supplemental)
@@ -623,54 +594,12 @@ const Overview = (props) => {
     const fieldCount = sections.reduce((total, section) => total + section.rows.length, 0)
     // Missions with no filename spec have nothing to explain.
     const parsedFilename = parseRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
+    const filenameSelection = useFilenameSelection(parsedFilename)
 
     const copy = (text, message) => {
         copyToClipboard(text)
         dispatch(setSnackBarText(message, 'success'))
     }
-
-    const renderPanelActions = () => (
-        <div className={c.panelActions} aria-label="record actions">
-            {getAppConfig().enableCart && (
-                <Button
-                    className={c.panelCart}
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    aria-label="add record to cart"
-                    startIcon={<AddShoppingCartIcon fontSize="small" />}
-                    onClick={() => {
-                        dispatch(
-                            addToCart('image', {
-                                uri,
-                                related: getIn(recordData, ES_PATHS.related),
-                                release_id,
-                            })
-                        )
-                        dispatch(setSnackBarText('Added to Cart!', 'success'))
-                    }}
-                >
-                    Add to cart
-                </Button>
-            )}
-            <SplitButton
-                className={c.panelDownload}
-                forceName="Download"
-                ariaLabel="download record products"
-                type="checklist"
-                items={downloadProducts}
-                onClick={(checked) => {
-                    checked.forEach((item) => {
-                        if (item.uri)
-                            streamDownloadFile(
-                                getPDSUrl(item.uri, item.release_id),
-                                getFilename(item.uri)
-                            )
-                    })
-                }}
-            />
-        </div>
-    )
 
     const renderCaptionCard = () => {
         if (presentation.captionTitle == null && caption == null) return null
@@ -745,26 +674,32 @@ const Overview = (props) => {
                     </div>
                 ))}
             </div>
-            <div className={c.panelActions} aria-hidden="true">
-                <Skeleton
-                    className={`${c.skeleton} ${c.panelDownload}`}
-                    variant="rectangular"
-                    width={124}
-                    height={30}
-                />
-            </div>
         </>
     )
 
     return (
         <div className={c.Overview}>
             <div className={c.metadata}>
+                <PanelHeader
+                    recordData={recordData}
+                    dark
+                    name={
+                        parsedFilename != null ? (
+                            <FilenameName selection={filenameSelection} />
+                        ) : null
+                    }
+                />
                 {isLoading ? (
                     renderSkeleton()
                 ) : (
                     <>
                         <div className={c.metadataScroll}>
-                            {parsedFilename != null && <FilenameLegend parsed={parsedFilename} />}
+                            {parsedFilename != null && (
+                                <FilenameDetails
+                                    parsed={parsedFilename}
+                                    selection={filenameSelection}
+                                />
+                            )}
                             <div className={c.heading}>At a glance</div>
                             <div className={c.tiles}>
                                 {tiles.map((tile, idx) => {
@@ -907,7 +842,6 @@ const Overview = (props) => {
                                     </>
                                 )}
                         </div>
-                        {renderPanelActions()}
                     </>
                 )}
             </div>

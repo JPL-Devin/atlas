@@ -14,6 +14,7 @@ import { ES_PATHS } from '../../../../../core/constants.js'
 
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import MLLayers from './subcomponents/MLLayers/MLLayers'
+import PanelHeader from '../../PanelHeader/PanelHeader'
 
 const useStyles = makeStyles((theme) => ({
     MLClassification: {
@@ -21,9 +22,17 @@ const useStyles = makeStyles((theme) => ({
         height: '100%',
         color: '#666',
         display: 'flex',
+        flexFlow: 'column',
         background: theme.palette.swatches.grey.grey800,
+    },
+    // The layers panel is collapsible, so the header spans the whole view.
+    body: {
+        flex: 1,
+        minHeight: 0,
+        display: 'flex',
         [theme.breakpoints.down('md')]: {
             flexFlow: 'column',
+            overflowY: 'auto',
         },
     },
     viewer: {
@@ -152,40 +161,43 @@ const MLClassification = (props) => {
 
     return (
         <div className={c.MLClassification}>
-            <div
-                className={clsx(c.layers, {
-                    [c.layersOpen]: layersOpen,
-                })}
-            >
-                <MLLayers
-                    features={features}
-                    classes={checkedClasses}
-                    onChange={(type, state) => {
-                        switch (type) {
-                            case 'classes':
-                                setCheckedClasses(state)
-                                break
-                            case 'confidence':
-                                setConfidence(state)
-                                break
-                            default:
-                        }
-                    }}
-                />
-            </div>
-            <div className={c.viewer}>
-                {features != null ? (
-                    <OpenSeadragonViewer
-                        image={{
-                            src: imgURL,
+            <PanelHeader recordData={recordData} />
+            <div className={c.body}>
+                <div
+                    className={clsx(c.layers, {
+                        [c.layersOpen]: layersOpen,
+                    })}
+                >
+                    <MLLayers
+                        features={features}
+                        classes={checkedClasses}
+                        onChange={(type, state) => {
+                            switch (type) {
+                                case 'classes':
+                                    setCheckedClasses(state)
+                                    break
+                                case 'confidence':
+                                    setConfidence(state)
+                                    break
+                                default:
+                            }
                         }}
-                        settings={{ defaultZoomLevel: 0.5 }}
-                        onLayers={() => {
-                            setLayersOpen(!layersOpen)
-                        }}
-                        features={featuresOn}
                     />
-                ) : null}
+                </div>
+                <div className={c.viewer}>
+                    {features != null ? (
+                        <OpenSeadragonViewer
+                            image={{
+                                src: imgURL,
+                            }}
+                            settings={{ defaultZoomLevel: 0.5 }}
+                            onLayers={() => {
+                                setLayersOpen(!layersOpen)
+                            }}
+                            features={featuresOn}
+                        />
+                    ) : null}
+                </div>
             </div>
         </div>
     )

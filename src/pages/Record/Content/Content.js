@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
 import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
 
 import { setRecordViewTab } from '../../../core/redux/actions/actions.js'
 import { VIEW_TABS } from '../viewTabs'
@@ -19,10 +18,10 @@ const VIEW_COMPONENTS = {
     'ml classification': MLClassification,
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
     Content: {
         width: '100%',
-        height: `calc(100% - ${theme.headHeights[1]}px)`,
+        height: '100%',
         display: 'flex',
         flexFlow: 'column',
     },
@@ -37,7 +36,6 @@ const Content = (props) => {
     const c = useStyles()
 
     const dispatch = useDispatch()
-    const theme = useTheme()
 
     const recordViewTab = useSelector((state) => {
         return state.get('recordViewTab')
@@ -57,7 +55,7 @@ const Content = (props) => {
         <div
             className={c.Content}
             style={{
-                height: `calc(100% - ${theme.headHeights[1]}px - ${
+                height: `calc(100% - ${
                     activeVersion != 0 && activeVersion != null && versions.length > 0 ? 29.5 : 0
                 }px)`,
             }}
