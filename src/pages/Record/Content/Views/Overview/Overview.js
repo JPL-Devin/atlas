@@ -196,11 +196,21 @@ const useStyles = makeStyles((theme) => ({
             borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
         },
     },
+    // A slim scrollbar keeps the gutter from cutting into the heading rules.
     metadataScroll: {
-        flex: 1,
-        minHeight: 0,
-        overflowY: 'auto',
-        padding: '16px 20px 20px 20px',
+        'flex': 1,
+        'minHeight': 0,
+        'overflowY': 'auto',
+        'padding': '16px 20px 20px 20px',
+        'scrollbarWidth': 'thin',
+        'scrollbarColor': `${theme.palette.swatches.grey.grey600} transparent`,
+        '&::-webkit-scrollbar': {
+            width: '8px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+            background: theme.palette.swatches.grey.grey600,
+            borderRadius: '4px',
+        },
         [theme.breakpoints.down('md')]: {
             flex: 'unset',
             overflowY: 'unset',
@@ -211,7 +221,8 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
         letterSpacing: '0.06em',
         textTransform: 'uppercase',
-        color: theme.palette.swatches.grey.grey0,
+        // yellow700 is the site titlebar's goldenrod, lightened for the dark panel.
+        color: theme.palette.swatches.yellow.yellow700,
         borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
         // Negative margins pull the rule out to the panel edges.
         margin: '0 -20px 10px -20px',
@@ -328,7 +339,7 @@ const useStyles = makeStyles((theme) => ({
         'background': 'none',
         'border': 'none',
         'cursor': 'pointer',
-        'color': theme.palette.swatches.grey.grey0,
+        'color': theme.palette.swatches.yellow.yellow700,
         'fontSize': '13px',
         'fontWeight': 'bold',
         'textAlign': 'left',
@@ -395,7 +406,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
         letterSpacing: '0.06em',
         textTransform: 'uppercase',
-        color: theme.palette.swatches.grey.grey0,
+        color: theme.palette.swatches.yellow.yellow700,
         borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
         margin: '0 -20px 0 -20px',
         padding: '12px 20px 6px 20px',

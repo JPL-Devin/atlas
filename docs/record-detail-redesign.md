@@ -1507,7 +1507,9 @@ Instrument) onto its own.
 
 The Overview renders on the mockup's dark surface, not Atlas's light one: the
 metadata column is `grey800` with `grey850` tiles, secondary text (row and tile
-labels, hints, citation) `grey300`, section headings and values `grey0`; the
+labels, hints, citation) `grey300`, values `grey0`, and every heading
+(including the collapsible section headers) `yellow700` — the site titlebar's
+darkgoldenrod lightened to 10.8:1 on the panel; the
 viewer column stays `grey900`. Every panel heading carries a `grey700` rule
 across the full panel width (negative `20px` side margins against the scroll
 container's padding), field rows and the citation are `13px`, and the filename

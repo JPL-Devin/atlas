@@ -69,14 +69,14 @@ const DARK_COLORS = swatches('src/pages/Record/filenameColors.js')
 // [where, text colour, background, font px, bold, opacity]
 const checks = [
     ['panel body text', g.grey0, g.grey800, 13, false],
-    ['panel heading', g.grey0, g.grey800, 13, true],
+    ['panel heading', g.yellow700, g.grey800, 13, true],
     ['about-this-product paragraph', g.grey300, g.grey800, 12, false],
     ['tile label', g.grey300, g.grey850, 11, false],
     ['tile value', g.grey0, g.grey850, 13, false],
     ['tile sub-value', g.grey300, g.grey850, 11, false],
     ['field filter placeholder', g.grey300, g.grey800, 12, false],
-    ['fields heading', g.grey0, g.grey800, 12, true],
-    ['section heading', g.grey0, g.grey800, 13, true],
+    ['fields heading', g.yellow700, g.grey800, 12, true],
+    ['section heading', g.yellow700, g.grey800, 13, true],
     ['section count', g.grey300, g.grey800, 12, false],
     ['row label', g.grey300, g.grey800, 13, false],
     ['row value', g.grey0, g.grey800, 13, false],
