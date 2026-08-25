@@ -7,25 +7,31 @@ import { makeStyles } from '@mui/styles'
 import { DARK_COLORS } from '../../../filenameColors'
 
 const useStyles = makeStyles((theme) => ({
-    FilenameLegend: {
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
-        paddingBottom: '8px',
-        marginBottom: '4px',
-    },
+    // The name stays put while the rest of the panel scrolls under it, so the
+    // row is a direct child of the scroll container rather than of a wrapper.
     filenameRow: {
         display: 'flex',
         alignItems: 'flex-start',
         gap: '6px',
+        position: 'sticky',
+        // Offset by the scroll container's top padding, so nothing shows above.
+        top: '-16px',
+        zIndex: 2,
+        background: theme.palette.swatches.grey.grey800,
+        borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        // Negative margins let it span the panel's full width.
+        margin: '-16px -20px 8px -20px',
+        padding: '12px 20px 8px 20px',
     },
     // The name wraps rather than scrolling, so its tail is never hidden.
     filename: {
         flex: 1,
-        fontFamily: 'monospace',
         fontSize: '18px',
+        fontWeight: 'bold',
         lineHeight: '26px',
         letterSpacing: '0.02em',
+        textAlign: 'center',
         wordBreak: 'break-all',
-        paddingBottom: '2px',
     },
     // A segment only takes its colour once it is hovered, selected or shown
     // through the * button; at rest the whole name reads as plain text.
@@ -48,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
     },
     allButton: {
         'fontFamily': 'inherit',
+        'fontWeight': 'bold',
         'fontSize': '18px',
         'lineHeight': '18px',
         'padding': '0 4px',
@@ -71,6 +78,10 @@ const useStyles = makeStyles((theme) => ({
     // never shifts the panel below.
     details: {
         minHeight: '104px',
+        marginBottom: '4px',
+    },
+    detailsEmpty: {
+        marginBottom: '4px',
     },
     entry: {
         fontSize: '13px',
@@ -117,8 +128,8 @@ const FilenameLegend = (props) => {
         : labelled.filter((piece) => selected != null && piece.idx === selected)
 
     return (
-        <div className={c.FilenameLegend} aria-label="filename breakdown">
-            <div className={c.filenameRow}>
+        <>
+            <div className={c.filenameRow} aria-label="filename breakdown">
                 <div className={c.filename}>
                     {pieces.map((piece) =>
                         piece.label == null ? (
@@ -142,7 +153,10 @@ const FilenameLegend = (props) => {
                         )
                     )}
                 </div>
-                <Tooltip title={showAll ? 'Hide all field details' : 'Show all field details'} arrow>
+                <Tooltip
+                    title={showAll ? 'Hide all field details' : 'Show all field details'}
+                    arrow
+                >
                     <button
                         type="button"
                         className={c.allButton}
@@ -154,7 +168,7 @@ const FilenameLegend = (props) => {
                     </button>
                 </Tooltip>
             </div>
-            <div className={entries.length === 1 ? c.details : ''}>
+            <div className={entries.length === 1 ? c.details : c.detailsEmpty}>
                 {entries.map((piece) => (
                     <div className={c.entry} key={piece.idx}>
                         <span className={c.entryValue} style={{ color: piece.color }}>
@@ -173,7 +187,7 @@ const FilenameLegend = (props) => {
                     <div className={c.reference}>{parsed.reference}</div>
                 )}
             </div>
-        </div>
+        </>
     )
 }
 

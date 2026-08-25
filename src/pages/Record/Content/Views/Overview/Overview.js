@@ -7,6 +7,7 @@ import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
+import Button from '@mui/material/Button'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 import Input from '@mui/material/Input'
@@ -23,8 +24,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import SearchIcon from '@mui/icons-material/Search'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
-import FormatQuoteIcon from '@mui/icons-material/FormatQuote'
-import SubtitlesIcon from '@mui/icons-material/Subtitles'
 
 import {
     copyToClipboard,
@@ -145,9 +144,20 @@ const useStyles = makeStyles((theme) => ({
     captionFoot: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         gap: '8px',
         marginTop: '6px',
+    },
+    captionCopy: {
+        'padding': '2px',
+        'color': theme.palette.swatches.grey.grey200,
+        '&:hover': {
+            color: theme.palette.swatches.grey.grey0,
+            background: theme.palette.swatches.grey.grey700,
+        },
+        '& .MuiSvgIcon-root': {
+            fontSize: '15px',
+        },
     },
     captionAuthor: {
         fontSize: '11px',
@@ -208,9 +218,14 @@ const useStyles = makeStyles((theme) => ({
         padding: '6px 12px',
         borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
     },
-    // Download anchors the right end; the copy/cart icons stay left.
+    // Download anchors the right end; Add to cart stays left.
     panelDownload: {
         marginLeft: 'auto',
+    },
+    panelCart: {
+        fontSize: '13px',
+        textTransform: 'none',
+        whiteSpace: 'nowrap',
     },
     // A slim scrollbar keeps the gutter from cutting into the heading rules.
     metadataScroll: {
@@ -425,19 +440,22 @@ const useStyles = makeStyles((theme) => ({
         margin: '0 -20px 0 -20px',
         padding: '12px 20px 6px 20px',
     },
+    citationCopy: {
+        'padding': '2px',
+        'color': theme.palette.swatches.grey.grey300,
+        '&:hover': {
+            color: theme.palette.swatches.grey.grey0,
+            background: theme.palette.swatches.grey.grey700,
+        },
+        '& .MuiSvgIcon-root': {
+            fontSize: '15px',
+        },
+    },
     citation: {
         fontSize: '13px',
         lineHeight: '19px',
         color: theme.palette.swatches.grey.grey300,
         overflowWrap: 'anywhere',
-    },
-    actionIcon: {
-        'flexShrink': 0,
-        'color': theme.palette.swatches.grey.grey200,
-        '&:hover': {
-            color: theme.palette.swatches.grey.grey0,
-            background: theme.palette.swatches.grey.grey700,
-        },
     },
     select: {
         'fontSize': '12px',
@@ -614,49 +632,26 @@ const Overview = (props) => {
     const renderPanelActions = () => (
         <div className={c.panelActions} aria-label="record actions">
             {getAppConfig().enableCart && (
-                <Tooltip title="Add to cart" arrow>
-                    <IconButton
-                        className={c.actionIcon}
-                        aria-label="add record to cart"
-                        size="small"
-                        onClick={() => {
-                            dispatch(
-                                addToCart('image', {
-                                    uri,
-                                    related: getIn(recordData, ES_PATHS.related),
-                                    release_id,
-                                })
-                            )
-                            dispatch(setSnackBarText('Added to Cart!', 'success'))
-                        }}
-                    >
-                        <AddShoppingCartIcon fontSize="small" />
-                    </IconButton>
-                </Tooltip>
-            )}
-            {caption != null && (
-                <Tooltip title="Copy caption" arrow>
-                    <IconButton
-                        className={c.actionIcon}
-                        aria-label="copy record caption"
-                        size="small"
-                        onClick={() => copy(caption, 'Copied caption to clipboard!')}
-                    >
-                        <SubtitlesIcon fontSize="small" />
-                    </IconButton>
-                </Tooltip>
-            )}
-            {presentation.citation != null && getAppConfig().enableRecordCitation && (
-                <Tooltip title="Copy citation" arrow>
-                    <IconButton
-                        className={c.actionIcon}
-                        aria-label="copy record citation"
-                        size="small"
-                        onClick={() => copy(presentation.citation, 'Copied citation to clipboard!')}
-                    >
-                        <FormatQuoteIcon fontSize="small" />
-                    </IconButton>
-                </Tooltip>
+                <Button
+                    className={c.panelCart}
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    aria-label="add record to cart"
+                    startIcon={<AddShoppingCartIcon fontSize="small" />}
+                    onClick={() => {
+                        dispatch(
+                            addToCart('image', {
+                                uri,
+                                related: getIn(recordData, ES_PATHS.related),
+                                release_id,
+                            })
+                        )
+                        dispatch(setSnackBarText('Added to Cart!', 'success'))
+                    }}
+                >
+                    Add to cart
+                </Button>
             )}
             <SplitButton
                 className={c.panelDownload}
@@ -694,9 +689,25 @@ const Overview = (props) => {
                     <div className={c.captionTitle}>{presentation.captionTitle}</div>
                 )}
                 {caption != null && <div className={c.captionText}>{caption}</div>}
-                {!isNarrow && presentation.citationAuthor != null && (
+                {!isNarrow && (caption != null || presentation.citationAuthor != null) && (
                     <div className={c.captionFoot}>
-                        <div className={c.captionAuthor}>{presentation.citationAuthor}</div>
+                        {caption != null ? (
+                            <Tooltip title="Copy caption" arrow>
+                                <IconButton
+                                    className={c.captionCopy}
+                                    aria-label="copy record caption"
+                                    size="small"
+                                    onClick={() => copy(caption, 'Copied caption to clipboard!')}
+                                >
+                                    <ContentCopyIcon />
+                                </IconButton>
+                            </Tooltip>
+                        ) : (
+                            <span />
+                        )}
+                        {presentation.citationAuthor != null && (
+                            <div className={c.captionAuthor}>{presentation.citationAuthor}</div>
+                        )}
                     </div>
                 )}
             </div>
@@ -876,6 +887,21 @@ const Overview = (props) => {
                                     <>
                                         <div className={c.citationHeading}>
                                             <span>Citation</span>
+                                            <Tooltip title="Copy citation" arrow>
+                                                <IconButton
+                                                    className={c.citationCopy}
+                                                    aria-label="copy record citation"
+                                                    size="small"
+                                                    onClick={() =>
+                                                        copy(
+                                                            presentation.citation,
+                                                            'Copied citation to clipboard!'
+                                                        )
+                                                    }
+                                                >
+                                                    <ContentCopyIcon />
+                                                </IconButton>
+                                            </Tooltip>
                                         </div>
                                         <div className={c.citation}>{presentation.citation}</div>
                                     </>
