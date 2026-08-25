@@ -187,13 +187,7 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
     const otherRows =
         profile.otherFields === false
             ? []
-            : readOtherRows(recordData, {
-                  usedPaths: configuredPaths(profile.sections),
-                  usedLabels: sections.reduce(
-                      (all, section) => all.concat(section.rows.map((row) => row.label)),
-                      []
-                  ),
-              })
+            : readOtherRows(recordData, { usedPaths: configuredPaths(profile.sections) })
     if (otherRows.length) sections.push({ id: 'other', title: otherConfig.title, rows: otherRows })
 
     return {

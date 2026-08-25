@@ -112,8 +112,7 @@
       "archive.file_extension",
       "archive.size",
       "archive.md5",
-      "archive.updated_at",
-      "published"
+      "archive.updated_at"
     ]
   },
   "content": {

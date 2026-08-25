@@ -28,7 +28,7 @@ import { HASH_PATHS, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../../core/cons
 import { getAppConfig, getAppInstanceKey } from '../../../../../core/appConfig.js'
 import { parseRecordFilename, resolvePresentation } from '../../../../../core/recordPresentation'
 import { emptyStates } from '../../../../../config/recordDetail'
-import { setSnackBarText } from '../../../../../core/redux/actions/actions.js'
+import { setRecordViewTab, setSnackBarText } from '../../../../../core/redux/actions/actions.js'
 
 import tileIcons from './tileIcons.js'
 import PanelHeader from '../../PanelHeader/PanelHeader'
@@ -287,8 +287,29 @@ const useStyles = makeStyles((theme) => ({
         minWidth: 0,
     },
     fieldsHeading: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '8px',
         marginTop: '20px',
         marginBottom: 0,
+    },
+    allFields: {
+        'fontFamily': 'inherit',
+        'fontSize': '11px',
+        'fontWeight': 'bold',
+        'letterSpacing': '0.04em',
+        'textTransform': 'none',
+        'padding': '2px 8px',
+        'borderRadius': '2px',
+        'border': `1px solid ${theme.palette.swatches.grey.grey300}`,
+        'background': theme.palette.swatches.grey.grey0,
+        'color': theme.palette.swatches.grey.grey700,
+        'cursor': 'pointer',
+        '&:hover': {
+            borderColor: theme.palette.swatches.grey.grey500,
+            background: theme.palette.swatches.grey.grey150,
+        },
     },
     filter: {
         display: 'flex',
@@ -672,7 +693,7 @@ const Overview = (props) => {
                         </div>
                     ))}
                 </div>
-                <div className={`${c.heading} ${c.fieldsHeading}`}>Fields</div>
+                <div className={`${c.heading} ${c.fieldsHeading}`}>General Fields</div>
                 <div className={c.filter}>
                     <Skeleton className={c.skeleton} variant="text" width="100%" height={32} />
                 </div>
@@ -741,7 +762,18 @@ const Overview = (props) => {
                                     )
                                 })}
                             </div>
-                            <div className={`${c.heading} ${c.fieldsHeading}`}>Fields</div>
+                            <div className={`${c.heading} ${c.fieldsHeading}`}>
+                                <span>General Fields</span>
+                                <Tooltip title="Open the full product label" arrow>
+                                    <button
+                                        className={c.allFields}
+                                        aria-label="see all fields"
+                                        onClick={() => dispatch(setRecordViewTab('product label'))}
+                                    >
+                                        See all fields
+                                    </button>
+                                </Tooltip>
+                            </div>
                             <div className={c.filter}>
                                 <Input
                                     className={c.filterInput}

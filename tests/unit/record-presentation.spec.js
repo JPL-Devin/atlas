@@ -226,21 +226,21 @@ test.describe('resolvePresentation', () => {
         const other = p.sections.find((s) => s.id === 'other')
         expect(other.rows.length).toBeGreaterThan(0)
 
-        const configured = p.sections
-            .filter((s) => s.id !== 'other')
-            .reduce((all, s) => all.concat(s.rows.map((r) => r.label)), [])
-        const tiles = p.tiles.map((t) => t.value)
-
+        // The catch-all covers the whole gather and archive objects, so a row may
+        // restate a configured one; each label is still shown once.
+        const labels = other.rows.map((row) => row.label)
+        expect(new Set(labels).size).toBe(labels.length)
         other.rows.forEach((row) => {
-            expect(configured).not.toContain(row.label)
-            expect(tiles).not.toContain(row.value)
             expect(String(row.value)).not.toContain('undefined')
         })
+
+        // Archive-only leaves the sections never place still show up.
+        expect(labels).toContain('Fs type')
+        expect(labels).toContain('Parent URI')
 
         // Nothing out of the pds4/pds3 label trees leaks in.
         const inLabel = Object.keys(mars2020Navcam.pds4_label || {})
         expect(other.rows.some((row) => inLabel.includes(row.label))).toBe(false)
-        expect(other.rows.some((row) => row.label === 'Instrument category')).toBe(true)
     })
 
     test('a sub-line drops on its own when its field is missing', () => {

@@ -767,10 +767,5 @@
         "shortLabel": "MD5",
         "icon": "file",
         "format": "text"
-    },
-    "published": {
-        "label": "Published",
-        "icon": "calendar",
-        "format": "datetime"
     }
 }

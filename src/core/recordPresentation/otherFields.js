@@ -1,8 +1,8 @@
 import { fields, otherFields as config } from '../../config/recordDetail'
-import { getIn } from '../utils'
 import { formatValue } from './formatters'
 import { isValidValue } from './validity'
 
+const includedRoots = new Set(config.includeRoots)
 const excludedRoots = new Set(config.excludeRoots)
 const excludedSegments = new Set(config.excludeSegments)
 const excludedPaths = new Set(config.excludePaths)
@@ -28,26 +28,35 @@ const label = (segment) =>
 const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/
 
 // Bare lowercase codes read better title-cased; anything else is shown verbatim.
-const inferFormat = (value) => {
+const inferFormat = (value, path = '') => {
     const list = Array.isArray(value) ? value : [value]
     const every = (test) => list.length > 0 && list.every(test)
+    if (path.endsWith('size') && every((v) => typeof v === 'number')) return 'bytes'
     if (every((v) => typeof v === 'boolean' || v === 'true' || v === 'false')) return 'boolean'
     if (every((v) => typeof v === 'string' && ISO_DATETIME.test(v))) return 'datetime'
-    if (every((v) => typeof v === 'string' && /^[a-z][a-z_]*$/.test(v))) return 'titlecase'
+    // Identifiers keep their exact spelling; only short bare codes get title-cased.
+    const code = (v) =>
+        typeof v === 'string' && /^[a-z][a-z0-9_]*$/.test(v) && v.split('_').length <= 3
+    if (!path.endsWith('_id') && every(code)) return 'titlecase'
     // Uncatalogued floats carry no unit, so two decimals is as far as they mean.
     if (every((v) => typeof v === 'number' && !Number.isInteger(v))) return 'number'
     return 'text'
 }
 
-const rawText = (raw) => (Array.isArray(raw) ? raw.join('|') : String(raw))
-
-const dedupeKey = (path, raw) => `${path.split('.').pop()}=${rawText(raw)}`
-
-// A distinctive value shown once is the same fact under any other name; short
-// ones (codes, small integers) legitimately repeat.
-const valueKey = (raw) => {
-    const text = rawText(raw)
-    return text.length >= 6 ? `=${text.toLowerCase()}` : null
+// Two leaves can share a last segment (`archive.mission`, `gather.common.mission`),
+// so a collision keeps its parent for context.
+const disambiguate = (rows) => {
+    const counts = {}
+    rows.forEach(({ label: text }) => {
+        const key = text.toLowerCase()
+        counts[key] = (counts[key] || 0) + 1
+    })
+    return rows.map((row) => {
+        if (counts[row.label.toLowerCase()] < 2) return row
+        const segments = row.path.split('.')
+        if (segments.length < 2) return row
+        return { ...row, label: `${row.label} (${label(segments[segments.length - 2])})` }
+    })
 }
 
 const walk = (node, prefix, out) => {
@@ -55,31 +64,19 @@ const walk = (node, prefix, out) => {
     Object.keys(node).forEach((key) => {
         const path = prefix === '' ? key : `${prefix}.${key}`
         if (excludedSegments.has(key) || excludedPaths.has(path)) return
-        if (prefix === '' && excludedRoots.has(key)) return
+        if (prefix === '' && (excludedRoots.has(key) || !includedRoots.has(key))) return
         const value = node[key]
         if (isLeaf(value)) out.push({ path, value })
         else walk(value, path, out)
     })
 }
 
-// Every normalized leaf the configured sections don't already show, minus the raw
-// label branches, plumbing paths, and values restated under a same-named path.
-export const readOtherRows = (recordData, { usedPaths = [], usedLabels = [] } = {}) => {
+// Every normalized leaf under the included roots that the configured sections
+// don't already show, minus the raw label branches.
+export const readOtherRows = (recordData, { usedPaths = [] } = {}) => {
     if (recordData == null) return []
 
-    const seen = new Set()
-    usedPaths.forEach((path) => {
-        const raw = getIn(recordData, path)
-        if (raw == null) return
-        seen.add(dedupeKey(path, raw))
-        const byValue = valueKey(raw)
-        if (byValue != null) seen.add(byValue)
-    })
     const used = new Set(usedPaths)
-    // A second row under a label already shown reads as a contradiction, not
-    // as extra metadata.
-    const labels = new Set(usedLabels.map((text) => text.toLowerCase()))
-
     const leaves = []
     walk(recordData, '', leaves)
 
@@ -87,20 +84,15 @@ export const readOtherRows = (recordData, { usedPaths = [], usedLabels = [] } = 
     leaves.forEach(({ path, value }) => {
         if (used.has(path) || rows.length >= config.maxRows) return
         const catalogued = fields[path]
-        const field = catalogued != null ? catalogued : { format: inferFormat(value) }
+        const field = catalogued != null ? catalogued : { format: inferFormat(value, path) }
         if (!isValidValue(value, field)) return
-        const key = dedupeKey(path, value)
-        const byValue = valueKey(value)
-        if (seen.has(key) || (byValue != null && seen.has(byValue))) return
         const formatted = formatValue(value, field)
         if (formatted == null) return
         const text = catalogued != null ? catalogued.label : label(path.split('.').pop())
-        if (labels.has(text.toLowerCase())) return
-        seen.add(key)
-        if (byValue != null) seen.add(byValue)
-        labels.add(text.toLowerCase())
-        rows.push({ label: text, value: formatted })
+        rows.push({ label: text, value: formatted, path })
     })
 
-    return rows.sort((a, b) => a.label.localeCompare(b.label))
+    return disambiguate(rows)
+        .sort((a, b) => a.label.localeCompare(b.label))
+        .map(({ label: text, value }) => ({ label: text, value }))
 }

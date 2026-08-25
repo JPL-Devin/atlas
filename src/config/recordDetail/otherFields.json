@@ -1,34 +1,13 @@
 {
   "title": "Other metadata",
+  "includeRoots": ["gather", "archive"],
   "excludeRoots": ["pds4_label", "pds3_label"],
-  "excludeSegments": [
-    "uri",
-    "parent_uri",
-    "related",
-    "md5",
-    "md5_updated_at",
-    "fs_type",
-    "release_id",
-    "release_id_num",
-    "group_id",
-    "overlay_id",
-    "overlayable",
-    "tile_flag",
-    "geo_shape",
-    "geo_footprint",
-    "coordinates",
-    "land_msn_eye",
-    "thumbnail",
-    "browse",
-    "tile",
-    "label",
-    "classifications",
-    "explanations",
-    "feature"
-  ],
-  "excludePaths": ["archive.name", "gather.pds_archive.file_name"],
+  "excludeSegments": ["geo_shape", "geo_footprint", "classifications", "explanations"],
+  "excludePaths": [],
   "acronyms": [
     "id",
+    "md5",
+    "uri",
     "ids",
     "rmc",
     "hga",
@@ -44,5 +23,5 @@
     "sha1",
     "sha256"
   ],
-  "maxRows": 80
+  "maxRows": 400
 }
