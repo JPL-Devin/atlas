@@ -90,11 +90,9 @@ const useStyles = makeStyles((theme) => ({
         margin: '2px 3px',
         color: theme.palette.text.secondary,
     },
+    // Shown at every width: the title bar is the only download affordance.
     splitButton: {
         margin: '4px 5px 3px 5px',
-        [theme.breakpoints.down('md')]: {
-            display: 'none',
-        },
     },
     divider: {
         background: theme.palette.swatches.grey.grey200,

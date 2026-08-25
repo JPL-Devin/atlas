@@ -1508,7 +1508,12 @@ Instrument) onto its own.
 The Overview renders on the mockup's dark surface, not Atlas's light one: the
 metadata column is `grey800` with `grey850` tiles, secondary text (row and tile
 labels, hints, citation) `grey300`, section headings and values `grey0`; the
-viewer column stays `grey900`. The shell above it (topbar,
+viewer column stays `grey900`. Every panel heading carries a `grey700` rule
+across the full panel width (negative `20px` side margins against the scroll
+container's padding), field rows and the citation are `13px`, and the filename
+hint is `12px` italic. The viewer body draws an inset top shadow through a
+`pointer-events: none` overlay so it sits above the viewers' own canvases. The
+shell above it (topbar,
 branding, icon rail, title bar, tabs) is untouched.
 
 ### 12.9 The full metadata panel and the caption card
@@ -1566,14 +1571,13 @@ implementation left out:
 - **Citation.** Under a `Citation` heading, with the author (`citationAuthor`,
   `NASA/JPL` by default) as its own profile field so it can be overridden per
   instance; the caption card repeats just the author in its bottom-right.
-- **Action bar.** Download (`SplitButton` over the record's related products),
-  Add to cart, Copy citation, View full label and copy-link, pinned below the
-  scrolling panel. Download and cart reuse the same
-  `streamDownloadFile`/`addToCart` calls as the title bar via
-  `src/core/recordDownloads.js`; the title bar hides its download button under
-  `md`, so this is also the only download affordance on a phone. The bar is
-  `position: sticky` so it stays reachable on a phone without scrolling past the
-  whole field list.
+- **No action bar.** The panel had a sticky bottom bar (Download, Add to cart,
+  Copy citation, View full label, copy-link), but every action except the
+  citation copy already exists above: Download / Add to cart / Copy link live in
+  the title bar and the full label is its own tab. The bar was removed rather
+  than deduplicated, Copy citation moved to an icon beside the `Citation`
+  heading, and the title bar's Download no longer hides under `md` so a phone
+  keeps a download affordance.
 
 Description fragments open on the product type rather than an article
 (`EDR image from …`, not `a EDR image from …`), since product types are

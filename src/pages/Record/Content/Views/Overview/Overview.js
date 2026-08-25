@@ -21,33 +21,18 @@ import Tooltip from '@mui/material/Tooltip'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CloseIcon from '@mui/icons-material/Close'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import LinkIcon from '@mui/icons-material/Link'
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import SearchIcon from '@mui/icons-material/Search'
 
-import {
-    copyToClipboard,
-    getIn,
-    getPDSUrl,
-    getExtension,
-    getFilename,
-} from '../../../../../core/utils.js'
+import { copyToClipboard, getIn, getPDSUrl, getExtension } from '../../../../../core/utils.js'
 import { HASH_PATHS, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../../core/constants.js'
 import { getAppConfig, getAppInstanceKey } from '../../../../../core/appConfig.js'
-import { getDownloadProducts } from '../../../../../core/recordDownloads.js'
 import { parseRecordFilename, resolvePresentation } from '../../../../../core/recordPresentation'
 import { emptyStates } from '../../../../../config/recordDetail'
-import { streamDownloadFile } from '../../../../../core/downloaders/ZipStream.js'
-import {
-    addToCart,
-    setRecordViewTab,
-    setSnackBarText,
-} from '../../../../../core/redux/actions/actions.js'
+import { setSnackBarText } from '../../../../../core/redux/actions/actions.js'
 
 import tileIcons from './tileIcons.js'
 import FilenameLegend from './FilenameLegend'
-import SplitButton from '../../../../../components/SplitButton/SplitButton'
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import ThreeViewer from '../../../../../components/ThreeViewer/ThreeViewer'
 import ViewerLoading from '../../../../../components/ViewerLoading/ViewerLoading'
@@ -402,6 +387,10 @@ const useStyles = makeStyles((theme) => ({
         padding: '8px 0',
     },
     citationHeading: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '8px',
         fontSize: '12px',
         fontWeight: 'bold',
         letterSpacing: '0.06em',
@@ -417,44 +406,13 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey300,
         overflowWrap: 'anywhere',
     },
-    labelButton: {
-        'color': theme.palette.swatches.grey.grey0,
-        'borderColor': theme.palette.swatches.grey.grey500,
-        '&:hover': {
-            borderColor: theme.palette.swatches.grey.grey300,
-            background: theme.palette.swatches.grey.grey700,
-        },
-    },
-    actions: {
-        position: 'sticky',
-        bottom: 0,
-        zIndex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        flexWrap: 'nowrap',
-        padding: '10px 20px',
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
-        background: theme.palette.swatches.grey.grey850,
-        [theme.breakpoints.down('md')]: {
-            flexWrap: 'wrap',
-        },
-    },
-    // Every action shares one row, so labels stay put and the type tightens.
-    actionButton: {
-        'flexShrink': 0,
-        'fontSize': '11px',
-        'padding': '3px 8px',
-        'whiteSpace': 'nowrap',
-        'color': theme.palette.swatches.grey.grey0,
-        'borderColor': theme.palette.swatches.grey.grey500,
-        '&:hover': {
-            borderColor: theme.palette.swatches.grey.grey300,
-            background: theme.palette.swatches.grey.grey700,
-        },
-    },
     actionIcon: {
-        color: theme.palette.swatches.grey.grey200,
+        'flexShrink': 0,
+        'color': theme.palette.swatches.grey.grey200,
+        '&:hover': {
+            color: theme.palette.swatches.grey.grey0,
+            background: theme.palette.swatches.grey.grey700,
+        },
     },
     select: {
         'fontSize': '12px',
@@ -621,7 +579,6 @@ const Overview = (props) => {
     const fieldCount = sections.reduce((total, section) => total + section.rows.length, 0)
     // Missions with no filename spec have nothing to explain.
     const parsedFilename = parseRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
-    const downloadProducts = getDownloadProducts(recordData)
 
     const copy = (text, message) => {
         copyToClipboard(text)
@@ -693,17 +650,6 @@ const Overview = (props) => {
                         <Skeleton className={c.skeleton} variant="text" width="30%" />
                         <Skeleton className={c.skeleton} variant="text" width="45%" />
                     </div>
-                ))}
-            </div>
-            <div className={c.actions} aria-hidden="true">
-                {['96px', '110px', '104px'].map((width) => (
-                    <Skeleton
-                        className={c.skeleton}
-                        variant="rounded"
-                        width={width}
-                        height={30}
-                        key={width}
-                    />
                 ))}
             </div>
         </>
@@ -892,84 +838,27 @@ const Overview = (props) => {
                             {presentation.citation != null &&
                                 getAppConfig().enableRecordCitation && (
                                     <>
-                                        <div className={c.citationHeading}>Citation</div>
+                                        <div className={c.citationHeading}>
+                                            <span>Citation</span>
+                                            <Tooltip title="Copy citation" arrow>
+                                                <IconButton
+                                                    className={c.actionIcon}
+                                                    aria-label="copy citation"
+                                                    size="small"
+                                                    onClick={() =>
+                                                        copy(
+                                                            presentation.citation,
+                                                            'Copied citation to clipboard!'
+                                                        )
+                                                    }
+                                                >
+                                                    <ContentCopyIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </div>
                                         <div className={c.citation}>{presentation.citation}</div>
                                     </>
                                 )}
-                        </div>
-                        <div className={c.actions}>
-                            <SplitButton
-                                ariaLabel="download record products"
-                                forceName="Download"
-                                type="checklist"
-                                items={downloadProducts}
-                                onClick={(checked) => {
-                                    checked.forEach((item) => {
-                                        if (item.uri)
-                                            streamDownloadFile(
-                                                getPDSUrl(item.uri, item.release_id),
-                                                getFilename(item.uri)
-                                            )
-                                    })
-                                }}
-                            />
-                            {getAppConfig().enableCart && (
-                                <Button
-                                    className={c.actionButton}
-                                    size="small"
-                                    aria-label="add record to cart"
-                                    variant="outlined"
-                                    startIcon={<AddShoppingCartIcon />}
-                                    onClick={() => {
-                                        dispatch(
-                                            addToCart('image', {
-                                                uri,
-                                                related: getIn(recordData, ES_PATHS.related),
-                                                release_id,
-                                            })
-                                        )
-                                        dispatch(setSnackBarText('Added to Cart!', 'success'))
-                                    }}
-                                >
-                                    Add to cart
-                                </Button>
-                            )}
-                            {presentation.citation != null &&
-                                getAppConfig().enableRecordCitation && (
-                                    <Button
-                                        className={c.actionButton}
-                                        size="small"
-                                        variant="outlined"
-                                        onClick={() =>
-                                            copy(
-                                                presentation.citation,
-                                                'Copied citation to clipboard!'
-                                            )
-                                        }
-                                    >
-                                        Copy citation
-                                    </Button>
-                                )}
-                            <Button
-                                className={c.actionButton}
-                                size="small"
-                                variant="outlined"
-                                onClick={() => dispatch(setRecordViewTab('product label'))}
-                            >
-                                View full label
-                            </Button>
-                            <Tooltip title="Copy link" arrow>
-                                <IconButton
-                                    className={c.actionIcon}
-                                    aria-label="copy record link"
-                                    size="small"
-                                    onClick={() =>
-                                        copy(window.location.href, 'Copied URL to clipboard!')
-                                    }
-                                >
-                                    <LinkIcon fontSize="small" />
-                                </IconButton>
-                            </Tooltip>
                         </div>
                     </>
                 )}
