@@ -15,6 +15,7 @@ import { getVisibleViewTabs } from '../viewTabs'
 
 import { makeStyles } from '@mui/styles'
 
+import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
@@ -66,29 +67,25 @@ const useStyles = makeStyles((theme) => ({
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
     },
-    copyLink: {},
+    // Sits beside the name, so the label stays faint next to it.
     copyButton: {
-        'padding': 10,
+        'flexShrink': 0,
+        'height': 26,
+        'padding': '0 8px',
         'borderRadius': 0,
-        'opacity': 0.65,
+        'fontSize': 12,
+        'textTransform': 'none',
+        'color': theme.palette.text.secondary,
+        'opacity': 0.7,
         'transition': 'opacity 0.2s ease-out',
         '&:hover': {
             opacity: 1,
+            background: 'transparent',
         },
     },
     copyIcon: {
-        fontSize: 20,
+        fontSize: '18px !important',
         color: theme.palette.text.primary,
-    },
-    downloadButton1: {
-        height: 30,
-        margin: '2px 3px',
-        background: theme.palette.primary.light,
-    },
-    downloadButton2: {
-        height: 30,
-        margin: '2px 3px',
-        color: theme.palette.text.secondary,
     },
     // Only the tabs without their own action row need a download here.
     splitButton: {
@@ -153,9 +150,8 @@ const Title = (props) => {
         mlClassifications.sort((a, b) => b.confidence - a.confidence)
     }
 
-    // The Overview carries its own action row, so this bar only needs the
-    // download and link affordances for the other tabs.
-    const showActions = recordViewTab !== 'overview'
+    // Overview and Product Label carry their own download controls.
+    const showDownload = recordViewTab === 'ml classification'
     const availableDownloadProducts = getDownloadProducts(recordData)
 
     const urlParams = new URLSearchParams(window.location.search)
@@ -215,39 +211,37 @@ const Title = (props) => {
                             ))}
                     </div>
                 </div>
+                <Tooltip title="Copy link to this record" arrow>
+                    <Button
+                        className={c.copyButton}
+                        aria-label="copy link to record page"
+                        startIcon={<LinkIcon className={c.copyIcon} />}
+                        onClick={() => {
+                            copyToClipboard(window.location.href)
+                            dispatch(setSnackBarText('Copied URL to clipboard!', 'success'))
+                        }}
+                    >
+                        Copy link
+                    </Button>
+                </Tooltip>
             </div>
             <div className={c.right}>
-                {showActions && (
-                    <>
-                        <Tooltip title="Copy Link" arrow>
-                            <IconButton
-                                className={c.copyButton}
-                                aria-label="copy link to record page"
-                                onClick={() => {
-                                    copyToClipboard(window.location.href)
-                                    dispatch(setSnackBarText('Copied URL to clipboard!', 'success'))
-                                }}
-                                size="large"
-                            >
-                                <LinkIcon className={c.copyIcon} />
-                            </IconButton>
-                        </Tooltip>
-                        <SplitButton
-                            className={c.splitButton}
-                            forceName="Download"
-                            type="checklist"
-                            items={availableDownloadProducts}
-                            onClick={(checked) => {
-                                checked.forEach((item) => {
-                                    if (item.uri)
-                                        streamDownloadFile(
-                                            getPDSUrl(item.uri, item.release_id),
-                                            getFilename(item.uri)
-                                        )
-                                })
-                            }}
-                        />
-                    </>
+                {showDownload && (
+                    <SplitButton
+                        className={c.splitButton}
+                        forceName="Download"
+                        type="checklist"
+                        items={availableDownloadProducts}
+                        onClick={(checked) => {
+                            checked.forEach((item) => {
+                                if (item.uri)
+                                    streamDownloadFile(
+                                        getPDSUrl(item.uri, item.release_id),
+                                        getFilename(item.uri)
+                                    )
+                            })
+                        }}
+                    />
                 )}
                 <ViewTabs
                     recordViewTab={recordViewTab}

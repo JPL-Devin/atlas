@@ -23,7 +23,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import SearchIcon from '@mui/icons-material/Search'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
-import LinkIcon from '@mui/icons-material/Link'
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote'
 import SubtitlesIcon from '@mui/icons-material/Subtitles'
 
@@ -635,16 +634,6 @@ const Overview = (props) => {
                     </IconButton>
                 </Tooltip>
             )}
-            <Tooltip title="Copy link" arrow>
-                <IconButton
-                    className={c.actionIcon}
-                    aria-label="copy link to record"
-                    size="small"
-                    onClick={() => copy(window.location.href, 'Copied URL to clipboard!')}
-                >
-                    <LinkIcon fontSize="small" />
-                </IconButton>
-            </Tooltip>
             {caption != null && (
                 <Tooltip title="Copy caption" arrow>
                     <IconButton

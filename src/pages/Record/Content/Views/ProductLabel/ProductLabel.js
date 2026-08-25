@@ -25,6 +25,8 @@ import { useSpring, animated } from '@react-spring/web'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
 import { makeStyles, withStyles } from '@mui/styles'
 import { styled, useTheme } from '@mui/material/styles'
@@ -32,6 +34,10 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import MenuButton from '../../../../../components/MenuButton/MenuButton'
+import SplitButton from '../../../../../components/SplitButton/SplitButton'
+import { getDownloadProducts } from '../../../../../core/recordDownloads.js'
+import { streamDownloadFile } from '../../../../../core/downloaders/ZipStream.js'
+import { getFilename } from '../../../../../core/utils.js'
 import Highlighter from 'react-highlight-words'
 import flat from 'flat'
 
@@ -382,6 +388,8 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
     },
     buttons: {
+        display: 'flex',
+        alignItems: 'center',
         padding: '4px 2px 4px 0px',
     },
     button1: {
@@ -393,6 +401,10 @@ const useStyles = makeStyles((theme) => ({
           border: "1px solid rgba(0, 0, 0, 0.23)",
           'background': "#0000000a",
         },
+    },
+    splitButton: {
+        height: 30,
+        margin: '0px 3px',
     },
     snackbar: {
         fontSize: 14,
@@ -516,6 +528,7 @@ const ProductLabel = (props) => {
                                             )
                                         )
                                     }}
+                                    startIcon={<ContentCopyIcon fontSize="small" />}
                                 >
                                     Copy Label JSON
                                 </Button>
@@ -526,9 +539,26 @@ const ProductLabel = (props) => {
                                     size="small"
                                     href={labelURL}
                                     target="_blank"
+                                    startIcon={<OpenInNewIcon fontSize="small" />}
                                 >
                                     View Raw Label
                                 </Button>
+                                <SplitButton
+                                    className={c.splitButton}
+                                    forceName="Download"
+                                    ariaLabel="download record products"
+                                    type="checklist"
+                                    items={getDownloadProducts(recordData)}
+                                    onClick={(checked) => {
+                                        checked.forEach((item) => {
+                                            if (item.uri)
+                                                streamDownloadFile(
+                                                    getPDSUrl(item.uri, item.release_id),
+                                                    getFilename(item.uri)
+                                                )
+                                        })
+                                    }}
+                                />
                             </div>
                         )}
                         {isMobile && (
