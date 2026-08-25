@@ -2,67 +2,40 @@ import React from 'react'
 import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import clsx from 'clsx'
 
 import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
-import useMediaQuery from '@mui/material/useMediaQuery'
 
-import { getIn, getPDSUrl, getRedirectedUrl, prettify } from '../../../../../core/utils.js'
+import { getIn, getPDSUrl, getRedirectedUrl } from '../../../../../core/utils.js'
 import { getDataByURI, setData } from '../../../../../core/redux/actions/actions'
 import { ES_PATHS } from '../../../../../core/constants.js'
 
-import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
+import { useViewerOverlay } from '../../Viewer/RecordViewer'
 import MLLayers from './subcomponents/MLLayers/MLLayers'
 import PanelHeader from '../../PanelHeader/PanelHeader'
 
 const useStyles = makeStyles((theme) => ({
-    MLClassification: {
-        width: '100%',
-        height: '100%',
-        color: '#666',
-        display: 'flex',
-        flexFlow: 'column',
-        background: theme.palette.swatches.grey.grey800,
-    },
-    // The layers panel is collapsible, so the header spans the whole view.
-    body: {
-        flex: 1,
-        minHeight: 0,
-        display: 'flex',
-        [theme.breakpoints.down('md')]: {
-            flexFlow: 'column',
-            overflowY: 'auto',
-        },
-    },
-    viewer: {
-        height: '100%',
-        flex: 1,
-        [theme.breakpoints.down('md')]: {
-            // Stacked, the image leads and the layers follow it.
-            order: -1,
-            minHeight: '60%',
-            flex: 'unset',
-            height: 'unset',
-        },
-    },
-    layers: {
-        width: 0,
+    panel: {
+        width: 'var(--record-panel-width, 300px)',
         height: '100%',
         boxSizing: 'border-box',
-        overflowY: 'auto',
+        display: 'flex',
+        flexFlow: 'column',
         background: theme.palette.swatches.grey.grey100,
+        color: theme.palette.text.primary,
+        borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
         [theme.breakpoints.down('md')]: {
             width: '100%',
+            height: 'unset',
+            borderRight: 'none',
             borderTop: `2px solid ${theme.palette.swatches.grey.grey200}`,
         },
-        transition: 'width 0.2s ease-in-out',
     },
-    layersOpen: {
-        width: '300px',
-        [theme.breakpoints.down('md')]: {
-            width: '100%',
-        },
+    // The layers list collapses through the viewer's layers control; the header
+    // above it stays put.
+    layers: {
+        flex: 1,
+        minHeight: 0,
+        overflowY: 'auto',
     },
 }))
 
@@ -72,10 +45,8 @@ const MLClassification = (props) => {
 
     const dispatch = useDispatch()
 
-    const theme = useTheme()
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-
     const [layersOpen, setLayersOpen] = useState(true)
+    const toggleLayers = () => setLayersOpen(!layersOpen)
     const [checkedClasses, setCheckedClasses] = useState({})
     const [confidence, setConfidence] = useState([0, 1])
 
@@ -130,10 +101,6 @@ const MLClassification = (props) => {
         }
     }, [JSON.stringify(mlClassificationData)])
 
-    const browse_uri = getIn(recordData, ES_PATHS.browse)
-
-    const imgURL = getPDSUrl(browse_uri, release_id)
-
     let features = mlClassificationData.features
     let featuresOn = []
     if (features) {
@@ -159,15 +126,20 @@ const MLClassification = (props) => {
         })
     }
 
+    // The viewer is shared with the other tabs, so hand it the overlay.
+    useViewerOverlay({ features: featuresOn, onLayers: toggleLayers }, [
+        featuresOn.length,
+        JSON.stringify(checkedClasses),
+        confidence[0],
+        confidence[1],
+        layersOpen,
+    ])
+
     return (
-        <div className={c.MLClassification}>
+        <div className={c.panel}>
             <PanelHeader recordData={recordData} />
-            <div className={c.body}>
-                <div
-                    className={clsx(c.layers, {
-                        [c.layersOpen]: layersOpen,
-                    })}
-                >
+            {layersOpen && (
+                <div className={c.layers}>
                     <MLLayers
                         features={features}
                         classes={checkedClasses}
@@ -184,21 +156,7 @@ const MLClassification = (props) => {
                         }}
                     />
                 </div>
-                <div className={c.viewer}>
-                    {features != null ? (
-                        <OpenSeadragonViewer
-                            image={{
-                                src: imgURL,
-                            }}
-                            settings={{ defaultZoomLevel: 0.5 }}
-                            onLayers={() => {
-                                setLayersOpen(!layersOpen)
-                            }}
-                            features={featuresOn}
-                        />
-                    ) : null}
-                </div>
-            </div>
+            )}
         </div>
     )
 }

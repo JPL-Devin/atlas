@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -13,6 +13,7 @@ import { VIEW_TABS } from '../viewTabs'
 import Overview from './Views/Overview/Overview'
 import ProductLabel from './Views/ProductLabel/ProductLabel'
 import MLClassification from './Views/MLClassification/MLClassification'
+import RecordViewer, { RecordViewerOverlayProvider } from './Viewer/RecordViewer'
 
 const VIEW_COMPONENTS = {
     'overview': Overview,
@@ -28,7 +29,7 @@ const PANEL_WIDTHS = {
     'ml classification': { md: 300, lg: 300 },
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
     Content: {
         width: '100%',
         height: '100%',
@@ -38,7 +39,19 @@ const useStyles = makeStyles(() => ({
     },
     component: {
         flex: 1,
+        minHeight: 0,
         overflowY: 'hidden',
+    },
+    // The panel and the viewer sit side by side, so the viewer survives a tab
+    // switch instead of reloading the image.
+    body: {
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        [theme.breakpoints.down('md')]: {
+            flexFlow: 'column',
+            overflowY: 'auto',
+        },
     },
 }))
 
@@ -63,9 +76,18 @@ const Content = (props) => {
 
     const ViewComponent = VIEW_COMPONENTS[recordViewTab] || null
 
-    const isLarge = useMediaQuery(useTheme().breakpoints.up('lg'))
+    const theme = useTheme()
+    const isLarge = useMediaQuery(theme.breakpoints.up('lg'))
+    const isNarrow = useMediaQuery(theme.breakpoints.down('md'))
     const widths = PANEL_WIDTHS[recordViewTab] || PANEL_WIDTHS.overview
     const panelWidth = `${isLarge ? widths.lg : widths.md}px`
+
+    // A tab can hand overlay features and a layers control to the shared viewer.
+    const [overlay, setOverlay] = useState({})
+    const registerOverlay = useCallback((next) => setOverlay(next || {}), [])
+
+    // The label tree takes the whole width on a phone.
+    const showViewer = !(isNarrow && recordViewTab === 'product label')
 
     return (
         <div
@@ -78,12 +100,19 @@ const Content = (props) => {
             }}
         >
             <div className={c.component}>
-                <ViewComponent
-                    recordData={recordData}
-                    versions={versions}
-                    activeVersion={activeVersion}
-                    loading={loading}
-                />
+                <div className={c.body}>
+                    <RecordViewerOverlayProvider value={registerOverlay}>
+                        <ViewComponent
+                            recordData={recordData}
+                            versions={versions}
+                            activeVersion={activeVersion}
+                            loading={loading}
+                        />
+                    </RecordViewerOverlayProvider>
+                    {showViewer && (
+                        <RecordViewer recordData={recordData} loading={loading} overlay={overlay} />
+                    )}
+                </div>
             </div>
         </div>
     )

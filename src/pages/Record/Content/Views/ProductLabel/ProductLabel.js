@@ -3,14 +3,8 @@ import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
 import { setSnackBarText } from '../../../../../core/redux/actions/actions'
-import {
-    getIn,
-    getPDSUrl,
-    getExtension,
-    isObject,
-    copyToClipboard,
-} from '../../../../../core/utils.js'
-import { ES_PATHS, IMAGE_EXTENSIONS } from '../../../../../core/constants.js'
+import { getIn, isObject, copyToClipboard } from '../../../../../core/utils.js'
+import { ES_PATHS } from '../../../../../core/constants.js'
 
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
@@ -30,7 +24,6 @@ import { makeStyles, withStyles } from '@mui/styles'
 import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import MenuButton from '../../../../../components/MenuButton/MenuButton'
 import PanelHeader from '../../PanelHeader/PanelHeader'
 import LabelActions from '../../PanelHeader/LabelActions'
@@ -303,13 +296,6 @@ const makeTree = (data, filterString, classes) => {
 }
 
 const useStyles = makeStyles((theme) => ({
-    ProductLabel: {
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        overflow: 'hidden',
-        background: theme.palette.swatches.grey.grey0,
-    },
     loading: {
         position: 'absolute',
         left: 'calc(50% - 20px)',
@@ -328,9 +314,6 @@ const useStyles = makeStyles((theme) => ({
             fontSize: '16px',
             borderRadius: '2px',
         },
-    },
-    viewerColumn: {
-        flex: 1,
     },
     panel: {
         display: 'flex',
@@ -361,10 +344,6 @@ const useStyles = makeStyles((theme) => ({
         overflowY: 'auto',
         padding: `4px 8px`,
         boxSizing: 'border-box',
-    },
-    viewer: {
-        height: '100%',
-        flex: 1,
     },
     search: {
         flex: 1,
@@ -411,19 +390,6 @@ const ProductLabel = (props) => {
 
     const [filterString, setFilterString] = useState('')
 
-    const release_id = getIn(recordData, ES_PATHS.release_id)
-
-    const uri = getIn(recordData, ES_PATHS.uri)
-
-    const browse_uri = getIn(recordData, ES_PATHS.browse)
-    let imgURL = getPDSUrl(browse_uri, release_id)
-
-    let type = getExtension(imgURL, true)
-    if (!IMAGE_EXTENSIONS.includes(type)) {
-        imgURL = getPDSUrl(uri, release_id)
-        type = getExtension(imgURL, true)
-    }
-
     const label_id = getIn(recordData, ['atlas', 'label_id'], '')
     const pdsStandard = getIn(recordData, ES_PATHS.pds_standard)
     const labelDataRaw = getIn(
@@ -442,105 +408,89 @@ const ProductLabel = (props) => {
 
     if (Object.keys(labelData).length === 0)
         return (
-            <div className={c.ProductLabel}>
-                <div className={c.panel}>
-                    <PanelHeader recordData={recordData} />
-                    <Box className={c.notFound}>
-                        <div>Label Not Found</div>
-                    </Box>
-                </div>
+            <div className={c.panel}>
+                <PanelHeader recordData={recordData} />
+                <Box className={c.notFound}>
+                    <div>Label Not Found</div>
+                </Box>
             </div>
         )
     else {
         const labelTree = makeTree(labelData, filterString, c)
         return (
-            <div className={c.ProductLabel}>
-                <div className={c.panel}>
-                    <PanelHeader
-                        recordData={recordData}
-                        extraActions={
-                            !isMobile ? <LabelActions recordData={recordData} /> : null
-                        }
-                    />
-                    <div className={c.top}>
-                        <div className={c.search}>
-                            <Input
-                                className={c.input}
-                                value={filterString}
-                                placeholder="Search in Label"
-                                startAdornment={
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                }
-                                endAdornment={
-                                  <InputAdornment>
-                                    <IconButton
-                                        className={c.searchCancelButton}
-                                        aria-label={`clear search`}
-                                        size="small"
-                                        style={{
-                                            opacity: filterString.length > 0 ? '1' : '0',
-                                        }}
-                                        onClick={() => setFilterString('')}
-                                    >
-                                        <CloseIcon />
-                                    </IconButton>
-                                  </InputAdornment>
-                                }
-                                onChange={(e) => setFilterString(e.target.value)}
-                            />
-                        </div>
-
-                        {isMobile && (
-                            <div>
-                                <MenuButton
-                                    options={['Copy Label JSON', 'View Raw Label']}
-                                    buttonComponent={<MoreVertIcon fontSize="inherit" />}
-                                    onChange={(option, idx) => {
-                                        switch (option) {
-                                            case 'Copy Label JSON':
-                                                copyToClipboard(JSON.stringify(labelData, null, 2))
-                                                dispatch(
-                                                    setSnackBarText(
-                                                        'Copied Label JSON to Clipboard!',
-                                                        'success'
-                                                    )
-                                                )
-                                                break
-                                            case 'View Raw Label':
-                                                break
-                                            default:
-                                                break
-                                        }
-                                    }}
-                                />
-                            </div>
-                        )}
-                    </div>
-                    <div className={c.bottom}>
-                        <SimpleTreeView
-                            defaultExpandedItems={Array(labelTree.numOfKeys)
-                                .fill()
-                                .map((x, i) => String(i))
+            <div className={c.panel}>
+                <PanelHeader
+                    recordData={recordData}
+                    extraActions={
+                        !isMobile ? <LabelActions recordData={recordData} /> : null
+                    }
+                />
+                <div className={c.top}>
+                    <div className={c.search}>
+                        <Input
+                            className={c.input}
+                            value={filterString}
+                            placeholder="Search in Label"
+                            startAdornment={
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
                             }
-                        >
-                            {labelTree.tree}
-                        </SimpleTreeView>
+                            endAdornment={
+                              <InputAdornment>
+                                <IconButton
+                                    className={c.searchCancelButton}
+                                    aria-label={`clear search`}
+                                    size="small"
+                                    style={{
+                                        opacity: filterString.length > 0 ? '1' : '0',
+                                    }}
+                                    onClick={() => setFilterString('')}
+                                >
+                                    <CloseIcon />
+                                </IconButton>
+                              </InputAdornment>
+                            }
+                            onChange={(e) => setFilterString(e.target.value)}
+                        />
                     </div>
-                </div>
-                {!isMobile && (
-                    <div className={c.viewerColumn}>
-                        <div className={c.viewer}>
-                            <OpenSeadragonViewer
-                                image={{
-                                    src: imgURL,
+
+                    {isMobile && (
+                        <div>
+                            <MenuButton
+                                options={['Copy Label JSON', 'View Raw Label']}
+                                buttonComponent={<MoreVertIcon fontSize="inherit" />}
+                                onChange={(option, idx) => {
+                                    switch (option) {
+                                        case 'Copy Label JSON':
+                                            copyToClipboard(JSON.stringify(labelData, null, 2))
+                                            dispatch(
+                                                setSnackBarText(
+                                                    'Copied Label JSON to Clipboard!',
+                                                    'success'
+                                                )
+                                            )
+                                            break
+                                        case 'View Raw Label':
+                                            break
+                                        default:
+                                            break
+                                    }
                                 }}
-                                settings={{ defaultZoomLevel: 0.5, showNavigator: false }}
                             />
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
+                <div className={c.bottom}>
+                    <SimpleTreeView
+                        defaultExpandedItems={Array(labelTree.numOfKeys)
+                            .fill()
+                            .map((x, i) => String(i))
+                        }
+                    >
+                        {labelTree.tree}
+                    </SimpleTreeView>
+                </div>
             </div>
         )
     }

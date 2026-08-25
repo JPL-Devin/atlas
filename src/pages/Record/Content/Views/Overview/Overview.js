@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
@@ -23,64 +23,17 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import SearchIcon from '@mui/icons-material/Search'
 
-import { copyToClipboard, getIn, getPDSUrl, getExtension } from '../../../../../core/utils.js'
-import { HASH_PATHS, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../../core/constants.js'
+import { copyToClipboard, getIn } from '../../../../../core/utils.js'
+import { HASH_PATHS, ES_PATHS } from '../../../../../core/constants.js'
 import { getAppConfig, getAppInstanceKey } from '../../../../../core/appConfig.js'
 import { resolvePresentation } from '../../../../../core/recordPresentation'
-import { emptyStates } from '../../../../../config/recordDetail'
 import { setRecordViewTab, setSnackBarText } from '../../../../../core/redux/actions/actions.js'
 
 import tileIcons from './tileIcons.js'
 import PanelHeader from '../../PanelHeader/PanelHeader'
 import LabelActions from '../../PanelHeader/LabelActions'
-import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
-import ThreeViewer from '../../../../../components/ThreeViewer/ThreeViewer'
-import ViewerLoading from '../../../../../components/ViewerLoading/ViewerLoading'
 
 const useStyles = makeStyles((theme) => ({
-    Overview: {
-        width: '100%',
-        height: '100%',
-        background: theme.palette.swatches.grey.grey100,
-        color: theme.palette.text.primary,
-        display: 'flex',
-        [theme.breakpoints.down('md')]: {
-            flexFlow: 'column',
-            overflowY: 'auto',
-        },
-    },
-    viewerColumn: {
-        flex: 1,
-        height: '100%',
-        display: 'flex',
-        flexFlow: 'column',
-        background: theme.palette.swatches.grey.grey0,
-        minWidth: 0,
-        [theme.breakpoints.down('md')]: {
-            // Stacked, the image leads and the panel follows it.
-            order: -1,
-            height: 'unset',
-            flex: 'unset',
-        },
-    },
-    // The shadow rides on an overlay so the viewers' own canvases don't cover it.
-    viewerBody: {
-        'position': 'relative',
-        'flex': 1,
-        'minHeight': 0,
-        '&:after': {
-            content: '""',
-            position: 'absolute',
-            inset: 0,
-            pointerEvents: 'none',
-            zIndex: 2,
-            boxShadow: 'inset 0 8px 12px -8px rgba(0,0,0,0.35)',
-        },
-        [theme.breakpoints.down('md')]: {
-            flex: 'unset',
-            height: '55vh',
-        },
-    },
     // The caption leads the panel body rather than floating over the image.
     captionCard: {
         boxSizing: 'border-box',
@@ -145,39 +98,13 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey500,
         whiteSpace: 'nowrap',
     },
-    emptyState: {
-        flex: 1,
-        display: 'flex',
-        flexFlow: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        color: theme.palette.swatches.grey.grey500,
-        padding: '32px',
-        [theme.breakpoints.down('md')]: {
-            flex: 'unset',
-            padding: '24px 16px',
-        },
-    },
-    emptyStateTitle: {
-        fontSize: '15px',
-        fontWeight: 'bold',
-        marginBottom: '6px',
-    },
-    emptyStateBody: {
-        fontSize: '13px',
-        maxWidth: '360px',
-    },
-    // The viewers paint their own surface, so match it while they're absent.
-    loadingBody: {
-        background: theme.palette.swatches.grey.grey0,
-    },
     skeleton: {
         backgroundColor: theme.palette.swatches.grey.grey150,
     },
     metadata: {
         width: 'var(--record-panel-width, 700px)',
         height: '100%',
+        color: theme.palette.text.primary,
         boxSizing: 'border-box',
         display: 'flex',
         flexFlow: 'column',
@@ -463,15 +390,6 @@ const useStyles = makeStyles((theme) => ({
             background: theme.palette.swatches.grey.grey150,
         },
     },
-    // Describes the image for screen readers; the viewer itself is a canvas.
-    srOnly: {
-        position: 'absolute',
-        width: '1px',
-        height: '1px',
-        overflow: 'hidden',
-        clip: 'rect(0 0 0 0)',
-        whiteSpace: 'nowrap',
-    },
 }))
 
 // Sections open on load; the rest start collapsed, as in the mockup.
@@ -493,14 +411,9 @@ const Overview = (props) => {
     const isTwoUp = useMediaQuery(theme.breakpoints.down('lg'))
     // Mirrors the tile grid's own breakpoints.
     const tileColumns = isPhone ? 1 : isTwoUp ? 2 : 3
-    const [viewerFailed, setViewerFailed] = useState(false)
     const [filterString, setFilterString] = useState('')
     const [collapsed, setCollapsed] = useState({})
 
-    const release_id = getIn(recordData, ES_PATHS.release_id)
-    const browse_uri = getIn(recordData, ES_PATHS.browse)
-    const uri = getIn(recordData, ES_PATHS.source)
-    const supplemental = getIn(recordData, ES_PATHS.supplemental)
     const pds_standard = getIn(recordData, ES_PATHS.pds_standard)
 
     // A pending record isn't a product without a browse image, so it shows the
@@ -508,37 +421,6 @@ const Overview = (props) => {
     const isLoading = loading === true && Object.keys(recordData || {}).length === 0
 
     const presentation = resolvePresentation(recordData, { instance: getAppInstanceKey() })
-    const emptyState = emptyStates[presentation.emptyState] || emptyStates.no_browse_generic
-
-    let imgURL = getPDSUrl(browse_uri, release_id)
-    let type = getExtension(imgURL, true)
-    if (!IMAGE_EXTENSIONS.includes(type)) {
-        imgURL = getPDSUrl(uri, release_id)
-        type = getExtension(imgURL, true)
-    }
-    // A product whose only asset is a source image the archive can't render
-    // falls back to the configured empty state once the viewer reports failure.
-    const hasViewable =
-        imgURL != null && (type === 'obj' || IMAGE_EXTENSIONS.includes(type)) && !viewerFailed
-
-    useEffect(() => {
-        setViewerFailed(false)
-    }, [imgURL])
-
-    let Viewer = null
-    if (hasViewable)
-        Viewer =
-            type === 'obj' ? (
-                <ThreeViewer url={imgURL} release_id={release_id} supplemental={supplemental} />
-            ) : (
-                <OpenSeadragonViewer
-                    image={{ src: imgURL }}
-                    // 0 opens at the home zoom, so the image fills the viewer's
-                    // constraining dimension.
-                    settings={{ defaultZoomLevel: 0 }}
-                    onOpenFailed={() => setViewerFailed(true)}
-                />
-            )
 
     // Phones show only the priority tiles; wider viewports show the configured
     // maximum in the same configured order. Either way the grid keeps whole
@@ -704,194 +586,165 @@ const Overview = (props) => {
     )
 
     return (
-        <div className={c.Overview}>
-            <div className={c.metadata}>
-                <PanelHeader
-                    recordData={recordData}
-                    extraActions={!isNarrow ? <LabelActions recordData={recordData} /> : null}
-                />
-                {isLoading ? (
-                    renderSkeleton()
-                ) : (
-                    <>
-                        <div className={c.metadataScroll}>
-                            {renderCaptionCard()}
-                            <div className={c.heading}>At a glance</div>
-                            <div className={c.tiles}>
-                                {tiles.map((tile, idx) => {
-                                    const Icon = tileIcons[tile.icon]
-                                    return (
-                                        <div className={c.tile} key={idx}>
-                                            <div className={c.tileLabel}>
-                                                {Icon && <Icon />}
-                                                <span
-                                                    className={c.tileLabelText}
-                                                    title={tile.label}
-                                                >
-                                                    {tile.shortLabel}
-                                                </span>
-                                            </div>
-                                            <div
-                                                className={tile.inline ? c.tileValueRow : undefined}
-                                            >
-                                                <div className={c.tileValue} title={tile.value}>
-                                                    {tile.value}
-                                                </div>
-                                                {tile.sub != null && (
-                                                    <div className={c.tileSub} title={tile.sub}>
-                                                        {tile.sub}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                            <div className={`${c.heading} ${c.fieldsHeading}`}>
-                                <span>General Fields</span>
-                                <Tooltip title="Open the full product label" arrow>
-                                    <button
-                                        className={c.allFields}
-                                        aria-label="see all fields"
-                                        onClick={() => dispatch(setRecordViewTab('product label'))}
-                                    >
-                                        See all fields
-                                    </button>
-                                </Tooltip>
-                            </div>
-                            <div className={c.filter}>
-                                <Input
-                                    className={c.filterInput}
-                                    value={filterString}
-                                    placeholder={`Filter ${fieldCount} field${
-                                        fieldCount === 1 ? '' : 's'
-                                    }…`}
-                                    inputProps={{ 'aria-label': 'filter record fields' }}
-                                    startAdornment={
-                                        <InputAdornment position="start">
-                                            <SearchIcon />
-                                        </InputAdornment>
-                                    }
-                                    endAdornment={
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                className={c.clearFilter}
-                                                aria-label="clear field filter"
-                                                size="small"
-                                                style={{ opacity: filterString.length > 0 ? 1 : 0 }}
-                                                onClick={() => setFilterString('')}
-                                            >
-                                                <CloseIcon fontSize="inherit" />
-                                            </IconButton>
-                                        </InputAdornment>
-                                    }
-                                    onChange={(e) => setFilterString(e.target.value)}
-                                />
-                            </div>
-                            {sections.length === 0 && (
-                                <div className={c.noMatches}>No fields match “{filterString}”</div>
-                            )}
-                            {sections.map((section) => {
-                                // Filtering expands everything so matches are never hidden.
-                                const open =
-                                    filter !== '' ||
-                                    (collapsed[section.id] == null
-                                        ? OPEN_SECTIONS.includes(section.id)
-                                        : !collapsed[section.id])
+        <div className={c.metadata}>
+            <PanelHeader
+                recordData={recordData}
+                extraActions={!isNarrow ? <LabelActions recordData={recordData} /> : null}
+            />
+            {isLoading ? (
+                renderSkeleton()
+            ) : (
+                <>
+                    <div className={c.metadataScroll}>
+                        {renderCaptionCard()}
+                        <div className={c.heading}>At a glance</div>
+                        <div className={c.tiles}>
+                            {tiles.map((tile, idx) => {
+                                const Icon = tileIcons[tile.icon]
                                 return (
-                                    <div className={c.section} key={section.id}>
-                                        <button
-                                            className={c.sectionHead}
-                                            aria-expanded={open}
-                                            onClick={() =>
-                                                setCollapsed({ ...collapsed, [section.id]: open })
-                                            }
-                                        >
-                                            <span>
-                                                {open ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                                                {section.title}
+                                    <div className={c.tile} key={idx}>
+                                        <div className={c.tileLabel}>
+                                            {Icon && <Icon />}
+                                            <span className={c.tileLabelText} title={tile.label}>
+                                                {tile.shortLabel}
                                             </span>
-                                            <span className={c.sectionCount}>
-                                                {section.rows.length}
-                                            </span>
-                                        </button>
-                                        <Collapse in={open} unmountOnExit>
-                                            {section.rows.map((row, idx) => (
-                                                <div className={c.row} key={idx}>
-                                                    <div className={c.rowLabel}>{row.label}</div>
-                                                    <div className={c.rowValue}>
-                                                        {row.value}
-                                                        {row.node}
-                                                        <Tooltip title="Copy value" arrow>
-                                                            <IconButton
-                                                                className={c.rowCopy}
-                                                                aria-label={`copy ${row.label}`}
-                                                                size="small"
-                                                                onClick={() =>
-                                                                    copy(
-                                                                        row.value,
-                                                                        'Copied value to clipboard!'
-                                                                    )
-                                                                }
-                                                            >
-                                                                <ContentCopyIcon />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </div>
+                                        </div>
+                                        <div className={tile.inline ? c.tileValueRow : undefined}>
+                                            <div className={c.tileValue} title={tile.value}>
+                                                {tile.value}
+                                            </div>
+                                            {tile.sub != null && (
+                                                <div className={c.tileSub} title={tile.sub}>
+                                                    {tile.sub}
                                                 </div>
-                                            ))}
-                                        </Collapse>
+                                            )}
+                                        </div>
                                     </div>
                                 )
                             })}
-                            {presentation.citation != null &&
-                                getAppConfig().enableRecordCitation && (
-                                    <>
-                                        <div className={c.citationHeading}>
-                                            <span>Citation</span>
-                                            <Tooltip title="Copy citation" arrow>
-                                                <IconButton
-                                                    className={c.citationCopy}
-                                                    aria-label="copy record citation"
-                                                    size="small"
-                                                    onClick={() =>
-                                                        copy(
-                                                            presentation.citation,
-                                                            'Copied citation to clipboard!'
-                                                        )
-                                                    }
-                                                >
-                                                    <ContentCopyIcon />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </div>
-                                        <div className={c.citation}>{presentation.citation}</div>
-                                    </>
-                                )}
                         </div>
-                    </>
-                )}
-            </div>
-            {(hasViewable || isLoading || !isNarrow) && (
-                <div className={c.viewerColumn}>
-                    {isLoading ? (
-                        <div className={`${c.viewerBody} ${c.loadingBody}`}>
-                            <ViewerLoading label="record loading" />
+                        <div className={`${c.heading} ${c.fieldsHeading}`}>
+                            <span>General Fields</span>
+                            <Tooltip title="Open the full product label" arrow>
+                                <button
+                                    className={c.allFields}
+                                    aria-label="see all fields"
+                                    onClick={() => dispatch(setRecordViewTab('product label'))}
+                                >
+                                    See all fields
+                                </button>
+                            </Tooltip>
                         </div>
-                    ) : hasViewable ? (
-                        <>
-                            {presentation.altText != null && (
-                                <span className={c.srOnly}>{presentation.altText}</span>
-                            )}
-                            <div className={c.viewerBody}>{Viewer}</div>
-                        </>
-                    ) : (
-                        <div className={c.emptyState}>
-                            <div className={c.emptyStateTitle}>{emptyState.title}</div>
-                            <div className={c.emptyStateBody}>{emptyState.body}</div>
+                        <div className={c.filter}>
+                            <Input
+                                className={c.filterInput}
+                                value={filterString}
+                                placeholder={`Filter ${fieldCount} field${
+                                    fieldCount === 1 ? '' : 's'
+                                }…`}
+                                inputProps={{ 'aria-label': 'filter record fields' }}
+                                startAdornment={
+                                    <InputAdornment position="start">
+                                        <SearchIcon />
+                                    </InputAdornment>
+                                }
+                                endAdornment={
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            className={c.clearFilter}
+                                            aria-label="clear field filter"
+                                            size="small"
+                                            style={{ opacity: filterString.length > 0 ? 1 : 0 }}
+                                            onClick={() => setFilterString('')}
+                                        >
+                                            <CloseIcon fontSize="inherit" />
+                                        </IconButton>
+                                    </InputAdornment>
+                                }
+                                onChange={(e) => setFilterString(e.target.value)}
+                            />
                         </div>
-                    )}
-                </div>
+                        {sections.length === 0 && (
+                            <div className={c.noMatches}>No fields match “{filterString}”</div>
+                        )}
+                        {sections.map((section) => {
+                            // Filtering expands everything so matches are never hidden.
+                            const open =
+                                filter !== '' ||
+                                (collapsed[section.id] == null
+                                    ? OPEN_SECTIONS.includes(section.id)
+                                    : !collapsed[section.id])
+                            return (
+                                <div className={c.section} key={section.id}>
+                                    <button
+                                        className={c.sectionHead}
+                                        aria-expanded={open}
+                                        onClick={() =>
+                                            setCollapsed({ ...collapsed, [section.id]: open })
+                                        }
+                                    >
+                                        <span>
+                                            {open ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                                            {section.title}
+                                        </span>
+                                        <span className={c.sectionCount}>
+                                            {section.rows.length}
+                                        </span>
+                                    </button>
+                                    <Collapse in={open} unmountOnExit>
+                                        {section.rows.map((row, idx) => (
+                                            <div className={c.row} key={idx}>
+                                                <div className={c.rowLabel}>{row.label}</div>
+                                                <div className={c.rowValue}>
+                                                    {row.value}
+                                                    {row.node}
+                                                    <Tooltip title="Copy value" arrow>
+                                                        <IconButton
+                                                            className={c.rowCopy}
+                                                            aria-label={`copy ${row.label}`}
+                                                            size="small"
+                                                            onClick={() =>
+                                                                copy(
+                                                                    row.value,
+                                                                    'Copied value to clipboard!'
+                                                                )
+                                                            }
+                                                        >
+                                                            <ContentCopyIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </Collapse>
+                                </div>
+                            )
+                        })}
+                        {presentation.citation != null && getAppConfig().enableRecordCitation && (
+                            <>
+                                <div className={c.citationHeading}>
+                                    <span>Citation</span>
+                                    <Tooltip title="Copy citation" arrow>
+                                        <IconButton
+                                            className={c.citationCopy}
+                                            aria-label="copy record citation"
+                                            size="small"
+                                            onClick={() =>
+                                                copy(
+                                                    presentation.citation,
+                                                    'Copied citation to clipboard!'
+                                                )
+                                            }
+                                        >
+                                            <ContentCopyIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                </div>
+                                <div className={c.citation}>{presentation.citation}</div>
+                            </>
+                        )}
+                    </div>
+                </>
             )}
         </div>
     )

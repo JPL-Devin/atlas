@@ -14,6 +14,8 @@ const useStyles = makeStyles((theme) => ({
     ViewTabs: {
         display: 'flex',
         alignItems: 'stretch',
+        justifyContent: 'center',
+        width: '100%',
         height: '100%',
         boxSizing: 'border-box',
         color: theme.palette.text.main,
@@ -21,9 +23,14 @@ const useStyles = makeStyles((theme) => ({
     tabs: {
         'minHeight': 0,
         'height': '100%',
+        'width': '100%',
         '& .MuiTabs-scroller, & .MuiTabs-flexContainer': {
             height: '100%',
             alignItems: 'stretch',
+        },
+        // The tabs sit centred in the panel header rather than hugging its edge.
+        '& .MuiTabs-flexContainer': {
+            justifyContent: 'center',
         },
     },
 }))
