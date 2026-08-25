@@ -242,12 +242,6 @@ const useStyles = makeStyles((theme) => ({
         margin: '0 -20px 10px -20px',
         padding: '12px 20px 0 20px',
     },
-    description: {
-        fontSize: '13px',
-        lineHeight: '20px',
-        color: theme.palette.swatches.grey.grey150,
-        marginBottom: '20px',
-    },
     tiles: {
         display: 'grid',
         gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
@@ -353,7 +347,9 @@ const useStyles = makeStyles((theme) => ({
         'background': 'none',
         'border': 'none',
         'cursor': 'pointer',
-        'color': theme.palette.swatches.yellow.yellow700,
+        // Gold marks the panel's top-level headings; a group inside `Fields` is
+        // a level down, so it stays grey.
+        'color': theme.palette.swatches.grey.grey150,
         'fontSize': '13px',
         'fontWeight': 'bold',
         'textAlign': 'left',
@@ -372,10 +368,12 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'normal',
         color: theme.palette.swatches.grey.grey300,
     },
+    // One grid, so every label and every value share a column edge instead of
+    // meeting at a ragged gutter.
     row: {
-        'display': 'flex',
-        'justifyContent': 'space-between',
-        'gap': '16px',
+        'display': 'grid',
+        'gridTemplateColumns': 'minmax(0, 11em) minmax(0, 1fr)',
+        'columnGap': '16px',
         'padding': '4px 0',
         'fontSize': '13px',
         'lineHeight': '19px',
@@ -386,7 +384,8 @@ const useStyles = makeStyles((theme) => ({
     rowLabel: {
         color: theme.palette.swatches.grey.grey300,
         whiteSpace: 'nowrap',
-        flexShrink: 0,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
     },
     rowValue: {
         display: 'flex',
@@ -394,7 +393,6 @@ const useStyles = makeStyles((theme) => ({
         gap: '4px',
         minWidth: 0,
         color: theme.palette.swatches.grey.grey0,
-        textAlign: 'right',
         overflowWrap: 'anywhere',
     },
     rowCopy: {
@@ -799,14 +797,6 @@ const Overview = (props) => {
                         {renderPanelActions()}
                         <div className={c.metadataScroll}>
                             {parsedFilename != null && <FilenameLegend parsed={parsedFilename} />}
-                            {!isNarrow && presentation.description != null && (
-                                <>
-                                    <div className={c.heading}>About this product</div>
-                                    <div className={c.description} aria-label="record description">
-                                        {presentation.description}
-                                    </div>
-                                </>
-                            )}
                             <div className={c.heading}>At a glance</div>
                             <div className={c.tiles}>
                                 {tiles.map((tile, idx) => {

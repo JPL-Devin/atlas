@@ -2,11 +2,13 @@ import {
     defaultProfile,
     fields,
     instanceProfiles,
+    otherFields as otherConfig,
     profiles,
     sections as sectionGroups,
 } from '../../config/recordDetail'
 import { getIn } from '../utils'
 import { formatValue } from './formatters'
+import { readOtherRows } from './otherFields'
 import { isValidValue } from './validity'
 
 export const TOKEN = /\{\{\s*([\w.]+)\s*\}\}/g
@@ -96,7 +98,9 @@ const readTileEntry = (recordData, entry) => {
 
 // Sections are named groups of normalized paths (config/recordDetail/sections.json);
 // rows with no value drop, and a section with no rows drops with them.
-const readSections = (recordData, ids) =>
+// A row whose exact value is already a tile above is dropped, so At a glance
+// and the field sections stop repeating each other.
+const readSections = (recordData, ids, tiled = {}) =>
     (Array.isArray(ids) ? ids : [])
         .map((id) => {
             const group = sectionGroups[id]
@@ -104,11 +108,19 @@ const readSections = (recordData, ids) =>
             const rows = []
             group.fields.forEach((path) => {
                 const tile = readTile(recordData, path)
-                if (tile) rows.push({ label: tile.label, value: tile.value })
+                if (tile == null || tiled[path] === tile.value) return
+                rows.push({ label: tile.label, value: tile.value })
             })
             return rows.length ? { id, title: group.title, rows } : null
         })
         .filter((section) => section != null)
+
+// Every path the configured sections lay claim to, shown or not.
+const configuredPaths = (ids) =>
+    (Array.isArray(ids) ? ids : []).reduce(
+        (paths, id) => (sectionGroups[id] ? paths.concat(sectionGroups[id].fields) : paths),
+        []
+    )
 
 const CAPTION_SEPARATOR = ' \u00b7 '
 
@@ -147,10 +159,18 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
 
     const maxTiles = profile.maxTiles != null ? profile.maxTiles : 8
     const tiles = []
+    const tiled = {}
     ;(profile.tiles || []).forEach((entry) => {
         if (tiles.length >= maxTiles) return
         const tile = readTileEntry(recordData, entry)
-        if (tile) tiles.push(tile)
+        if (tile == null) return
+        tiles.push(tile)
+        const path = typeof entry === 'string' ? entry : entry.path
+        tiled[path] = tile.value
+        if (typeof entry !== 'string' && entry.sub != null && tile.sub != null) {
+            const sub = readTile(recordData, entry.sub, entry.subFormat)
+            if (sub != null) tiled[entry.sub] = sub.value
+        }
     })
 
     // Fragments carry no separators of their own, so a dropped fragment can
@@ -162,6 +182,20 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
     const citationBody = renderFragments(recordData, profile.citation, ', ')
     const citation = [citationAuthor, citationBody].filter((part) => part != null).join(', ')
 
+    // Whatever the profile didn't place lands in one trailing catch-all section.
+    const sections = readSections(recordData, profile.sections, tiled)
+    const otherRows =
+        profile.otherFields === false
+            ? []
+            : readOtherRows(recordData, {
+                  usedPaths: configuredPaths(profile.sections),
+                  usedLabels: sections.reduce(
+                      (all, section) => all.concat(section.rows.map((row) => row.label)),
+                      []
+                  ),
+              })
+    if (otherRows.length) sections.push({ id: 'other', title: otherConfig.title, rows: otherRows })
+
     return {
         // Description fragments are whole sentences, so a dropped clause leaves
         // grammatical prose behind.
@@ -169,7 +203,7 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
         caption: renderFragments(recordData, profile.caption, separator),
         captionTitle: renderFragments(recordData, profile.captionTitle, separator),
         captionChips: readChips(recordData, profile.captionChips),
-        sections: readSections(recordData, profile.sections),
+        sections,
         shortCaption:
             renderFragments(recordData, profile.shortCaption, separator) ||
             renderFragments(recordData, profile.caption, separator),

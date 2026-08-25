@@ -1733,6 +1733,44 @@ implementation gap: the **Related Products tab** (no such tab exists in
 (Caption / Overlays / Measure / Sequence) is also unbuilt; Sequence has no
 normalized path (§3.4).
 
+### 12.16 De-duplicating the panel
+
+The panel had been saying the same thing three times, so a scroll down it never
+told you anything new. Four changes:
+
+- **`About this product` is gone.** Its prose restated the caption card almost
+  verbatim (same instrument, sol, site, drive, azimuth/elevation). The caption
+  over the image is the better copy; profile `description` templates stay in the
+  config and in `resolvePresentation`, unrendered, so a future surface can use
+  them.
+- **A row never repeats a tile.** `readSections` drops any row whose _exact_
+  formatted value already appears as an At-a-glance tile, so At a glance is the
+  identification summary and the sections carry the rest. The value comparison
+  matters: `Start time` is a tile at `datetime_short`, so the full timestamp
+  still earns its row.
+- **`Other metadata` catch-all.** Everything in the indexed document that no
+  section claims — the `gather.*` / `archive.*` normalized branches, with the
+  `pds4_label` / `pds3_label` raw trees excluded at the root — lands in one
+  trailing collapsed section (`config/recordDetail/otherFields.json` holds the
+  exclusions, `core/recordPresentation/otherFields.js` the walk). This is the
+  one place the page shows a path that isn't in `fields.json`: catalogued paths
+  keep their label and format, and the rest get a sentence-case label derived
+  from the last path segment plus a format inferred from the value (boolean,
+  ISO datetime, snake_case vocabulary, float to two decimals). It stays
+  presentable because the excluded set is by name, not by guesswork: plumbing
+  (`uri`, `md5`, `geo_shape`, `overlayable`, `tile_flag`, `related`, …) is
+  dropped by segment, and rows whose value duplicates something already shown
+  drop too, which is what keeps `Volume ID` from appearing beside `Volume`.
+  On a Navcam FDR it yields 11 rows — `Instrument category`, `Object type`,
+  `Published`, `RMC arm/drill/HGA/RSM`, and so on. If a future index adds a
+  branch that shouldn't be user-facing, exclude it there rather than reverting
+  to a hand-maintained list per mission.
+- **Hierarchy and alignment.** Gold now means "top level" only: collapsible
+  section headers are grey. Field rows are one `grid` of
+  `minmax(0, 11em) minmax(0, 1fr)`, so labels and values each align down a
+  column instead of meeting at a ragged gutter; labels still never wrap, values
+  still do.
+
 ---
 
 ## Appendix: verification notes

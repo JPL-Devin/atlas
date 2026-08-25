@@ -15,6 +15,7 @@ const displayName = (value, field) => {
 
 const formatters = {
     text: (value) => String(value),
+    boolean: (value) => (value === true || value === 'true' ? 'Yes' : 'No'),
     uppercase: (value) => String(value).toUpperCase(),
     titlecase: (value) => prettify(String(value)),
     vocabulary: (value, field) => displayName(value, field),

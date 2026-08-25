@@ -205,7 +205,9 @@ test.describe('resolvePresentation', () => {
         expect(ids).toContain('identification')
         expect(ids).toContain('geometry_surface')
         const identification = p.sections.find((s) => s.id === 'identification')
-        expect(identification.rows.some((row) => row.label === 'Mission')).toBe(true)
+        // Mission is a tile with the same value, so it doesn't repeat as a row.
+        expect(identification.rows.some((row) => row.label === 'Mission')).toBe(false)
+        expect(identification.rows.some((row) => row.label === 'Product ID')).toBe(true)
         p.sections.forEach((section) => {
             expect(section.rows.length).toBeGreaterThan(0)
             section.rows.forEach((row) => {
@@ -217,6 +219,28 @@ test.describe('resolvePresentation', () => {
         // An orbiter never gets a surface geometry section, and vice versa.
         const mgs = resolvePresentation(mgsMoc)
         expect(mgs.sections.map((s) => s.id)).not.toContain('geometry_surface')
+    })
+
+    test('the catch-all section adds normalized metadata without the raw labels', () => {
+        const p = resolvePresentation(mars2020Navcam)
+        const other = p.sections.find((s) => s.id === 'other')
+        expect(other.rows.length).toBeGreaterThan(0)
+
+        const configured = p.sections
+            .filter((s) => s.id !== 'other')
+            .reduce((all, s) => all.concat(s.rows.map((r) => r.label)), [])
+        const tiles = p.tiles.map((t) => t.value)
+
+        other.rows.forEach((row) => {
+            expect(configured).not.toContain(row.label)
+            expect(tiles).not.toContain(row.value)
+            expect(String(row.value)).not.toContain('undefined')
+        })
+
+        // Nothing out of the pds4/pds3 label trees leaks in.
+        const inLabel = Object.keys(mars2020Navcam.pds4_label || {})
+        expect(other.rows.some((row) => inLabel.includes(row.label))).toBe(false)
+        expect(other.rows.some((row) => row.label === 'Instrument category')).toBe(true)
     })
 
     test('a sub-line drops on its own when its field is missing', () => {

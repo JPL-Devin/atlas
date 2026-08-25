@@ -86,9 +86,19 @@
         "icon": "clock",
         "format": "text"
     },
+    "gather.time.spacecraft_clock_stop_count": {
+        "label": "Spacecraft clock stop",
+        "icon": "clock",
+        "format": "text"
+    },
     "gather.time.earth_received_start_time": {
         "label": "Earth received",
         "shortLabel": "ERT",
+        "icon": "calendar",
+        "format": "datetime"
+    },
+    "gather.time.earth_received_stop_time": {
+        "label": "Earth received stop",
         "icon": "calendar",
         "format": "datetime"
     },
@@ -419,6 +429,45 @@
         "label": "Producer",
         "icon": "archive",
         "format": "text"
+    },
+    "gather.orbital_missions.solar_azimuth": {
+        "label": "Solar azimuth",
+        "icon": "sun",
+        "format": "number",
+        "unit": "°",
+        "precision": 1
+    },
+    "gather.orbital_missions.sub_solar_azimuth": {
+        "label": "Sub-solar azimuth",
+        "icon": "sun",
+        "format": "number",
+        "unit": "°",
+        "precision": 1
+    },
+    "gather.ancillary.instrument_category": {
+        "label": "Instrument category",
+        "icon": "layers",
+        "format": "uppercase"
+    },
+    "gather.ancillary.reconstruction_type": {
+        "label": "Reconstruction",
+        "icon": "layers",
+        "format": "uppercase"
+    },
+    "gather.pds_archive.pds_standard": {
+        "label": "PDS standard",
+        "icon": "archive",
+        "format": "uppercase"
+    },
+    "archive.pds_standard": {
+        "label": "PDS standard",
+        "icon": "archive",
+        "format": "uppercase"
+    },
+    "archive.updated_at": {
+        "label": "Indexed",
+        "icon": "calendar",
+        "format": "datetime"
     },
     "archive.size": {
         "label": "File size",

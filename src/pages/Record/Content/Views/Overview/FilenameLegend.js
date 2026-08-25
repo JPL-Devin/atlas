@@ -56,8 +56,14 @@ const useStyles = makeStyles((theme) => ({
         'background': 'none',
         'color': theme.palette.swatches.grey.grey300,
         'cursor': 'pointer',
-        '&[aria-pressed=true]': {
+        // Borderless at rest, but it lights up on hover so it reads as a
+        // control rather than a stray glyph.
+        '&:hover, &:focus-visible': {
             background: theme.palette.swatches.grey.grey700,
+            color: theme.palette.swatches.grey.grey0,
+        },
+        '&[aria-pressed=true]': {
+            background: theme.palette.swatches.grey.grey600,
             color: theme.palette.swatches.grey.grey0,
         },
     },

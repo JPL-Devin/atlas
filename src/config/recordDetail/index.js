@@ -1,6 +1,7 @@
 import emptyStates from './emptyStates.json'
 import fields from './fields.json'
 import icons from './icons.json'
+import otherFields from './otherFields.json'
 import sections from './sections.json'
 import validity from './validity.json'
 import mappingSnapshot from './mappingSnapshot.json'
@@ -50,4 +51,4 @@ export const filenameSpecs = {
     mars_2020: mars_2020_filename,
 }
 
-export { emptyStates, fields, icons, sections, validity, mappingSnapshot }
+export { emptyStates, fields, icons, otherFields, sections, validity, mappingSnapshot }
