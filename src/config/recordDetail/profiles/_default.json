@@ -21,6 +21,7 @@
     "sections": [
         "identification",
         "observation",
+        "content",
         "files"
     ],
     "description": [

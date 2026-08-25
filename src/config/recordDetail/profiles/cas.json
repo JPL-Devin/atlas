@@ -32,6 +32,7 @@
         "identification",
         "observation",
         "geometry_orbital",
+        "content",
         "files"
     ],
     "description": [

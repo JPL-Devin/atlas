@@ -36,6 +36,7 @@
         "identification",
         "observation",
         "geometry_surface",
+        "content",
         "files"
     ],
     "description": [

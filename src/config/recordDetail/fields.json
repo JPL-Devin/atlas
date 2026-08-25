@@ -480,5 +480,297 @@
         "icon": "file",
         "format": "uppercase",
         "microLabel": ""
+    },
+    "gather.landed_missions.rmc_arm": {
+        "label": "RMC arm",
+        "icon": "place",
+        "format": "integer"
+    },
+    "gather.landed_missions.rmc_chimra": {
+        "label": "RMC CHIMRA",
+        "icon": "place",
+        "format": "integer"
+    },
+    "gather.landed_missions.rmc_drill": {
+        "label": "RMC drill",
+        "icon": "place",
+        "format": "integer"
+    },
+    "gather.landed_missions.rmc_drt": {
+        "label": "RMC DRT",
+        "icon": "place",
+        "format": "integer"
+    },
+    "gather.landed_missions.rmc_flight": {
+        "label": "RMC flight",
+        "icon": "place",
+        "format": "integer"
+    },
+    "gather.landed_missions.rmc_hga": {
+        "label": "RMC HGA",
+        "icon": "place",
+        "format": "integer"
+    },
+    "gather.landed_missions.rmc_ic": {
+        "label": "RMC IC",
+        "icon": "place",
+        "format": "integer"
+    },
+    "gather.landed_missions.rmc_idd": {
+        "label": "RMC IDD",
+        "icon": "place",
+        "format": "integer"
+    },
+    "gather.landed_missions.rmc_pma": {
+        "label": "RMC PMA",
+        "icon": "place",
+        "format": "integer"
+    },
+    "gather.landed_missions.rmc_rsm": {
+        "label": "RMC RSM",
+        "icon": "place",
+        "format": "integer"
+    },
+    "gather.landed_missions.rover_instrument_azimuth": {
+        "label": "Rover instrument azimuth",
+        "shortLabel": "Rover az",
+        "icon": "angle",
+        "format": "number",
+        "unit": "°",
+        "precision": 1,
+        "valid": {
+            "min": -360,
+            "max": 360
+        }
+    },
+    "gather.landed_missions.rover_instrument_elevation": {
+        "label": "Rover instrument elevation",
+        "shortLabel": "Rover el",
+        "icon": "angle",
+        "format": "number",
+        "unit": "°",
+        "precision": 1,
+        "valid": {
+            "min": -90,
+            "max": 90
+        }
+    },
+    "gather.landed_missions.local_true_solar_time": {
+        "label": "Local true solar time",
+        "shortLabel": "LTST",
+        "icon": "clock",
+        "format": "clock"
+    },
+    "gather.orbital_missions.declination": {
+        "label": "Declination",
+        "icon": "orbit",
+        "format": "number",
+        "unit": "°",
+        "precision": 2,
+        "valid": {
+            "min": -90,
+            "max": 90
+        }
+    },
+    "gather.orbital_missions.right_ascension": {
+        "label": "Right ascension",
+        "icon": "orbit",
+        "format": "number",
+        "unit": "°",
+        "precision": 2,
+        "valid": {
+            "min": 0,
+            "max": 360
+        }
+    },
+    "gather.orbital_missions.solar_latitude": {
+        "label": "Solar latitude",
+        "shortLabel": "Sun lat",
+        "icon": "sun",
+        "format": "number",
+        "unit": "°",
+        "precision": 2,
+        "valid": {
+            "min": -90,
+            "max": 90
+        }
+    },
+    "gather.orbital_missions.slew_angle": {
+        "label": "Slew angle",
+        "icon": "angle",
+        "format": "number",
+        "unit": "°",
+        "precision": 1,
+        "valid": {
+            "min": -360,
+            "max": 360
+        }
+    },
+    "gather.orbital_missions.smear_azimuth": {
+        "label": "Smear azimuth",
+        "icon": "angle",
+        "format": "number",
+        "unit": "°",
+        "precision": 1,
+        "valid": {
+            "min": -360,
+            "max": 360
+        }
+    },
+    "gather.orbital_missions.twist_angle": {
+        "label": "Twist angle",
+        "icon": "angle",
+        "format": "number",
+        "unit": "°",
+        "precision": 1,
+        "valid": {
+            "min": -360,
+            "max": 360
+        }
+    },
+    "gather.orbital_missions.map_projection_rotation": {
+        "label": "Map projection rotation",
+        "shortLabel": "Projection rotation",
+        "icon": "place",
+        "format": "number",
+        "unit": "°",
+        "precision": 1,
+        "valid": {
+            "min": -360,
+            "max": 360
+        }
+    },
+    "gather.orbital_missions.spacecraft_pitch": {
+        "label": "Spacecraft pitch",
+        "shortLabel": "Pitch",
+        "icon": "orbit",
+        "format": "number",
+        "unit": "°",
+        "precision": 2,
+        "valid": {
+            "min": -360,
+            "max": 360
+        }
+    },
+    "gather.orbital_missions.spacecraft_roll": {
+        "label": "Spacecraft roll",
+        "shortLabel": "Roll",
+        "icon": "orbit",
+        "format": "number",
+        "unit": "°",
+        "precision": 2,
+        "valid": {
+            "min": -360,
+            "max": 360
+        }
+    },
+    "gather.orbital_missions.spacecraft_yaw": {
+        "label": "Spacecraft yaw",
+        "shortLabel": "Yaw",
+        "icon": "orbit",
+        "format": "number",
+        "unit": "°",
+        "precision": 2,
+        "valid": {
+            "min": -360,
+            "max": 360
+        }
+    },
+    "gather.common.object_type": {
+        "label": "Object type",
+        "icon": "layers",
+        "format": "titlecase"
+    },
+    "gather.ancillary.secondary_instrument": {
+        "label": "Secondary instrument",
+        "icon": "camera",
+        "format": "text"
+    },
+    "gather.machine_learning.classification.ml_model_name": {
+        "label": "ML model",
+        "icon": "layers",
+        "format": "text"
+    },
+    "gather.machine_learning.classification.ml_model_version_id": {
+        "label": "ML model version",
+        "icon": "layers",
+        "format": "text"
+    },
+    "gather.cassini_content.image_class": {
+        "label": "Image class",
+        "icon": "layers",
+        "format": "titlecase"
+    },
+    "gather.galileo_content.image_class": {
+        "label": "Image class",
+        "icon": "layers",
+        "format": "titlecase"
+    },
+    "gather.msl_content.image_class": {
+        "label": "Image class",
+        "icon": "layers",
+        "format": "titlecase"
+    },
+    "gather.mro_landmarks.image_class": {
+        "label": "Image class",
+        "icon": "layers",
+        "format": "titlecase"
+    },
+    "gather.msl_content.confidence": {
+        "label": "Classification confidence",
+        "shortLabel": "Confidence",
+        "icon": "layers",
+        "format": "number",
+        "precision": 2,
+        "valid": {
+            "min": 0,
+            "max": 1
+        }
+    },
+    "gather.mro_landmarks.craters_count": {
+        "label": "Craters",
+        "icon": "layers",
+        "format": "integer"
+    },
+    "gather.mro_landmarks.impacts_count": {
+        "label": "Impacts",
+        "icon": "layers",
+        "format": "integer"
+    },
+    "gather.mro_landmarks.bright_dunes_count": {
+        "label": "Bright dunes",
+        "icon": "layers",
+        "format": "integer"
+    },
+    "gather.mro_landmarks.dark_dunes_count": {
+        "label": "Dark dunes",
+        "icon": "layers",
+        "format": "integer"
+    },
+    "gather.mro_landmarks.slope_streaks_count": {
+        "label": "Slope streaks",
+        "icon": "layers",
+        "format": "integer"
+    },
+    "gather.mro_landmarks.spiders_count": {
+        "label": "Spiders",
+        "icon": "layers",
+        "format": "integer"
+    },
+    "gather.mro_landmarks.swiss_cheeses_count": {
+        "label": "Swiss cheese terrain",
+        "icon": "layers",
+        "format": "integer"
+    },
+    "archive.md5": {
+        "label": "MD5 checksum",
+        "shortLabel": "MD5",
+        "icon": "file",
+        "format": "text"
+    },
+    "published": {
+        "label": "Published",
+        "icon": "calendar",
+        "format": "datetime"
     }
 }

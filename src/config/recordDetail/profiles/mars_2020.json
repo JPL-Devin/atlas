@@ -33,6 +33,7 @@
         "identification",
         "observation",
         "geometry_surface",
+        "content",
         "files"
     ],
     "separator": ", ",

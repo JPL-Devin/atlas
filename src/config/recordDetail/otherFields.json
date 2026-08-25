@@ -21,7 +21,10 @@
     "thumbnail",
     "browse",
     "tile",
-    "label"
+    "label",
+    "classifications",
+    "explanations",
+    "feature"
   ],
   "excludePaths": ["archive.name", "gather.pds_archive.file_name"],
   "acronyms": [

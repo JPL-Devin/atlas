@@ -20,6 +20,7 @@
         "identification",
         "observation",
         "geometry_orbital",
+        "content",
         "files"
     ],
     "separator": ", ",

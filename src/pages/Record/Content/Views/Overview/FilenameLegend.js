@@ -17,9 +17,9 @@ const useStyles = makeStyles((theme) => ({
     // The name wraps rather than scrolling, so its tail is never hidden.
     filename: {
         flex: 1,
-        fontSize: '18px',
+        fontSize: '16px',
         fontWeight: 'bold',
-        lineHeight: '23px',
+        lineHeight: '21px',
         letterSpacing: '0.02em',
         textAlign: 'center',
         wordBreak: 'break-all',

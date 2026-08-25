@@ -86,7 +86,7 @@ const useStyles = makeStyles((theme) => ({
     captionCard: {
         boxSizing: 'border-box',
         padding: '10px 12px 8px 12px',
-        marginBottom: '4px',
+        marginBottom: '20px',
         borderRadius: '3px',
         border: `1px solid ${theme.palette.swatches.grey.grey200}`,
         background: theme.palette.swatches.grey.grey0,
@@ -177,7 +177,7 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: theme.palette.swatches.grey.grey150,
     },
     metadata: {
-        width: '520px',
+        width: '700px',
         height: '100%',
         boxSizing: 'border-box',
         display: 'flex',
@@ -371,9 +371,11 @@ const useStyles = makeStyles((theme) => ({
     rowValue: {
         display: 'flex',
         alignItems: 'flex-start',
+        justifyContent: 'flex-end',
         gap: '4px',
         minWidth: 0,
         color: theme.palette.text.primary,
+        textAlign: 'right',
         overflowWrap: 'anywhere',
     },
     rowCopy: {
@@ -418,7 +420,7 @@ const useStyles = makeStyles((theme) => ({
     citation: {
         fontSize: '13px',
         lineHeight: '19px',
-        color: theme.palette.swatches.grey.grey600,
+        color: theme.palette.text.primary,
         overflowWrap: 'anywhere',
     },
     select: {
