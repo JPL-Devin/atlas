@@ -84,7 +84,6 @@ const useStyles = makeStyles((theme) => ({
     },
     detailsFilled: {
         paddingBottom: '14px',
-        marginBottom: '10px',
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     // Every control shares one compact size so the row fits the panel width.
@@ -93,7 +92,7 @@ const useStyles = makeStyles((theme) => ({
         'alignItems': 'stretch',
         'justifyContent': 'center',
         'gap': '4px',
-        'padding': '6px 8px',
+        'padding': '10px 8px',
         'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
         '& .MuiButton-root': {
             fontSize: '12px',

@@ -58,11 +58,6 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey800,
         whiteSpace: 'nowrap',
     },
-    // blue800 rather than blue700: white on blue700 is only 4.2:1.
-    chipLead: {
-        background: theme.palette.swatches.blue.blue800,
-        color: theme.palette.swatches.grey.grey0,
-    },
     captionTitle: {
         fontSize: '14px',
         fontWeight: 'bold',
@@ -228,13 +223,13 @@ const useStyles = makeStyles((theme) => ({
         'textTransform': 'none',
         'padding': '2px 8px',
         'borderRadius': '2px',
-        'border': `1px solid ${theme.palette.swatches.grey.grey300}`,
-        'background': theme.palette.swatches.grey.grey0,
-        'color': theme.palette.swatches.grey.grey700,
+        'border': 'none',
+        // blue800 rather than blue700: white on blue700 is only 4.2:1.
+        'background': theme.palette.swatches.blue.blue800,
+        'color': theme.palette.swatches.grey.grey0,
         'cursor': 'pointer',
         '&:hover': {
-            borderColor: theme.palette.swatches.grey.grey500,
-            background: theme.palette.swatches.grey.grey150,
+            background: theme.palette.swatches.blue.blue900,
         },
     },
     filter: {
@@ -504,7 +499,7 @@ const Overview = (props) => {
                 {presentation.captionChips.length > 0 && (
                     <div className={c.captionChips}>
                         {presentation.captionChips.map((chip, idx) => (
-                            <span className={`${c.chip} ${idx === 0 ? c.chipLead : ''}`} key={idx}>
+                            <span className={c.chip} key={idx}>
                                 {chip}
                             </span>
                         ))}
