@@ -199,14 +199,14 @@ const useStyles = makeStyles((theme) => ({
             borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
         },
     },
-    // The record's actions, pinned above the scrolling metadata.
+    // The record's actions, pinned below the scrolling metadata.
     panelActions: {
         display: 'flex',
         alignItems: 'center',
         gap: '2px',
         flexShrink: 0,
         padding: '6px 12px',
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
     },
     // Download anchors the right end; the copy/cart icons stay left.
     panelDownload: {
@@ -707,14 +707,6 @@ const Overview = (props) => {
     // once the real values arrive.
     const renderSkeleton = () => (
         <>
-            <div className={c.panelActions} aria-hidden="true">
-                <Skeleton
-                    className={`${c.skeleton} ${c.panelDownload}`}
-                    variant="rectangular"
-                    width={124}
-                    height={30}
-                />
-            </div>
             <div className={c.metadataScroll} aria-hidden="true">
                 <Skeleton className={c.skeleton} variant="text" width="90%" />
                 <div className={c.heading}>At a glance</div>
@@ -742,6 +734,14 @@ const Overview = (props) => {
                     </div>
                 ))}
             </div>
+            <div className={c.panelActions} aria-hidden="true">
+                <Skeleton
+                    className={`${c.skeleton} ${c.panelDownload}`}
+                    variant="rectangular"
+                    width={124}
+                    height={30}
+                />
+            </div>
         </>
     )
 
@@ -752,7 +752,6 @@ const Overview = (props) => {
                     renderSkeleton()
                 ) : (
                     <>
-                        {renderPanelActions()}
                         <div className={c.metadataScroll}>
                             {parsedFilename != null && <FilenameLegend parsed={parsedFilename} />}
                             <div className={c.heading}>At a glance</div>
@@ -882,6 +881,7 @@ const Overview = (props) => {
                                     </>
                                 )}
                         </div>
+                        {renderPanelActions()}
                     </>
                 )}
             </div>

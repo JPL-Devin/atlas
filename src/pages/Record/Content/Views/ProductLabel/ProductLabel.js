@@ -333,11 +333,11 @@ const useStyles = makeStyles((theme) => ({
             borderRadius: '2px',
         },
     },
-    left: {
+    viewerColumn: {
         flex: 1,
     },
-    right: {
-        borderLeft: `1px solid ${theme.palette.swatches.grey.grey150}`,
+    panel: {
+        borderRight: `1px solid ${theme.palette.swatches.grey.grey150}`,
         width: '960px',
         background: theme.palette.swatches.grey.grey100,
         [theme.breakpoints.down('lg')]: {
@@ -345,6 +345,7 @@ const useStyles = makeStyles((theme) => ({
         },
         [theme.breakpoints.down('md')]: {
             width: '100%',
+            borderRight: 'none',
         },
     },
     top: {
@@ -469,19 +470,7 @@ const ProductLabel = (props) => {
         const labelTree = makeTree(labelData, filterString, c)
         return (
             <div className={c.ProductLabel}>
-                {!isMobile && (
-                    <div className={c.left}>
-                        <div className={c.viewer}>
-                            <OpenSeadragonViewer
-                                image={{
-                                    src: imgURL,
-                                }}
-                                settings={{ defaultZoomLevel: 0.5, showNavigator: false }}
-                            />
-                        </div>
-                    </div>
-                )}
-                <div className={c.right}>
+                <div className={c.panel}>
                     <div className={c.top}>
                         <div className={c.search}>
                             <Input
@@ -598,6 +587,18 @@ const ProductLabel = (props) => {
                         </SimpleTreeView>
                     </div>
                 </div>
+                {!isMobile && (
+                    <div className={c.viewerColumn}>
+                        <div className={c.viewer}>
+                            <OpenSeadragonViewer
+                                image={{
+                                    src: imgURL,
+                                }}
+                                settings={{ defaultZoomLevel: 0.5, showNavigator: false }}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
         )
     }
