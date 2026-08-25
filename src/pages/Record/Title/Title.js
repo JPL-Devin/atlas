@@ -1,35 +1,27 @@
-import React, { useState, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import { useNavigate } from 'react-router-dom'
-import { HASH_PATHS, ES_PATHS, RELATED_MAPPINGS } from '../../../core/constants'
-import { getAppConfig } from '../../../core/appConfig'
+import { HASH_PATHS, ES_PATHS } from '../../../core/constants'
 
-import {
-    getIn,
-    copyToClipboard,
-    humanFileSize,
-    getExtension,
-    sortRelatedKeys,
-    getPDSUrl,
-    getFilename,
-} from '../../../core/utils'
+import { getIn, copyToClipboard, getPDSUrl, getFilename } from '../../../core/utils'
 
 import { streamDownloadFile } from '../../../core/downloaders/ZipStream.js'
-import { addToCart, setSnackBarText } from '../../../core/redux/actions/actions'
+import { setSnackBarText } from '../../../core/redux/actions/actions'
+import { getDownloadProducts } from '../../../core/recordDownloads'
 import SplitButton from '../../../components/SplitButton/SplitButton'
+import ViewTabs from '../Content/ViewTabs/ViewTabs'
+import { getVisibleViewTabs } from '../viewTabs'
 
 import { makeStyles } from '@mui/styles'
 
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
-import Divider from '@mui/material/Divider'
 import Chip from '@mui/material/Chip'
 
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import LinkIcon from '@mui/icons-material/Link'
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 
 const useStyles = makeStyles((theme) => ({
     Title: {
@@ -40,14 +32,18 @@ const useStyles = makeStyles((theme) => ({
         background: theme.palette.swatches.grey.grey100,
         color: theme.palette.text.primary,
     },
+    // The name is the only elastic item, so it yields space to the tabs.
     left: {
         display: 'flex',
-        justifyContent: 'space-between',
+        alignItems: 'center',
+        flex: 1,
+        minWidth: 0,
     },
     right: {
         display: 'flex',
-        justifyContent: 'space-between',
-        padding: '2px 8px 4px 4px',
+        alignItems: 'center',
+        flexShrink: 0,
+        paddingLeft: '8px',
     },
     back: {},
     backButton: {
@@ -60,11 +56,15 @@ const useStyles = makeStyles((theme) => ({
     },
     name: {
         margin: `0px ${theme.spacing(1)}`,
+        minWidth: 0,
     },
     nameTitle: {
         fontSize: 16,
         lineHeight: `${theme.headHeights[1]}px`,
         fontWeight: 'bold',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
     },
     copyLink: {},
     copyButton: {
@@ -90,20 +90,9 @@ const useStyles = makeStyles((theme) => ({
         margin: '2px 3px',
         color: theme.palette.text.secondary,
     },
-    // Shown at every width: the title bar is the only download affordance.
+    // Only the tabs without their own action row need a download here.
     splitButton: {
         margin: '4px 5px 3px 5px',
-    },
-    divider: {
-        background: theme.palette.swatches.grey.grey200,
-        margin: `${theme.spacing(0.5)} ${theme.spacing(2)}`,
-    },
-    addToCart: {
-        width: 34,
-        height: 34,
-        padding: 6,
-        borderRadius: 0,
-        color: theme.palette.accent.main,
     },
     mlChip: {
         'height': '24px',
@@ -119,6 +108,7 @@ const useStyles = makeStyles((theme) => ({
     mlChipsContainer: {
         display: 'flex',
         alignItems: 'center',
+        minWidth: 0,
         gap: theme.spacing(0.5),
     },
 }))
@@ -132,6 +122,8 @@ const Title = (props) => {
 
     const dispatch = useDispatch()
 
+    const recordViewTab = useSelector((state) => state.get('recordViewTab'))
+
     // Hidden Feature: Ctrl-Z to quickly go back to search. Could just use Alt <-
     useEffect(() => {
         const toSearch = (e) => {
@@ -142,28 +134,6 @@ const Title = (props) => {
             document.removeEventListener('keydown', toSearch)
         }
     }, [])
-
-    const [snackbar, setSnackbar] = useState({ open: false, message: '' })
-
-    const handleOpenSnackbar = (message) => {
-        setSnackbar({ open: true, message: message })
-    }
-
-    const handleCloseSnackbar = (e, reason) => {
-        if (reason === 'clickaway') return
-        setSnackbar({ open: false, message: '' })
-    }
-    const release_id = getIn(recordData, ES_PATHS.release_id)
-
-    let availableDownloadProducts = []
-    const related = getIn(recordData, ES_PATHS.related, {})
-    if (related.src == null) related.src = {}
-
-    const ml_classification_related = getIn(recordData, ES_PATHS.ml_classification_related, {})
-    if (ml_classification_related.overlay)
-        related.ml_classifier_features = ml_classification_related.overlay
-    if (ml_classification_related.label)
-        related.ml_classifier_label = ml_classification_related.label
 
     // Extract unique ML classifications from ES data
     const mlClassifications = []
@@ -183,26 +153,26 @@ const Title = (props) => {
         mlClassifications.sort((a, b) => b.confidence - a.confidence)
     }
 
-    sortRelatedKeys(Object.keys(related)).forEach((key) => {
-        const uri = key === 'src' ? getIn(recordData, ES_PATHS.source) : related[key].uri
-        const size = humanFileSize(related[key].size)
-        availableDownloadProducts.push({
-            name: RELATED_MAPPINGS[key] || key,
-            subname: `.${getExtension(uri)}${size ? ` (${size})` : ''}`,
-            uri,
-            checked: key === getAppConfig().defaultDownloadProduct,
-            release_id: release_id,
-        })
-    })
+    // The Overview carries its own action row, so this bar only needs the
+    // download and link affordances for the other tabs.
+    const showActions = recordViewTab !== 'overview'
+    const availableDownloadProducts = getDownloadProducts(recordData)
 
     const urlParams = new URLSearchParams(window.location.search)
     const back = urlParams.get('back')
 
+    // The name and actions live in the metadata panel at phone width, so the
+    // bar carries only the tabs.
     if (mobile) {
         return (
             <div className={c.Title}>
-                <div className="left"></div>
-                <div className="right"></div>
+                <div className={c.left}></div>
+                <div className={c.right}>
+                    <ViewTabs
+                        recordViewTab={recordViewTab}
+                        VIEW_TABS={getVisibleViewTabs(recordData)}
+                    />
+                </div>
             </div>
         )
     }
@@ -219,14 +189,19 @@ const Title = (props) => {
                                 if (back === 'page') navigate(-1)
                                 else navigate(HASH_PATHS.search)
                             }}
-                            size="large">
+                            size="large"
+                        >
                             <ChevronLeftIcon className={c.backIcon} />
                         </IconButton>
                     </Tooltip>
                 </div>
                 <div className={c.name}>
                     <div className={c.mlChipsContainer}>
-                        <Typography className={c.nameTitle} variant="h2">
+                        <Typography
+                            className={c.nameTitle}
+                            variant="h2"
+                            title={getIn(recordData, ES_PATHS.file_name, '--')}
+                        >
                             {getIn(recordData, ES_PATHS.file_name, '--')}
                         </Typography>
                         {mlClassifications.length > 0 &&
@@ -240,64 +215,47 @@ const Title = (props) => {
                             ))}
                     </div>
                 </div>
-                <div className={c.copyLink}>
-                    <Tooltip title="Copy Link" arrow>
-                        <IconButton
-                            className={c.copyButton}
-                            aria-label="copy link to record page"
-                            onClick={() => {
-                                copyToClipboard(window.location.href)
-                                handleOpenSnackbar('Copied URL to clipboard!')
-                            }}
-                            size="large">
-                            <LinkIcon className={c.copyIcon} />
-                        </IconButton>
-                    </Tooltip>
-                </div>
             </div>
             <div className={c.right}>
-                <SplitButton
-                    className={c.splitButton}
-                    forceName="Download"
-                    type="checklist"
-                    items={availableDownloadProducts}
-                    onClick={(checked) => {
-                        checked.forEach((item) => {
-                            if (item.uri)
-                                streamDownloadFile(
-                                    getPDSUrl(item.uri, item.release_id),
-                                    getFilename(item.uri)
-                                )
-                        })
-                    }}
-                />
-                {getAppConfig().enableCart && (
-                <>
-                <Divider className={c.divider} orientation="vertical" flexItem />
-                <Tooltip title="Add to Cart" arrow>
-                    <IconButton
-                        className={c.addToCart}
-                        aria-label="add current image to cart button"
-                        size="small"
-                        onClick={() => {
-                            dispatch(
-                                addToCart('image', {
-                                    uri: getIn(recordData, ES_PATHS.source),
-                                    related: getIn(recordData, ES_PATHS.related),
-                                    release_id: getIn(recordData, ES_PATHS.release_id),
+                {showActions && (
+                    <>
+                        <Tooltip title="Copy Link" arrow>
+                            <IconButton
+                                className={c.copyButton}
+                                aria-label="copy link to record page"
+                                onClick={() => {
+                                    copyToClipboard(window.location.href)
+                                    dispatch(setSnackBarText('Copied URL to clipboard!', 'success'))
+                                }}
+                                size="large"
+                            >
+                                <LinkIcon className={c.copyIcon} />
+                            </IconButton>
+                        </Tooltip>
+                        <SplitButton
+                            className={c.splitButton}
+                            forceName="Download"
+                            type="checklist"
+                            items={availableDownloadProducts}
+                            onClick={(checked) => {
+                                checked.forEach((item) => {
+                                    if (item.uri)
+                                        streamDownloadFile(
+                                            getPDSUrl(item.uri, item.release_id),
+                                            getFilename(item.uri)
+                                        )
                                 })
-                            )
-                            dispatch(setSnackBarText('Added to Cart!', 'success'))
-                        }}
-                    >
-                        <AddShoppingCartIcon size="small" />
-                    </IconButton>
-                </Tooltip>
-                </>
+                            }}
+                        />
+                    </>
                 )}
+                <ViewTabs
+                    recordViewTab={recordViewTab}
+                    VIEW_TABS={getVisibleViewTabs(recordData)}
+                />
             </div>
         </div>
-    );
+    )
 }
 
 Title.propTypes = {

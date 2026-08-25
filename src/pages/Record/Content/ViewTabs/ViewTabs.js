@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -10,12 +10,21 @@ import { prettify } from '../../../../core/utils.js'
 import { setRecordViewTab } from '../../../../core/redux/actions/actions.js'
 
 const useStyles = makeStyles((theme) => ({
+    // Sits in the record title row, so it inherits that bar's surface.
     ViewTabs: {
-        height: theme.headHeights[2],
+        display: 'flex',
+        alignItems: 'stretch',
+        height: '100%',
         boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey100,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
         color: theme.palette.text.main,
+    },
+    tabs: {
+        'minHeight': 0,
+        'height': '100%',
+        '& .MuiTabs-scroller, & .MuiTabs-flexContainer': {
+            height: '100%',
+            alignItems: 'stretch',
+        },
     },
 }))
 
@@ -45,8 +54,12 @@ const StyledTab = withStyles((theme) => ({
     root: {
         'color': theme.palette.text.main,
         'fontSize': theme.typography.pxToRem(14),
-        'marginRight': theme.spacing(1),
-        'minWidth': 88,
+        'minWidth': 0,
+        'minHeight': 0,
+        'height': '100%',
+        'justifyContent': 'center',
+        'padding': `0 ${theme.spacing(1.5)}`,
+        'whiteSpace': 'nowrap',
         '&:focus': {
             opacity: 1,
         },
@@ -67,6 +80,9 @@ const ViewTabs = (props) => {
     return (
         <div className={c.ViewTabs}>
             <StyledTabs
+                className={c.tabs}
+                variant="scrollable"
+                scrollButtons="auto"
                 value={VIEW_TABS.indexOf(recordViewTab)}
                 onChange={handleChange}
                 aria-label="record view tab"

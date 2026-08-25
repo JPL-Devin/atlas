@@ -7,7 +7,6 @@ import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-import Button from '@mui/material/Button'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 import Input from '@mui/material/Input'
@@ -23,13 +22,26 @@ import CloseIcon from '@mui/icons-material/Close'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import SearchIcon from '@mui/icons-material/Search'
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
+import LinkIcon from '@mui/icons-material/Link'
+import FormatQuoteIcon from '@mui/icons-material/FormatQuote'
+import SubtitlesIcon from '@mui/icons-material/Subtitles'
 
-import { copyToClipboard, getIn, getPDSUrl, getExtension } from '../../../../../core/utils.js'
+import {
+    copyToClipboard,
+    getIn,
+    getPDSUrl,
+    getExtension,
+    getFilename,
+} from '../../../../../core/utils.js'
 import { HASH_PATHS, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../../core/constants.js'
 import { getAppConfig, getAppInstanceKey } from '../../../../../core/appConfig.js'
 import { parseRecordFilename, resolvePresentation } from '../../../../../core/recordPresentation'
 import { emptyStates } from '../../../../../config/recordDetail'
-import { setSnackBarText } from '../../../../../core/redux/actions/actions.js'
+import { addToCart, setSnackBarText } from '../../../../../core/redux/actions/actions.js'
+import { getDownloadProducts } from '../../../../../core/recordDownloads.js'
+import { streamDownloadFile } from '../../../../../core/downloaders/ZipStream.js'
+import SplitButton from '../../../../../components/SplitButton/SplitButton'
 
 import tileIcons from './tileIcons.js'
 import FilenameLegend from './FilenameLegend'
@@ -132,7 +144,7 @@ const useStyles = makeStyles((theme) => ({
     captionFoot: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
         gap: '8px',
         marginTop: '6px',
     },
@@ -140,16 +152,6 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '11px',
         color: theme.palette.swatches.grey.grey300,
         whiteSpace: 'nowrap',
-    },
-    smallAction: {
-        'fontSize': '11px',
-        'minWidth': 0,
-        'padding': '0 4px',
-        'color': theme.palette.swatches.grey.grey300,
-        '&:hover': {
-            color: theme.palette.swatches.grey.grey0,
-            background: 'transparent',
-        },
     },
     emptyState: {
         flex: 1,
@@ -195,6 +197,19 @@ const useStyles = makeStyles((theme) => ({
             borderLeft: 'none',
             borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
         },
+    },
+    // The record's actions, pinned above the scrolling metadata.
+    panelActions: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '2px',
+        flexShrink: 0,
+        padding: '6px 12px',
+        borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
+    },
+    // Download anchors the right end; the copy/cart icons stay left.
+    panelDownload: {
+        marginLeft: 'auto',
     },
     // A slim scrollbar keeps the gutter from cutting into the heading rules.
     metadataScroll: {
@@ -480,6 +495,7 @@ const Overview = (props) => {
     const [collapsed, setCollapsed] = useState({})
 
     const release_id = getIn(recordData, ES_PATHS.release_id)
+    const downloadProducts = getDownloadProducts(recordData)
     const browse_uri = getIn(recordData, ES_PATHS.browse)
     const uri = getIn(recordData, ES_PATHS.source)
     const supplemental = getIn(recordData, ES_PATHS.supplemental)
@@ -596,6 +612,82 @@ const Overview = (props) => {
         dispatch(setSnackBarText(message, 'success'))
     }
 
+    const renderPanelActions = () => (
+        <div className={c.panelActions} aria-label="record actions">
+            {getAppConfig().enableCart && (
+                <Tooltip title="Add to cart" arrow>
+                    <IconButton
+                        className={c.actionIcon}
+                        aria-label="add record to cart"
+                        size="small"
+                        onClick={() => {
+                            dispatch(
+                                addToCart('image', {
+                                    uri,
+                                    related: getIn(recordData, ES_PATHS.related),
+                                    release_id,
+                                })
+                            )
+                            dispatch(setSnackBarText('Added to Cart!', 'success'))
+                        }}
+                    >
+                        <AddShoppingCartIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
+            )}
+            <Tooltip title="Copy link" arrow>
+                <IconButton
+                    className={c.actionIcon}
+                    aria-label="copy link to record"
+                    size="small"
+                    onClick={() => copy(window.location.href, 'Copied URL to clipboard!')}
+                >
+                    <LinkIcon fontSize="small" />
+                </IconButton>
+            </Tooltip>
+            {caption != null && (
+                <Tooltip title="Copy caption" arrow>
+                    <IconButton
+                        className={c.actionIcon}
+                        aria-label="copy record caption"
+                        size="small"
+                        onClick={() => copy(caption, 'Copied caption to clipboard!')}
+                    >
+                        <SubtitlesIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
+            )}
+            {presentation.citation != null && getAppConfig().enableRecordCitation && (
+                <Tooltip title="Copy citation" arrow>
+                    <IconButton
+                        className={c.actionIcon}
+                        aria-label="copy record citation"
+                        size="small"
+                        onClick={() => copy(presentation.citation, 'Copied citation to clipboard!')}
+                    >
+                        <FormatQuoteIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
+            )}
+            <SplitButton
+                className={c.panelDownload}
+                forceName="Download"
+                ariaLabel="download record products"
+                type="checklist"
+                items={downloadProducts}
+                onClick={(checked) => {
+                    checked.forEach((item) => {
+                        if (item.uri)
+                            streamDownloadFile(
+                                getPDSUrl(item.uri, item.release_id),
+                                getFilename(item.uri)
+                            )
+                    })
+                }}
+            />
+        </div>
+    )
+
     const renderCaptionCard = () => {
         if (presentation.captionTitle == null && caption == null) return null
         return (
@@ -613,19 +705,9 @@ const Overview = (props) => {
                     <div className={c.captionTitle}>{presentation.captionTitle}</div>
                 )}
                 {caption != null && <div className={c.captionText}>{caption}</div>}
-                {!isNarrow && caption != null && (
+                {!isNarrow && presentation.citationAuthor != null && (
                     <div className={c.captionFoot}>
-                        <Button
-                            className={c.smallAction}
-                            size="small"
-                            startIcon={<ContentCopyIcon style={{ fontSize: '13px' }} />}
-                            onClick={() => copy(caption, 'Copied caption to clipboard!')}
-                        >
-                            Copy caption
-                        </Button>
-                        {presentation.citationAuthor != null && (
-                            <div className={c.captionAuthor}>{presentation.citationAuthor}</div>
-                        )}
+                        <div className={c.captionAuthor}>{presentation.citationAuthor}</div>
                     </div>
                 )}
             </div>
@@ -636,6 +718,14 @@ const Overview = (props) => {
     // once the real values arrive.
     const renderSkeleton = () => (
         <>
+            <div className={c.panelActions} aria-hidden="true">
+                <Skeleton
+                    className={`${c.skeleton} ${c.panelDownload}`}
+                    variant="rectangular"
+                    width={124}
+                    height={30}
+                />
+            </div>
             <div className={c.metadataScroll} aria-hidden="true">
                 <Skeleton className={c.skeleton} variant="text" width="90%" />
                 <div className={c.heading}>At a glance</div>
@@ -717,10 +807,9 @@ const Overview = (props) => {
                     renderSkeleton()
                 ) : (
                     <>
+                        {renderPanelActions()}
                         <div className={c.metadataScroll}>
-                            {parsedFilename != null && (
-                                <FilenameLegend parsed={parsedFilename} />
-                            )}
+                            {parsedFilename != null && <FilenameLegend parsed={parsedFilename} />}
                             {!isNarrow && presentation.description != null && (
                                 <>
                                     <div className={c.heading}>About this product</div>
@@ -851,21 +940,6 @@ const Overview = (props) => {
                                     <>
                                         <div className={c.citationHeading}>
                                             <span>Citation</span>
-                                            <Tooltip title="Copy citation" arrow>
-                                                <IconButton
-                                                    className={c.actionIcon}
-                                                    aria-label="copy citation"
-                                                    size="small"
-                                                    onClick={() =>
-                                                        copy(
-                                                            presentation.citation,
-                                                            'Copied citation to clipboard!'
-                                                        )
-                                                    }
-                                                >
-                                                    <ContentCopyIcon fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
                                         </div>
                                         <div className={c.citation}>{presentation.citation}</div>
                                     </>

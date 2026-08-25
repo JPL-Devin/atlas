@@ -5,28 +5,19 @@ import PropTypes from 'prop-types'
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
 
-import { getIn, objectArrayIndexOfKeyWithValue } from '../../../core/utils'
-import { ES_PATHS } from '../../../core/constants'
 import { setRecordViewTab } from '../../../core/redux/actions/actions.js'
-
-import ViewTabs from './ViewTabs/ViewTabs'
+import { VIEW_TABS } from '../viewTabs'
 
 // View components
 import Overview from './Views/Overview/Overview'
 import ProductLabel from './Views/ProductLabel/ProductLabel'
 import MLClassification from './Views/MLClassification/MLClassification'
-import Help from './Views/Help/Help'
 
-const VIEW_TABS = [
-    { id: 'overview', component: Overview },
-    { id: 'product label', component: ProductLabel },
-    {
-        id: 'ml classification',
-        component: MLClassification,
-        condition: ES_PATHS.ml_classification_related,
-    },
-    //{ id: 'help', component: Help },
-]
+const VIEW_COMPONENTS = {
+    'overview': Overview,
+    'product label': ProductLabel,
+    'ml classification': MLClassification,
+}
 
 const useStyles = makeStyles((theme) => ({
     Content: {
@@ -60,10 +51,7 @@ const Content = (props) => {
         }
     }, [])
 
-    // Find the current view component
-    let ViewComponent = null
-    const viewTabIndex = objectArrayIndexOfKeyWithValue(VIEW_TABS, 'id', recordViewTab)
-    if (VIEW_TABS[viewTabIndex] != null) ViewComponent = VIEW_TABS[viewTabIndex].component
+    const ViewComponent = VIEW_COMPONENTS[recordViewTab] || null
 
     return (
         <div
@@ -74,12 +62,6 @@ const Content = (props) => {
                 }px)`,
             }}
         >
-            <ViewTabs
-                recordViewTab={recordViewTab}
-                VIEW_TABS={VIEW_TABS.filter(
-                    (v) => v.condition == null || getIn(recordData, v.condition) != null
-                ).map((v) => v.id)}
-            />
             <div className={c.component}>
                 <ViewComponent
                     recordData={recordData}
