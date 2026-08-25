@@ -75,27 +75,49 @@ const useStyles = makeStyles((theme) => ({
             padding: '0px 8px',
         },
     },
+    // Every control shares one compact size so the row fits the panel width.
     actions: {
-        display: 'flex',
-        alignItems: 'center',
-        flexWrap: 'nowrap',
-        gap: '6px',
-        overflowX: 'auto',
-        padding: '6px 8px',
+        'display': 'flex',
+        'alignItems': 'stretch',
+        'gap': '4px',
+        'padding': '6px 8px',
+        '& .MuiButton-root': {
+            fontSize: '12px',
+            lineHeight: '16px',
+            minWidth: 0,
+            padding: '4px 8px',
+            borderRadius: '2px',
+            textTransform: 'none',
+            whiteSpace: 'nowrap',
+        },
+        '& .MuiButton-startIcon': {
+            marginRight: '4px',
+        },
+        '& .MuiSvgIcon-root': {
+            fontSize: '16px',
+        },
     },
     cart: {
-        fontSize: '13px',
-        textTransform: 'none',
-        whiteSpace: 'nowrap',
+        flexShrink: 0,
+    },
+    download: {
+        flexShrink: 0,
+    },
+    spacer: {
+        flex: 1,
+        minWidth: 0,
     },
     copyLink: {
-        'fontSize': '12px',
-        'textTransform': 'none',
+        'padding': '2px',
+        'borderRadius': '2px',
         'color': 'inherit',
         'opacity': 0.7,
+        'flexShrink': 0,
         '&:hover': {
             opacity: 1,
-            background: 'transparent',
+        },
+        '& .MuiSvgIcon-root': {
+            fontSize: '18px',
         },
     },
     tabs: {
@@ -204,6 +226,7 @@ const PanelHeader = (props) => {
                     </Button>
                 )}
                 <SplitButton
+                    className={c.download}
                     forceName="Download"
                     ariaLabel="download record products"
                     type="checklist"
@@ -219,19 +242,19 @@ const PanelHeader = (props) => {
                     }}
                 />
                 {extraActions}
+                <div className={c.spacer} />
                 <Tooltip title="Copy link to this record" arrow>
-                    <Button
+                    <IconButton
                         className={c.copyLink}
                         aria-label="copy link to record page"
                         size="small"
-                        startIcon={<LinkIcon fontSize="small" />}
                         onClick={() => {
                             copyToClipboard(window.location.href)
                             dispatch(setSnackBarText('Copied URL to clipboard!', 'success'))
                         }}
                     >
-                        Copy link
-                    </Button>
+                        <LinkIcon />
+                    </IconButton>
                 </Tooltip>
             </div>
             <div className={c.tabs}>

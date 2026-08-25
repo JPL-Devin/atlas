@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 import { makeStyles } from '@mui/styles'
 
 import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
@@ -13,12 +14,15 @@ import { ES_PATHS } from '../../../../core/constants'
 import { getIn, copyToClipboard, getPDSUrl } from '../../../../core/utils'
 import { setSnackBarText } from '../../../../core/redux/actions/actions'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
     button: {
-        fontSize: '12px',
-        textTransform: 'none',
-        whiteSpace: 'nowrap',
-        flexShrink: 0,
+        'flexShrink': 0,
+        'color': theme.palette.swatches.grey.grey700,
+        'borderColor': theme.palette.swatches.grey.grey300,
+        '&:hover': {
+            borderColor: theme.palette.swatches.grey.grey500,
+            background: theme.palette.swatches.grey.grey150,
+        },
     },
 }))
 
@@ -44,30 +48,34 @@ const LabelActions = (props) => {
 
     return (
         <>
-            <Button
-                className={c.button}
-                variant="outlined"
-                aria-label="copy label json button"
-                size="small"
-                startIcon={<ContentCopyIcon fontSize="small" />}
-                onClick={() => {
-                    copyToClipboard(JSON.stringify(labelData, null, 2))
-                    dispatch(setSnackBarText('Copied Label JSON to Clipboard!', 'success'))
-                }}
-            >
-                Copy Label JSON
-            </Button>
-            <Button
-                className={c.button}
-                variant="outlined"
-                aria-label="view raw label button"
-                size="small"
-                href={labelURL}
-                target="_blank"
-                startIcon={<OpenInNewIcon fontSize="small" />}
-            >
-                View Raw Label
-            </Button>
+            <Tooltip title="Copy Label JSON" arrow>
+                <Button
+                    className={c.button}
+                    variant="outlined"
+                    aria-label="copy label json button"
+                    size="small"
+                    startIcon={<ContentCopyIcon fontSize="small" />}
+                    onClick={() => {
+                        copyToClipboard(JSON.stringify(labelData, null, 2))
+                        dispatch(setSnackBarText('Copied Label JSON to Clipboard!', 'success'))
+                    }}
+                >
+                    Copy JSON
+                </Button>
+            </Tooltip>
+            <Tooltip title="View Raw Label" arrow>
+                <Button
+                    className={c.button}
+                    variant="outlined"
+                    aria-label="view raw label button"
+                    size="small"
+                    href={labelURL}
+                    target="_blank"
+                    startIcon={<OpenInNewIcon fontSize="small" />}
+                >
+                    Raw Label
+                </Button>
+            </Tooltip>
         </>
     )
 }

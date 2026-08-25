@@ -82,23 +82,14 @@ const useStyles = makeStyles((theme) => ({
             height: '55vh',
         },
     },
+    // The caption leads the panel body rather than floating over the image.
     captionCard: {
-        position: 'absolute',
-        left: '16px',
-        right: '16px',
-        bottom: '16px',
         boxSizing: 'border-box',
-        padding: '10px 14px 12px 14px',
+        padding: '10px 12px 8px 12px',
+        marginBottom: '4px',
         borderRadius: '3px',
         border: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        background: 'rgba(255,255,255,0.72)',
-        backdropFilter: 'blur(8px) saturate(140%)',
-        [theme.breakpoints.down('md')]: {
-            left: '8px',
-            right: '8px',
-            bottom: '8px',
-            padding: '8px 10px',
-        },
+        background: theme.palette.swatches.grey.grey0,
     },
     captionChips: {
         display: 'flex',
@@ -534,7 +525,7 @@ const Overview = (props) => {
         ? presentation.tiles.slice(0, presentation.priorityTiles)
         : presentation.tiles
     const tiles = available.slice(0, Math.floor(available.length / tileColumns) * tileColumns)
-    const caption = isNarrow ? presentation.shortCaption : presentation.caption
+    const caption = presentation.caption || presentation.shortCaption
 
     // The version selector reads as an Identification field, as in the mockup.
     const showVersions = pds_standard === 'pds4' && versions.length > 0
@@ -606,7 +597,7 @@ const Overview = (props) => {
         if (presentation.captionTitle == null && caption == null) return null
         return (
             <div className={c.captionCard} aria-label="record caption">
-                {!isNarrow && presentation.captionChips.length > 0 && (
+                {presentation.captionChips.length > 0 && (
                     <div className={c.captionChips}>
                         {presentation.captionChips.map((chip, idx) => (
                             <span className={`${c.chip} ${idx === 0 ? c.chipLead : ''}`} key={idx}>
@@ -619,7 +610,7 @@ const Overview = (props) => {
                     <div className={c.captionTitle}>{presentation.captionTitle}</div>
                 )}
                 {caption != null && <div className={c.captionText}>{caption}</div>}
-                {!isNarrow && (caption != null || presentation.citationAuthor != null) && (
+                {(caption != null || presentation.citationAuthor != null) && (
                     <div className={c.captionFoot}>
                         {caption != null ? (
                             <Tooltip title="Copy caption" arrow>
@@ -650,6 +641,21 @@ const Overview = (props) => {
         <>
             <div className={c.metadataScroll} aria-hidden="true">
                 <Skeleton className={c.skeleton} variant="text" width="90%" />
+                <div className={c.captionCard}>
+                    <div className={c.captionChips}>
+                        {['64px', '52px', '78px'].map((width) => (
+                            <Skeleton
+                                className={c.skeleton}
+                                variant="rounded"
+                                width={width}
+                                height={18}
+                                key={width}
+                            />
+                        ))}
+                    </div>
+                    <Skeleton className={c.skeleton} variant="text" width="45%" height={20} />
+                    <Skeleton className={c.skeleton} variant="text" width="80%" />
+                </div>
                 <div className={c.heading}>At a glance</div>
                 <div className={c.tiles}>
                     {Array.from({ length: 9 }).map((_, idx) => (
@@ -701,6 +707,7 @@ const Overview = (props) => {
                                     selection={filenameSelection}
                                 />
                             )}
+                            {renderCaptionCard()}
                             <div className={c.heading}>At a glance</div>
                             <div className={c.tiles}>
                                 {tiles.map((tile, idx) => {
@@ -851,36 +858,13 @@ const Overview = (props) => {
                     {isLoading ? (
                         <div className={`${c.viewerBody} ${c.loadingBody}`}>
                             <ViewerLoading label="record loading" />
-                            <div className={c.captionCard} aria-hidden="true">
-                                <div className={c.captionChips}>
-                                    {['64px', '52px', '78px'].map((width) => (
-                                        <Skeleton
-                                            className={c.skeleton}
-                                            variant="rounded"
-                                            width={width}
-                                            height={18}
-                                            key={width}
-                                        />
-                                    ))}
-                                </div>
-                                <Skeleton
-                                    className={c.skeleton}
-                                    variant="text"
-                                    width="45%"
-                                    height={20}
-                                />
-                                <Skeleton className={c.skeleton} variant="text" width="80%" />
-                            </div>
                         </div>
                     ) : hasViewable ? (
                         <>
                             {presentation.altText != null && (
                                 <span className={c.srOnly}>{presentation.altText}</span>
                             )}
-                            <div className={c.viewerBody}>
-                                {Viewer}
-                                {renderCaptionCard()}
-                            </div>
+                            <div className={c.viewerBody}>{Viewer}</div>
                         </>
                     ) : (
                         <div className={c.emptyState}>
