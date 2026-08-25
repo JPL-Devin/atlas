@@ -263,6 +263,15 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey500,
         transition: 'opacity 0.2s ease-out',
     },
+    // Fields sit on their own surface, like the caption and At-a-glance cards.
+    fieldsCard: {
+        boxSizing: 'border-box',
+        padding: '2px 12px 8px 12px',
+        marginBottom: '20px',
+        borderRadius: '3px',
+        border: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        background: theme.palette.swatches.grey.grey0,
+    },
     section: {
         // The app's global Collapse styling adds a left rule that reads as a
         // stray vertical line here.
@@ -629,91 +638,93 @@ const Overview = (props) => {
                                 </button>
                             </Tooltip>
                         </div>
-                        <div className={c.filter}>
-                            <Input
-                                className={c.filterInput}
-                                value={filterString}
-                                placeholder={`Filter ${fieldCount} field${
-                                    fieldCount === 1 ? '' : 's'
-                                }…`}
-                                inputProps={{ 'aria-label': 'filter record fields' }}
-                                startAdornment={
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                }
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            className={c.clearFilter}
-                                            aria-label="clear field filter"
-                                            size="small"
-                                            style={{ opacity: filterString.length > 0 ? 1 : 0 }}
-                                            onClick={() => setFilterString('')}
+                        <div className={c.fieldsCard}>
+                            <div className={c.filter}>
+                                <Input
+                                    className={c.filterInput}
+                                    value={filterString}
+                                    placeholder={`Filter ${fieldCount} field${
+                                        fieldCount === 1 ? '' : 's'
+                                    }…`}
+                                    inputProps={{ 'aria-label': 'filter record fields' }}
+                                    startAdornment={
+                                        <InputAdornment position="start">
+                                            <SearchIcon />
+                                        </InputAdornment>
+                                    }
+                                    endAdornment={
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                className={c.clearFilter}
+                                                aria-label="clear field filter"
+                                                size="small"
+                                                style={{ opacity: filterString.length > 0 ? 1 : 0 }}
+                                                onClick={() => setFilterString('')}
+                                            >
+                                                <CloseIcon fontSize="inherit" />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    }
+                                    onChange={(e) => setFilterString(e.target.value)}
+                                />
+                            </div>
+                            {sections.length === 0 && (
+                                <div className={c.noMatches}>No fields match “{filterString}”</div>
+                            )}
+                            {sections.map((section) => {
+                                // Filtering expands everything so matches are never hidden.
+                                const open =
+                                    filter !== '' ||
+                                    (collapsed[section.id] == null
+                                        ? OPEN_SECTIONS.includes(section.id)
+                                        : !collapsed[section.id])
+                                return (
+                                    <div className={c.section} key={section.id}>
+                                        <button
+                                            className={c.sectionHead}
+                                            aria-expanded={open}
+                                            onClick={() =>
+                                                setCollapsed({ ...collapsed, [section.id]: open })
+                                            }
                                         >
-                                            <CloseIcon fontSize="inherit" />
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                                onChange={(e) => setFilterString(e.target.value)}
-                            />
-                        </div>
-                        {sections.length === 0 && (
-                            <div className={c.noMatches}>No fields match “{filterString}”</div>
-                        )}
-                        {sections.map((section) => {
-                            // Filtering expands everything so matches are never hidden.
-                            const open =
-                                filter !== '' ||
-                                (collapsed[section.id] == null
-                                    ? OPEN_SECTIONS.includes(section.id)
-                                    : !collapsed[section.id])
-                            return (
-                                <div className={c.section} key={section.id}>
-                                    <button
-                                        className={c.sectionHead}
-                                        aria-expanded={open}
-                                        onClick={() =>
-                                            setCollapsed({ ...collapsed, [section.id]: open })
-                                        }
-                                    >
-                                        <span>
-                                            {open ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                                            {section.title}
-                                        </span>
-                                        <span className={c.sectionCount}>
-                                            {section.rows.length}
-                                        </span>
-                                    </button>
-                                    <Collapse in={open} unmountOnExit>
-                                        {section.rows.map((row, idx) => (
-                                            <div className={c.row} key={idx}>
-                                                <div className={c.rowLabel}>{row.label}</div>
-                                                <div className={c.rowValue}>
-                                                    {row.value}
-                                                    {row.node}
-                                                    <Tooltip title="Copy value" arrow>
-                                                        <IconButton
-                                                            className={c.rowCopy}
-                                                            aria-label={`copy ${row.label}`}
-                                                            size="small"
-                                                            onClick={() =>
-                                                                copy(
-                                                                    row.value,
-                                                                    'Copied value to clipboard!'
-                                                                )
-                                                            }
-                                                        >
-                                                            <ContentCopyIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
+                                            <span>
+                                                {open ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                                                {section.title}
+                                            </span>
+                                            <span className={c.sectionCount}>
+                                                {section.rows.length}
+                                            </span>
+                                        </button>
+                                        <Collapse in={open} unmountOnExit>
+                                            {section.rows.map((row, idx) => (
+                                                <div className={c.row} key={idx}>
+                                                    <div className={c.rowLabel}>{row.label}</div>
+                                                    <div className={c.rowValue}>
+                                                        {row.value}
+                                                        {row.node}
+                                                        <Tooltip title="Copy value" arrow>
+                                                            <IconButton
+                                                                className={c.rowCopy}
+                                                                aria-label={`copy ${row.label}`}
+                                                                size="small"
+                                                                onClick={() =>
+                                                                    copy(
+                                                                        row.value,
+                                                                        'Copied value to clipboard!'
+                                                                    )
+                                                                }
+                                                            >
+                                                                <ContentCopyIcon />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </Collapse>
-                                </div>
-                            )
-                        })}
+                                            ))}
+                                        </Collapse>
+                                    </div>
+                                )
+                            })}
+                        </div>
                         {presentation.citation != null && getAppConfig().enableRecordCitation && (
                             <>
                                 <div className={c.citationHeading}>

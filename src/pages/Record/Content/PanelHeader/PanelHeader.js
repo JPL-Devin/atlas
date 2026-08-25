@@ -94,6 +94,7 @@ const useStyles = makeStyles((theme) => ({
         'justifyContent': 'center',
         'gap': '4px',
         'padding': '6px 8px',
+        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
         '& .MuiButton-root': {
             fontSize: '12px',
             lineHeight: '16px',
@@ -120,6 +121,7 @@ const useStyles = makeStyles((theme) => ({
     copyAction: {
         'flexShrink': 0,
         'color': theme.palette.swatches.grey.grey700,
+        'background': theme.palette.swatches.grey.grey0,
         'borderColor': theme.palette.swatches.grey.grey300,
         '&:hover': {
             borderColor: theme.palette.swatches.grey.grey500,

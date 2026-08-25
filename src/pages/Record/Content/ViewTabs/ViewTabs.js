@@ -57,16 +57,28 @@ const StyledTabs = withStyles((theme) => ({
     },
 }))((props) => <Tabs {...props} TabIndicatorProps={{ children: <span /> }} />)
 
+// Bold labels and a lit surface on the active tab, so the row reads as the
+// panel's primary navigation.
 const StyledTab = withStyles((theme) => ({
     root: {
-        'color': theme.palette.text.main,
-        'fontSize': theme.typography.pxToRem(14),
-        'minWidth': 0,
+        'color': theme.palette.swatches.grey.grey600,
+        'fontSize': theme.typography.pxToRem(13),
+        'fontWeight': 'bold',
+        'letterSpacing': '0.08em',
+        'minWidth': 96,
         'minHeight': 0,
         'height': '100%',
         'justifyContent': 'center',
-        'padding': `0 ${theme.spacing(1.5)}`,
+        'padding': `0 ${theme.spacing(2)}`,
         'whiteSpace': 'nowrap',
+        '&:hover': {
+            color: theme.palette.text.primary,
+            background: theme.palette.swatches.grey.grey150,
+        },
+        '&.Mui-selected': {
+            color: theme.palette.text.primary,
+            background: theme.palette.swatches.grey.grey0,
+        },
         '&:focus': {
             opacity: 1,
         },

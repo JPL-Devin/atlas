@@ -18,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
     button: {
         'flexShrink': 0,
         'color': theme.palette.swatches.grey.grey700,
+        'background': theme.palette.swatches.grey.grey0,
         'borderColor': theme.palette.swatches.grey.grey300,
         '&:hover': {
             borderColor: theme.palette.swatches.grey.grey500,
