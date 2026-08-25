@@ -9,7 +9,6 @@ import { useTheme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 
 import Button from '@mui/material/Button'
-import ButtonGroup from '@mui/material/ButtonGroup'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
@@ -41,6 +40,8 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         justifyContent: 'space-between',
         boxSizing: 'border-box',
+        minWidth: 0,
+        overflow: 'hidden',
         background: theme.palette.swatches.grey.grey100,
     },
     title: {
@@ -53,14 +54,21 @@ const useStyles = makeStyles((theme) => ({
     },
     left: {
         display: 'flex',
+        alignItems: 'center',
+        flexShrink: 0,
+        minWidth: 0,
     },
     middle: {
         flex: 1,
+        minWidth: 0,
+        overflow: 'hidden',
         padding: '4px 12px',
     },
     right: {
         display: 'flex',
         justifyContent: 'space-between',
+        flexShrink: 0,
+        minWidth: 0,
     },
     rotateButton: {
         'width': theme.headHeights[1],
@@ -122,7 +130,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const Heading = (props) => {
-    const { activeView } = props
+    const { activeView, mobile } = props
 
     const c = useStyles()
     const dispatch = useDispatch()
@@ -163,7 +171,7 @@ const Heading = (props) => {
             <div className={c.middle}>{filterType === 'basic' && <ChippedFilters />}</div>
             <div className={c.right}>
                 <ResultsSorter />
-                {activeView === 'grid' && !isMobile && (
+                {activeView === 'Grid' && !isMobile && (
                     <div className={c.gridSize}>
                         <Tooltip title="Small Grid Images" arrow>
                             <IconButton
@@ -209,7 +217,7 @@ const Heading = (props) => {
                         </Tooltip>
                     </div>
                 )}
-                {activeView === 'grid' && !isMobile && (
+                {activeView === 'Grid' && !isMobile && (
                     <Tooltip title="Rotate Images 90°" arrow>
                         <IconButton
                             className={c.rotateButton}
@@ -222,7 +230,7 @@ const Heading = (props) => {
                         </IconButton>
                     </Tooltip>
                 )}
-                {activeView === 'table' && !isMobile && (
+                {activeView === 'Table' && !isMobile && (
                     <Button
                         className={c.button1}
                         variant="contained"
@@ -233,7 +241,7 @@ const Heading = (props) => {
                         Edit Columns
                     </Button>
                 )}
-                {getAppConfig().enableCart && (
+                {getAppConfig().enableCart && !mobile && (
                 <Tooltip
                     title={
                         resultKeysChecked.length > 0
@@ -283,7 +291,7 @@ const Heading = (props) => {
                     ] : []
                     const menuOptions = !isMobile
                         ? cartOptions
-                        : activeView === 'table'
+                        : activeView === 'Table'
                         ? [
                               ...(cartOptions.length > 0 ? [...cartOptions, '-'] : []),
                               'Edit Columns',
@@ -300,7 +308,7 @@ const Heading = (props) => {
                     return (<MenuButton
                     options={menuOptions}
                     buttonComponent={<MoreVertIcon className={c.menuButton} />}
-                    onChange={(option, idx) => {
+                    onChange={(option) => {
                         switch (option) {
                             case 'Add Selected Results to Cart':
                                 dispatch(addToCart('image', 'checkedResults'))
@@ -342,6 +350,9 @@ const Heading = (props) => {
     )
 }
 
-Heading.propTypes = {}
+Heading.propTypes = {
+    activeView: PropTypes.string,
+    mobile: PropTypes.bool,
+}
 
 export default Heading

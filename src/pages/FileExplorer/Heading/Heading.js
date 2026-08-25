@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 import Url from 'url-parse'
@@ -12,9 +12,11 @@ import Snackbar from '@mui/material/Snackbar'
 import MuiAlert from '@mui/material/Alert'
 
 import LinkIcon from '@mui/icons-material/Link'
+import RefreshIcon from '@mui/icons-material/Refresh'
 
 import { makeStyles } from '@mui/styles'
 
+import { setFilexPreview, removeFilexColumn } from '../../../core/redux/actions/actions.js'
 import { copyToClipboard, splitUri } from '../../../core/utils'
 import { HASH_PATHS, ES_PATHS } from '../../../core/constants'
 
@@ -41,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
         margin: 0,
         padding: `0px ${theme.spacing(1)} 0px ${theme.spacing(3)}`,
         boxSizing: 'border-box',
-        width: 'calc(100% - 40px)',
+        width: 'calc(100% - 80px)',
     },
     pathTitle: {
         'fontSize': 14,
@@ -54,7 +56,9 @@ const useStyles = makeStyles((theme) => ({
             color: theme.palette.swatches.grey.grey500,
         },
     },
-    copyLink: {},
+    copyLink: {
+        display: 'flex',
+    },
     copyButton: {
         'padding': 10,
         'borderRadius': 0,
@@ -78,6 +82,7 @@ const Heading = (props) => {
 
     const c = useStyles()
 
+    const dispatch = useDispatch()
     const navigate = useNavigate()
 
     const preview = useSelector((state) => {
@@ -165,6 +170,27 @@ const Heading = (props) => {
                     </Typography>
                 </div>
                 <div className={c.copyLink}>
+                    <Tooltip title="Reset Path" arrow>
+                        <IconButton
+                            className={c.copyButton}
+                            aria-label="Reset path"
+                            onClick={() => {
+                                const newPath = HASH_PATHS.fileExplorer
+                                const currentURL = new Url(window.location, true)
+
+                                dispatch(setFilexPreview({}))
+                                if (Object.keys(currentURL.query).length > 0)
+                                    navigate(newPath, { replace: true })
+                                dispatch(removeFilexColumn(0))
+                            }}
+                            size="large"
+                        >
+                            <RefreshIcon
+                                className={c.copyIcon}
+                                style={{ transform: 'rotateY(180deg)' }}
+                            />
+                        </IconButton>
+                    </Tooltip>
                     <Tooltip title="Copy Link" arrow>
                         <IconButton
                             className={c.copyButton}

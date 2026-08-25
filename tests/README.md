@@ -45,7 +45,7 @@ tests/
 │   │   └── column-drilling.spec.js         # Mission-column drilling + URI Regex modal
 │   ├── navigation/
 │   │   ├── routing.spec.js                 # All four routes load without crashing
-│   │   ├── toolbar.spec.js                 # Toolbar rendering / structural
+│   │   ├── toolbar.spec.js                 # Topbar shell controls / structural
 │   │   ├── click-navigation.spec.js        # Topbar buttons actually navigate
 │   │   ├── toolbar-drawer.spec.js          # Drawer hamburger reveals nav links
 │   │   └── drawer-all-items.spec.js        # All 12 drawer items + Topbar branding hrefs
@@ -59,7 +59,7 @@ tests/
 │   │   └── axe.spec.js                     # @axe-core/playwright per-route + keyboard
 │   ├── mobile/
 │   │   ├── responsive.spec.js              # Mobile viewport (375x667)
-│   │   └── workspace-switching.spec.js     # Mobile filter/map/results panel switching
+│   │   └── workspace-switching.spec.js     # Mobile results + filters sheet + map view
 │   ├── security/
 │   │   └── headers.spec.js                 # HSTS, x-powered-by, CSP, server hdr
 │   └── cross-browser/

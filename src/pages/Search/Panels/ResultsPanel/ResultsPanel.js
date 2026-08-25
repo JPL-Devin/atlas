@@ -2,26 +2,36 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import Url from 'url-parse'
+import clsx from 'clsx'
 
-import Paper from '@mui/material/Paper'
 import { makeStyles, withStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
 
 import Heading from './subcomponents/Heading/Heading'
 import ResultsStatus from './subcomponents/ResultsStatus/ResultsStatus'
 import GridView from './subcomponents/GridView/GridView'
 import ListView from './subcomponents/ListView/ListView'
 import TableView from './subcomponents/TableView/TableView'
+import SecondaryPanel from '../SecondaryPanel/SecondaryPanel'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
+import Tooltip from '@mui/material/Tooltip'
+import ToggleButton from '@mui/material/ToggleButton'
+import BottomNavigation from '@mui/material/BottomNavigation'
+import BottomNavigationAction from '@mui/material/BottomNavigationAction'
+import VerticalSplitIcon from '@mui/icons-material/VerticalSplit'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import ViewModuleIcon from '@mui/icons-material/ViewModule'
+import PublicIcon from '@mui/icons-material/Public'
 
-import { search } from '../../../../core/redux/actions/actions.js'
+import { search, setWorkspace } from '../../../../core/redux/actions/actions.js'
 import { abbreviateNumber } from '../../../../core/utils.js'
+import { getAppConfig } from '../../../../core/appConfig'
 
 const useStyles = makeStyles((theme) => ({
     ResultsPanel: {
         height: '100%',
-        transition: 'width 0.4s ease-out',
+        flex: 1,
+        minWidth: 0,
         overflow: 'hidden',
     },
     contents: {
@@ -35,7 +45,52 @@ const useStyles = makeStyles((theme) => ({
     content: {
         width: '100%',
         height: `calc(100% - ${theme.headHeights[1] + theme.headHeights[2]}px)`,
+        display: 'flex',
+    },
+    contentMobile: {
+        height: `calc(100% - ${theme.headHeights[1] + theme.headHeights[2] + 48}px)`,
+    },
+    bottomBar: {
+        'width': '100%',
+        'height': '48px',
+        'flexShrink': 0,
+        'background': theme.palette.swatches.grey.grey100,
+        'borderTop': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        '& button': {
+            color: theme.palette.swatches.grey.grey600,
+            minWidth: 0,
+        },
+        '& button.Mui-selected': {
+            color: theme.palette.text.primary,
+        },
+    },
+    resultsViews: {
+        flex: 1,
+        minWidth: 0,
+        height: '100%',
         position: 'relative',
+    },
+    tabsLeft: {
+        display: 'flex',
+        alignItems: 'center',
+        minWidth: 0,
+    },
+    splitToggle: {
+        'height': '26px',
+        'marginLeft': theme.spacing(1),
+        'padding': '0px 8px',
+        'fontSize': '11px',
+        'lineHeight': '11px',
+        'color': theme.palette.swatches.grey.grey600,
+        'whiteSpace': 'nowrap',
+        '&.Mui-selected': {
+            color: theme.palette.text.primary,
+            background: theme.palette.swatches.grey.grey150,
+        },
+        '& svg': {
+            fontSize: '16px',
+            marginRight: '4px',
+        },
     },
     viewSwitch: {
         'borderRadius': 0,
@@ -59,6 +114,8 @@ const useStyles = makeStyles((theme) => ({
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
         display: 'flex',
         justifyContent: 'space-between',
+        minWidth: 0,
+        overflow: 'hidden',
     },
     footing: {
         width: '100%',
@@ -74,6 +131,8 @@ const useStyles = makeStyles((theme) => ({
     numResults: {
         lineHeight: `${theme.headHeights[2]}px`,
         padding: '0px 20px',
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
         color: theme.palette.swatches.grey.grey700,
     },
     maxPage: {
@@ -132,6 +191,12 @@ const StyledTab = withStyles((theme) => ({
         '&:focus': {
             opacity: 1,
         },
+        // Four tabs have to fit a phone alongside the result count
+        [theme.breakpoints.down('md')]: {
+            minWidth: 60,
+            marginRight: 0,
+            padding: '12px 8px',
+        },
     },
 }))((props) => <Tab disableRipple {...props} />)
 
@@ -144,11 +209,15 @@ const ResultsPanel = (props) => {
     const { mobile } = props
 
     const c = useStyles()
-    const theme = useTheme()
     const dispatch = useDispatch()
 
-    const activeViews = ['grid', 'list', 'table']
-    const [activeView, setActiveView] = useState('grid')
+    const mapEnabled = getAppConfig().enableMap
+    // On phones the map is a bottom bar destination instead of a fourth tab
+    const activeViews =
+        mapEnabled && !mobile ? ['Grid', 'List', 'Table', 'Map'] : ['Grid', 'List', 'Table']
+    const [activeView, setActiveView] = useState('Grid')
+    const [split, setSplit] = useState(false)
+    const [mobileMap, setMobileMap] = useState(false)
 
     const atlasMapping = useSelector((state) => {
         return state.getIn(['mappings', 'atlas'])
@@ -166,11 +235,6 @@ const ResultsPanel = (props) => {
         return state.getIn(['workspace', 'main'])
     }).toJS()
 
-    // 'basic' || 'advanced
-    const filterType = useSelector((state) => {
-        return state.getIn(['filterType'])
-    })
-
     let results = useSelector((state) => {
         return state.getIn(['results'])
     })
@@ -178,32 +242,57 @@ const ResultsPanel = (props) => {
 
     const paging = useSelector((state) => state.getIn(['resultsPaging'])).toJS()
 
-    let width = 0
-    if (mobile) width = '100%'
-    else if (w.results)
-        width = `calc(100vw - ${w.secondary ? w.secondarySize : '0%'} - ${
-            w.filters ? (filterType === 'basic' ? w.filtersSize : w.advancedFiltersSize) : '0%'
-        } - ${theme.headHeights[1]}px)`
-    const style = {
-        width,
-    }
+    const mapView = activeView === 'Map'
+    const showMap = mapView || (mobile && mobileMap)
+    const mobileTab = w.mobileFilters ? 'filters' : mobileMap ? 'map' : 'results'
+    // Full-bleed map, or the active view beside a half-width map
+    let mapWidth = 0
+    if (mapEnabled && showMap) mapWidth = '100%'
+    else if (mapEnabled && split && !mobile) mapWidth = w.mapSize
 
     return (
-        <div className={c.ResultsPanel} style={style}>
+        <div className={c.ResultsPanel}>
             <div className={c.contents}>
-                <Heading activeView={activeView} />
+                <Heading activeView={activeView} mobile={mobile} />
                 <div className={c.tabs}>
-                    <StyledTabs
-                        value={activeViews.indexOf(activeView)}
-                        onChange={(e, v) => {
-                            setActiveView(activeViews[v])
-                        }}
-                        aria-label="results view tab"
-                    >
-                        {activeViews.map((v, i) => (
-                            <StyledTab label={v} key={i} {...a11yProps(i)} />
-                        ))}
-                    </StyledTabs>
+                    <div className={c.tabsLeft}>
+                        <StyledTabs
+                            value={activeViews.indexOf(activeView)}
+                            onChange={(e, v) => {
+                                setActiveView(activeViews[v])
+                            }}
+                            aria-label="results view tab"
+                            variant="scrollable"
+                            scrollButtons={false}
+                        >
+                            {activeViews.map((v, i) => (
+                                <StyledTab label={v} key={i} {...a11yProps(i)} />
+                            ))}
+                        </StyledTabs>
+                        {mapEnabled && !mobile && (
+                            <Tooltip
+                                title={
+                                    mapView
+                                        ? 'Pick Grid, List or Table to split with the map'
+                                        : 'Show the map beside the results'
+                                }
+                                arrow
+                            >
+                                <ToggleButton
+                                    className={c.splitToggle}
+                                    value="split"
+                                    size="small"
+                                    aria-label="split map"
+                                    selected={split}
+                                    disabled={mapView}
+                                    onChange={() => setSplit(!split)}
+                                >
+                                    <VerticalSplitIcon />
+                                    Split
+                                </ToggleButton>
+                            </Tooltip>
+                        )}
+                    </div>
 
                     <div className={c.numResults}>
                         {results.length > 0 &&
@@ -211,14 +300,55 @@ const ResultsPanel = (props) => {
                                    of ${abbreviateNumber(paging.total)}`}
                     </div>
                 </div>
-                <div className={c.content}>
-                    {activeView === 'grid' ? <GridView results={results} paging={paging} /> : null}
-                    {activeView === 'list' ? <ListView results={results} paging={paging} /> : null}
-                    {activeView === 'table' ? (
-                        <TableView results={results} paging={paging} />
-                    ) : null}
-                    <ResultsStatus />
+                <div className={clsx(c.content, { [c.contentMobile]: mobile })}>
+                    {mapEnabled && <SecondaryPanel width={mapWidth} />}
+                    {!showMap && (
+                        <div className={c.resultsViews}>
+                            {activeView === 'Grid' ? (
+                                <GridView results={results} paging={paging} />
+                            ) : null}
+                            {activeView === 'List' ? (
+                                <ListView results={results} paging={paging} />
+                            ) : null}
+                            {activeView === 'Table' ? (
+                                <TableView results={results} paging={paging} />
+                            ) : null}
+                            <ResultsStatus />
+                        </div>
+                    )}
                 </div>
+                {mobile && (
+                    <BottomNavigation
+                        className={c.bottomBar}
+                        value={mobileTab}
+                        showLabels
+                        onChange={(e, v) => {
+                            dispatch(setWorkspace({ ...w, mobileFilters: v === 'filters' }))
+                            if (v !== 'filters') setMobileMap(v === 'map')
+                        }}
+                    >
+                        <BottomNavigationAction
+                            label="Filters"
+                            value="filters"
+                            aria-label="filters view"
+                            icon={<FilterListIcon />}
+                        />
+                        <BottomNavigationAction
+                            label="Results"
+                            value="results"
+                            aria-label="results view"
+                            icon={<ViewModuleIcon />}
+                        />
+                        {mapEnabled && (
+                            <BottomNavigationAction
+                                label="Map"
+                                value="map"
+                                aria-label="map view"
+                                icon={<PublicIcon />}
+                            />
+                        )}
+                    </BottomNavigation>
+                )}
                 <div className={c.footing}>
                     <div className={c.left}>
                         <div
@@ -237,6 +367,8 @@ const ResultsPanel = (props) => {
     )
 }
 
-ResultsPanel.propTypes = {}
+ResultsPanel.propTypes = {
+    mobile: PropTypes.bool,
+}
 
 export default ResultsPanel

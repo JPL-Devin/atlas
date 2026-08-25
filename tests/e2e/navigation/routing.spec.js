@@ -19,11 +19,11 @@ test.describe('Routing', () => {
         })
     }
 
-    test('Toolbar buttons are rendered on /search', async ({ page }) => {
+    test('Shell controls are rendered on /search', async ({ page }) => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {})
         await expect(page.getByRole('button', { name: 'navigation' })).toBeVisible()
-        await expect(page.getByRole('button', { name: 'filters panel' })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'reset filters', exact: true })).toBeVisible()
     })
 
     test('Topbar ATLAS heading is rendered on /search', async ({ page }) => {

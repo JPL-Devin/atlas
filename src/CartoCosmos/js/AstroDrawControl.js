@@ -4,6 +4,7 @@ import Wkt from 'wicket'
 
 import { store } from '../../core/redux/store/store'
 import { setMapSearchBoundary } from '../../core/redux/actions/actions.js'
+import { setMapBoundaryEraser } from './mapBoundary'
 
 /**
  * @class AstroDrawControl
@@ -93,6 +94,12 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
     },
     // When the control gets added to the map
     onAddControl: function () {
+        setMapBoundaryEraser(() => {
+            this.myLayer.clearLayers()
+            this.options.edit['featureGroup'].clearLayers()
+            if (this.wktTextBox) this.wktTextBox.value = ''
+        })
+
         /*
         const drawPolygon = document.getElementsByClassName('leaflet-draw-draw-polygon')[0]
         if (drawPolygon)

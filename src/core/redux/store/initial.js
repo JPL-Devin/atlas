@@ -32,14 +32,11 @@ export const INITIAL = (() => {
         workspace: {
             main: {
                 filters: true,
+                mobileFilters: false,
                 filtersSize: '360px',
                 advancedFiltersSize: '520px',
-                secondary: false,
-                secondarySize: '50%',
-                results: true,
-                resultsSize: 'fill',
+                mapSize: '50%',
             },
-            mobile: 'results',
         },
         // Which modal are on
         modals: {

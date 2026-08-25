@@ -2,9 +2,10 @@ import { test, expect } from '@playwright/test'
 import { navigateToSearch } from '../../helpers/atlas-helpers.js'
 
 test.describe('Search - Results Panel', () => {
-    test('results panel toggle in toolbar is visible', async ({ page }) => {
+    test('results are always rendered — there is no results toggle', async ({ page }) => {
         await navigateToSearch(page)
-        await expect(page.getByRole('button', { name: 'Results Panel' })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'Results Panel' })).toHaveCount(0)
+        await expect(page.getByRole('tab', { name: 'Grid', exact: true })).toBeVisible()
     })
 
     test('results panel renders its tabs / heading area', async ({ page }) => {

@@ -4,9 +4,10 @@ import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-hel
 /**
  * Results panel view-mode tabs and inline controls.
  *
- * The ResultsPanel offers three rendering modes — `grid`, `list`,
- * and `table` — switched by a tab strip at the top of the panel. It
- * also exposes:
+ * The ResultsPanel offers four rendering modes — Grid, List, Table
+ * and Map — switched by a tab strip at the top of the panel, plus a
+ * Split toggle that pairs the active view with the map. It also
+ * exposes:
  *
  *   - three image-size buttons (small / medium / large)
  *   - a "rotate images" button
@@ -22,16 +23,16 @@ import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-hel
 const SHORT_RESULT_WAIT_MS = 20_000
 
 test.describe('Results panel - view modes', () => {
-    test('grid view tab is selected by default', async ({ page }) => {
+    test('Grid view tab is selected by default', async ({ page }) => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await waitForAppReady(page)
 
-        const gridTab = page.getByRole('tab', { name: 'grid', exact: true })
+        const gridTab = page.getByRole('tab', { name: 'Grid', exact: true })
         await expect(gridTab).toBeVisible({ timeout: SHORT_RESULT_WAIT_MS })
         await expect(gridTab).toHaveAttribute('aria-selected', 'true')
     })
 
-    test('clicking the list tab marks list as selected and grid as unselected', async ({
+    test('clicking the List tab marks List as selected and Grid as unselected', async ({
         page,
     }) => {
         const errors = []
@@ -40,12 +41,12 @@ test.describe('Results panel - view modes', () => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await waitForAppReady(page)
 
-        const listTab = page.getByRole('tab', { name: 'list', exact: true })
+        const listTab = page.getByRole('tab', { name: 'List', exact: true })
         await expect(listTab).toBeVisible({ timeout: SHORT_RESULT_WAIT_MS })
 
         await listTab.click()
         await expect(listTab).toHaveAttribute('aria-selected', 'true')
-        await expect(page.getByRole('tab', { name: 'grid', exact: true })).toHaveAttribute(
+        await expect(page.getByRole('tab', { name: 'Grid', exact: true })).toHaveAttribute(
             'aria-selected',
             'false',
         )
@@ -53,14 +54,14 @@ test.describe('Results panel - view modes', () => {
         expect(filterCriticalJsErrors(errors)).toEqual([])
     })
 
-    test('clicking the table tab marks table as selected', async ({ page }) => {
+    test('clicking the Table tab marks Table as selected', async ({ page }) => {
         const errors = []
         page.on('pageerror', (e) => errors.push(e.message))
 
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await waitForAppReady(page)
 
-        const tableTab = page.getByRole('tab', { name: 'table', exact: true })
+        const tableTab = page.getByRole('tab', { name: 'Table', exact: true })
         await expect(tableTab).toBeVisible({ timeout: SHORT_RESULT_WAIT_MS })
         await tableTab.click()
         await expect(tableTab).toHaveAttribute('aria-selected', 'true')
@@ -68,7 +69,7 @@ test.describe('Results panel - view modes', () => {
         expect(filterCriticalJsErrors(errors)).toEqual([])
     })
 
-    test('cycling through grid -> list -> table -> grid leaves the page interactive', async ({
+    test('cycling through Grid -> List -> Table -> Map -> Grid leaves the page interactive', async ({
         page,
     }) => {
         const errors = []
@@ -77,7 +78,7 @@ test.describe('Results panel - view modes', () => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await waitForAppReady(page)
 
-        for (const name of ['list', 'table', 'grid']) {
+        for (const name of ['List', 'Table', 'Map', 'Grid']) {
             const tab = page.getByRole('tab', { name, exact: true })
             await tab.waitFor({ state: 'visible', timeout: SHORT_RESULT_WAIT_MS })
             await tab.click()

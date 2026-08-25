@@ -2,54 +2,96 @@ import { test, expect } from '@playwright/test'
 import { navigateToSearch, filterCriticalJsErrors } from '../../helpers/atlas-helpers.js'
 
 /**
- * Mobile workspace switching.
+ * Mobile search workspace.
  *
- * Below the MUI `md` breakpoint, `/search` shows ONE of the three
- * panels at a time, controlled by Redux's `workspace.mobile` slice.
- * The switch is driven by the same Toolbar buttons used on desktop:
- *   - "filters panel"
- *   - "Map Panel"
- *   - "Results Panel"
+ * Results are always the page. A bottom bar switches between the
+ * filters sheet, the results and the map.
  *
- * Reference: `src/pages/Search/Search.js` lines 50-73.
+ * Reference: `src/pages/Search/Search.js`,
+ * `src/pages/Search/Panels/FiltersPanel/FiltersPanel.js`.
  */
 
 test.use({
     viewport: { width: 375, height: 667 },
 })
 
-test.describe('Mobile - workspace switching', () => {
-    test('the three panel-toggle buttons remain reachable on a mobile viewport', async ({
-        page,
-    }) => {
+test.describe('Mobile - search workspace', () => {
+    test('results are shown with the filters sheet closed', async ({ page }) => {
         await navigateToSearch(page)
 
-        // The Toolbar buttons are how users move between panels on
-        // mobile. They must always be present.
-        await expect(page.getByRole('button', { name: 'filters panel' })).toBeVisible()
-        await expect(page.getByRole('button', { name: 'Map Panel' })).toBeVisible()
-        await expect(page.getByRole('button', { name: 'Results Panel' })).toBeVisible()
+        await expect(page.getByRole('button', { name: 'results view' })).toBeVisible()
+        await expect(page.getByRole('tab', { name: 'Grid', exact: true })).toBeVisible()
+        // The sheet is closed, so its close affordance is absent.
+        await expect(page.getByRole('button', { name: 'close filters' })).toHaveCount(0)
     })
 
-    test('clicking each mobile workspace button does not crash', async ({ page }) => {
+    test('the filters sheet opens and closes without crashing', async ({ page }) => {
         const errors = []
         page.on('pageerror', (e) => errors.push(e.message))
 
         await navigateToSearch(page)
 
-        // Cycle through all three. We don't have stable, panel-specific
-        // markers we can assert on without API data, but we can at
-        // least verify the UI doesn't throw and the toolbar stays
-        // interactive.
-        for (const label of ['filters panel', 'Map Panel', 'Results Panel']) {
-            await page.getByRole('button', { name: label }).click()
-            await page.waitForTimeout(150)
-            await expect(page.locator('body')).toBeVisible()
-        }
+        await page.getByRole('button', { name: 'filters view' }).click()
+        const close = page.getByRole('button', { name: 'close filters' })
+        await expect(close).toBeVisible()
+        await expect(page.getByRole('button', { name: 'reset filters', exact: true })).toBeVisible()
 
-        // Filter network/Redux noise that's expected when the API is
-        // unreachable; assert nothing else crashed.
+        await close.click()
+        await expect(close).toHaveCount(0)
+        await expect(page.getByRole('tab', { name: 'Grid', exact: true })).toBeVisible()
+
         expect(filterCriticalJsErrors(errors)).toEqual([])
+    })
+
+    test('the bottom bar switches between filters, results and the map', async ({ page }) => {
+        const errors = []
+        page.on('pageerror', (e) => errors.push(e.message))
+
+        await navigateToSearch(page)
+
+        // The map is a bottom bar destination on phones, not a fourth tab
+        await expect(page.getByRole('tab', { name: 'Map', exact: true })).toHaveCount(0)
+
+        await page.getByRole('button', { name: 'map view' }).click()
+        // Without a target body the map shows its picker instead of a Leaflet map
+        await expect(
+            page
+                .locator('.leaflet-container')
+                .or(page.getByText('Select a target body to get started'))
+                .first()
+        ).toBeVisible({ timeout: 20_000 })
+
+        await page.getByRole('button', { name: 'filters view' }).click()
+        await expect(page.getByRole('button', { name: 'close filters' })).toBeVisible()
+
+        await page.getByRole('button', { name: 'results view' }).click()
+        await expect(page.getByRole('button', { name: 'close filters' })).toHaveCount(0)
+        await expect(page.getByRole('tab', { name: 'Grid', exact: true })).toBeVisible()
+
+        expect(filterCriticalJsErrors(errors)).toEqual([])
+    })
+
+    test('the results heading does not overflow horizontally at 375x667', async ({ page }) => {
+        await navigateToSearch(page)
+
+        // An ancestor clips overflow, so document width alone can hide clipped controls
+        const clipped = await page.evaluate(() => {
+            const width = document.documentElement.clientWidth
+            return [...document.querySelectorAll('button, [role="tab"]')]
+                .filter((el) => el.checkVisibility({ visibilityProperty: true }))
+                .map((el) => ({
+                    name: el.getAttribute('aria-label') || el.textContent.trim(),
+                    left: Math.round(el.getBoundingClientRect().left),
+                    right: Math.round(el.getBoundingClientRect().right),
+                }))
+                .filter((box) => box.right > width + 1)
+        })
+        expect(clipped).toEqual([])
+
+        const overflows = await page.evaluate(() => {
+            return document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+        })
+        expect(overflows).toBe(false)
     })
 
     test('on mobile, the navigation hamburger remains visible', async ({ page }) => {
