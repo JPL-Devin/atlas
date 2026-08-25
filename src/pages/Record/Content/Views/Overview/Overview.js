@@ -26,14 +26,13 @@ import SearchIcon from '@mui/icons-material/Search'
 import { copyToClipboard, getIn, getPDSUrl, getExtension } from '../../../../../core/utils.js'
 import { HASH_PATHS, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../../core/constants.js'
 import { getAppConfig, getAppInstanceKey } from '../../../../../core/appConfig.js'
-import { parseRecordFilename, resolvePresentation } from '../../../../../core/recordPresentation'
+import { resolvePresentation } from '../../../../../core/recordPresentation'
 import { emptyStates } from '../../../../../config/recordDetail'
 import { setRecordViewTab, setSnackBarText } from '../../../../../core/redux/actions/actions.js'
 
 import tileIcons from './tileIcons.js'
 import PanelHeader from '../../PanelHeader/PanelHeader'
 import LabelActions from '../../PanelHeader/LabelActions'
-import { useFilenameSelection, FilenameName, FilenameDetails } from './FilenameLegend'
 import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import ThreeViewer from '../../../../../components/ThreeViewer/ThreeViewer'
 import ViewerLoading from '../../../../../components/ViewerLoading/ViewerLoading'
@@ -607,9 +606,6 @@ const Overview = (props) => {
         .filter((section) => section.rows.length > 0)
 
     const fieldCount = sections.reduce((total, section) => total + section.rows.length, 0)
-    // Missions with no filename spec have nothing to explain.
-    const parsedFilename = parseRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
-    const filenameSelection = useFilenameSelection(parsedFilename)
 
     const copy = (text, message) => {
         copyToClipboard(text)
@@ -713,23 +709,12 @@ const Overview = (props) => {
                 <PanelHeader
                     recordData={recordData}
                     extraActions={!isNarrow ? <LabelActions recordData={recordData} /> : null}
-                    name={
-                        parsedFilename != null ? (
-                            <FilenameName selection={filenameSelection} />
-                        ) : null
-                    }
                 />
                 {isLoading ? (
                     renderSkeleton()
                 ) : (
                     <>
                         <div className={c.metadataScroll}>
-                            {parsedFilename != null && (
-                                <FilenameDetails
-                                    parsed={parsedFilename}
-                                    selection={filenameSelection}
-                                />
-                            )}
                             {renderCaptionCard()}
                             <div className={c.heading}>At a glance</div>
                             <div className={c.tiles}>

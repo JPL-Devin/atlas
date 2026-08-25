@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import Tooltip from '@mui/material/Tooltip'
 import { makeStyles } from '@mui/styles'
 
-import { LIGHT_COLORS } from '../../../filenameColors'
+import { LIGHT_COLORS } from '../../filenameColors'
 
 const useStyles = makeStyles((theme) => ({
     filenameRow: {

@@ -23,6 +23,8 @@ import { getAppConfig } from '../../../../core/appConfig'
 import SplitButton from '../../../../components/SplitButton/SplitButton'
 import ViewTabs from '../ViewTabs/ViewTabs'
 import { getVisibleViewTabs } from '../../viewTabs'
+import { parseRecordFilename } from '../../../../core/recordPresentation'
+import { useFilenameSelection, FilenameName, FilenameDetails } from './FilenameLegend'
 
 const useStyles = makeStyles((theme) => ({
     PanelHeader: {
@@ -75,10 +77,14 @@ const useStyles = makeStyles((theme) => ({
             padding: '0px 8px',
         },
     },
+    details: {
+        padding: '0 8px',
+    },
     // Every control shares one compact size so the row fits the panel width.
     actions: {
         'display': 'flex',
         'alignItems': 'stretch',
+        'justifyContent': 'center',
         'gap': '4px',
         'padding': '6px 8px',
         '& .MuiButton-root': {
@@ -103,10 +109,6 @@ const useStyles = makeStyles((theme) => ({
     download: {
         flexShrink: 0,
     },
-    spacer: {
-        flex: 1,
-        minWidth: 0,
-    },
     copyLink: {
         'padding': '2px',
         'borderRadius': '2px',
@@ -126,7 +128,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const PanelHeader = (props) => {
-    const { recordData, name, extraActions } = props
+    const { recordData, extraActions } = props
 
     const c = useStyles()
 
@@ -134,6 +136,10 @@ const PanelHeader = (props) => {
     const dispatch = useDispatch()
 
     const recordViewTab = useSelector((state) => state.get('recordViewTab'))
+
+    // Missions with no filename spec have nothing to explain.
+    const parsedFilename = parseRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
+    const filenameSelection = useFilenameSelection(parsedFilename)
 
     // Hidden Feature: Ctrl-Z to quickly go back to search.
     useEffect(() => {
@@ -180,7 +186,9 @@ const PanelHeader = (props) => {
                     </IconButton>
                 </Tooltip>
                 <div className={c.name}>
-                    {name || (
+                    {parsedFilename != null ? (
+                        <FilenameName selection={filenameSelection} />
+                    ) : (
                         <div
                             className={c.plainName}
                             title={getIn(recordData, ES_PATHS.file_name, '--')}
@@ -242,7 +250,6 @@ const PanelHeader = (props) => {
                     }}
                 />
                 {extraActions}
-                <div className={c.spacer} />
                 <Tooltip title="Copy link to this record" arrow>
                     <IconButton
                         className={c.copyLink}
@@ -257,6 +264,11 @@ const PanelHeader = (props) => {
                     </IconButton>
                 </Tooltip>
             </div>
+            {parsedFilename != null && (
+                <div className={c.details}>
+                    <FilenameDetails parsed={parsedFilename} selection={filenameSelection} />
+                </div>
+            )}
             <div className={c.tabs}>
                 <ViewTabs
                     recordViewTab={recordViewTab}
@@ -269,7 +281,6 @@ const PanelHeader = (props) => {
 
 PanelHeader.propTypes = {
     recordData: PropTypes.object.isRequired,
-    name: PropTypes.node,
     extraActions: PropTypes.node,
 }
 
