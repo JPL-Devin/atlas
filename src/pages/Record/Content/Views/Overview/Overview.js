@@ -213,7 +213,8 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: 'space-between',
         gap: '8px',
         marginTop: '20px',
-        marginBottom: 0,
+        marginBottom: '10px',
+        paddingBottom: '4px',
     },
     allFields: {
         'fontFamily': 'inherit',
@@ -221,7 +222,7 @@ const useStyles = makeStyles((theme) => ({
         'fontWeight': 'bold',
         'letterSpacing': '0.04em',
         'textTransform': 'none',
-        'padding': '2px 8px',
+        'padding': '6px 10px',
         'borderRadius': '2px',
         'border': 'none',
         // blue800 rather than blue700: white on blue700 is only 4.2:1.
