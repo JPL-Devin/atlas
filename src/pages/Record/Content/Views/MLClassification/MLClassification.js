@@ -30,6 +30,8 @@ const useStyles = makeStyles((theme) => ({
         height: '100%',
         flex: 1,
         [theme.breakpoints.down('md')]: {
+            // Stacked, the image leads and the layers follow it.
+            order: -1,
             minHeight: '60%',
             flex: 'unset',
             height: 'unset',
@@ -43,7 +45,6 @@ const useStyles = makeStyles((theme) => ({
         background: theme.palette.swatches.grey.grey100,
         [theme.breakpoints.down('md')]: {
             width: '100%',
-            borderLeft: 'none',
             borderTop: `2px solid ${theme.palette.swatches.grey.grey200}`,
         },
         transition: 'width 0.2s ease-in-out',
@@ -151,20 +152,6 @@ const MLClassification = (props) => {
 
     return (
         <div className={c.MLClassification}>
-            <div className={c.viewer}>
-                {features != null ? (
-                    <OpenSeadragonViewer
-                        image={{
-                            src: imgURL,
-                        }}
-                        settings={{ defaultZoomLevel: 0.5 }}
-                        onLayers={() => {
-                            setLayersOpen(!layersOpen)
-                        }}
-                        features={featuresOn}
-                    />
-                ) : null}
-            </div>
             <div
                 className={clsx(c.layers, {
                     [c.layersOpen]: layersOpen,
@@ -185,6 +172,20 @@ const MLClassification = (props) => {
                         }
                     }}
                 />
+            </div>
+            <div className={c.viewer}>
+                {features != null ? (
+                    <OpenSeadragonViewer
+                        image={{
+                            src: imgURL,
+                        }}
+                        settings={{ defaultZoomLevel: 0.5 }}
+                        onLayers={() => {
+                            setLayersOpen(!layersOpen)
+                        }}
+                        features={featuresOn}
+                    />
+                ) : null}
             </div>
         </div>
     )

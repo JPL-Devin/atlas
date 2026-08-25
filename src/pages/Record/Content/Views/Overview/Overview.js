@@ -68,6 +68,8 @@ const useStyles = makeStyles((theme) => ({
         background: theme.palette.swatches.grey.grey900,
         minWidth: 0,
         [theme.breakpoints.down('md')]: {
+            // Stacked, the image leads and the panel follows it.
+            order: -1,
             height: 'unset',
             flex: 'unset',
         },
@@ -189,11 +191,11 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         flexFlow: 'column',
         background: theme.palette.swatches.grey.grey800,
-        borderLeft: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        borderRight: `1px solid ${theme.palette.swatches.grey.grey700}`,
         [theme.breakpoints.down('md')]: {
             width: '100%',
             height: 'unset',
-            borderLeft: 'none',
+            borderRight: 'none',
             borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
         },
     },
@@ -745,50 +747,6 @@ const Overview = (props) => {
 
     return (
         <div className={c.Overview}>
-            {(hasViewable || isLoading || !isNarrow) && (
-                <div className={c.viewerColumn}>
-                    {isLoading ? (
-                        <div className={`${c.viewerBody} ${c.loadingBody}`}>
-                            <ViewerLoading label="record loading" />
-                            <div className={c.captionCard} aria-hidden="true">
-                                <div className={c.captionChips}>
-                                    {['64px', '52px', '78px'].map((width) => (
-                                        <Skeleton
-                                            className={c.skeleton}
-                                            variant="rounded"
-                                            width={width}
-                                            height={18}
-                                            key={width}
-                                        />
-                                    ))}
-                                </div>
-                                <Skeleton
-                                    className={c.skeleton}
-                                    variant="text"
-                                    width="45%"
-                                    height={20}
-                                />
-                                <Skeleton className={c.skeleton} variant="text" width="80%" />
-                            </div>
-                        </div>
-                    ) : hasViewable ? (
-                        <>
-                            {presentation.altText != null && (
-                                <span className={c.srOnly}>{presentation.altText}</span>
-                            )}
-                            <div className={c.viewerBody}>
-                                {Viewer}
-                                {renderCaptionCard()}
-                            </div>
-                        </>
-                    ) : (
-                        <div className={c.emptyState}>
-                            <div className={c.emptyStateTitle}>{emptyState.title}</div>
-                            <div className={c.emptyStateBody}>{emptyState.body}</div>
-                        </div>
-                    )}
-                </div>
-            )}
             <div className={c.metadata}>
                 {isLoading ? (
                     renderSkeleton()
@@ -927,6 +885,50 @@ const Overview = (props) => {
                     </>
                 )}
             </div>
+            {(hasViewable || isLoading || !isNarrow) && (
+                <div className={c.viewerColumn}>
+                    {isLoading ? (
+                        <div className={`${c.viewerBody} ${c.loadingBody}`}>
+                            <ViewerLoading label="record loading" />
+                            <div className={c.captionCard} aria-hidden="true">
+                                <div className={c.captionChips}>
+                                    {['64px', '52px', '78px'].map((width) => (
+                                        <Skeleton
+                                            className={c.skeleton}
+                                            variant="rounded"
+                                            width={width}
+                                            height={18}
+                                            key={width}
+                                        />
+                                    ))}
+                                </div>
+                                <Skeleton
+                                    className={c.skeleton}
+                                    variant="text"
+                                    width="45%"
+                                    height={20}
+                                />
+                                <Skeleton className={c.skeleton} variant="text" width="80%" />
+                            </div>
+                        </div>
+                    ) : hasViewable ? (
+                        <>
+                            {presentation.altText != null && (
+                                <span className={c.srOnly}>{presentation.altText}</span>
+                            )}
+                            <div className={c.viewerBody}>
+                                {Viewer}
+                                {renderCaptionCard()}
+                            </div>
+                        </>
+                    ) : (
+                        <div className={c.emptyState}>
+                            <div className={c.emptyStateTitle}>{emptyState.title}</div>
+                            <div className={c.emptyStateBody}>{emptyState.body}</div>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     )
 }
