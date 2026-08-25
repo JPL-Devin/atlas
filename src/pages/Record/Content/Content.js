@@ -24,8 +24,8 @@ const VIEW_COMPONENTS = {
 // Each tab's panel width, so switching tabs animates the panel instead of
 // snapping to its new size.
 const PANEL_WIDTHS = {
-    'overview': { md: 700, lg: 700 },
-    'product label': { md: 660, lg: 960 },
+    'overview': { md: 770, lg: 770 },
+    'product label': { md: 770, lg: 770 },
     'ml classification': { md: 300, lg: 300 },
 }
 
