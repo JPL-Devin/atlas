@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
             inset: 0,
             pointerEvents: 'none',
             zIndex: 2,
-            boxShadow: 'inset 0 8px 12px -8px rgba(0,0,0,0.35)',
+            boxShadow: 'inset 0px 2px 4px 0px rgba(0, 0, 0, 0.15)',
         },
         [theme.breakpoints.down('md')]: {
             flex: 'unset',

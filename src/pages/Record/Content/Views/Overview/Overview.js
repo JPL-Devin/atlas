@@ -264,7 +264,12 @@ const useStyles = makeStyles((theme) => ({
         transition: 'opacity 0.2s ease-out',
     },
     section: {
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        // The app's global Collapse styling adds a left rule that reads as a
+        // stray vertical line here.
+        'borderTop': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        '& .MuiCollapse-wrapper': {
+            borderLeft: 'none',
+        },
     },
     sectionHead: {
         'display': 'flex',

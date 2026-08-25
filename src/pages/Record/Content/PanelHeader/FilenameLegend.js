@@ -83,21 +83,29 @@ const useStyles = makeStyles((theme) => ({
         marginBottom: '4px',
     },
     entry: {
-        fontSize: '13px',
-        lineHeight: '17px',
+        fontSize: '14px',
+        lineHeight: '19px',
         padding: '3px 0',
     },
     entryValue: {
         fontFamily: 'monospace',
-        marginRight: '6px',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        letterSpacing: '0.02em',
+        marginRight: '8px',
     },
     entryLabel: {
+        fontSize: '12px',
+        fontWeight: 'bold',
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase',
         color: theme.palette.swatches.grey.grey500,
     },
     entryMeaning: {
         color: theme.palette.text.primary,
     },
     entryDescription: {
+        fontSize: '13px',
         color: theme.palette.swatches.grey.grey600,
     },
     reference: {
