@@ -53,16 +53,18 @@ test.describe('resolvePresentation', () => {
         expect(p.caption).toContain('14:19:46 local mean solar time')
     })
 
-    test('landed at-a-glance leads with mission, spacecraft, instrument then sol, site, drive', () => {
+    test('landed at-a-glance leads with identity then sol, site, drive', () => {
         const p = resolvePresentation(mars2020Navcam)
         expect(labels(p).slice(0, 6)).toEqual([
             'Mission',
-            'Spacecraft',
             'Instrument',
+            'Product type',
             'Sol',
             'Site',
             'Drive',
         ])
+        // Spacecraft shares the mission tile.
+        expect(tileOf(p, 'Mission').pair.label).toBe('Spacecraft')
     })
 
     test('raws overrides mars 2020 navcam without touching the shared profile', () => {
@@ -93,7 +95,7 @@ test.describe('resolvePresentation', () => {
         expect(valueOf(resolvePresentation(mslPds3), 'Spacecraft')).toBe('Curiosity')
         const m2020 = resolvePresentation(mars2020Navcam)
         expect(valueOf(m2020, 'Mission')).toBe('Mars 2020')
-        expect(valueOf(m2020, 'Spacecraft')).toBe('Perseverance')
+        expect(tileOf(m2020, 'Mission').pair.value).toBe('Perseverance')
     })
 
     test('cassini sentinel geometry drops out', () => {
@@ -228,21 +230,22 @@ test.describe('resolvePresentation', () => {
         expect(mgs.sections.map((s) => s.id)).not.toContain('geometry_surface')
     })
 
-    test('the catch-all section adds normalized metadata without the raw labels', () => {
+    test('general fields are configured gather sections, archive stands apart', () => {
         const p = resolvePresentation(mars2020Navcam)
-        const other = p.sections.find((s) => s.id === 'other')
-        expect(other.rows.length).toBeGreaterThan(0)
 
-        // The catch-all covers the whole gather object, so a row may restate a
-        // configured one; each label is still shown once.
-        const labels = other.rows.map((row) => row.label)
-        expect(new Set(labels).size).toBe(labels.length)
-        other.rows.forEach((row) => {
-            expect(String(row.value)).not.toContain('undefined')
-        })
+        // The generic catch-all is gone: every general section is configured.
+        expect(p.sections.map((s) => s.id)).not.toContain('other')
+
+        const labels = []
+        p.sections.forEach((section) =>
+            section.rows.forEach((row) => {
+                expect(String(row.value)).not.toContain('undefined')
+                labels.push(row.label)
+            })
+        )
 
         // Archive leaves are their own group, never general fields.
-        expect(labels.some((label) => label === 'Fs type')).toBe(false)
+        expect(labels).not.toContain('Fs type')
         const archive = p.archiveRows.map((row) => row.label)
         expect(archive).toContain('Fs type')
         expect(archive).toContain('Parent URI')
@@ -250,7 +253,7 @@ test.describe('resolvePresentation', () => {
 
         // Nothing out of the pds4/pds3 label trees leaks in.
         const inLabel = Object.keys(mars2020Navcam.pds4_label || {})
-        expect(other.rows.some((row) => inLabel.includes(row.label))).toBe(false)
+        expect(labels.some((label) => inLabel.includes(label))).toBe(false)
     })
 
     test('an unpaired tile carries no second field', () => {

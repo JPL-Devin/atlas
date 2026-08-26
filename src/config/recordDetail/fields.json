@@ -449,6 +449,46 @@
         "icon": "layers",
         "format": "uppercase"
     },
+    "gather.ancillary.image_type": {
+        "label": "Image type",
+        "icon": "file",
+        "format": "titlecase"
+    },
+    "gather.ancillary.special_processing_flag": {
+        "label": "Special processing",
+        "icon": "layers",
+        "format": "uppercase"
+    },
+    "gather.ancillary.flight": {
+        "label": "Flight software",
+        "icon": "spacecraft",
+        "format": "text"
+    },
+    "gather.ancillary.overlayable": {
+        "label": "Overlayable",
+        "icon": "layers",
+        "format": "boolean"
+    },
+    "gather.ancillary.overlay_id": {
+        "label": "Overlay ID",
+        "icon": "layers",
+        "format": "text"
+    },
+    "gather.ancillary.group_id": {
+        "label": "Group ID",
+        "icon": "layers",
+        "format": "text"
+    },
+    "gather.ancillary.tile_flag": {
+        "label": "Tiled",
+        "icon": "layers",
+        "format": "text"
+    },
+    "gather.landed_missions.land_msn_eye": {
+        "label": "Camera eye code",
+        "icon": "eye",
+        "format": "uppercase"
+    },
     "gather.ancillary.reconstruction_type": {
         "label": "Reconstruction",
         "icon": "layers",

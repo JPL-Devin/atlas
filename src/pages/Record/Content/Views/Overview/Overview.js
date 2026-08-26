@@ -22,8 +22,17 @@ import CloseIcon from '@mui/icons-material/Close'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import SearchIcon from '@mui/icons-material/Search'
+import DownloadIcon from '@mui/icons-material/Download'
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
 
-import { copyToClipboard, getIn } from '../../../../../core/utils.js'
+import {
+    copyToClipboard,
+    getIn,
+    getPDSUrl,
+    getFilename,
+} from '../../../../../core/utils.js'
+import { getDownloadProducts } from '../../../../../core/recordDownloads.js'
+import { streamDownloadFile } from '../../../../../core/downloaders/ZipStream.js'
 import { HASH_PATHS, ES_PATHS } from '../../../../../core/constants.js'
 import { getAppConfig, getAppInstanceKey } from '../../../../../core/appConfig.js'
 import { resolvePresentation } from '../../../../../core/recordPresentation'
@@ -93,12 +102,12 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey500,
         whiteSpace: 'nowrap',
     },
-    // An unheadered strip of the product's timestamps: a node per time, with the
-    // elapsed span named on the connector between them.
+    // A strip of the product's timestamps: a node per time, with the elapsed
+    // span named on the connector between them.
     timeline: {
         display: 'flex',
         alignItems: 'flex-start',
-        margin: '14px 0 20px 0',
+        margin: '4px 0 20px 0',
     },
     timelineNode: {
         display: 'flex',
@@ -370,6 +379,65 @@ const useStyles = makeStyles((theme) => ({
             color: theme.palette.swatches.grey.grey500,
         },
     },
+    archiveHeading: {
+        'display': 'flex',
+        'alignItems': 'center',
+        'gap': '4px',
+        'width': 'calc(100% + 40px)',
+        'background': 'none',
+        'border': 'none',
+        'borderTop': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'cursor': 'pointer',
+        'fontFamily': 'inherit',
+        '& .MuiSvgIcon-root': {
+            fontSize: '18px',
+        },
+    },
+    fileCards: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+        gap: '8px',
+        marginBottom: '20px',
+    },
+    fileCard: {
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '8px 10px',
+        borderRadius: '3px',
+        border: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        background: theme.palette.swatches.grey.grey0,
+    },
+    fileIcon: {
+        fontSize: '22px',
+        color: theme.palette.swatches.grey.grey500,
+    },
+    fileText: {
+        minWidth: 0,
+        flex: 1,
+    },
+    fileName: {
+        fontSize: '13px',
+        fontWeight: 'bold',
+        color: theme.palette.text.primary,
+    },
+    fileMeta: {
+        fontSize: '12px',
+        color: theme.palette.swatches.grey.grey600,
+    },
+    fileFilename: {
+        fontSize: '11px',
+        color: theme.palette.swatches.grey.grey500,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    },
+    fileDownload: {
+        '&.MuiIconButton-root': {
+            color: theme.palette.swatches.blue.blue600,
+        },
+    },
     sectionCount: {
         fontSize: '11px',
         fontWeight: 'normal',
@@ -488,6 +556,8 @@ const Overview = (props) => {
     const tileColumns = isPhone ? 1 : isTwoUp ? 2 : 3
     const [filterString, setFilterString] = useState('')
     const [collapsed, setCollapsed] = useState({})
+    // Archival provenance is secondary, so it starts closed.
+    const [archiveExpanded, setArchiveExpanded] = useState(false)
 
     const pds_standard = getIn(recordData, ES_PATHS.pds_standard)
 
@@ -583,6 +653,9 @@ const Overview = (props) => {
 
     const archiveRows = presentation.archiveRows.filter((row) => matches(row, filter))
     const fieldCount = sections.reduce((total, section) => total + section.rows.length, 0)
+    const files = getDownloadProducts(recordData).filter((file) => file.uri)
+    // Filtering reveals matching archival rows even while the section is closed.
+    const archiveOpen = filter !== '' || archiveExpanded
 
     const copy = (text, message) => {
         copyToClipboard(text)
@@ -609,6 +682,45 @@ const Overview = (props) => {
         </div>
     )
 
+    // One card per downloadable product: source plus its related assets.
+    const renderFiles = () => {
+        if (files.length === 0) return null
+        return (
+            <>
+                <div className={c.heading}>Files</div>
+                <div className={c.fileCards}>
+                    {files.map((file) => (
+                        <div className={c.fileCard} key={file.uri}>
+                            <InsertDriveFileOutlinedIcon className={c.fileIcon} />
+                            <div className={c.fileText}>
+                                <div className={c.fileName}>{file.name}</div>
+                                <div className={c.fileMeta}>{file.subname}</div>
+                                <div className={c.fileFilename} title={getFilename(file.uri)}>
+                                    {getFilename(file.uri)}
+                                </div>
+                            </div>
+                            <Tooltip title={`Download ${file.name}`} arrow>
+                                <IconButton
+                                    className={c.fileDownload}
+                                    aria-label={`download ${file.name}`}
+                                    size="small"
+                                    onClick={() =>
+                                        streamDownloadFile(
+                                            getPDSUrl(file.uri, file.release_id),
+                                            getFilename(file.uri)
+                                        )
+                                    }
+                                >
+                                    <DownloadIcon />
+                                </IconButton>
+                            </Tooltip>
+                        </div>
+                    ))}
+                </div>
+            </>
+        )
+    }
+
     const renderTimeline = () => {
         if (presentation.timeline.length === 0) return null
         const dotColors = {
@@ -618,25 +730,28 @@ const Overview = (props) => {
             purple: c.timelineDotPurple,
         }
         return (
-            <div className={c.timeline} aria-label="record timeline">
-                {presentation.timeline.map((point, idx) => (
-                    <React.Fragment key={idx}>
-                        {idx > 0 && (
-                            <div className={c.timelineSpan}>
-                                <div className={c.timelineRule} />
-                                <div className={c.timelineGap}>{point.gap}</div>
+            <>
+                <div className={c.heading}>Timeline</div>
+                <div className={c.timeline} aria-label="record timeline">
+                    {presentation.timeline.map((point, idx) => (
+                        <React.Fragment key={idx}>
+                            {idx > 0 && (
+                                <div className={c.timelineSpan}>
+                                    <div className={c.timelineRule} />
+                                    <div className={c.timelineGap}>{point.gap}</div>
+                                </div>
+                            )}
+                            <div className={c.timelineNode}>
+                                <div
+                                    className={`${c.timelineDot} ${dotColors[point.color] || ''}`}
+                                />
+                                <div className={c.timelineLabel}>{point.label}</div>
+                                <div className={c.timelineValue}>{point.value}</div>
                             </div>
-                        )}
-                        <div className={c.timelineNode}>
-                            <div
-                                className={`${c.timelineDot} ${dotColors[point.color] || ''}`}
-                            />
-                            <div className={c.timelineLabel}>{point.label}</div>
-                            <div className={c.timelineValue}>{point.value}</div>
-                        </div>
-                    </React.Fragment>
-                ))}
-            </div>
+                        </React.Fragment>
+                    ))}
+                </div>
+            </>
         )
     }
 
@@ -831,14 +946,25 @@ const Overview = (props) => {
                                 )
                             })}
                         </div>
+                        {renderFiles()}
                         {archiveRows.length > 0 && (
                             <>
-                                <div className={c.heading}>Archival Fields</div>
-                                <div className={c.fieldsCard}>
-                                    <div className={c.archiveRows}>
-                                        {archiveRows.map(renderRow)}
+                                <button
+                                    className={`${c.heading} ${c.archiveHeading}`}
+                                    aria-expanded={archiveOpen}
+                                    onClick={() => setArchiveExpanded(!archiveExpanded)}
+                                >
+                                    {archiveOpen ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                                    <span>Archival Fields</span>
+                                    <span className={c.sectionCount}>{archiveRows.length}</span>
+                                </button>
+                                <Collapse in={archiveOpen} unmountOnExit>
+                                    <div className={c.fieldsCard}>
+                                        <div className={c.archiveRows}>
+                                            {archiveRows.map(renderRow)}
+                                        </div>
                                     </div>
-                                </div>
+                                </Collapse>
                             </>
                         )}
                         {presentation.citation != null && getAppConfig().enableRecordCitation && (

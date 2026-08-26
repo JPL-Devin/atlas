@@ -36,7 +36,7 @@
         "observation",
         "geometry_surface",
         "content",
-        "files"
+        "processing"
     ],
     "separator": ", ",
     "description": [

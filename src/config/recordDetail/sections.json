@@ -105,14 +105,20 @@
       "gather.orbital_missions.spacecraft_yaw"
     ]
   },
-  "files": {
-    "title": "Files",
+  "processing": {
+    "title": "Processing & provenance",
     "fields": [
       "gather.pds_archive.file_name",
-      "archive.file_extension",
-      "archive.size",
-      "archive.md5",
-      "archive.updated_at"
+      "gather.pds_archive.pds_standard",
+      "gather.ancillary.image_type",
+      "gather.ancillary.reconstruction_type",
+      "gather.ancillary.special_processing_flag",
+      "gather.ancillary.flight",
+      "gather.ancillary.overlayable",
+      "gather.ancillary.overlay_id",
+      "gather.ancillary.group_id",
+      "gather.ancillary.tile_flag",
+      "gather.landed_missions.land_msn_eye"
     ]
   },
   "content": {

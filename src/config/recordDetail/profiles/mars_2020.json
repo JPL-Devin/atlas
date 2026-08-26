@@ -3,9 +3,12 @@
         "mission": "mars_2020"
     },
     "tiles": [
-        "gather.common.mission",
-        "gather.common.spacecraft",
+        {
+            "path": "gather.common.mission",
+            "pair": "gather.common.spacecraft"
+        },
         "gather.common.instrument",
+        "gather.common.product_type",
         "gather.landed_missions.planet_day_number",
         "gather.landed_missions.rmc_site",
         "gather.landed_missions.rmc_drive",
@@ -21,21 +24,18 @@
             "path": "gather.landed_missions.site_instrument_elevation",
             "pair": "gather.landed_missions.site_instrument_azimuth"
         },
-        "gather.pds_archive.bundle_id",
-        "gather.common.product_type",
-        "archive.size",
         "gather.ancillary.eye_type",
         "gather.lighting_geometry.solar_longitude",
         "gather.common.target"
     ],
-    "maxTiles": 12,
+    "maxTiles": 9,
     "priorityTiles": 6,
     "sections": [
         "identification",
         "observation",
         "geometry_surface",
         "content",
-        "files"
+        "processing"
     ],
     "separator": ", ",
     "description": [

@@ -27,7 +27,7 @@
         "identification",
         "observation",
         "content",
-        "files"
+        "processing"
     ],
     "description": [
         "{{gather.common.product_type}} product from {{gather.common.instrument}} aboard {{gather.common.spacecraft}}.",

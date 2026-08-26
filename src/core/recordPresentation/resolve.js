@@ -2,7 +2,6 @@ import {
     defaultProfile,
     fields,
     instanceProfiles,
-    otherFields as otherConfig,
     profiles,
     sections as sectionGroups,
 } from '../../config/recordDetail'
@@ -142,13 +141,6 @@ const readSections = (recordData, ids, tiled = {}, root = null) =>
         })
         .filter((section) => section != null)
 
-// Every path the configured sections lay claim to, shown or not.
-const configuredPaths = (ids) =>
-    (Array.isArray(ids) ? ids : []).reduce(
-        (paths, id) => (sectionGroups[id] ? paths.concat(sectionGroups[id].fields) : paths),
-        []
-    )
-
 const CAPTION_SEPARATOR = ' \u00b7 '
 
 const renderFragments = (recordData, fragments, separator = ' ') => {
@@ -206,17 +198,9 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
     const citationBody = renderFragments(recordData, profile.citation, ', ')
     const citation = [citationAuthor, citationBody].filter((part) => part != null).join(', ')
 
-    // General fields are the `gather` object: configured sections first, then
-    // whatever they didn't place. `archive` is kept apart as archival fields.
+    // General fields are the profile's `gather` sections; `archive` is listed
+    // whole and apart as archival fields.
     const sections = readSections(recordData, profile.sections, tiled, 'gather')
-    const otherRows =
-        profile.otherFields === false
-            ? []
-            : readOtherRows(recordData, {
-                  usedPaths: configuredPaths(profile.sections),
-                  roots: ['gather'],
-              })
-    if (otherRows.length) sections.push({ id: 'other', title: otherConfig.title, rows: otherRows })
     const archiveRows =
         profile.otherFields === false ? [] : readOtherRows(recordData, { roots: ['archive'] })
 
