@@ -231,7 +231,7 @@ test.describe('resolvePresentation', () => {
         expect(mgs.sections.map((s) => s.id)).not.toContain('geometry_surface')
     })
 
-    test('general fields are configured gather sections, archive stands apart', () => {
+    test('general fields are configured gather sections plus an archival group', () => {
         const p = resolvePresentation(mars2020Navcam)
 
         // The generic catch-all is gone: every general section is configured.
@@ -245,12 +245,18 @@ test.describe('resolvePresentation', () => {
             })
         )
 
-        // Archive leaves are their own group, never general fields.
-        expect(labels).not.toContain('Fs type')
-        const archive = p.archiveRows.map((row) => row.label)
+        // Archive leaves close the list as their own group, last and named.
+        const archiveSection = p.sections[p.sections.length - 1]
+        expect(archiveSection.id).toBe('archive')
+        const archive = archiveSection.rows.map((row) => row.label)
         expect(archive).toContain('Fs type')
         expect(archive).toContain('Parent URI')
         expect(archive).toContain('Published')
+        p.sections
+            .filter((section) => section.id !== 'archive')
+            .forEach((section) =>
+                expect(section.rows.map((row) => row.label)).not.toContain('Fs type')
+            )
 
         // Nothing out of the pds4/pds3 label trees leaks in.
         const inLabel = Object.keys(mars2020Navcam.pds4_label || {})

@@ -35,8 +35,7 @@
         "identification",
         "observation",
         "geometry_surface",
-        "content",
-        "processing"
+        "content"
     ],
     "separator": ", ",
     "description": [

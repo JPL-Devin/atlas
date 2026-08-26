@@ -198,11 +198,14 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
     const citationBody = renderFragments(recordData, profile.citation, ', ')
     const citation = [citationAuthor, citationBody].filter((part) => part != null).join(', ')
 
-    // General fields are the profile's `gather` sections; `archive` is listed
-    // whole and apart as archival fields.
-    const sections = readSections(recordData, profile.sections, tiled, 'gather')
+    // General fields are the profile's `gather` sections, closing with the whole
+    // `archive` object as its own Archival subsection.
+    const gatherSections = readSections(recordData, profile.sections, tiled, 'gather')
     const archiveRows =
         profile.otherFields === false ? [] : readOtherRows(recordData, { roots: ['archive'] })
+    const sections = archiveRows.length
+        ? [...gatherSections, { id: 'archive', title: 'Archival', rows: archiveRows }]
+        : gatherSections
 
     return {
         // Description fragments are whole sentences, so a dropped clause leaves
@@ -212,7 +215,6 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
         captionTitle: renderFragments(recordData, profile.captionTitle, separator),
         captionChips: readChips(recordData, profile.captionChips),
         sections,
-        archiveRows,
         shortCaption:
             renderFragments(recordData, profile.shortCaption, separator) ||
             renderFragments(recordData, profile.caption, separator),

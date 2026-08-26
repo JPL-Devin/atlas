@@ -26,8 +26,7 @@
     "sections": [
         "identification",
         "observation",
-        "content",
-        "processing"
+        "content"
     ],
     "description": [
         "{{gather.common.product_type}} product from {{gather.common.instrument}} aboard {{gather.common.spacecraft}}.",

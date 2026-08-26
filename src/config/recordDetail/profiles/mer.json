@@ -34,8 +34,7 @@
         "identification",
         "observation",
         "geometry_surface",
-        "content",
-        "processing"
+        "content"
     ],
     "description": [
         "{{gather.common.product_type_name}} image from {{gather.common.instrument_name}} aboard {{gather.common.spacecraft}}.",

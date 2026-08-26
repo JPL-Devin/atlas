@@ -79,6 +79,9 @@ const FILE_KINDS = {
     raw: 'binary',
 }
 
+// Trailing characters kept when a card filename truncates in the middle.
+const TAIL_CHARS = 12
+
 const fileIconFor = (file) => {
     const kind = FILE_KINDS[(file.extension || '').toLowerCase()]
     return FILE_ICONS[kind] || InsertDriveFileOutlinedIcon
@@ -385,10 +388,6 @@ const useStyles = makeStyles((theme) => ({
         border: `1px solid ${theme.palette.swatches.grey.grey200}`,
         background: theme.palette.swatches.grey.grey0,
     },
-    // The archive object is flat, so its rows need no collapsible grouping.
-    archiveRows: {
-        padding: '4px 0',
-    },
     section: {
         // The app's global Collapse styling adds a left rule that reads as a
         // stray vertical line here.
@@ -420,20 +419,6 @@ const useStyles = makeStyles((theme) => ({
         '& .MuiSvgIcon-root': {
             fontSize: '18px',
             color: theme.palette.swatches.grey.grey500,
-        },
-    },
-    archiveHeading: {
-        'display': 'flex',
-        'alignItems': 'center',
-        'gap': '4px',
-        'width': 'calc(100% + 40px)',
-        'background': 'none',
-        'border': 'none',
-        'borderTop': `1px solid ${theme.palette.swatches.grey.grey200}`,
-        'cursor': 'pointer',
-        'fontFamily': 'inherit',
-        '& .MuiSvgIcon-root': {
-            fontSize: '18px',
         },
     },
     fileCards: {
@@ -499,12 +484,20 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey600,
     },
     fileMeta: {
+        display: 'flex',
         fontSize: '11px',
         fontFamily: 'monospace',
         color: theme.palette.swatches.grey.grey500,
+        whiteSpace: 'nowrap',
+        minWidth: 0,
+    },
+    // Head truncates so the ellipsis lands mid-name and the tail stays readable.
+    fileMetaHead: {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
+    },
+    fileMetaTail: {
+        flexShrink: 0,
     },
     fileSize: {
         flexShrink: 0,
@@ -640,8 +633,6 @@ const Overview = (props) => {
     const tileColumns = isPhone ? 1 : isTwoUp ? 2 : 3
     const [filterString, setFilterString] = useState('')
     const [collapsed, setCollapsed] = useState({})
-    // Archival provenance is secondary, so it starts closed.
-    const [archiveExpanded, setArchiveExpanded] = useState(false)
 
     const pds_standard = getIn(recordData, ES_PATHS.pds_standard)
 
@@ -735,11 +726,8 @@ const Overview = (props) => {
         }))
         .filter((section) => section.rows.length > 0)
 
-    const archiveRows = presentation.archiveRows.filter((row) => matches(row, filter))
     const fieldCount = sections.reduce((total, section) => total + section.rows.length, 0)
     const files = getDownloadProducts(recordData).filter((file) => file.uri)
-    // Filtering reveals matching archival rows even while the section is closed.
-    const archiveOpen = filter !== '' || archiveExpanded
 
     const copy = (text, message) => {
         copyToClipboard(text)
@@ -793,7 +781,12 @@ const Overview = (props) => {
                                         )}
                                     </div>
                                     <div className={c.fileMeta} title={filename}>
-                                        {filename}
+                                        <span className={c.fileMetaHead}>
+                                            {filename.slice(0, -TAIL_CHARS)}
+                                        </span>
+                                        <span className={c.fileMetaTail}>
+                                            {filename.slice(-TAIL_CHARS)}
+                                        </span>
                                     </div>
                                 </div>
                                 <div className={c.fileActions}>
@@ -1048,26 +1041,6 @@ const Overview = (props) => {
                             })}
                         </div>
                         {renderFiles()}
-                        {archiveRows.length > 0 && (
-                            <>
-                                <button
-                                    className={`${c.heading} ${c.archiveHeading}`}
-                                    aria-expanded={archiveOpen}
-                                    onClick={() => setArchiveExpanded(!archiveExpanded)}
-                                >
-                                    {archiveOpen ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                                    <span>Archival Fields</span>
-                                    <span className={c.sectionCount}>{archiveRows.length}</span>
-                                </button>
-                                <Collapse in={archiveOpen} unmountOnExit>
-                                    <div className={c.fieldsCard}>
-                                        <div className={c.archiveRows}>
-                                            {archiveRows.map(renderRow)}
-                                        </div>
-                                    </div>
-                                </Collapse>
-                            </>
-                        )}
                         {presentation.citation != null && getAppConfig().enableRecordCitation && (
                             <>
                                 <div className={c.citationHeading}>
