@@ -24,6 +24,11 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import SearchIcon from '@mui/icons-material/Search'
 import DownloadIcon from '@mui/icons-material/Download'
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
+import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined'
+import CodeOutlinedIcon from '@mui/icons-material/CodeOutlined'
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
+import MemoryOutlinedIcon from '@mui/icons-material/MemoryOutlined'
+import GridOnOutlinedIcon from '@mui/icons-material/GridOnOutlined'
 
 import {
     copyToClipboard,
@@ -41,6 +46,43 @@ import { setRecordViewTab, setSnackBarText } from '../../../../../core/redux/act
 import tileIcons from './tileIcons.js'
 import PanelHeader from '../../PanelHeader/PanelHeader'
 import LabelActions from '../../PanelHeader/LabelActions'
+
+// File cards read by type: rasters, text/label formats, tilesets, then binary.
+const FILE_ICONS = {
+    image: ImageOutlinedIcon,
+    markup: CodeOutlinedIcon,
+    text: DescriptionOutlinedIcon,
+    tiles: GridOnOutlinedIcon,
+    binary: MemoryOutlinedIcon,
+}
+const FILE_KINDS = {
+    png: 'image',
+    jpg: 'image',
+    jpeg: 'image',
+    gif: 'image',
+    tif: 'image',
+    tiff: 'image',
+    webp: 'image',
+    xml: 'markup',
+    json: 'markup',
+    lbl: 'text',
+    txt: 'text',
+    cat: 'text',
+    fmt: 'text',
+    csv: 'text',
+    dzi: 'tiles',
+    img: 'binary',
+    dat: 'binary',
+    bin: 'binary',
+    cub: 'binary',
+    qub: 'binary',
+    raw: 'binary',
+}
+
+const fileIconFor = (file) => {
+    const kind = FILE_KINDS[(file.extension || '').toLowerCase()]
+    return FILE_ICONS[kind] || InsertDriveFileOutlinedIcon
+}
 
 const useStyles = makeStyles((theme) => ({
     // The caption leads the panel body rather than floating over the image.
@@ -222,6 +264,7 @@ const useStyles = makeStyles((theme) => ({
         display: 'grid',
         gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
         gap: '8px',
+        marginBottom: '20px',
         [theme.breakpoints.down('lg')]: {
             gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
         },
@@ -395,43 +438,84 @@ const useStyles = makeStyles((theme) => ({
     },
     fileCards: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
         gap: '8px',
         marginBottom: '20px',
     },
     fileCard: {
-        boxSizing: 'border-box',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '8px 10px',
-        borderRadius: '3px',
-        border: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        background: theme.palette.swatches.grey.grey0,
+        'boxSizing': 'border-box',
+        'display': 'grid',
+        'gridTemplateColumns': 'auto minmax(0, 1fr) auto',
+        'alignItems': 'center',
+        'columnGap': '10px',
+        'padding': '10px',
+        'borderRadius': '3px',
+        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'background': theme.palette.swatches.grey.grey0,
+        '&:hover': {
+            borderColor: theme.palette.swatches.grey.grey300,
+        },
     },
-    fileIcon: {
-        fontSize: '22px',
-        color: theme.palette.swatches.grey.grey500,
+    // A tinted square keeps the type icon legible at card scale.
+    fileBadge: {
+        'display': 'flex',
+        'alignItems': 'center',
+        'justifyContent': 'center',
+        'width': '34px',
+        'height': '34px',
+        'borderRadius': '3px',
+        'background': theme.palette.swatches.grey.grey150,
+        'color': theme.palette.swatches.grey.grey600,
+        '& > svg': {
+            fontSize: '20px',
+        },
     },
     fileText: {
         minWidth: 0,
-        flex: 1,
+    },
+    fileNameRow: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        minWidth: 0,
     },
     fileName: {
         fontSize: '13px',
         fontWeight: 'bold',
         color: theme.palette.text.primary,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
     },
-    fileMeta: {
-        fontSize: '12px',
+    fileExt: {
+        flexShrink: 0,
+        fontSize: '10px',
+        fontWeight: 'bold',
+        letterSpacing: '0.04em',
+        lineHeight: '15px',
+        padding: '0 5px',
+        borderRadius: '2px',
+        background: theme.palette.swatches.grey.grey150,
         color: theme.palette.swatches.grey.grey600,
     },
-    fileFilename: {
+    fileMeta: {
         fontSize: '11px',
+        fontFamily: 'monospace',
         color: theme.palette.swatches.grey.grey500,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
+    },
+    fileSize: {
+        flexShrink: 0,
+        fontSize: '12px',
+        color: theme.palette.swatches.grey.grey600,
+        whiteSpace: 'nowrap',
+    },
+    fileActions: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
     },
     fileDownload: {
         '&.MuiIconButton-root': {
@@ -689,33 +773,50 @@ const Overview = (props) => {
             <>
                 <div className={c.heading}>Files</div>
                 <div className={c.fileCards}>
-                    {files.map((file) => (
-                        <div className={c.fileCard} key={file.uri}>
-                            <InsertDriveFileOutlinedIcon className={c.fileIcon} />
-                            <div className={c.fileText}>
-                                <div className={c.fileName}>{file.name}</div>
-                                <div className={c.fileMeta}>{file.subname}</div>
-                                <div className={c.fileFilename} title={getFilename(file.uri)}>
-                                    {getFilename(file.uri)}
+                    {files.map((file) => {
+                        const filename = getFilename(file.uri)
+                        const FileIcon = fileIconFor(file)
+                        return (
+                            <div className={c.fileCard} key={file.uri}>
+                                <div className={c.fileBadge}>
+                                    <FileIcon />
+                                </div>
+                                <div className={c.fileText}>
+                                    <div className={c.fileNameRow}>
+                                        <span className={c.fileName} title={file.name}>
+                                            {file.name}
+                                        </span>
+                                        {file.extension && (
+                                            <span className={c.fileExt}>
+                                                {file.extension.toUpperCase()}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className={c.fileMeta} title={filename}>
+                                        {filename}
+                                    </div>
+                                </div>
+                                <div className={c.fileActions}>
+                                    {file.size && <span className={c.fileSize}>{file.size}</span>}
+                                    <Tooltip title={`Download ${file.name}`} arrow>
+                                        <IconButton
+                                            className={c.fileDownload}
+                                            aria-label={`download ${file.name}`}
+                                            size="small"
+                                            onClick={() =>
+                                                streamDownloadFile(
+                                                    getPDSUrl(file.uri, file.release_id),
+                                                    filename
+                                                )
+                                            }
+                                        >
+                                            <DownloadIcon />
+                                        </IconButton>
+                                    </Tooltip>
                                 </div>
                             </div>
-                            <Tooltip title={`Download ${file.name}`} arrow>
-                                <IconButton
-                                    className={c.fileDownload}
-                                    aria-label={`download ${file.name}`}
-                                    size="small"
-                                    onClick={() =>
-                                        streamDownloadFile(
-                                            getPDSUrl(file.uri, file.release_id),
-                                            getFilename(file.uri)
-                                        )
-                                    }
-                                >
-                                    <DownloadIcon />
-                                </IconButton>
-                            </Tooltip>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             </>
         )

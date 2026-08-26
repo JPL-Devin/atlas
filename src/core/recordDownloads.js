@@ -20,10 +20,16 @@ export const getDownloadProducts = (recordData) => {
 
     return sortRelatedKeys(Object.keys(related)).map((key) => {
         const uri = key === 'src' ? getIn(recordData, ES_PATHS.source) : related[key].uri
-        const size = humanFileSize(related[key].size)
+        // The source product carries its size on the archive entry, not in `related`.
+        const bytes = key === 'src' ? getIn(recordData, ES_PATHS.archive.size) : related[key].size
+        const size = humanFileSize(bytes)
+        const extension = getExtension(uri)
         return {
+            key,
             name: RELATED_MAPPINGS[key] || key,
-            subname: `.${getExtension(uri)}${size ? ` (${size})` : ''}`,
+            subname: `.${extension}${size ? ` (${size})` : ''}`,
+            extension,
+            size,
             uri,
             checked: key === getAppConfig().defaultDownloadProduct,
             release_id,
