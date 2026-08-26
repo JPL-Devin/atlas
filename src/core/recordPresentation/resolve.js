@@ -123,13 +123,17 @@ const readTimeline = (recordData, entries) => {
 // rows with no value drop, and a section with no rows drops with them.
 // A row whose exact value is already a tile above is dropped, so At a glance
 // and the field sections stop repeating each other.
-const readSections = (recordData, ids, tiled = {}) =>
+const readSections = (recordData, ids, tiled = {}, root = null) =>
     (Array.isArray(ids) ? ids : [])
         .map((id) => {
             const group = sectionGroups[id]
             if (group == null) return null
             const rows = []
-            group.fields.forEach((path) => {
+            const paths =
+                root == null
+                    ? group.fields
+                    : group.fields.filter((path) => path.startsWith(`${root}.`))
+            paths.forEach((path) => {
                 const tile = readTile(recordData, path)
                 if (tile == null || tiled[path] === tile.value) return
                 rows.push({ label: tile.label, value: tile.value })
@@ -202,13 +206,19 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
     const citationBody = renderFragments(recordData, profile.citation, ', ')
     const citation = [citationAuthor, citationBody].filter((part) => part != null).join(', ')
 
-    // Whatever the profile didn't place lands in one trailing catch-all section.
-    const sections = readSections(recordData, profile.sections, tiled)
+    // General fields are the `gather` object: configured sections first, then
+    // whatever they didn't place. `archive` is kept apart as archival fields.
+    const sections = readSections(recordData, profile.sections, tiled, 'gather')
     const otherRows =
         profile.otherFields === false
             ? []
-            : readOtherRows(recordData, { usedPaths: configuredPaths(profile.sections) })
+            : readOtherRows(recordData, {
+                  usedPaths: configuredPaths(profile.sections),
+                  roots: ['gather'],
+              })
     if (otherRows.length) sections.push({ id: 'other', title: otherConfig.title, rows: otherRows })
+    const archiveRows =
+        profile.otherFields === false ? [] : readOtherRows(recordData, { roots: ['archive'] })
 
     return {
         // Description fragments are whole sentences, so a dropped clause leaves
@@ -218,6 +228,7 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
         captionTitle: renderFragments(recordData, profile.captionTitle, separator),
         captionChips: readChips(recordData, profile.captionChips),
         sections,
+        archiveRows,
         shortCaption:
             renderFragments(recordData, profile.shortCaption, separator) ||
             renderFragments(recordData, profile.caption, separator),

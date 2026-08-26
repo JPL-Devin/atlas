@@ -21,11 +21,8 @@ const describeValue = (segment, value) => {
     if (exact != null) return exact
 
     const groups = segment.valueGroups || []
-    for (let i = 0; i < groups.length; i++) {
-        if (groups[i].codes.split(/\s+/).indexOf(value) !== -1) {
-            return groups[i].meaning
-        }
-    }
+    for (let i = 0; i < groups.length; i++)
+        if (groups[i].codes.split(/\s+/).indexOf(value) !== -1) return groups[i].meaning
 
     const patterns = segment.patterns || []
     for (let i = 0; i < patterns.length; i++) {

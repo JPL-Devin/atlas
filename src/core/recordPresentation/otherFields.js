@@ -59,26 +59,26 @@ const disambiguate = (rows) => {
     })
 }
 
-const walk = (node, prefix, out) => {
+const walk = (node, prefix, out, roots) => {
     if (node == null || typeof node !== 'object' || Array.isArray(node)) return
     Object.keys(node).forEach((key) => {
         const path = prefix === '' ? key : `${prefix}.${key}`
         if (excludedSegments.has(key) || excludedPaths.has(path)) return
-        if (prefix === '' && (excludedRoots.has(key) || !includedRoots.has(key))) return
+        if (prefix === '' && (excludedRoots.has(key) || !roots.has(key))) return
         const value = node[key]
         if (isLeaf(value)) out.push({ path, value })
-        else walk(value, path, out)
+        else walk(value, path, out, roots)
     })
 }
 
-// Every normalized leaf under the included roots that the configured sections
+// Every normalized leaf under the given roots that the configured sections
 // don't already show, minus the raw label branches.
-export const readOtherRows = (recordData, { usedPaths = [] } = {}) => {
+export const readOtherRows = (recordData, { usedPaths = [], roots = null } = {}) => {
     if (recordData == null) return []
 
     const used = new Set(usedPaths)
     const leaves = []
-    walk(recordData, '', leaves)
+    walk(recordData, '', leaves, roots != null ? new Set(roots) : includedRoots)
 
     const rows = []
     leaves.forEach(({ path, value }) => {

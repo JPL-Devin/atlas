@@ -233,17 +233,20 @@ test.describe('resolvePresentation', () => {
         const other = p.sections.find((s) => s.id === 'other')
         expect(other.rows.length).toBeGreaterThan(0)
 
-        // The catch-all covers the whole gather and archive objects, so a row may
-        // restate a configured one; each label is still shown once.
+        // The catch-all covers the whole gather object, so a row may restate a
+        // configured one; each label is still shown once.
         const labels = other.rows.map((row) => row.label)
         expect(new Set(labels).size).toBe(labels.length)
         other.rows.forEach((row) => {
             expect(String(row.value)).not.toContain('undefined')
         })
 
-        // Archive-only leaves the sections never place still show up.
-        expect(labels).toContain('Fs type')
-        expect(labels).toContain('Parent URI')
+        // Archive leaves are their own group, never general fields.
+        expect(labels.some((label) => label === 'Fs type')).toBe(false)
+        const archive = p.archiveRows.map((row) => row.label)
+        expect(archive).toContain('Fs type')
+        expect(archive).toContain('Parent URI')
+        expect(archive).toContain('Published')
 
         // Nothing out of the pds4/pds3 label trees leaks in.
         const inLabel = Object.keys(mars2020Navcam.pds4_label || {})

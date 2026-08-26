@@ -333,6 +333,10 @@ const useStyles = makeStyles((theme) => ({
         border: `1px solid ${theme.palette.swatches.grey.grey200}`,
         background: theme.palette.swatches.grey.grey0,
     },
+    // The archive object is flat, so its rows need no collapsible grouping.
+    archiveRows: {
+        padding: '4px 0',
+    },
     section: {
         // The app's global Collapse styling adds a left rule that reads as a
         // stray vertical line here.
@@ -570,12 +574,33 @@ const Overview = (props) => {
         }))
         .filter((section) => section.rows.length > 0)
 
+    const archiveRows = presentation.archiveRows.filter((row) => matches(row, filter))
     const fieldCount = sections.reduce((total, section) => total + section.rows.length, 0)
 
     const copy = (text, message) => {
         copyToClipboard(text)
         dispatch(setSnackBarText(message, 'success'))
     }
+
+    const renderRow = (row, idx) => (
+        <div className={c.row} key={idx}>
+            <div className={c.rowLabel}>{row.label}</div>
+            <div className={c.rowValue}>
+                {row.value}
+                {row.node}
+                <Tooltip title="Copy value" arrow>
+                    <IconButton
+                        className={c.rowCopy}
+                        aria-label={`copy ${row.label}`}
+                        size="small"
+                        onClick={() => copy(row.value, 'Copied value to clipboard!')}
+                    >
+                        <ContentCopyIcon />
+                    </IconButton>
+                </Tooltip>
+            </div>
+        </div>
+    )
 
     const renderTimeline = () => {
         if (presentation.timeline.length === 0) return null
@@ -793,35 +818,22 @@ const Overview = (props) => {
                                             </span>
                                         </button>
                                         <Collapse in={open} unmountOnExit>
-                                            {section.rows.map((row, idx) => (
-                                                <div className={c.row} key={idx}>
-                                                    <div className={c.rowLabel}>{row.label}</div>
-                                                    <div className={c.rowValue}>
-                                                        {row.value}
-                                                        {row.node}
-                                                        <Tooltip title="Copy value" arrow>
-                                                            <IconButton
-                                                                className={c.rowCopy}
-                                                                aria-label={`copy ${row.label}`}
-                                                                size="small"
-                                                                onClick={() =>
-                                                                    copy(
-                                                                        row.value,
-                                                                        'Copied value to clipboard!'
-                                                                    )
-                                                                }
-                                                            >
-                                                                <ContentCopyIcon />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                            {section.rows.map(renderRow)}
                                         </Collapse>
                                     </div>
                                 )
                             })}
                         </div>
+                        {archiveRows.length > 0 && (
+                            <>
+                                <div className={c.heading}>Archival Fields</div>
+                                <div className={c.fieldsCard}>
+                                    <div className={c.archiveRows}>
+                                        {archiveRows.map(renderRow)}
+                                    </div>
+                                </div>
+                            </>
+                        )}
                         {presentation.citation != null && getAppConfig().enableRecordCitation && (
                             <>
                                 <div className={c.citationHeading}>
