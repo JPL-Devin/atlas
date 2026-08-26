@@ -94,8 +94,10 @@ const useStyles = makeStyles((theme) => ({
             borderRadius: '4px',
         },
     },
+    // Nothing open: the block takes no space, so the title row alone sets the
+    // header's height.
     detailsEmpty: {
-        marginBottom: '4px',
+        display: 'none',
     },
     entry: {
         fontSize: '14px',
