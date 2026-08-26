@@ -26,7 +26,7 @@ const VIEW_COMPONENTS = {
 const PANEL_WIDTHS = {
     'overview': { md: 770, lg: 770 },
     'product label': { md: 770, lg: 770 },
-    'ml classification': { md: 300, lg: 300 },
+    'ml classification': { md: 770, lg: 770 },
 }
 
 const useStyles = makeStyles((theme) => ({

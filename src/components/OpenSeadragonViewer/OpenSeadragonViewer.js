@@ -54,11 +54,14 @@ const useStyles = makeStyles((theme) => ({
     topLeft: {
         paddingTop: theme.spacing(1),
     },
+    // Sized by its control, so the button's margin can't push past the viewer.
     topRight: {
-        width: '37px',
         position: 'absolute',
         top: 0,
         right: 0,
+        display: 'flex',
+        justifyContent: 'flex-end',
+        boxSizing: 'border-box',
         padding: '4px',
         paddingTop: theme.spacing(2),
     },

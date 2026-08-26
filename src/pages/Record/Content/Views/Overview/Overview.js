@@ -30,7 +30,13 @@ import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
 import MemoryOutlinedIcon from '@mui/icons-material/MemoryOutlined'
 import GridOnOutlinedIcon from '@mui/icons-material/GridOnOutlined'
 
-import { copyToClipboard, getIn, getPDSUrl, getFilename } from '../../../../../core/utils.js'
+import {
+    copyToClipboard,
+    getIn,
+    getPDSUrl,
+    getFilename,
+    prettify,
+} from '../../../../../core/utils.js'
 import { getDownloadProducts } from '../../../../../core/recordDownloads.js'
 import { streamDownloadFile } from '../../../../../core/downloaders/ZipStream.js'
 import { HASH_PATHS, ES_PATHS } from '../../../../../core/constants.js'
@@ -956,7 +962,7 @@ const Overview = (props) => {
                                     <Chip
                                         key={chip.class}
                                         className={c.mlChip}
-                                        label={`ML - ${chip.class}`}
+                                        label={`ML - ${prettify(chip.class)}`}
                                         size="small"
                                     />
                                 ))}
