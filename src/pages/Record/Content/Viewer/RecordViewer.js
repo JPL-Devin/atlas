@@ -62,7 +62,9 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey500,
         padding: '32px',
         [theme.breakpoints.down('lg')]: {
+            // Stacked the column has no height of its own to centre within.
             flex: 'unset',
+            height: '55vh',
             padding: '24px 16px',
         },
     },
