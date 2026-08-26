@@ -62,7 +62,7 @@ const StyledTabs = withStyles((theme) => ({
 const StyledTab = withStyles((theme) => ({
     root: {
         'color': theme.palette.swatches.grey.grey600,
-        'fontSize': theme.typography.pxToRem(15),
+        'fontSize': theme.typography.pxToRem(14),
         'fontWeight': 'bold',
         'letterSpacing': '0.08em',
         'minWidth': 96,

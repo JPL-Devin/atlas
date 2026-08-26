@@ -330,7 +330,7 @@ const useStyles = makeStyles((theme) => ({
     },
     top: {
         flexShrink: 0,
-        height: `${theme.headHeights[2]}px`,
+        height: '36px',
         display: 'flex',
         justifyContent: 'space-between',
         boxSizing: 'border-box',
@@ -349,8 +349,8 @@ const useStyles = makeStyles((theme) => ({
         flex: 1,
     },
     input: {
-        width: '100%',
-        'margin': `${theme.spacing(1)} 0 ${theme.spacing(2)} 0`,
+        'width': '100%',
+        'height': '100%',
         'padding': `0 0 0 ${theme.spacing(2)}`,
         'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
         '&:before': {
