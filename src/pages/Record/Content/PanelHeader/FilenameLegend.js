@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -70,18 +70,16 @@ const useStyles = makeStyles((theme) => ({
             color: theme.palette.swatches.grey.grey900,
         },
     },
-    // An open segment's details keep a fixed height, so switching segments
-    // never shifts the panel below.
+    // The block is sized to its content in JS so opening, closing and swapping
+    // segments all animate; closed it takes no space at all.
     details: {
-        minHeight: '104px',
-        marginBottom: '4px',
+        overflow: 'hidden',
+        transition: 'height 240ms ease',
     },
     // Every segment at once is far taller than the header can be, so it scrolls
     // with its bar out at the panel edge, in line with the body's scrollbar.
     detailsAll: {
-        'maxHeight': '40vh',
         'overflowY': 'auto',
-        'paddingBottom': '14px',
         'marginRight': '-20px',
         'paddingRight': '12px',
         'scrollbarWidth': 'thin',
@@ -94,10 +92,13 @@ const useStyles = makeStyles((theme) => ({
             borderRadius: '4px',
         },
     },
-    // Nothing open: the block takes no space, so the title row alone sets the
-    // header's height.
-    detailsEmpty: {
-        display: 'none',
+    detailsContent: {
+        paddingBottom: '14px',
+    },
+    // One open segment keeps a fixed height, so switching segments never
+    // shifts the panel below.
+    detailsContentOne: {
+        minHeight: '104px',
     },
     entry: {
         fontSize: '14px',
@@ -219,25 +220,51 @@ export const FilenameDetails = (props) => {
 
     const c = useStyles()
 
-    const size = { 0: c.detailsEmpty, 1: c.details }[entries.length] || c.detailsAll
+    const contentRef = useRef(null)
+    const [contentHeight, setContentHeight] = useState(0)
+
+    // The content's own height is what the block animates to.
+    useEffect(() => {
+        const content = contentRef.current
+        if (content == null) return undefined
+        const measure = () => setContentHeight(content.scrollHeight)
+        measure()
+        const observer = new ResizeObserver(measure)
+        observer.observe(content)
+        return () => observer.disconnect()
+    }, [entries.length])
+
+    const scrolls = entries.length > 1
 
     return (
-        <div className={size}>
-            {entries.map((piece) => (
-                <div className={c.entry} key={piece.idx}>
-                    <span className={c.entryValue} style={{ color: piece.color }}>
-                        {piece.text}
-                    </span>
-                    <span className={c.entryLabel}>{piece.label}</span>
-                    {piece.meaning != null && <div className={c.entryMeaning}>{piece.meaning}</div>}
-                    {piece.description != null && (
-                        <div className={c.entryDescription}>{piece.description}</div>
-                    )}
-                </div>
-            ))}
-            {entries.length > 0 && parsed.reference != null && (
-                <div className={c.reference}>{parsed.reference}</div>
-            )}
+        <div
+            className={`${c.details} ${scrolls ? c.detailsAll : ''}`}
+            style={{
+                height: entries.length === 0 ? 0 : `min(${contentHeight}px, 40vh)`,
+            }}
+        >
+            <div
+                className={`${c.detailsContent} ${entries.length === 1 ? c.detailsContentOne : ''}`}
+                ref={contentRef}
+            >
+                {entries.map((piece) => (
+                    <div className={c.entry} key={piece.idx}>
+                        <span className={c.entryValue} style={{ color: piece.color }}>
+                            {piece.text}
+                        </span>
+                        <span className={c.entryLabel}>{piece.label}</span>
+                        {piece.meaning != null && (
+                            <div className={c.entryMeaning}>{piece.meaning}</div>
+                        )}
+                        {piece.description != null && (
+                            <div className={c.entryDescription}>{piece.description}</div>
+                        )}
+                    </div>
+                ))}
+                {entries.length > 0 && parsed.reference != null && (
+                    <div className={c.reference}>{parsed.reference}</div>
+                )}
+            </div>
         </div>
     )
 }

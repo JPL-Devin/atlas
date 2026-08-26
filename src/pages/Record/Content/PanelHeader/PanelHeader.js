@@ -86,16 +86,10 @@ const useStyles = makeStyles((theme) => ({
             padding: '0px 8px',
         },
     },
-    // Aligned with the panel body's gutters, and ruled off from the actions.
+    // Aligned with the panel body's gutters; the block itself carries the
+    // bottom space so it can animate open and closed.
     details: {
         padding: '0 20px',
-    },
-    detailsFilled: {
-        paddingBottom: '14px',
-    },
-    // The scrolling variant carries its own bottom space, inside the scroller.
-    detailsScrolling: {
-        paddingBottom: 0,
     },
     // Every control shares one compact size so the row fits the panel width.
     actions: {
@@ -231,11 +225,7 @@ const PanelHeader = (props) => {
                     )}
                 </div>
                 {parsedFilename != null && (
-                    <div
-                        className={`${c.details} ${
-                            filenameSelection.entries.length > 0 ? c.detailsFilled : ''
-                        } ${filenameSelection.entries.length > 1 ? c.detailsScrolling : ''}`}
-                    >
+                    <div className={c.details}>
                         <FilenameDetails parsed={parsedFilename} selection={filenameSelection} />
                     </div>
                 )}
