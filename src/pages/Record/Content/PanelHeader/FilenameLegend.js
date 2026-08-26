@@ -39,6 +39,7 @@ const useStyles = makeStyles((theme) => ({
         'borderBottom': '2px solid transparent',
         'cursor': 'pointer',
         'color': 'inherit',
+        'transition': 'color 0.15s ease-out, border-color 0.15s ease-out',
         '&:hover, &:focus-visible': {
             color: 'var(--segment-color)',
             borderBottomColor: 'var(--segment-color)',
@@ -59,6 +60,7 @@ const useStyles = makeStyles((theme) => ({
         'background': 'none',
         'color': 'inherit',
         'cursor': 'pointer',
+        'transition': 'background 0.15s ease-out, color 0.15s ease-out',
         // Borderless at rest, but it lights up on hover so it reads as a
         // control rather than a stray glyph.
         '&:hover, &:focus-visible': {

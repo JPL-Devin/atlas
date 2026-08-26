@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
         flexFlow: 'column',
         background: theme.palette.swatches.grey.grey150,
         minWidth: 0,
-        [theme.breakpoints.down('md')]: {
+        [theme.breakpoints.down('lg')]: {
             // Stacked, the image leads and the panel follows it.
             order: -1,
             height: 'unset',
@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
             zIndex: 2,
             boxShadow: 'inset 0px 2px 4px 0px rgba(0, 0, 0, 0.15)',
         },
-        [theme.breakpoints.down('md')]: {
+        [theme.breakpoints.down('lg')]: {
             flex: 'unset',
             height: '55vh',
         },
@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'center',
         color: theme.palette.swatches.grey.grey500,
         padding: '32px',
-        [theme.breakpoints.down('md')]: {
+        [theme.breakpoints.down('lg')]: {
             flex: 'unset',
             padding: '24px 16px',
         },
@@ -131,7 +131,7 @@ const RecordViewer = (props) => {
     const c = useStyles()
 
     const [viewerFailed, setViewerFailed] = useState(false)
-    const isNarrow = useMediaQuery(useTheme().breakpoints.down('md'))
+    const isNarrow = useMediaQuery(useTheme().breakpoints.down('lg'))
 
     const release_id = getIn(recordData, ES_PATHS.release_id)
     const supplemental = getIn(recordData, ES_PATHS.supplemental)

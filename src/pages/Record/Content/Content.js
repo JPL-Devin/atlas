@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         height: '100%',
         display: 'flex',
-        [theme.breakpoints.down('md')]: {
+        [theme.breakpoints.down('lg')]: {
             flexFlow: 'column',
             overflowY: 'auto',
         },

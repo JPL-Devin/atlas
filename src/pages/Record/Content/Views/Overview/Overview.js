@@ -19,7 +19,6 @@ import Tooltip from '@mui/material/Tooltip'
 
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CloseIcon from '@mui/icons-material/Close'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import SearchIcon from '@mui/icons-material/Search'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -129,6 +128,7 @@ const useStyles = makeStyles((theme) => ({
     captionCopy: {
         'padding': '2px',
         'color': theme.palette.swatches.grey.grey500,
+        'transition': 'color 0.15s ease-out, background 0.15s ease-out',
         '&:hover': {
             color: theme.palette.swatches.grey.grey900,
             background: theme.palette.swatches.grey.grey150,
@@ -155,6 +155,20 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         flexShrink: 0,
         gap: '3px',
+        animation: '$stepIn 260ms ease-out both',
+    },
+    '@keyframes stepIn': {
+        from: { opacity: 0, transform: 'translateY(3px)' },
+        to: { opacity: 1, transform: 'none' },
+    },
+    // The connectors draw left to right, so the strip reads as elapsed time.
+    '@keyframes ruleIn': {
+        from: { transform: 'scaleX(0)' },
+        to: { transform: 'scaleX(1)' },
+    },
+    '@keyframes viewIn': {
+        from: { opacity: 0 },
+        to: { opacity: 1 },
     },
     timelineDot: {
         width: '8px',
@@ -201,6 +215,8 @@ const useStyles = makeStyles((theme) => ({
     timelineRule: {
         width: 'calc(100% + 28px)',
         margin: '4px -14px 0 -14px',
+        transformOrigin: 'left center',
+        animation: '$ruleIn 260ms ease-out both',
         height: '1px',
         background: `linear-gradient(to right, ${theme.palette.swatches.grey.grey300}, ${theme.palette.swatches.grey.grey600})`,
     },
@@ -217,11 +233,14 @@ const useStyles = makeStyles((theme) => ({
         height: '100%',
         color: theme.palette.text.primary,
         boxSizing: 'border-box',
+        // The panel fades in as its tab mounts, so the animating width change
+        // doesn't read as a jump.
+        animation: '$viewIn 240ms ease-out both',
         display: 'flex',
         flexFlow: 'column',
         background: theme.palette.swatches.grey.grey100,
         borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        [theme.breakpoints.down('md')]: {
+        [theme.breakpoints.down('lg')]: {
             width: '100%',
             height: 'unset',
             borderRight: 'none',
@@ -243,7 +262,7 @@ const useStyles = makeStyles((theme) => ({
             background: theme.palette.swatches.grey.grey300,
             borderRadius: '4px',
         },
-        [theme.breakpoints.down('md')]: {
+        [theme.breakpoints.down('lg')]: {
             flex: 'unset',
             overflowY: 'unset',
         },
@@ -265,7 +284,7 @@ const useStyles = makeStyles((theme) => ({
         gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
         gap: '8px',
         marginBottom: '20px',
-        [theme.breakpoints.down('lg')]: {
+        [theme.breakpoints.down('md')]: {
             gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
         },
         [theme.breakpoints.down('sm')]: {
@@ -346,6 +365,7 @@ const useStyles = makeStyles((theme) => ({
         'background': theme.palette.swatches.blue.blue800,
         'color': theme.palette.swatches.grey.grey0,
         'cursor': 'pointer',
+        'transition': 'background 0.15s ease-out',
         '&:hover': {
             background: theme.palette.swatches.blue.blue900,
         },
@@ -415,6 +435,12 @@ const useStyles = makeStyles((theme) => ({
             borderLeft: 'none',
         },
     },
+    sectionChevron: {
+        transition: 'transform 200ms ease-out',
+    },
+    sectionChevronOpen: {
+        transform: 'rotate(90deg)',
+    },
     sectionHead: {
         'display': 'flex',
         'alignItems': 'center',
@@ -456,8 +482,10 @@ const useStyles = makeStyles((theme) => ({
         'borderRadius': '3px',
         'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
         'background': theme.palette.swatches.grey.grey0,
+        'transition': 'border-color 0.15s ease-out, box-shadow 0.15s ease-out',
         '&:hover': {
             borderColor: theme.palette.swatches.grey.grey300,
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.08)',
         },
     },
     // A tinted square keeps the type icon legible at card scale.
@@ -656,7 +684,7 @@ const Overview = (props) => {
     const theme = useTheme()
     const isNarrow = useMediaQuery(theme.breakpoints.down('md'))
     const isPhone = useMediaQuery(theme.breakpoints.down('sm'))
-    const isTwoUp = useMediaQuery(theme.breakpoints.down('lg'))
+    const isTwoUp = useMediaQuery(theme.breakpoints.down('md'))
     // Mirrors the tile grid's own breakpoints.
     const tileColumns = isPhone ? 1 : isTwoUp ? 2 : 3
     const [filterString, setFilterString] = useState('')
@@ -859,11 +887,17 @@ const Overview = (props) => {
                         <React.Fragment key={idx}>
                             {idx > 0 && (
                                 <div className={c.timelineSpan}>
-                                    <div className={c.timelineRule} />
+                                    <div
+                                        className={c.timelineRule}
+                                        style={{ animationDelay: `${idx * 160 - 80}ms` }}
+                                    />
                                     <div className={c.timelineGap}>{point.gap}</div>
                                 </div>
                             )}
-                            <div className={c.timelineNode}>
+                            <div
+                                className={c.timelineNode}
+                                style={{ animationDelay: `${idx * 160}ms` }}
+                            >
                                 <div
                                     className={`${c.timelineDot} ${dotColors[point.color] || ''}`}
                                 />
@@ -1054,7 +1088,11 @@ const Overview = (props) => {
                                             }
                                         >
                                             <span>
-                                                {open ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                                                <ChevronRightIcon
+                                                    className={`${c.sectionChevron} ${
+                                                        open ? c.sectionChevronOpen : ''
+                                                    }`}
+                                                />
                                                 {section.title}
                                             </span>
                                             <span className={c.sectionCount}>

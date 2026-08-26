@@ -109,6 +109,7 @@ const useStyles = makeStyles((theme) => ({
             borderRadius: '2px',
             textTransform: 'none',
             whiteSpace: 'nowrap',
+            transition: 'background 0.15s ease-out, border-color 0.15s ease-out',
         },
         '& .MuiButton-startIcon': {
             marginRight: '4px',
@@ -127,6 +128,7 @@ const useStyles = makeStyles((theme) => ({
     copyAction: {
         'flexShrink': 0,
         'color': theme.palette.swatches.grey.grey700,
+        'transition': 'background 0.15s ease-out, border-color 0.15s ease-out',
         'background': theme.palette.swatches.grey.grey0,
         'borderColor': theme.palette.swatches.grey.grey300,
         '&:hover': {

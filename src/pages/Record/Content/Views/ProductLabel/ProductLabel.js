@@ -315,15 +315,21 @@ const useStyles = makeStyles((theme) => ({
             borderRadius: '2px',
         },
     },
+    '@keyframes viewIn': {
+        from: { opacity: 0 },
+        to: { opacity: 1 },
+    },
     panel: {
         display: 'flex',
         flexFlow: 'column',
         height: '100%',
         boxSizing: 'border-box',
+        // Fades in with its tab, matching the other record panels.
+        animation: '$viewIn 240ms ease-out both',
         borderRight: `1px solid ${theme.palette.swatches.grey.grey150}`,
         width: 'var(--record-panel-width, 770px)',
         background: theme.palette.swatches.grey.grey100,
-        [theme.breakpoints.down('md')]: {
+        [theme.breakpoints.down('lg')]: {
             width: '100%',
             borderRight: 'none',
         },
