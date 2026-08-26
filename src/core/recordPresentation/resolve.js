@@ -91,19 +91,21 @@ const readTileEntry = (recordData, entry) => {
 }
 
 /**
- * A timeline entry is a normalized timestamp path. Entries with no valid date
- * drop, and fewer than two leaves nothing to chart. Nodes are evenly spaced
- * with the elapsed gap named between them, since the real spans differ by
- * orders of magnitude and would otherwise collapse onto each other.
+ * A timeline entry is a normalized timestamp path, or `{ path, color }` to name
+ * the node's swatch. Entries with no valid date drop, and fewer than two leaves
+ * nothing to chart. Nodes are evenly spaced with the elapsed gap named between
+ * them, since the real spans differ by orders of magnitude.
  */
 const readTimeline = (recordData, entries) => {
     const points = (Array.isArray(entries) ? entries : [])
         .map((entry) => {
-            const tile = readTile(recordData, entry, 'datetime_short')
+            const path = typeof entry === 'string' ? entry : entry.path
+            const tile = readTile(recordData, path, 'datetime_short')
             if (tile == null) return null
-            const at = parseTime(first(getIn(recordData, entry)))
+            const at = parseTime(first(getIn(recordData, path)))
             if (at == null) return null
-            return { label: tile.shortLabel, value: tile.value, at }
+            const color = typeof entry === 'string' ? null : entry.color || null
+            return { label: tile.shortLabel, value: tile.value, color, at }
         })
         .filter((point) => point != null)
         .sort((a, b) => a.at - b.at)
@@ -112,6 +114,7 @@ const readTimeline = (recordData, entries) => {
     return points.map((point, i) => ({
         label: point.label,
         value: point.value,
+        color: point.color,
         gap: i === 0 ? null : formatElapsed(point.at - points[i - 1].at),
     }))
 }

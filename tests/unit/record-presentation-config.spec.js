@@ -81,7 +81,8 @@ test.describe('record detail config', () => {
 
     test('every timeline path is a catalogued timestamp', () => {
         layers().forEach(({ name, layer }) => {
-            ;(layer.timeline || []).forEach((path) => {
+            ;(layer.timeline || []).forEach((entry) => {
+                const path = typeof entry === 'string' ? entry : entry.path
                 const field = fields[path]
                 expect(field, `${name}: timeline ${path} is not in the field catalog`).toBeTruthy()
                 expect(field.format, `${name}: timeline ${path} is not a datetime`).toMatch(

@@ -465,7 +465,7 @@
         "format": "uppercase"
     },
     "archive.updated_at": {
-        "label": "Indexed",
+        "label": "Published",
         "icon": "calendar",
         "format": "datetime"
     },

@@ -156,7 +156,8 @@ test.describe('resolvePresentation', () => {
     test('the timeline orders timestamps and names the gap between them', () => {
         const p = resolvePresentation(mars2020Navcam)
         // Earth received is absent from this record, so it drops out silently.
-        expect(p.timeline.map((t) => t.label)).toEqual(['Start', 'Created', 'Indexed'])
+        expect(p.timeline.map((t) => t.label)).toEqual(['Start', 'Created', 'Published'])
+        expect(p.timeline.map((t) => t.color)).toEqual(['blue', 'lightblue', 'purple'])
         expect(p.timeline[0].gap).toBe(null)
         expect(p.timeline[1].gap).toBeTruthy()
         // A record with one timestamp or none has nothing to chart.

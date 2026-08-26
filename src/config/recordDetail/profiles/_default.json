@@ -17,10 +17,22 @@
         "archive.size"
     ],
     "timeline": [
-        "gather.time.start_time",
-        "gather.time.earth_received_start_time",
-        "gather.time.product_creation_time",
-        "archive.updated_at"
+        {
+            "path": "gather.time.start_time",
+            "color": "blue"
+        },
+        {
+            "path": "gather.time.earth_received_start_time",
+            "color": "green"
+        },
+        {
+            "path": "gather.time.product_creation_time",
+            "color": "lightblue"
+        },
+        {
+            "path": "archive.updated_at",
+            "color": "purple"
+        }
     ],
     "maxTiles": 9,
     "priorityTiles": 6,

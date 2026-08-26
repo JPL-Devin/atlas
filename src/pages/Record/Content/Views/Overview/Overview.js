@@ -98,7 +98,7 @@ const useStyles = makeStyles((theme) => ({
     timeline: {
         display: 'flex',
         alignItems: 'flex-start',
-        marginBottom: '16px',
+        margin: '14px 0 20px 0',
     },
     timelineNode: {
         display: 'flex',
@@ -108,10 +108,23 @@ const useStyles = makeStyles((theme) => ({
         gap: '3px',
     },
     timelineDot: {
-        width: '7px',
-        height: '7px',
+        width: '8px',
+        height: '8px',
         borderRadius: '50%',
         background: theme.palette.swatches.grey.grey400,
+    },
+    // Swatches a timeline entry can name, so each timestamp reads as its own step.
+    timelineDotBlue: {
+        background: theme.palette.swatches.blue.blue700,
+    },
+    timelineDotGreen: {
+        background: theme.palette.swatches.green.green500,
+    },
+    timelineDotLightblue: {
+        background: theme.palette.swatches.blue.blue300,
+    },
+    timelineDotPurple: {
+        background: theme.palette.swatches.purple.purple500,
     },
     timelineLabel: {
         fontSize: '10px',
@@ -137,7 +150,7 @@ const useStyles = makeStyles((theme) => ({
     timelineRule: {
         width: '100%',
         height: '1px',
-        marginTop: '3px',
+        marginTop: '4px',
         background: theme.palette.swatches.grey.grey300,
     },
     timelineGap: {
@@ -566,6 +579,12 @@ const Overview = (props) => {
 
     const renderTimeline = () => {
         if (presentation.timeline.length === 0) return null
+        const dotColors = {
+            blue: c.timelineDotBlue,
+            green: c.timelineDotGreen,
+            lightblue: c.timelineDotLightblue,
+            purple: c.timelineDotPurple,
+        }
         return (
             <div className={c.timeline} aria-label="record timeline">
                 {presentation.timeline.map((point, idx) => (
@@ -577,7 +596,9 @@ const Overview = (props) => {
                             </div>
                         )}
                         <div className={c.timelineNode}>
-                            <div className={c.timelineDot} />
+                            <div
+                                className={`${c.timelineDot} ${dotColors[point.color] || ''}`}
+                            />
                             <div className={c.timelineLabel}>{point.label}</div>
                             <div className={c.timelineValue}>{point.value}</div>
                         </div>
@@ -689,7 +710,6 @@ const Overview = (props) => {
             ) : (
                 <>
                     <div className={c.metadataScroll}>
-                        {renderTimeline()}
                         {renderCaptionCard()}
                         <div className={c.heading}>At a glance</div>
                         <div className={c.tiles}>
@@ -702,6 +722,7 @@ const Overview = (props) => {
                                 </div>
                             ))}
                         </div>
+                        {renderTimeline()}
                         <div className={`${c.heading} ${c.fieldsHeading}`}>
                             <span>General Fields</span>
                             <Tooltip title="Open the full product label" arrow>
