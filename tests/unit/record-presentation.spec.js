@@ -53,16 +53,16 @@ test.describe('resolvePresentation', () => {
         expect(p.caption).toContain('14:19:46 local mean solar time')
     })
 
-    test('landed at-a-glance leads with mission, spacecraft, instrument then sol, site', () => {
+    test('landed at-a-glance leads with mission, spacecraft, instrument then sol, site, drive', () => {
         const p = resolvePresentation(mars2020Navcam)
-        expect(labels(p).slice(0, 5)).toEqual([
+        expect(labels(p).slice(0, 6)).toEqual([
             'Mission',
             'Spacecraft',
             'Instrument',
             'Sol',
             'Site',
+            'Drive',
         ])
-        expect(tileOf(p, 'Site').pair.label).toBe('Drive')
     })
 
     test('raws overrides mars 2020 navcam without touching the shared profile', () => {
@@ -133,7 +133,7 @@ test.describe('resolvePresentation', () => {
 
     test('tile count honours maxTiles and priorityTiles', () => {
         const p = resolvePresentation(mars2020Navcam)
-        expect(p.tiles.length).toBeLessThanOrEqual(12)
+        expect(p.tiles.length).toBeLessThanOrEqual(15)
         expect(p.priorityTiles).toBe(6)
     })
 
@@ -149,8 +149,8 @@ test.describe('resolvePresentation', () => {
     test('paired tiles carry a second field of equal weight', () => {
         const p = resolvePresentation(mars2020Navcam)
         expect(tileOf(p, 'Instrument elevation').pair.value).toBe('0.2°')
-        expect(tileOf(p, 'Site').pair.label).toBe('Drive')
         expect(tileOf(p, 'Local mean solar time').pair.shortLabel).toBe('LTST')
+        expect(tileOf(p, 'Site').pair).toBe(null)
     })
 
     test('citation names its author', () => {

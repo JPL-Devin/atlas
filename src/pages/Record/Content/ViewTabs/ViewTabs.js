@@ -77,7 +77,6 @@ const StyledTab = withStyles((theme) => ({
         },
         '&.Mui-selected': {
             color: theme.palette.text.primary,
-            background: theme.palette.swatches.grey.grey0,
         },
         '&:focus': {
             opacity: 1,
