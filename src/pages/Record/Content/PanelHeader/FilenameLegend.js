@@ -81,7 +81,7 @@ const useStyles = makeStyles((theme) => ({
     detailsAll: {
         'maxHeight': '40vh',
         'overflowY': 'auto',
-        'marginBottom': '4px',
+        'paddingBottom': '14px',
         'marginRight': '-20px',
         'paddingRight': '12px',
         'scrollbarWidth': 'thin',

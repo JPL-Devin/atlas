@@ -93,6 +93,10 @@ const useStyles = makeStyles((theme) => ({
     detailsFilled: {
         paddingBottom: '14px',
     },
+    // The scrolling variant carries its own bottom space, inside the scroller.
+    detailsScrolling: {
+        paddingBottom: 0,
+    },
     // Every control shares one compact size so the row fits the panel width.
     actions: {
         'display': 'flex',
@@ -230,7 +234,7 @@ const PanelHeader = (props) => {
                     <div
                         className={`${c.details} ${
                             filenameSelection.entries.length > 0 ? c.detailsFilled : ''
-                        }`}
+                        } ${filenameSelection.entries.length > 1 ? c.detailsScrolling : ''}`}
                     >
                         <FilenameDetails parsed={parsedFilename} selection={filenameSelection} />
                     </div>
