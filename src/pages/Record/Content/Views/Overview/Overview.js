@@ -429,14 +429,21 @@ const useStyles = makeStyles((theme) => ({
         textTransform: 'uppercase',
         color: theme.palette.swatches.yellow.yellow800,
         borderTop: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        margin: '0 -20px 0 -20px',
+        margin: '0 -20px 10px -20px',
         padding: '12px 20px 6px 20px',
     },
+    // Same surface as the caption, At-a-glance and field cards.
     citation: {
+        boxSizing: 'border-box',
         fontSize: '13px',
         lineHeight: '19px',
         color: theme.palette.text.primary,
         overflowWrap: 'anywhere',
+        padding: '12px',
+        marginBottom: '20px',
+        borderRadius: '3px',
+        border: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        background: theme.palette.swatches.grey.grey0,
     },
     select: {
         'fontSize': '12px',
