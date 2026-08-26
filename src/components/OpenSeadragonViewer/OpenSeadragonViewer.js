@@ -189,6 +189,8 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed
                 zoomPerScroll: 2,
                 // Fill the viewer on load rather than letterboxing the image.
                 homeFillsViewer: true,
+                // Zoomed-in pixels stay square rather than being interpolated.
+                imageSmoothingEnabled: false,
                 showNavigator: true,
                 showRotationControl: true,
                 degrees: window.atlasGlobal.imageRotation || 0,
@@ -247,15 +249,9 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed
     }, [features])
 
     useEffect(() => {
-        // Make all the canvases pixelated
-        if (viewer && viewer.canvas && viewer.canvas.childNodes) {
-            viewer.canvas.childNodes.forEach((canvas) => {
-                if (typeof canvas.getContext === 'function') {
-                    const ctx = canvas.getContext('2d')
-                    ctx.imageSmoothingEnabled = false
-                }
-            })
-        }
+        // The drawer redraws on every pan/zoom, so smoothing is set on it rather
+        // than on the canvases it owns.
+        if (viewer && viewer.drawer) viewer.drawer.setImageSmoothingEnabled(false)
         // open-failed is handled in the image loading useEffect above
     }, [viewer])
 
