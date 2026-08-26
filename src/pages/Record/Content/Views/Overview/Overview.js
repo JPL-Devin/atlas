@@ -37,7 +37,10 @@ import {
     getFilename,
     prettify,
 } from '../../../../../core/utils.js'
-import { getDownloadProducts } from '../../../../../core/recordDownloads.js'
+import {
+    getDownloadProducts,
+    getSupplementalProducts,
+} from '../../../../../core/recordDownloads.js'
 import { streamDownloadFile } from '../../../../../core/downloaders/ZipStream.js'
 import { HASH_PATHS, ES_PATHS } from '../../../../../core/constants.js'
 import { getAppConfig, getAppInstanceKey } from '../../../../../core/appConfig.js'
@@ -817,7 +820,10 @@ const Overview = (props) => {
         .filter((section) => section.rows.length > 0)
 
     const fieldCount = sections.reduce((total, section) => total + section.rows.length, 0)
-    const files = getDownloadProducts(recordData).filter((file) => file.uri)
+    const files = [
+        ...getDownloadProducts(recordData),
+        ...getSupplementalProducts(recordData),
+    ].filter((file) => file.uri)
 
     const copy = (text, message) => {
         copyToClipboard(text)
@@ -881,10 +887,10 @@ const Overview = (props) => {
                                 </div>
                                 <div className={c.fileActions}>
                                     {file.size && <span className={c.fileSize}>{file.size}</span>}
-                                    <Tooltip title={`Download ${file.name}`} arrow>
+                                    <Tooltip title={`Download ${filename}`} arrow>
                                         <IconButton
                                             className={c.fileDownload}
-                                            aria-label={`download ${file.name}`}
+                                            aria-label={`download ${filename}`}
                                             size="small"
                                             onClick={() =>
                                                 streamDownloadFile(

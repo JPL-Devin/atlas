@@ -3,6 +3,22 @@ import { getAppConfig } from './appConfig'
 import { getIn, humanFileSize, getExtension, sortRelatedKeys } from './utils'
 
 /**
+ * The record's supplemental assets, shaped like `getDownloadProducts` entries.
+ * They're indexed as bare URIs, so they carry no size.
+ */
+export const getSupplementalProducts = (recordData) => {
+    const release_id = getIn(recordData, ES_PATHS.release_id)
+
+    return getIn(recordData, ES_PATHS.supplemental, []).map((uri, idx) => ({
+        key: `supplemental_${idx}`,
+        name: 'Supplemental',
+        extension: getExtension(uri),
+        uri,
+        release_id,
+    }))
+}
+
+/**
  * The record's downloadable products (source plus related assets), shaped for
  * SplitButton's checklist.
  */
