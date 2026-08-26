@@ -72,6 +72,27 @@ const formatters = {
 
 export const FORMATTER_NAMES = Object.keys(formatters)
 
+/** Milliseconds for a timestamp value, or null when it isn't a date. */
+export const parseTime = (value) => {
+    const m = moment.utc(String(value))
+    return m.isValid() ? m.valueOf() : null
+}
+
+/** The span between two timestamps as a short human gap, e.g. `6h 50m`. */
+export const formatElapsed = (ms) => {
+    const d = moment.duration(Math.abs(ms))
+    if (d.asMinutes() < 1) return `${Math.round(d.asSeconds())}s`
+    if (d.asHours() < 1) return `${Math.round(d.asMinutes())}m`
+    if (d.asDays() < 1) {
+        const h = Math.floor(d.asHours())
+        const m = d.minutes()
+        return m ? `${h}h ${m}m` : `${h}h`
+    }
+    if (d.asDays() < 31) return `${Math.round(d.asDays())}d`
+    if (d.asDays() < 365) return `${Math.round(d.asMonths())}mo`
+    return `${d.asYears().toFixed(1)}y`
+}
+
 /** Formats one valid value for display, appending the field's unit if any. */
 export const formatValue = (value, field) => {
     const formatter = formatters[field.format] || formatters.text

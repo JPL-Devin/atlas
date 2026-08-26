@@ -24,22 +24,11 @@
         "gather.pds_archive.bundle_id",
         "gather.common.product_type",
         "archive.size",
-        {
-            "path": "gather.time.start_time",
-            "format": "datetime_short"
-        },
-        {
-            "path": "gather.time.earth_received_start_time",
-            "format": "datetime_short"
-        },
-        {
-            "path": "archive.updated_at",
-            "format": "datetime_short"
-        },
         "gather.ancillary.eye_type",
-        "gather.lighting_geometry.solar_longitude"
+        "gather.lighting_geometry.solar_longitude",
+        "gather.common.target"
     ],
-    "maxTiles": 15,
+    "maxTiles": 12,
     "priorityTiles": 6,
     "sections": [
         "identification",

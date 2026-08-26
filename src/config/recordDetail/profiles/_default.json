@@ -16,6 +16,12 @@
         "gather.pds_archive.bundle_id",
         "archive.size"
     ],
+    "timeline": [
+        "gather.time.start_time",
+        "gather.time.earth_received_start_time",
+        "gather.time.product_creation_time",
+        "archive.updated_at"
+    ],
     "maxTiles": 9,
     "priorityTiles": 6,
     "sections": [

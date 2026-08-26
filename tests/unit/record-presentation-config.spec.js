@@ -79,6 +79,18 @@ test.describe('record detail config', () => {
         })
     })
 
+    test('every timeline path is a catalogued timestamp', () => {
+        layers().forEach(({ name, layer }) => {
+            ;(layer.timeline || []).forEach((path) => {
+                const field = fields[path]
+                expect(field, `${name}: timeline ${path} is not in the field catalog`).toBeTruthy()
+                expect(field.format, `${name}: timeline ${path} is not a datetime`).toMatch(
+                    /^datetime/
+                )
+            })
+        })
+    })
+
     test('every catalogued field has an icon the UI can render', () => {
         Object.entries(fields).forEach(([path, field]) => {
             expect(icons, `${path} has an unknown icon`).toContain(field.icon)

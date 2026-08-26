@@ -93,6 +93,58 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey500,
         whiteSpace: 'nowrap',
     },
+    // An unheadered strip of the product's timestamps: a node per time, with the
+    // elapsed span named on the connector between them.
+    timeline: {
+        display: 'flex',
+        alignItems: 'flex-start',
+        marginBottom: '16px',
+    },
+    timelineNode: {
+        display: 'flex',
+        flexFlow: 'column',
+        alignItems: 'center',
+        flexShrink: 0,
+        gap: '3px',
+    },
+    timelineDot: {
+        width: '7px',
+        height: '7px',
+        borderRadius: '50%',
+        background: theme.palette.swatches.grey.grey400,
+    },
+    timelineLabel: {
+        fontSize: '10px',
+        textTransform: 'uppercase',
+        letterSpacing: '0.04em',
+        color: theme.palette.swatches.grey.grey500,
+        whiteSpace: 'nowrap',
+    },
+    timelineValue: {
+        fontSize: '11px',
+        color: theme.palette.swatches.grey.grey700,
+        whiteSpace: 'nowrap',
+    },
+    // The connector carries the gap label, centred on the rule between nodes.
+    timelineSpan: {
+        flex: 1,
+        minWidth: '24px',
+        display: 'flex',
+        flexFlow: 'column',
+        alignItems: 'center',
+        gap: '3px',
+    },
+    timelineRule: {
+        width: '100%',
+        height: '1px',
+        marginTop: '3px',
+        background: theme.palette.swatches.grey.grey300,
+    },
+    timelineGap: {
+        fontSize: '10px',
+        color: theme.palette.swatches.grey.grey500,
+        whiteSpace: 'nowrap',
+    },
     skeleton: {
         backgroundColor: theme.palette.swatches.grey.grey150,
     },
@@ -512,6 +564,29 @@ const Overview = (props) => {
         dispatch(setSnackBarText(message, 'success'))
     }
 
+    const renderTimeline = () => {
+        if (presentation.timeline.length === 0) return null
+        return (
+            <div className={c.timeline} aria-label="record timeline">
+                {presentation.timeline.map((point, idx) => (
+                    <React.Fragment key={idx}>
+                        {idx > 0 && (
+                            <div className={c.timelineSpan}>
+                                <div className={c.timelineRule} />
+                                <div className={c.timelineGap}>{point.gap}</div>
+                            </div>
+                        )}
+                        <div className={c.timelineNode}>
+                            <div className={c.timelineDot} />
+                            <div className={c.timelineLabel}>{point.label}</div>
+                            <div className={c.timelineValue}>{point.value}</div>
+                        </div>
+                    </React.Fragment>
+                ))}
+            </div>
+        )
+    }
+
     const renderCaptionCard = () => {
         if (presentation.captionTitle == null && caption == null) return null
         return (
@@ -614,6 +689,7 @@ const Overview = (props) => {
             ) : (
                 <>
                     <div className={c.metadataScroll}>
+                        {renderTimeline()}
                         {renderCaptionCard()}
                         <div className={c.heading}>At a glance</div>
                         <div className={c.tiles}>

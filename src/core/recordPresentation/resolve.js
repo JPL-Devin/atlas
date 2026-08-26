@@ -7,7 +7,7 @@ import {
     sections as sectionGroups,
 } from '../../config/recordDetail'
 import { getIn } from '../utils'
-import { formatValue } from './formatters'
+import { formatElapsed, formatValue, parseTime } from './formatters'
 import { readOtherRows } from './otherFields'
 import { isValidValue } from './validity'
 
@@ -88,6 +88,32 @@ const readTileEntry = (recordData, entry) => {
     const pair = readTile(recordData, entry.pair, entry.pairFormat)
     if (pair == null) return empty
     return { ...tile, pair }
+}
+
+/**
+ * A timeline entry is a normalized timestamp path. Entries with no valid date
+ * drop, and fewer than two leaves nothing to chart. Nodes are evenly spaced
+ * with the elapsed gap named between them, since the real spans differ by
+ * orders of magnitude and would otherwise collapse onto each other.
+ */
+const readTimeline = (recordData, entries) => {
+    const points = (Array.isArray(entries) ? entries : [])
+        .map((entry) => {
+            const tile = readTile(recordData, entry, 'datetime_short')
+            if (tile == null) return null
+            const at = parseTime(first(getIn(recordData, entry)))
+            if (at == null) return null
+            return { label: tile.shortLabel, value: tile.value, at }
+        })
+        .filter((point) => point != null)
+        .sort((a, b) => a.at - b.at)
+
+    if (points.length < 2) return []
+    return points.map((point, i) => ({
+        label: point.label,
+        value: point.value,
+        gap: i === 0 ? null : formatElapsed(point.at - points[i - 1].at),
+    }))
 }
 
 // Sections are named groups of normalized paths (config/recordDetail/sections.json);
@@ -196,6 +222,7 @@ export const resolvePresentation = (recordData, { instance } = {}) => {
         citationAuthor,
         citation: citation === '' ? null : citation,
         tiles,
+        timeline: readTimeline(recordData, profile.timeline),
         priorityTiles: profile.priorityTiles != null ? profile.priorityTiles : tiles.length,
         emptyState: profile.emptyState || 'no_browse_generic',
     }

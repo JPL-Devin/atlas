@@ -153,6 +153,16 @@ test.describe('resolvePresentation', () => {
         expect(tileOf(p, 'Site').pair).toBe(null)
     })
 
+    test('the timeline orders timestamps and names the gap between them', () => {
+        const p = resolvePresentation(mars2020Navcam)
+        // Earth received is absent from this record, so it drops out silently.
+        expect(p.timeline.map((t) => t.label)).toEqual(['Start', 'Created', 'Indexed'])
+        expect(p.timeline[0].gap).toBe(null)
+        expect(p.timeline[1].gap).toBeTruthy()
+        // A record with one timestamp or none has nothing to chart.
+        expect(resolvePresentation(goNims).timeline.length).not.toBe(1)
+    })
+
     test('citation names its author', () => {
         const p = resolvePresentation(mars2020Navcam)
         expect(p.citation.startsWith('NASA/JPL, ')).toBe(true)
