@@ -4,7 +4,6 @@ import PropTypes from 'prop-types'
 
 import { setSnackBarText } from '../../../../../core/redux/actions/actions'
 import { getIn, isObject, copyToClipboard } from '../../../../../core/utils.js'
-import { ES_PATHS } from '../../../../../core/constants.js'
 
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
@@ -398,7 +397,6 @@ const ProductLabel = (props) => {
     const [filterString, setFilterString] = useState('')
 
     const label_id = getIn(recordData, ['atlas', 'label_id'], '')
-    const pdsStandard = getIn(recordData, ES_PATHS.pds_standard)
     const rawLabel = getRawLabel(recordData)
     // Without a raw label, fall back to the rest of the indexed metadata so the
     // tab still shows what the record carries.
@@ -437,9 +435,8 @@ const ProductLabel = (props) => {
                     <Box className={c.missingLabel}>
                         <WarningAmberIcon className={c.missingLabelIcon} fontSize="small" />
                         <div>
-                            No raw {pdsStandard === 'pds4' ? 'PDS4' : 'PDS3'} label is
-                            indexed for this product. Showing its other indexed metadata
-                            instead.
+                            No raw PDS label is indexed for this product. Showing its
+                            other indexed metadata instead.
                         </div>
                     </Box>
                 )}
