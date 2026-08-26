@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     OpenSeadragonViewer: {
         'width': '100%',
         'height': '100%',
-        'background': theme.palette.swatches.grey.grey0,
+        'background': theme.palette.swatches.grey.grey150,
         'position': 'relative',
         // The minimap is too cramped to be useful at phone width.
         '& #openSeadragon .navigator': {
@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
     bottomRight: {
         paddingBottom: theme.spacing(2),
     },
-    // The controls sit over a white image surface, so they're light too.
+    // The controls sit over a light image surface, so they're light too.
     button: {
         // Flex (still block-level, so the controls stack) keeps the box square.
         'display': 'flex !important',

@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     ThreeViewer: {
         width: '100%',
         height: '100%',
-        background: theme.palette.swatches.grey.grey0,
+        background: theme.palette.swatches.grey.grey150,
         position: 'relative',
     },
     ThreeContainer: {
@@ -77,7 +77,7 @@ const ThreeViewer = ({ url, release_id, supplemental, settings }) => {
             const renderer = new THREE.WebGLRenderer({ canvas: canvas.current })
             renderer.setPixelRatio(window.devicePixelRatio)
             renderer.setSize(canvas.current.offsetWidth, canvas.current.offsetHeight)
-            renderer.setClearColor(0xffffff)
+            renderer.setClearColor(0xe7e7e7)
 
             const fov = 45
             const aspect = canvas.current.offsetWidth / canvas.current.offsetHeight

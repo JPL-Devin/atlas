@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
         height: '100%',
         display: 'flex',
         flexFlow: 'column',
-        background: theme.palette.swatches.grey.grey0,
+        background: theme.palette.swatches.grey.grey150,
         minWidth: 0,
         [theme.breakpoints.down('md')]: {
             // Stacked, the image leads and the panel follows it.
@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
     },
     // The viewers paint their own surface, so match it while they're absent.
     loadingBody: {
-        background: theme.palette.swatches.grey.grey0,
+        background: theme.palette.swatches.grey.grey150,
     },
     emptyState: {
         flex: 1,
