@@ -53,18 +53,18 @@ test.describe('resolvePresentation', () => {
         expect(p.caption).toContain('14:19:46 local mean solar time')
     })
 
-    test('landed at-a-glance leads with identity then sol, site, drive', () => {
+    test('landed at-a-glance leads with mission, spacecraft, instrument then sol, site, type', () => {
         const p = resolvePresentation(mars2020Navcam)
         expect(labels(p).slice(0, 6)).toEqual([
             'Mission',
+            'Spacecraft',
             'Instrument',
-            'Product type',
             'Sol',
             'Site',
-            'Drive',
+            'Product type',
         ])
-        // Spacecraft shares the mission tile.
-        expect(tileOf(p, 'Mission').pair.label).toBe('Spacecraft')
+        // Drive shares the site tile.
+        expect(tileOf(p, 'Site').pair.label).toBe('Drive')
     })
 
     test('raws overrides mars 2020 navcam without touching the shared profile', () => {
@@ -95,7 +95,7 @@ test.describe('resolvePresentation', () => {
         expect(valueOf(resolvePresentation(mslPds3), 'Spacecraft')).toBe('Curiosity')
         const m2020 = resolvePresentation(mars2020Navcam)
         expect(valueOf(m2020, 'Mission')).toBe('Mars 2020')
-        expect(tileOf(m2020, 'Mission').pair.value).toBe('Perseverance')
+        expect(valueOf(m2020, 'Spacecraft')).toBe('Perseverance')
     })
 
     test('cassini sentinel geometry drops out', () => {
@@ -152,7 +152,8 @@ test.describe('resolvePresentation', () => {
         const p = resolvePresentation(mars2020Navcam)
         expect(tileOf(p, 'Instrument elevation').pair.value).toBe('0.2°')
         expect(tileOf(p, 'Local mean solar time').pair.shortLabel).toBe('LTST')
-        expect(tileOf(p, 'Site').pair).toBe(null)
+        expect(tileOf(p, 'Site').pair.shortLabel).toBe('Drive')
+        expect(tileOf(p, 'Sol').pair).toBe(null)
     })
 
     test('the timeline orders timestamps and names the gap between them', () => {

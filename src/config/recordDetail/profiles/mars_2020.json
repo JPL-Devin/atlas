@@ -3,15 +3,15 @@
         "mission": "mars_2020"
     },
     "tiles": [
-        {
-            "path": "gather.common.mission",
-            "pair": "gather.common.spacecraft"
-        },
+        "gather.common.mission",
+        "gather.common.spacecraft",
         "gather.common.instrument",
-        "gather.common.product_type",
         "gather.landed_missions.planet_day_number",
-        "gather.landed_missions.rmc_site",
-        "gather.landed_missions.rmc_drive",
+        {
+            "path": "gather.landed_missions.rmc_site",
+            "pair": "gather.landed_missions.rmc_drive"
+        },
+        "gather.common.product_type",
         {
             "path": "gather.landed_missions.start_local_mean_solar_time",
             "pair": "gather.landed_missions.start_local_true_solar_time"
