@@ -30,12 +30,7 @@ import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
 import MemoryOutlinedIcon from '@mui/icons-material/MemoryOutlined'
 import GridOnOutlinedIcon from '@mui/icons-material/GridOnOutlined'
 
-import {
-    copyToClipboard,
-    getIn,
-    getPDSUrl,
-    getFilename,
-} from '../../../../../core/utils.js'
+import { copyToClipboard, getIn, getPDSUrl, getFilename } from '../../../../../core/utils.js'
 import { getDownloadProducts } from '../../../../../core/recordDownloads.js'
 import { streamDownloadFile } from '../../../../../core/downloaders/ZipStream.js'
 import { HASH_PATHS, ES_PATHS } from '../../../../../core/constants.js'
@@ -359,14 +354,28 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        margin: '4px 0 8px 0',
+        margin: '8px 0 4px 0',
     },
+    // A quiet inset field rather than an underline, so it doesn't compete with
+    // the section dividers below it.
     filterInput: {
         'flex': 1,
         'fontSize': '13px',
         'color': theme.palette.text.primary,
-        '&:before': {
-            borderBottom: `1px solid ${theme.palette.swatches.grey.grey300}`,
+        'padding': '2px 6px',
+        'borderRadius': '3px',
+        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'background': theme.palette.swatches.grey.grey50,
+        'transition': 'border-color 0.15s ease-out, background 0.15s ease-out',
+        '&:before, &:after': {
+            display: 'none',
+        },
+        '&:hover': {
+            borderColor: theme.palette.swatches.grey.grey300,
+        },
+        '&.Mui-focused': {
+            borderColor: theme.palette.swatches.blue.blue700,
+            background: theme.palette.swatches.grey.grey0,
         },
         '& .MuiSvgIcon-root': {
             fontSize: '18px',
@@ -390,10 +399,14 @@ const useStyles = makeStyles((theme) => ({
         border: `1px solid ${theme.palette.swatches.grey.grey200}`,
         background: theme.palette.swatches.grey.grey0,
     },
+    // Hairline dividers run the full card width, so the groups read as one
+    // list rather than stacked boxes.
     section: {
+        'borderTop': `1px solid ${theme.palette.swatches.grey.grey150}`,
+        'margin': '0 -12px',
+        'padding': '0 12px',
         // The app's global Collapse styling adds a left rule that reads as a
         // stray vertical line here.
-        'borderTop': `1px solid ${theme.palette.swatches.grey.grey200}`,
         '& .MuiCollapse-wrapper': {
             borderLeft: 'none',
         },
@@ -622,7 +635,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 // Sections open on load; the rest start collapsed, as in the mockup.
-const OPEN_SECTIONS = ['identification', 'observation']
+const OPEN_SECTIONS = ['identification']
 
 const matches = (row, filter) =>
     filter === '' ||

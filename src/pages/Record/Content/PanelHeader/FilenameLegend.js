@@ -73,11 +73,23 @@ const useStyles = makeStyles((theme) => ({
         minHeight: '104px',
         marginBottom: '4px',
     },
-    // Every segment at once is far taller than the header can be, so it scrolls.
+    // Every segment at once is far taller than the header can be, so it scrolls
+    // with its bar out at the panel edge, in line with the body's scrollbar.
     detailsAll: {
-        maxHeight: '40vh',
-        overflowY: 'auto',
-        marginBottom: '4px',
+        'maxHeight': '40vh',
+        'overflowY': 'auto',
+        'marginBottom': '4px',
+        'marginRight': '-20px',
+        'paddingRight': '12px',
+        'scrollbarWidth': 'thin',
+        'scrollbarColor': `${theme.palette.swatches.grey.grey300} transparent`,
+        '&::-webkit-scrollbar': {
+            width: '8px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+            background: theme.palette.swatches.grey.grey300,
+            borderRadius: '4px',
+        },
     },
     detailsEmpty: {
         marginBottom: '4px',
@@ -174,11 +186,14 @@ export const FilenameName = (props) => {
                     )
                 )}
             </div>
-            <Tooltip title={showAll ? 'Hide all field details' : 'Show all field details'} arrow>
+            <Tooltip
+                title={showAll ? 'Hide all file naming details' : 'Show all file naming details'}
+                arrow
+            >
                 <button
                     type="button"
                     className={c.allButton}
-                    aria-label="show all filename field details"
+                    aria-label="show all file naming details"
                     aria-pressed={showAll}
                     onClick={() => setShowAll(!showAll)}
                 >

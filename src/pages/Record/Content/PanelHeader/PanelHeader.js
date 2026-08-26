@@ -34,12 +34,21 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.text.primary,
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
+    // Title and its filename details share one white surface, ruled off from
+    // the actions below.
+    titleBlock: {
+        background: theme.palette.swatches.grey.grey0,
+        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+    },
+    // Same height as the actions and tab rows.
     identity: {
+        boxSizing: 'border-box',
         display: 'flex',
         alignItems: 'center',
         gap: '4px',
         minWidth: 0,
-        padding: '4px 8px 0 4px',
+        height: `${theme.headHeights[2]}px`,
+        padding: '0 8px 0 4px',
     },
     backButton: {
         padding: 2,
@@ -83,7 +92,6 @@ const useStyles = makeStyles((theme) => ({
     },
     detailsFilled: {
         paddingBottom: '14px',
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     // Every control shares one compact size so the row fits the panel width.
     actions: {
@@ -91,7 +99,9 @@ const useStyles = makeStyles((theme) => ({
         'alignItems': 'stretch',
         'justifyContent': 'center',
         'gap': '4px',
-        'padding': '10px 8px',
+        'boxSizing': 'border-box',
+        'height': `${theme.headHeights[2]}px`,
+        'padding': '6px 8px',
         'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
         '& .MuiButton-root': {
             fontSize: '12px',
@@ -177,53 +187,55 @@ const PanelHeader = (props) => {
 
     return (
         <div className={c.PanelHeader}>
-            <div className={c.identity}>
-                <Tooltip title={back === 'page' ? 'Back' : 'Back to Search'} arrow>
-                    <IconButton
-                        className={c.backButton}
-                        aria-label={back === 'page' ? 'go back a page' : 'return to search'}
-                        onClick={() => {
-                            if (back === 'page') navigate(-1)
-                            else navigate(HASH_PATHS.search)
-                        }}
-                    >
-                        <ChevronLeftIcon className={c.backIcon} />
-                    </IconButton>
-                </Tooltip>
-                <div className={c.name}>
-                    {parsedFilename != null ? (
-                        <FilenameName selection={filenameSelection} />
-                    ) : (
-                        <div
-                            className={c.plainName}
-                            title={getIn(recordData, ES_PATHS.file_name, '--')}
+            <div className={c.titleBlock}>
+                <div className={c.identity}>
+                    <Tooltip title={back === 'page' ? 'Back' : 'Back to Search'} arrow>
+                        <IconButton
+                            className={c.backButton}
+                            aria-label={back === 'page' ? 'go back a page' : 'return to search'}
+                            onClick={() => {
+                                if (back === 'page') navigate(-1)
+                                else navigate(HASH_PATHS.search)
+                            }}
                         >
-                            {getIn(recordData, ES_PATHS.file_name, '--')}
+                            <ChevronLeftIcon className={c.backIcon} />
+                        </IconButton>
+                    </Tooltip>
+                    <div className={c.name}>
+                        {parsedFilename != null ? (
+                            <FilenameName selection={filenameSelection} />
+                        ) : (
+                            <div
+                                className={c.plainName}
+                                title={getIn(recordData, ES_PATHS.file_name, '--')}
+                            >
+                                {getIn(recordData, ES_PATHS.file_name, '--')}
+                            </div>
+                        )}
+                    </div>
+                    {mlChips.length > 0 && (
+                        <div className={c.chips}>
+                            {mlChips.map((chip, idx) => (
+                                <Chip
+                                    key={idx}
+                                    className={c.mlChip}
+                                    label={`ML - ${chip.class}`}
+                                    size="small"
+                                />
+                            ))}
                         </div>
                     )}
                 </div>
-                {mlChips.length > 0 && (
-                    <div className={c.chips}>
-                        {mlChips.map((chip, idx) => (
-                            <Chip
-                                key={idx}
-                                className={c.mlChip}
-                                label={`ML - ${chip.class}`}
-                                size="small"
-                            />
-                        ))}
+                {parsedFilename != null && (
+                    <div
+                        className={`${c.details} ${
+                            filenameSelection.entries.length > 0 ? c.detailsFilled : ''
+                        }`}
+                    >
+                        <FilenameDetails parsed={parsedFilename} selection={filenameSelection} />
                     </div>
                 )}
             </div>
-            {parsedFilename != null && (
-                <div
-                    className={`${c.details} ${
-                        filenameSelection.entries.length > 0 ? c.detailsFilled : ''
-                    }`}
-                >
-                    <FilenameDetails parsed={parsedFilename} selection={filenameSelection} />
-                </div>
-            )}
             <div className={c.actions} aria-label="record actions">
                 {extraActions}
                 {getAppConfig().enableCart && (
