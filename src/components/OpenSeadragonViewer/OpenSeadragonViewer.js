@@ -254,6 +254,22 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed
         }
     }, [features])
 
+    // Labels counter-scale, so they follow every viewport change.
+    useEffect(() => {
+        if (!viewer || !svgOverlay) return
+        const onViewportChange = () => scaleFeatureLabels(svgOverlay)
+        viewer.addHandler('animation', onViewportChange)
+        viewer.addHandler('animation-finish', onViewportChange)
+        viewer.addHandler('resize', onViewportChange)
+        viewer.addHandler('rotate', onViewportChange)
+        return () => {
+            viewer.removeHandler('animation', onViewportChange)
+            viewer.removeHandler('animation-finish', onViewportChange)
+            viewer.removeHandler('resize', onViewportChange)
+            viewer.removeHandler('rotate', onViewportChange)
+        }
+    }, [viewer, svgOverlay])
+
     useEffect(() => {
         // The drawer redraws on every pan/zoom, so smoothing is set on it rather
         // than on the canvases it owns.
@@ -363,54 +379,100 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed
     )
 }
 
+const SVG_NS = 'http://www.w3.org/2000/svg'
+const FEATURE_STROKE_WIDTH = 2
+const FEATURE_LABEL_SIZE = 11
+const LABEL_CLASS = 'osd-feature-label'
+// Labels only earn their space once their box is big enough on screen.
+const LABEL_MIN_BOX_PX = 44
+
+/**
+ * Draws GeoJSON features as vector outlines on the viewer's SVG overlay
+ *
+ * @param {Object} overlay - OpenSeadragon SVG overlay
+ * @param {Array} features - GeoJSON features, optionally with _color and _label
+ */
 function drawFeatures(overlay, features) {
-    if (overlay && features) {
-        overlay.node().innerHTML = ''
-        const imageSize = overlay._viewer.world._contentSize
-        features.forEach((feature) => {
-            const geom = feature.geometry
-            let points
-            let polygon
-            if (geom) {
-                switch (geom.type) {
-                    case 'Polygon':
-                        points = []
-                        geom.coordinates[0].forEach((coord) => {
-                            points.push(`${coord[0] / imageSize.x},${coord[1] / imageSize.x}`)
-                        })
-                        polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-                        polygon.setAttribute('points', points.join(' '))
-                        polygon.setAttribute(
-                            'style',
-                            `fill:transparent;stroke:${feature._color};stroke-width:${
-                                10 / ((imageSize.x + imageSize.y) / 2)
-                            }`
-                        )
-                        overlay.node().appendChild(polygon)
-                        break
-                    default:
-                        console.log(imageSize)
-                        // Full image
-                        points = [
-                            `0,0`,
-                            `1,0`,
-                            `1,${imageSize.y / imageSize.x}`,
-                            `0,${imageSize.y / imageSize.x}`,
-                            `0,0`,
-                        ]
-                        polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-                        polygon.setAttribute('points', points.join(' '))
-                        polygon.setAttribute(
-                            'style',
-                            `fill:transparent;stroke:${feature._color};stroke-width:${
-                                4 / ((imageSize.x + imageSize.y) / 2)
-                            }`
-                        )
-                        overlay.node().appendChild(polygon)
-                }
-            }
-        })
-    }
+    if (!overlay || !features) return
+
+    const node = overlay.node()
+    node.innerHTML = ''
+    const imageSize = overlay._viewer.world._contentSize
+
+    features.forEach((feature) => {
+        const geom = feature.geometry
+        if (!geom) return
+
+        // Overlay coordinates are the image's width normalized to 1.
+        const points =
+            geom.type === 'Polygon'
+                ? geom.coordinates[0].map((coord) => [
+                      coord[0] / imageSize.x,
+                      coord[1] / imageSize.x,
+                  ])
+                : [
+                      [0, 0],
+                      [1, 0],
+                      [1, imageSize.y / imageSize.x],
+                      [0, imageSize.y / imageSize.x],
+                  ]
+
+        const polygon = document.createElementNS(SVG_NS, 'polygon')
+        polygon.setAttribute('points', points.map((p) => p.join(',')).join(' '))
+        polygon.setAttribute('fill', 'transparent')
+        polygon.setAttribute('stroke', feature._color)
+        // Strokes stay the same thickness on screen at every zoom level.
+        polygon.setAttribute('stroke-width', FEATURE_STROKE_WIDTH)
+        polygon.setAttribute('vector-effect', 'non-scaling-stroke')
+        node.appendChild(polygon)
+
+        if (feature._label == null) return
+
+        const anchorX = Math.min(...points.map((p) => p[0]))
+        const anchorY = Math.min(...points.map((p) => p[1]))
+        const label = document.createElementNS(SVG_NS, 'text')
+        label.setAttribute('class', LABEL_CLASS)
+        label.setAttribute('data-x', anchorX)
+        label.setAttribute('data-y', anchorY)
+        label.setAttribute('data-w', Math.max(...points.map((p) => p[0])) - anchorX)
+        label.setAttribute('font-size', FEATURE_LABEL_SIZE)
+        label.setAttribute('font-weight', 'bold')
+        label.setAttribute('fill', feature._color)
+        label.setAttribute('paint-order', 'stroke')
+        label.setAttribute('stroke', 'rgba(0,0,0,0.65)')
+        label.setAttribute('stroke-width', 3)
+        label.setAttribute('vector-effect', 'non-scaling-stroke')
+        label.textContent = feature._label
+        node.appendChild(label)
+    })
+
+    scaleFeatureLabels(overlay)
+}
+
+/**
+ * Keeps feature labels at a fixed screen size, since the overlay itself scales
+ *
+ * @param {Object} overlay - OpenSeadragon SVG overlay
+ */
+function scaleFeatureLabels(overlay) {
+    if (!overlay) return
+    const node = overlay.node()
+    // The overlay's transform carries both zoom and the viewer's rotation.
+    const consolidated = node.transform.baseVal.consolidate()
+    const m = consolidated ? consolidated.matrix : null
+    const scale = m ? Math.sqrt(m.a * m.a + m.b * m.b) : 1
+    if (!scale) return
+
+    node.querySelectorAll(`.${LABEL_CLASS}`).forEach((label) => {
+        const x = Number(label.getAttribute('data-x'))
+        const y = Number(label.getAttribute('data-y'))
+        const boxPx = Number(label.getAttribute('data-w')) * scale
+        label.setAttribute('display', boxPx < LABEL_MIN_BOX_PX ? 'none' : 'inline')
+        label.setAttribute(
+            'transform',
+            `translate(${x} ${y}) scale(${1 / scale}) translate(0 -4)`
+        )
+    })
 }
 
 OpenSeadragonViewer.propTypes = {

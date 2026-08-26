@@ -9,7 +9,13 @@ import Tooltip from '@mui/material/Tooltip'
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 
-import { getIn, getPDSUrl, getRedirectedUrl, copyToClipboard } from '../../../../../core/utils.js'
+import {
+    getIn,
+    getPDSUrl,
+    getRedirectedUrl,
+    copyToClipboard,
+    prettify,
+} from '../../../../../core/utils.js'
 import { getDataByURI, setData, setSnackBarText } from '../../../../../core/redux/actions/actions'
 import { ES_PATHS } from '../../../../../core/constants.js'
 
@@ -149,6 +155,8 @@ const MLClassification = (props) => {
                 featureConfidence <= confidence[1]
             ) {
                 f._color = checkedClasses[featureClass].color
+                // The viewer draws this beside the box.
+                f._label = `${prettify(featureClass)} (${Number(featureConfidence).toFixed(2)})`
                 return f
             }
         })
