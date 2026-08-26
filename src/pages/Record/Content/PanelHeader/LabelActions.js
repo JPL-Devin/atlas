@@ -13,6 +13,10 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import { ES_PATHS } from '../../../../core/constants'
 import { getIn, copyToClipboard, getPDSUrl } from '../../../../core/utils'
 import { setSnackBarText } from '../../../../core/redux/actions/actions'
+import {
+    getRawLabel,
+    withoutLabelBranches,
+} from '../Views/ProductLabel/labelData'
 
 const useStyles = makeStyles((theme) => ({
     button: {
@@ -34,35 +38,34 @@ const LabelActions = (props) => {
     const c = useStyles()
     const dispatch = useDispatch()
 
-    const pdsStandard = getIn(recordData, ES_PATHS.pds_standard)
-    const labelData = getIn(
-        recordData,
-        pdsStandard === 'pds4' ? ES_PATHS.pds4_label : ES_PATHS.pds3_label,
-        {}
-    )
-    if (Object.keys(labelData).length === 0) return null
+    const rawLabel = getRawLabel(recordData)
+    // Falls back to the record's other indexed metadata, matching the panel.
+    const labelData =
+        Object.keys(rawLabel).length > 0 ? rawLabel : withoutLabelBranches(recordData)
 
-    const labelURL = getPDSUrl(
-        getIn(recordData, ES_PATHS.label),
-        getIn(recordData, ES_PATHS.release_id)
-    )
+    const labelFile = getIn(recordData, ES_PATHS.label)
+    const labelURL = labelFile
+        ? getPDSUrl(labelFile, getIn(recordData, ES_PATHS.release_id))
+        : null
 
     return (
         <>
-            <Tooltip title="View Raw Label" arrow>
-                <Button
-                    className={c.button}
-                    variant="outlined"
-                    aria-label="view raw label button"
-                    size="small"
-                    href={labelURL}
-                    target="_blank"
-                    startIcon={<OpenInNewIcon fontSize="small" />}
-                >
-                    Raw Label
-                </Button>
-            </Tooltip>
-            <Tooltip title="Copy the label metadata as JSON" arrow>
+            {labelURL && (
+                <Tooltip title="View Raw Label" arrow>
+                    <Button
+                        className={c.button}
+                        variant="outlined"
+                        aria-label="view raw label button"
+                        size="small"
+                        href={labelURL}
+                        target="_blank"
+                        startIcon={<OpenInNewIcon fontSize="small" />}
+                    >
+                        Raw Label
+                    </Button>
+                </Tooltip>
+            )}
+            <Tooltip title="Copy the product metadata as JSON" arrow>
                 <Button
                     className={c.button}
                     variant="outlined"

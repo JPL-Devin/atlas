@@ -18,6 +18,7 @@ import { useSpring, animated } from '@react-spring/web'
 
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SearchIcon from '@mui/icons-material/Search'
+import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import CloseIcon from '@mui/icons-material/Close'
 
 import { makeStyles, withStyles } from '@mui/styles'
@@ -29,6 +30,8 @@ import PanelHeader from '../../PanelHeader/PanelHeader'
 import LabelActions from '../../PanelHeader/LabelActions'
 import Highlighter from 'react-highlight-words'
 import flat from 'flat'
+
+import { getRawLabel, withoutLabelBranches } from './labelData'
 
 function TransitionComponent(props) {
     const style = useSpring({
@@ -301,19 +304,23 @@ const useStyles = makeStyles((theme) => ({
         left: 'calc(50% - 20px)',
         top: 'calc(50% + 20px)',
     },
-    notFound: {
-        'position': 'absolute',
-        'left': 'calc(50%)',
-        'top': 'calc(50%)',
-        '& > div': {
-            transform: 'translateX(-50%) translateY(50%)',
-            background: theme.palette.swatches.orange.orange500,
-            padding: '8px 16px',
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '16px',
-            borderRadius: '2px',
-        },
+    // Flags a record with no raw label, above its indexed metadata.
+    missingLabel: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        flexShrink: 0,
+        boxSizing: 'border-box',
+        padding: '8px 12px',
+        background: 'rgba(240, 173, 78, 0.16)',
+        borderBottom: '1px solid rgba(240, 173, 78, 0.5)',
+        color: theme.palette.text.primary,
+        fontSize: '13px',
+        lineHeight: 1.4,
+    },
+    missingLabelIcon: {
+        color: theme.palette.swatches.orange.orange500,
+        flexShrink: 0,
     },
     panel: {
         display: 'flex',
@@ -392,11 +399,11 @@ const ProductLabel = (props) => {
 
     const label_id = getIn(recordData, ['atlas', 'label_id'], '')
     const pdsStandard = getIn(recordData, ES_PATHS.pds_standard)
-    const labelDataRaw = getIn(
-        recordData,
-        pdsStandard === 'pds4' ? ES_PATHS.pds4_label : ES_PATHS.pds3_label,
-        {}
-    )
+    const rawLabel = getRawLabel(recordData)
+    // Without a raw label, fall back to the rest of the indexed metadata so the
+    // tab still shows what the record carries.
+    const missingRawLabel = Object.keys(rawLabel).length === 0
+    const labelDataRaw = missingRawLabel ? withoutLabelBranches(recordData) : rawLabel
     const labelDataRawFlat = flat.flatten(labelDataRaw, { delimiter: ':' })
     const labelDataRawFlatSorted = Object.keys(labelDataRawFlat)
         .sort()
@@ -410,8 +417,9 @@ const ProductLabel = (props) => {
         return (
             <div className={c.panel}>
                 <PanelHeader recordData={recordData} />
-                <Box className={c.notFound}>
-                    <div>Label Not Found</div>
+                <Box className={c.missingLabel}>
+                    <WarningAmberIcon className={c.missingLabelIcon} fontSize="small" />
+                    <div>This product carries no indexed metadata.</div>
                 </Box>
             </div>
         )
@@ -425,6 +433,16 @@ const ProductLabel = (props) => {
                         !isMobile ? <LabelActions recordData={recordData} /> : null
                     }
                 />
+                {missingRawLabel && (
+                    <Box className={c.missingLabel}>
+                        <WarningAmberIcon className={c.missingLabelIcon} fontSize="small" />
+                        <div>
+                            No raw {pdsStandard === 'pds4' ? 'PDS4' : 'PDS3'} label is
+                            indexed for this product. Showing its other indexed metadata
+                            instead.
+                        </div>
+                    </Box>
+                )}
                 <div className={c.top}>
                     <div className={c.search}>
                         <Input
