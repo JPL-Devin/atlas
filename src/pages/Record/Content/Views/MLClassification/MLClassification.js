@@ -79,8 +79,6 @@ const MLClassification = (props) => {
 
     const dispatch = useDispatch()
 
-    const [layersOpen, setLayersOpen] = useState(true)
-    const toggleLayers = () => setLayersOpen(!layersOpen)
     const [checkedClasses, setCheckedClasses] = useState({})
     const [confidence, setConfidence] = useState([0, 1])
 
@@ -163,12 +161,11 @@ const MLClassification = (props) => {
     }
 
     // The viewer is shared with the other tabs, so hand it the overlay.
-    useViewerOverlay({ features: featuresOn, onLayers: toggleLayers }, [
+    useViewerOverlay({ features: featuresOn }, [
         featuresOn.length,
         JSON.stringify(checkedClasses),
         confidence[0],
         confidence[1],
-        layersOpen,
     ])
 
     const model = {
@@ -211,7 +208,6 @@ const MLClassification = (props) => {
                     featuresOn={featuresOn}
                     classes={checkedClasses}
                     model={model}
-                    layersOpen={layersOpen}
                     onChange={(type, state) => {
                         switch (type) {
                             case 'classes':

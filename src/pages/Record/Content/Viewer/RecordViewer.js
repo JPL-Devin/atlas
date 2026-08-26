@@ -94,9 +94,9 @@ const OverlayContext = createContext(() => {})
 export const RecordViewerOverlayProvider = OverlayContext.Provider
 
 /**
- * Puts a tab's overlay features and layers control on the shared viewer
+ * Puts a tab's overlay features on the shared viewer
  *
- * @param {Object} overlay - { features, onLayers }
+ * @param {Object} overlay - { features }
  * @param {Array} deps - when to re-register
  */
 export const useViewerOverlay = (overlay, deps) => {
@@ -184,7 +184,6 @@ const RecordViewer = (props) => {
                                 // viewer's constraining dimension.
                                 settings={{ defaultZoomLevel: 0 }}
                                 features={overlay.features}
-                                onLayers={overlay.onLayers}
                                 onOpenFailed={() => setViewerFailed(true)}
                             />
                         )}

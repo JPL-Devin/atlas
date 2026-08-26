@@ -14,7 +14,6 @@ import HomeIcon from '@mui/icons-material/Home'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import RotateLeftIcon from '@mui/icons-material/RotateLeft'
 import RotateRightIcon from '@mui/icons-material/RotateRight'
-import LayersIcon from '@mui/icons-material/Layers'
 
 import Paper from '@mui/material/Paper'
 import Tooltip from '@mui/material/Tooltip'
@@ -53,17 +52,6 @@ const useStyles = makeStyles((theme) => ({
     },
     topLeft: {
         paddingTop: theme.spacing(1),
-    },
-    // Sized by its control, so the button's margin can't push past the viewer.
-    topRight: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        display: 'flex',
-        justifyContent: 'flex-end',
-        boxSizing: 'border-box',
-        padding: '4px',
-        paddingTop: theme.spacing(2),
     },
     bottomRight: {
         paddingBottom: theme.spacing(2),
@@ -159,7 +147,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed }) => {
+const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
     const [viewer, setViewer] = useState(null)
     const [openFailed, setOpenFailed] = useState(false)
     const [imageLoading, setImageLoading] = useState(true)
@@ -321,19 +309,6 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed
                     >
                         <RotateRightIcon fontSize="inherit" />
                     </IconButton>
-                </div>
-                <div className={c.topRight}>
-                    {onLayers ? (
-                        <IconButton
-                            className={clsx(c.button, c.gap)}
-                            title="Layers"
-                            aria-label="image view layers"
-                            onClick={onLayers}
-                            size="large"
-                        >
-                            <LayersIcon fontSize="inherit" />
-                        </IconButton>
-                    ) : null}
                 </div>
                 <div className={c.bottomRight}>
                     <IconButton

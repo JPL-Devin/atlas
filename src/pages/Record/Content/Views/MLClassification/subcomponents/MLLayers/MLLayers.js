@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 
 import { makeStyles } from '@mui/styles'
 import Checkbox from '@mui/material/Checkbox'
-import Collapse from '@mui/material/Collapse'
 import Input from '@mui/material/Input'
 import Slider from '@mui/material/Slider'
 
@@ -11,11 +10,7 @@ import { getIn, prettify } from '../../../../../../../core/utils.js'
 
 const useStyles = makeStyles((theme) => ({
     MLLayers: {
-        // The app's global Collapse styling adds a stray left rule.
-        '& .MuiCollapse-wrapper': {
-            borderLeft: 'none',
-        },
-        'color': theme.palette.text.primary,
+        color: theme.palette.text.primary,
     },
     heading: {
         fontSize: '12px',
@@ -227,7 +222,7 @@ const summarizeClasses = (features) => {
 }
 
 const MLLayers = (props) => {
-    const { features, featuresOn, classes = {}, model = {}, layersOpen, onChange } = props
+    const { features, featuresOn, classes = {}, model = {}, onChange } = props
     const c = useStyles()
 
     const [value, setValue] = useState([MIN, MAX])
@@ -305,8 +300,7 @@ const MLLayers = (props) => {
                 </>
             )}
             <div className={c.heading}>Layers</div>
-            <Collapse in={layersOpen !== false}>
-                <div className={c.card}>
+            <div className={c.card}>
                     {classNames.length === 0 ? (
                         <div className={c.empty}>No classifications on this product.</div>
                     ) : (
@@ -358,8 +352,7 @@ const MLLayers = (props) => {
                             )
                         })
                     )}
-                </div>
-            </Collapse>
+            </div>
             <div className={c.heading}>Filters</div>
             <div className={`${c.card} ${c.cardPad}`}>
                 <div className={c.filterLabel}>Confidence</div>
@@ -427,7 +420,6 @@ MLLayers.propTypes = {
     featuresOn: PropTypes.array,
     classes: PropTypes.object,
     model: PropTypes.object,
-    layersOpen: PropTypes.bool,
     onChange: PropTypes.func,
 }
 
