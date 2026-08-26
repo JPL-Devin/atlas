@@ -209,8 +209,8 @@ const useStyles = makeStyles((theme) => ({
     // Reaches under each neighbouring node so it meets the dots, and darkens
     // left to right to read as the direction of time.
     timelineRule: {
-        width: 'calc(100% + 28px)',
-        margin: '4px -14px 0 -14px',
+        width: 'calc(100% + 68px)',
+        margin: '4px -34px 0 -34px',
         transformOrigin: 'left center',
         animation: '$ruleIn 260ms ease-out both',
         height: '1px',
