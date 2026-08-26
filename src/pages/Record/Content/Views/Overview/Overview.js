@@ -720,12 +720,13 @@ const Overview = (props) => {
     const presentation = resolvePresentation(recordData, { instance: getAppInstanceKey() })
 
     // Phones show only the priority tiles; wider viewports show the configured
-    // maximum in the same configured order. Either way the grid keeps whole
-    // rows, so no row is left partly filled.
+    // maximum in the same configured order. Whole rows are preferred, but a
+    // record with less than a row's worth still shows what it has.
     const available = isNarrow
         ? presentation.tiles.slice(0, presentation.priorityTiles)
         : presentation.tiles
-    const tiles = available.slice(0, Math.floor(available.length / tileColumns) * tileColumns)
+    const wholeRows = Math.floor(available.length / tileColumns) * tileColumns
+    const tiles = available.slice(0, wholeRows || available.length)
     const caption = presentation.caption || presentation.shortCaption
 
     // Only confident classifications are worth a chip, best confidence first.
