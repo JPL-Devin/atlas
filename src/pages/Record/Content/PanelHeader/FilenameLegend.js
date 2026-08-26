@@ -11,7 +11,7 @@ import { setRecordFilenamePart } from '../../../../core/redux/actions/actions'
 const useStyles = makeStyles((theme) => ({
     filenameRow: {
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         gap: '6px',
         width: '100%',
         minWidth: 0,
@@ -33,6 +33,9 @@ const useStyles = makeStyles((theme) => ({
         'padding': 0,
         'border': 'none',
         'background': 'none',
+        // A matching transparent top border keeps the name optically centred
+        // whether or not a segment is underlined.
+        'borderTop': '2px solid transparent',
         'borderBottom': '2px solid transparent',
         'cursor': 'pointer',
         'color': 'inherit',

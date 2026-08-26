@@ -614,6 +614,8 @@ const useStyles = makeStyles((theme) => ({
     citationFoot: {
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '8px',
         marginTop: '6px',
     },
     select: {
@@ -1090,6 +1092,11 @@ const Overview = (props) => {
                                                 <ContentCopyIcon />
                                             </IconButton>
                                         </Tooltip>
+                                        {presentation.citationAuthor != null && (
+                                            <div className={c.captionAuthor}>
+                                                {presentation.citationAuthor}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </>
