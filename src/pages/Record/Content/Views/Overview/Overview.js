@@ -181,14 +181,14 @@ const useStyles = makeStyles((theme) => ({
         background: theme.palette.swatches.purple.purple500,
     },
     timelineLabel: {
-        fontSize: '10px',
+        fontSize: '11px',
         textTransform: 'uppercase',
         letterSpacing: '0.04em',
         color: theme.palette.swatches.grey.grey500,
         whiteSpace: 'nowrap',
     },
     timelineValue: {
-        fontSize: '11px',
+        fontSize: '12px',
         color: theme.palette.swatches.grey.grey700,
         whiteSpace: 'nowrap',
     },
@@ -201,15 +201,17 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         gap: '3px',
     },
+    // Reaches under each neighbouring node so it meets the dots, and darkens
+    // left to right to read as the direction of time.
     timelineRule: {
-        width: '100%',
+        width: 'calc(100% + 28px)',
+        margin: '4px -14px 0 -14px',
         height: '1px',
-        marginTop: '4px',
-        background: theme.palette.swatches.grey.grey300,
+        background: `linear-gradient(to right, ${theme.palette.swatches.grey.grey300}, ${theme.palette.swatches.grey.grey600})`,
     },
     timelineGap: {
-        fontSize: '10px',
-        color: theme.palette.swatches.grey.grey500,
+        fontSize: '12px',
+        color: theme.palette.swatches.grey.grey600,
         whiteSpace: 'nowrap',
     },
     skeleton: {
@@ -577,18 +579,25 @@ const useStyles = makeStyles((theme) => ({
         margin: '0 -20px 10px -20px',
         padding: '12px 20px 6px 20px',
     },
-    // Same surface as the caption, At-a-glance and field cards.
-    citation: {
+    // Same surface as the caption card, copy control included.
+    citationCard: {
         boxSizing: 'border-box',
-        fontSize: '13px',
-        lineHeight: '19px',
-        color: theme.palette.text.primary,
-        overflowWrap: 'anywhere',
-        padding: '12px',
+        padding: '12px 12px 8px 12px',
         marginBottom: '20px',
         borderRadius: '3px',
         border: `1px solid ${theme.palette.swatches.grey.grey200}`,
         background: theme.palette.swatches.grey.grey0,
+    },
+    citation: {
+        fontSize: '13px',
+        lineHeight: '19px',
+        color: theme.palette.text.primary,
+        overflowWrap: 'anywhere',
+    },
+    citationFoot: {
+        display: 'flex',
+        alignItems: 'center',
+        marginTop: '6px',
     },
     select: {
         'fontSize': '12px',
@@ -1046,7 +1055,26 @@ const Overview = (props) => {
                                 <div className={c.citationHeading}>
                                     <span>Citation</span>
                                 </div>
-                                <div className={c.citation}>{presentation.citation}</div>
+                                <div className={c.citationCard}>
+                                    <div className={c.citation}>{presentation.citation}</div>
+                                    <div className={c.citationFoot}>
+                                        <Tooltip title="Copy citation" arrow>
+                                            <IconButton
+                                                className={c.captionCopy}
+                                                aria-label="copy record citation"
+                                                size="small"
+                                                onClick={() =>
+                                                    copy(
+                                                        presentation.citation,
+                                                        'Copied citation to clipboard!'
+                                                    )
+                                                }
+                                            >
+                                                <ContentCopyIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </div>
+                                </div>
                             </>
                         )}
                     </div>
