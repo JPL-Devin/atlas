@@ -393,7 +393,7 @@ const useStyles = makeStyles((theme) => ({
     // Fields sit on their own surface, like the caption and At-a-glance cards.
     fieldsCard: {
         boxSizing: 'border-box',
-        padding: '2px 12px 8px 12px',
+        padding: '2px 12px 2px 12px',
         marginBottom: '20px',
         borderRadius: '3px',
         border: `1px solid ${theme.palette.swatches.grey.grey200}`,
@@ -405,6 +405,10 @@ const useStyles = makeStyles((theme) => ({
         'borderTop': `1px solid ${theme.palette.swatches.grey.grey150}`,
         'margin': '0 -12px',
         'padding': '0 12px',
+        // Rows indent under the section head's chevron.
+        '& .MuiCollapse-root': {
+            marginLeft: '22px',
+        },
         // The app's global Collapse styling adds a left rule that reads as a
         // stray vertical line here.
         '& .MuiCollapse-wrapper': {
