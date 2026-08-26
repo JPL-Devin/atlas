@@ -7,7 +7,7 @@ import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
 import { setRecordViewTab, setRecordFilenamePart } from '../../../core/redux/actions/actions.js'
-import { VIEW_TABS } from '../viewTabs'
+import { VIEW_TABS, getVisibleViewTabs } from '../viewTabs'
 
 // View components
 import Overview from './Views/Overview/Overview'
@@ -26,7 +26,7 @@ const VIEW_COMPONENTS = {
 const PANEL_WIDTHS = {
     'overview': { md: 770, lg: 770 },
     'product label': { md: 770, lg: 770 },
-    'ml classification': { md: 770, lg: 770 },
+    'ml classification': { md: 600, lg: 600 },
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -73,6 +73,13 @@ const Content = (props) => {
             dispatch(setRecordFilenamePart(null, false))
         }
     }, [])
+
+    // A record may not carry every tab's data, so fall back to the overview.
+    const visibleTabs = getVisibleViewTabs(recordData)
+    useEffect(() => {
+        if (!loading && !visibleTabs.includes(recordViewTab))
+            dispatch(setRecordViewTab(VIEW_TABS[0].id))
+    }, [loading, recordViewTab, visibleTabs.join('|')])
 
     const ViewComponent = VIEW_COMPONENTS[recordViewTab] || null
 

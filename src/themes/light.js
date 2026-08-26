@@ -146,6 +146,10 @@ export const theme = {
         },
         MuiTooltip: {
             styleOverrides: {
+                // Tooltips never take the pointer, so they can't shadow what's under them.
+                popper: {
+                    pointerEvents: 'none',
+                },
                 tooltip: {
                     fontSize: '1em',
                     color: palette.text.secondary,

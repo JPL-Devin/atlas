@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -49,8 +49,8 @@ const StyledTabs = withStyles((theme) => ({
         'justifyContent': 'center',
         'backgroundColor': 'transparent',
         'height': '5px',
+        // Spans the whole tab, however long its label is.
         '& > span': {
-            maxWidth: 124,
             width: '100%',
             backgroundColor: theme.palette.accent.main,
         },
@@ -89,6 +89,13 @@ const ViewTabs = (props) => {
     const c = useStyles()
 
     const dispatch = useDispatch()
+
+    // Tabs place their indicator before the panel finishes resizing, so nudge
+    // them to re-measure once the width transition ends.
+    useEffect(() => {
+        const t = setTimeout(() => window.dispatchEvent(new Event('resize')), 300)
+        return () => clearTimeout(t)
+    }, [recordViewTab])
 
     const handleChange = (event, newTabIndex) => {
         // eslint-disable-next-line security/detect-object-injection

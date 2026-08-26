@@ -11,7 +11,11 @@ import { getIn, prettify } from '../../../../../../../core/utils.js'
 
 const useStyles = makeStyles((theme) => ({
     MLLayers: {
-        color: theme.palette.text.primary,
+        // The app's global Collapse styling adds a stray left rule.
+        '& .MuiCollapse-wrapper': {
+            borderLeft: 'none',
+        },
+        'color': theme.palette.text.primary,
     },
     heading: {
         fontSize: '12px',
