@@ -183,10 +183,13 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers, onOpenFailed
                 animationTime: 0.5,
                 blendTime: 0.4,
                 constrainDuringPan: true,
-                maxZoomPixelRatio: 8,
+                // Pixel peeking goes well past 1:1, in gentler steps than the
+                // default doubling.
+                maxZoomPixelRatio: 40,
                 minZoomLevel: 0.35,
                 visibilityRatio: 0.95,
-                zoomPerScroll: 2,
+                zoomPerScroll: 1.6,
+                zoomPerClick: 1.6,
                 // Fill the viewer on load rather than letterboxing the image.
                 homeFillsViewer: true,
                 // Zoomed-in pixels stay square rather than being interpolated.
