@@ -166,10 +166,6 @@ const useStyles = makeStyles((theme) => ({
         from: { transform: 'scaleX(0)' },
         to: { transform: 'scaleX(1)' },
     },
-    '@keyframes viewIn': {
-        from: { opacity: 0 },
-        to: { opacity: 1 },
-    },
     timelineDot: {
         width: '8px',
         height: '8px',
@@ -233,9 +229,6 @@ const useStyles = makeStyles((theme) => ({
         height: '100%',
         color: theme.palette.text.primary,
         boxSizing: 'border-box',
-        // The panel fades in as its tab mounts, so the animating width change
-        // doesn't read as a jump.
-        animation: '$viewIn 240ms ease-out both',
         display: 'flex',
         flexFlow: 'column',
         background: theme.palette.swatches.grey.grey100,

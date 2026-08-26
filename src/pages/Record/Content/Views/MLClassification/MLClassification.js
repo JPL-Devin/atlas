@@ -14,16 +14,10 @@ import MLLayers from './subcomponents/MLLayers/MLLayers'
 import PanelHeader from '../../PanelHeader/PanelHeader'
 
 const useStyles = makeStyles((theme) => ({
-    '@keyframes viewIn': {
-        from: { opacity: 0 },
-        to: { opacity: 1 },
-    },
     panel: {
         width: 'var(--record-panel-width, 300px)',
         height: '100%',
         boxSizing: 'border-box',
-        // Fades in with its tab, matching the other record panels.
-        animation: '$viewIn 240ms ease-out both',
         display: 'flex',
         flexFlow: 'column',
         background: theme.palette.swatches.grey.grey100,
