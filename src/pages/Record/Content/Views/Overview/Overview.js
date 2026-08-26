@@ -7,6 +7,7 @@ import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
+import Chip from '@mui/material/Chip'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 import Input from '@mui/material/Input'
@@ -93,9 +94,27 @@ const useStyles = makeStyles((theme) => ({
     },
     captionChips: {
         display: 'flex',
+        alignItems: 'center',
         flexWrap: 'wrap',
         gap: '6px',
         marginBottom: '6px',
+    },
+    // Classifications sit opposite the descriptive chips.
+    mlChips: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        marginLeft: 'auto',
+    },
+    mlChip: {
+        'height': '20px',
+        'background': theme.palette.swatches.orange.orange600,
+        'color': theme.palette.swatches.grey.grey800,
+        'fontWeight': 'bold',
+        'fontSize': '11px',
+        '& .MuiChip-label': {
+            padding: '0px 8px',
+        },
     },
     chip: {
         fontSize: '11px',
@@ -700,6 +719,22 @@ const Overview = (props) => {
     const tiles = available.slice(0, Math.floor(available.length / tileColumns) * tileColumns)
     const caption = presentation.caption || presentation.shortCaption
 
+    // Only confident classifications are worth a chip, best confidence first.
+    const mlChips = []
+    const classifications = getIn(recordData, ES_PATHS.ml_classifications, [])
+    if (Array.isArray(classifications)) {
+        classifications.forEach((classification) => {
+            const className = classification.class
+            if (
+                className &&
+                classification.confidence > 0.5 &&
+                !mlChips.some((chip) => chip.class === className)
+            )
+                mlChips.push({ class: className, confidence: classification.confidence })
+        })
+        mlChips.sort((a, b) => b.confidence - a.confidence)
+    }
+
     // Both fields of a paired tile render identically; only the second gets a
     // dividing rule.
     const renderTileHalf = (part, paired = false) => {
@@ -908,13 +943,25 @@ const Overview = (props) => {
         if (presentation.captionTitle == null && caption == null) return null
         return (
             <div className={c.captionCard} aria-label="record caption">
-                {presentation.captionChips.length > 0 && (
+                {(presentation.captionChips.length > 0 || mlChips.length > 0) && (
                     <div className={c.captionChips}>
                         {presentation.captionChips.map((chip, idx) => (
                             <span className={c.chip} key={idx}>
                                 {chip}
                             </span>
                         ))}
+                        {mlChips.length > 0 && (
+                            <div className={c.mlChips}>
+                                {mlChips.map((chip) => (
+                                    <Chip
+                                        key={chip.class}
+                                        className={c.mlChip}
+                                        label={`ML - ${chip.class}`}
+                                        size="small"
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
                 {presentation.captionTitle != null && (

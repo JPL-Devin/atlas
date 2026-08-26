@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom'
 import { makeStyles } from '@mui/styles'
 
 import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
@@ -69,22 +68,6 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
         textAlign: 'center',
         wordBreak: 'break-all',
-    },
-    chips: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '4px',
-        flexShrink: 0,
-    },
-    mlChip: {
-        'height': '22px',
-        'background': theme.palette.swatches.orange.orange600,
-        'color': theme.palette.swatches.grey.grey800,
-        'fontWeight': 'bold',
-        'fontSize': '11px',
-        '& .MuiChip-label': {
-            padding: '0px 8px',
-        },
     },
     // Aligned with the panel body's gutters; the block itself carries the
     // bottom space so it can animate open and closed.
@@ -169,22 +152,6 @@ const PanelHeader = (props) => {
 
     const back = new URLSearchParams(window.location.search).get('back')
 
-    // Only confident classifications are worth a chip.
-    const mlChips = []
-    const classifications = getIn(recordData, ES_PATHS.ml_classifications, [])
-    if (Array.isArray(classifications)) {
-        classifications.forEach((classification) => {
-            const className = classification.class
-            if (
-                className &&
-                classification.confidence > 0.5 &&
-                !mlChips.some((chip) => chip.class === className)
-            )
-                mlChips.push({ class: className, confidence: classification.confidence })
-        })
-        mlChips.sort((a, b) => b.confidence - a.confidence)
-    }
-
     return (
         <div className={c.PanelHeader}>
             <div className={c.titleBlock}>
@@ -213,18 +180,6 @@ const PanelHeader = (props) => {
                             </div>
                         )}
                     </div>
-                    {mlChips.length > 0 && (
-                        <div className={c.chips}>
-                            {mlChips.map((chip, idx) => (
-                                <Chip
-                                    key={idx}
-                                    className={c.mlChip}
-                                    label={`ML - ${chip.class}`}
-                                    size="small"
-                                />
-                            ))}
-                        </div>
-                    )}
                 </div>
                 {parsedFilename != null && (
                     <div className={c.details}>
