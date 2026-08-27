@@ -1,0 +1,80 @@
+{
+    "title": "Lunar Orbiter (LOIRP) filename",
+    "reference": "Lunar Orbiter Image Recovery Project (LOIRP) SIS, \u00a74.3.4 (File Labeling and Naming Conventions) and Table 1 (Image Taxonomy)",
+    "ignoreCase": true,
+    "match": "^(FRAME)_([1-5])([0-9]{3})_(M|H1|H2|H3|Res)\\.(IMG|LBL)$",
+    "segments": [
+        {
+            "group": 1,
+            "label": "Product",
+            "color": "blue",
+            "description": "A mosaicked Lunar Orbiter surface image recovered by LOIRP.",
+            "values": {
+                "FRAME": "Lunar Orbiter frame"
+            }
+        },
+        {
+            "group": 2,
+            "label": "Orbiter",
+            "color": "violet",
+            "description": "First digit of the frame number: which Lunar Orbiter took it.",
+            "values": {
+                "1": "Lunar Orbiter I",
+                "2": "Lunar Orbiter II",
+                "3": "Lunar Orbiter III",
+                "4": "Lunar Orbiter IV",
+                "5": "Lunar Orbiter V"
+            }
+        },
+        {
+            "group": 3,
+            "label": "Frame number",
+            "color": "teal",
+            "description": "Order the images were taken in, and the site photographed.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Image {1}"
+                }
+            ]
+        },
+        {
+            "group": 4,
+            "label": "Resolution",
+            "color": "orange",
+            "description": "Resolution identifier, and the high-resolution subframe.",
+            "values": {
+                "M": {
+                    "meaning": "Medium resolution frame",
+                    "description": "The 80mm lens medium-resolution mosaicked frame; each frame number has both a medium and a high resolution image."
+                },
+                "H1": {
+                    "meaning": "High resolution subframe 1",
+                    "description": "High resolution frames were assembled from ~97 framelets and split into three subframes H1-H3."
+                },
+                "H2": {
+                    "meaning": "High resolution subframe 2",
+                    "description": "High resolution frames were assembled from ~97 framelets and split into three subframes H1-H3."
+                },
+                "H3": {
+                    "meaning": "High resolution subframe 3",
+                    "description": "High resolution frames were assembled from ~97 framelets and split into three subframes H1-H3."
+                },
+                "Res": {
+                    "meaning": "Resolution reference product",
+                    "description": "The frame-level resolution product listed in the LOIRP image taxonomy."
+                }
+            }
+        },
+        {
+            "group": 5,
+            "label": "Extension",
+            "color": "slate",
+            "description": "Product format.",
+            "values": {
+                "IMG": "16-bit PDS image, IBM PC byte order",
+                "LBL": "Detached PDS label"
+            }
+        }
+    ]
+}

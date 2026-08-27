@@ -24,6 +24,11 @@ import mars_2020_filename from './filenames/mars_2020.json'
 import cas_filename from './filenames/cas.json'
 import ch1_filename from './filenames/ch1.json'
 import clem_filename from './filenames/clem.json'
+import go_filename from './filenames/go.json'
+import juno_filename from './filenames/juno.json'
+import lcro_filename from './filenames/lcro.json'
+import lo_filename from './filenames/lo.json'
+import lro_filename from './filenames/lro.json'
 import mer_filename from './filenames/mer.json'
 import mess_filename from './filenames/mess.json'
 import mgs_filename from './filenames/mgs.json'
@@ -63,6 +68,11 @@ export const filenameSpecs = {
     cas: cas_filename,
     ch1: ch1_filename,
     clem: clem_filename,
+    go: go_filename,
+    juno: juno_filename,
+    lcro: lcro_filename,
+    lo: lo_filename,
+    lro: lro_filename,
     mars_2020: mars_2020_filename,
     mer: mer_filename,
     mess: mess_filename,

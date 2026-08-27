@@ -192,6 +192,44 @@ test.describe('missions with several conventions', () => {
         expect(mesh.meaning('Extension')).toContain('Height map')
     })
 
+    test('a junocam rdr decodes its filter combination and orbit', () => {
+        const juno = decode('juno', 'JNCR_2016217_01C03914_V01.IMG')
+        expect(juno.meaning('Product type')).toContain('RDR')
+        expect(juno.meaning('Year')).toBe('Year 2016')
+        expect(juno.meaning('Day of year')).toBe('Day of year 217')
+        expect(juno.meaning('Orbit')).toBe('Orbit 1')
+        expect(juno.meaning('Filter combination')).toContain('Three-colour')
+        expect(juno.meaning('Version')).toBe('Version 1')
+    })
+
+    test('an lcross product decodes instrument, level and time stamp', () => {
+        const lcro = decode('lcro', 'LCROSS_NIR2_CAL_20090622162539823.IMG')
+        expect(lcro.meaning('Instrument')).toBe('Near infrared camera 2')
+        expect(lcro.meaning('Processing level')).toContain('Calibrated')
+        expect(lcro.meaning('Year')).toBe('Year 2009')
+        expect(lcro.meaning('Millisecond')).toBe('Millisecond 823')
+    })
+
+    test('a lunar orbiter frame decodes its orbiter and subframe', () => {
+        const lo = decode('lo', 'FRAME_3101_H2.IMG')
+        expect(lo.meaning('Orbiter')).toBe('Lunar Orbiter III')
+        expect(lo.meaning('Frame number')).toBe('Image 101')
+        expect(lo.meaning('Resolution')).toContain('High resolution subframe 2')
+    })
+
+    test('a galileo ssi redr decodes its clock counts', () => {
+        const go = decode('go', '8345r.img')
+        expect(go.meaning('MOD91 count')).toBe('MOD91 45')
+        expect(go.meaning('Product type')).toContain('REDR')
+    })
+
+    test('an lro lamp edr decodes its class and version', () => {
+        const lro = decode('lro', 'LAMP_ENG_0426782095_02.fit')
+        expect(lro.meaning('Product class')).toContain('Engineering')
+        expect(lro.meaning('Version')).toBe('Version 2')
+        expect(lro.meaning('Extension')).toContain('FITS')
+    })
+
     test('a name matching none of a mission\u2019s conventions stays plain text', () => {
         expect(parseFilename('1mesh_4621x_rfnp.tar.gz', filenameSpecs.mer)).toBe(null)
         expect(parseFilename('MLF_628039357RAD.txt', filenameSpecs.msl)).toBe(null)

@@ -1,0 +1,145 @@
+{
+    "title": "LCROSS filename",
+    "reference": "LCROSS Data Product SIS, \u00a74.3.5 (Labeling and Identification)",
+    "ignoreCase": true,
+    "match": "^(LCROSS)_(VIS|NIR1|NIR2|MIR1|MIR2|NSP1|NSP2|VSP|TLP)_(RAW|CAL)_([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{3})\\.(IMG|TAB|LBL)$",
+    "segments": [
+        {
+            "group": 1,
+            "label": "Mission",
+            "color": "blue",
+            "description": "Lunar CRater Observation and Sensing Satellite.",
+            "values": {
+                "LCROSS": "LCROSS"
+            }
+        },
+        {
+            "group": 2,
+            "label": "Instrument",
+            "color": "violet",
+            "description": "Which payload instrument produced the product.",
+            "values": {
+                "VIS": "Visible camera",
+                "NIR1": "Near infrared camera 1",
+                "NIR2": "Near infrared camera 2",
+                "MIR1": "Mid infrared camera 1",
+                "MIR2": "Mid infrared camera 2",
+                "NSP1": "Near infrared spectrometer 1",
+                "NSP2": "Near infrared spectrometer 2",
+                "VSP": "Visible spectrometer",
+                "TLP": "Total luminance photometer"
+            }
+        },
+        {
+            "group": 3,
+            "label": "Processing level",
+            "color": "orange",
+            "description": "Processing level of the product.",
+            "values": {
+                "RAW": {
+                    "meaning": "Raw \u2014 CODMAC level 2",
+                    "description": "The product as produced by the GSEOS telemetry processing software, uncalibrated."
+                },
+                "CAL": {
+                    "meaning": "Calibrated \u2014 CODMAC level 3",
+                    "description": "Calibrated rendition of the raw product."
+                }
+            }
+        },
+        {
+            "group": 4,
+            "label": "Year",
+            "color": "teal",
+            "description": "Year of the UTC time stamp.",
+            "patterns": [
+                {
+                    "match": "^([0-9]{4})$",
+                    "meaning": "Year {number}"
+                }
+            ]
+        },
+        {
+            "group": 5,
+            "label": "Month",
+            "color": "green",
+            "description": "Month of the time stamp.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Month {1}"
+                }
+            ]
+        },
+        {
+            "group": 6,
+            "label": "Day",
+            "color": "brown",
+            "description": "Day of the time stamp.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Day {1}"
+                }
+            ]
+        },
+        {
+            "group": 7,
+            "label": "Hour",
+            "color": "indigo",
+            "description": "Hour of the time stamp.",
+            "patterns": [
+                {
+                    "match": "^([0-9]{2})$",
+                    "meaning": "Hour {number}"
+                }
+            ]
+        },
+        {
+            "group": 8,
+            "label": "Minute",
+            "color": "teal",
+            "description": "Minute of the time stamp.",
+            "patterns": [
+                {
+                    "match": "^([0-9]{2})$",
+                    "meaning": "Minute {number}"
+                }
+            ]
+        },
+        {
+            "group": 9,
+            "label": "Second",
+            "color": "green",
+            "description": "Second of the time stamp.",
+            "patterns": [
+                {
+                    "match": "^([0-9]{2})$",
+                    "meaning": "Second {number}"
+                }
+            ]
+        },
+        {
+            "group": 10,
+            "label": "Millisecond",
+            "color": "amber",
+            "description": "Millisecond of the time stamp.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Millisecond {1}"
+                }
+            ]
+        },
+        {
+            "group": 11,
+            "label": "Extension",
+            "color": "slate",
+            "description": "Product format.",
+            "values": {
+                "IMG": "PDS image",
+                "TAB": "ASCII data table",
+                "LBL": "Detached PDS label"
+            }
+        }
+    ]
+}
