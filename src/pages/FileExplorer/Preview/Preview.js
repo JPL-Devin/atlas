@@ -147,26 +147,35 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         justifyContent: 'space-between',
     },
-    button: {
-        'width': `${theme.headHeights[2]}px`,
-        'height': `${theme.headHeights[2]}px`,
-        'color': theme.palette.swatches.blue.blue600,
-        '&:hover': {
-            background: theme.palette.swatches.grey.grey150,
+    buttonIcon: {},
+    // Labelled, filled controls matching the record page's action row.
+    actions: {
+        'display': 'flex',
+        'alignItems': 'stretch',
+        'justifyContent': 'center',
+        'flexWrap': 'wrap',
+        'gap': '4px',
+        'boxSizing': 'border-box',
+        'padding': '6px 8px',
+        '& .MuiButton-root': {
+            fontSize: '12px',
+            lineHeight: '16px',
+            minWidth: 0,
+            padding: '4px 8px',
+            borderRadius: '2px',
+            textTransform: 'none',
+            whiteSpace: 'nowrap',
         },
-        '&.Mui-disabled': {
-            color: theme.palette.swatches.grey.grey300,
-            cursor: 'not-allowed',
+        '& .MuiButton-startIcon': {
+            marginRight: '4px',
         },
         '& .MuiSvgIcon-root': {
-            fontSize: '20px',
+            fontSize: '16px',
         },
     },
-    buttonMobile: {
-        width: `${theme.headHeights[2]}px`,
-        height: `${theme.headHeights[2]}px`,
+    action: {
+        flexShrink: 0,
     },
-    buttonIcon: {},
     // A slim scrollbar keeps the gutter from cutting into the heading rules.
     body: {
         'flex': 1,
@@ -452,20 +461,22 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const ButtonBar = (props) => {
-    const { isMobile, preview, related } = props
+    const { preview, related } = props
     const c = useStyles()
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    let iconSize = isMobile ? 'inherit' : 'inherit'
-
     return (
-        <div className={c.buttonBar}>
-            <Tooltip title="View" arrow>
+        <div className={c.actions} aria-label="product actions">
+            <Tooltip title="View this product's record page" arrow>
                 <span>
-                    <IconButton
-                        className={clsx(c.button, { [c.buttonMobile]: isMobile })}
+                    <Button
+                        className={c.action}
+                        variant="contained"
+                        color="primary"
+                        size="small"
                         aria-label="view"
+                        startIcon={<PageviewIcon fontSize="small" />}
                         disabled={
                             preview.fs_type !== 'file' || related == null || related.uri == null
                         }
@@ -473,17 +484,20 @@ const ButtonBar = (props) => {
                             if (related && related.uri)
                                 navigate(`${HASH_PATHS.record}?uri=${related.uri}&back=page`)
                         }}
-                        size="large"
                     >
-                        <PageviewIcon className={c.buttonIcon} fontSize={iconSize} />
-                    </IconButton>
+                        View
+                    </Button>
                 </span>
             </Tooltip>
-            <Tooltip title="Open" arrow>
+            <Tooltip title="Open at the PDS archive" arrow>
                 <span>
-                    <IconButton
-                        className={clsx(c.button, { [c.buttonMobile]: isMobile })}
+                    <Button
+                        className={c.action}
+                        variant="contained"
+                        color="primary"
+                        size="small"
                         aria-label="open"
+                        startIcon={<LaunchIcon fontSize="small" />}
                         disabled={preview.fs_type !== 'file'}
                         onClick={() => {
                             if (preview.uri)
@@ -492,17 +506,20 @@ const ButtonBar = (props) => {
                                     '_blank'
                                 )
                         }}
-                        size="large"
                     >
-                        <LaunchIcon className={c.buttonIcon} fontSize={iconSize} />
-                    </IconButton>
+                        Open
+                    </Button>
                 </span>
             </Tooltip>
-            <Tooltip title="Download" arrow>
+            <Tooltip title="Download this file" arrow>
                 <span>
-                    <IconButton
-                        className={clsx(c.button, { [c.buttonMobile]: isMobile })}
+                    <Button
+                        className={c.action}
+                        variant="contained"
+                        color="primary"
+                        size="small"
                         aria-label="quick download"
+                        startIcon={<GetAppIcon fontSize="small" />}
                         disabled={preview.fs_type !== 'file'}
                         onClick={() => {
                             if (preview.uri != null) {
@@ -512,19 +529,20 @@ const ButtonBar = (props) => {
                                 )
                             }
                         }}
-                        size="large"
                     >
-                        <GetAppIcon className={c.buttonIcon} fontSize={iconSize} />
-                    </IconButton>
+                        Download
+                    </Button>
                 </span>
             </Tooltip>
             <Tooltip title="Add to Cart" arrow>
                 <span>
-                    <IconButton
-                        className={clsx(c.button, {
-                            [c.buttonMobile]: isMobile,
-                        })}
+                    <Button
+                        className={c.action}
+                        variant="contained"
+                        color="primary"
+                        size="small"
                         aria-label="add to cart"
+                        startIcon={<AddShoppingCartIcon fontSize="small" />}
                         disabled={preview.fs_type !== 'file' && preview.fs_type !== 'directory'}
                         onClick={() => {
                             dispatch(
@@ -537,10 +555,9 @@ const ButtonBar = (props) => {
                             )
                             dispatch(setSnackBarText('Added to Cart!', 'success'))
                         }}
-                        size="large"
                     >
-                        <AddShoppingCartIcon size="small" />
-                    </IconButton>
+                        Add to cart
+                    </Button>
                 </span>
             </Tooltip>
         </div>
