@@ -22,6 +22,9 @@ import raws from './instances/raws.json'
 
 import mars_2020_filename from './filenames/mars_2020.json'
 import mer_filename from './filenames/mer.json'
+import mess_filename from './filenames/mess.json'
+import mpf_filename from './filenames/mpf.json'
+import mro_filename from './filenames/mro.json'
 import msl_filename from './filenames/msl.json'
 import nsyt_filename from './filenames/nsyt.json'
 import phx_filename from './filenames/phx.json'
@@ -54,6 +57,9 @@ export const defaultProfile = _default
 export const filenameSpecs = {
     mars_2020: mars_2020_filename,
     mer: mer_filename,
+    mess: mess_filename,
+    mpf: mpf_filename,
+    mro: mro_filename,
     msl: msl_filename,
     nsyt: nsyt_filename,
     phx: phx_filename,

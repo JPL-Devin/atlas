@@ -1,0 +1,888 @@
+[
+    {
+        "title": "MRO HiRISE RDR filename",
+        "reference": "MRO HiRISE RDR Products SIS (v1.3), \u00a74.4 and \u00a75.7",
+        "match": "^([A-Z0-9]{3})_([0-9]{6})_([0-9]{4})_(RED|COLOR|IRB)\\.(JP2|LBL)$",
+        "segments": [
+            {
+                "group": 1,
+                "label": "Mission phase",
+                "color": "blue",
+                "description": "Mission phase the observation belongs to; the first field of the HiRISE observation ID.",
+                "values": {
+                    "AEB": "Aerobraking phase (only eight HiRISE observations were acquired)",
+                    "TRA": "Transition orbit phase",
+                    "PSP": "Primary Science Phase",
+                    "ESP": "Extended Science Phase \u2014 the archive's label for the extended mission the SIS calls \"Exx\"",
+                    "REL": "Relay phase",
+                    "INT": "Integration and testing",
+                    "CAL": "Calibration observation",
+                    "ATL": "ATLO (assembly, test and launch operations) observation",
+                    "KSC": "Kennedy Space Center observation",
+                    "SVT": "Sequence verification test",
+                    "LAU": "Launch",
+                    "CRU": "Cruise observation",
+                    "APR": "Mars approach observation"
+                },
+                "patterns": [
+                    {
+                        "match": "^E([0-9]{2})$",
+                        "meaning": "Extended mission phase {1}"
+                    },
+                    {
+                        "match": "^P([0-9]{2})$",
+                        "meaning": "CTX mission sub-phase P{1}"
+                    },
+                    {
+                        "match": "^([A-Z][0-9]{2})$",
+                        "meaning": "Mission sub-phase {value}"
+                    }
+                ]
+            },
+            {
+                "group": 2,
+                "label": "Orbit",
+                "color": "orange",
+                "description": "Orbit the observation was acquired on; a chronological sequence number instead for cruise and aerobraking observations.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{6})$",
+                        "meaning": "MRO orbit {number}"
+                    }
+                ]
+            },
+            {
+                "group": 3,
+                "label": "Target code",
+                "color": "teal",
+                "description": "Latitude of the observation centre expressed as tenths of a degree along the orbit track from the start of orbit \u2014 0000 the night-side equator, 0900 the south pole, 1800 the day-side equator, 2700 the north pole. Values above 3595 are off-planet or special targets.",
+                "values": {
+                    "4000": "Star observation",
+                    "4001": "Phobos observation",
+                    "4002": "Deimos observation",
+                    "4003": "Special calibration observation"
+                },
+                "patterns": [
+                    {
+                        "match": "^0000$",
+                        "meaning": "Start of orbit \u2014 the night-side equator"
+                    },
+                    {
+                        "match": "^0900$",
+                        "meaning": "90.0\u00b0 along the orbit \u2014 the south pole"
+                    },
+                    {
+                        "match": "^1800$",
+                        "meaning": "180.0\u00b0 along the orbit \u2014 the day-side equator"
+                    },
+                    {
+                        "match": "^2700$",
+                        "meaning": "270.0\u00b0 along the orbit \u2014 the north pole"
+                    },
+                    {
+                        "match": "^9[0-9]{3}$",
+                        "meaning": "Off-planet target ({value}) such as Deimos, Phobos or a star"
+                    },
+                    {
+                        "match": "^0*([0-9]+)([0-9])$",
+                        "meaning": "Centred {1}.{2}\u00b0 along the orbit from the night-side equator"
+                    }
+                ]
+            },
+            {
+                "group": 4,
+                "label": "Product type",
+                "color": "violet",
+                "description": "Which detectors the mosaicked image was built from.",
+                "values": {
+                    "RED": "Single band built from the red-filter CCDs",
+                    "COLOR": "Three-colour image built from the overlapping blue-green, red and near-infrared CCDs",
+                    "IRB": "Three-band enhanced colour (near-infrared, red, blue-green)"
+                }
+            },
+            {
+                "group": 5,
+                "label": "Extension",
+                "color": "slate",
+                "description": "Product format.",
+                "values": {
+                    "JP2": "JPEG 2000 image",
+                    "IMG": "PDS image with an attached label",
+                    "LBL": "Detached PDS label"
+                }
+            }
+        ]
+    },
+    {
+        "title": "MRO HiRISE orthoimage RDR filename",
+        "reference": "MRO HiRISE RDR Products SIS (v1.3), \u00a74.4 and \u00a75.7",
+        "match": "^([A-Z0-9]{3})_([0-9]{6})_([0-9]{4})_(RED|IRB)_([A-Z])_([0-9]{2})_ORTHO\\.(JP2|LBL)$",
+        "segments": [
+            {
+                "group": 1,
+                "label": "Mission phase",
+                "color": "blue",
+                "description": "Mission phase of the source observation.",
+                "values": {
+                    "AEB": "Aerobraking phase (only eight HiRISE observations were acquired)",
+                    "TRA": "Transition orbit phase",
+                    "PSP": "Primary Science Phase",
+                    "ESP": "Extended Science Phase \u2014 the archive's label for the extended mission the SIS calls \"Exx\"",
+                    "REL": "Relay phase",
+                    "INT": "Integration and testing",
+                    "CAL": "Calibration observation",
+                    "ATL": "ATLO (assembly, test and launch operations) observation",
+                    "KSC": "Kennedy Space Center observation",
+                    "SVT": "Sequence verification test",
+                    "LAU": "Launch",
+                    "CRU": "Cruise observation",
+                    "APR": "Mars approach observation"
+                },
+                "patterns": [
+                    {
+                        "match": "^E([0-9]{2})$",
+                        "meaning": "Extended mission phase {1}"
+                    },
+                    {
+                        "match": "^P([0-9]{2})$",
+                        "meaning": "CTX mission sub-phase P{1}"
+                    },
+                    {
+                        "match": "^([A-Z][0-9]{2})$",
+                        "meaning": "Mission sub-phase {value}"
+                    }
+                ]
+            },
+            {
+                "group": 2,
+                "label": "Orbit",
+                "color": "orange",
+                "description": "Orbit of the source observation.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{6})$",
+                        "meaning": "MRO orbit {number}"
+                    }
+                ]
+            },
+            {
+                "group": 3,
+                "label": "Target code",
+                "color": "teal",
+                "description": "Latitude of the observation centre expressed as tenths of a degree along the orbit track from the start of orbit \u2014 0000 the night-side equator, 0900 the south pole, 1800 the day-side equator, 2700 the north pole. Values above 3595 are off-planet or special targets.",
+                "values": {
+                    "4000": "Star observation",
+                    "4001": "Phobos observation",
+                    "4002": "Deimos observation",
+                    "4003": "Special calibration observation"
+                },
+                "patterns": [
+                    {
+                        "match": "^0000$",
+                        "meaning": "Start of orbit \u2014 the night-side equator"
+                    },
+                    {
+                        "match": "^0900$",
+                        "meaning": "90.0\u00b0 along the orbit \u2014 the south pole"
+                    },
+                    {
+                        "match": "^1800$",
+                        "meaning": "180.0\u00b0 along the orbit \u2014 the day-side equator"
+                    },
+                    {
+                        "match": "^2700$",
+                        "meaning": "270.0\u00b0 along the orbit \u2014 the north pole"
+                    },
+                    {
+                        "match": "^9[0-9]{3}$",
+                        "meaning": "Off-planet target ({value}) such as Deimos, Phobos or a star"
+                    },
+                    {
+                        "match": "^0*([0-9]+)([0-9])$",
+                        "meaning": "Centred {1}.{2}\u00b0 along the orbit from the night-side equator"
+                    }
+                ]
+            },
+            {
+                "group": 4,
+                "label": "Product type",
+                "color": "violet",
+                "description": "Which detectors the orthorectified image was built from.",
+                "values": {
+                    "RED": "Single band built from the red-filter CCDs",
+                    "COLOR": "Three-colour image built from the overlapping blue-green, red and near-infrared CCDs",
+                    "IRB": "Three-band enhanced colour (near-infrared, red, blue-green)"
+                }
+            },
+            {
+                "group": 5,
+                "label": "Grid spacing",
+                "color": "green",
+                "description": "Ground sample spacing of the orthorectified grid.",
+                "values": {
+                    "A": "Grid spacing 0.25 m",
+                    "B": "Grid spacing 0.5 m",
+                    "C": "Grid spacing 1.0 m",
+                    "D": "Grid spacing 2.0 m",
+                    "E": "Grid spacing 4.0 m",
+                    "F": "Grid spacing 8.0 m",
+                    "G": "Grid spacing 16.0 m"
+                }
+            },
+            {
+                "group": 6,
+                "label": "Sequence",
+                "color": "amber",
+                "description": "Distinguishes copies of one observation orthorectified to different DTMs; the DTM used is named in the label's SOURCE_PRODUCT_ID.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{2})$",
+                        "meaning": "Orthoimage {number} for this observation"
+                    }
+                ]
+            },
+            {
+                "group": 7,
+                "label": "Extension",
+                "color": "slate",
+                "description": "Product format.",
+                "values": {
+                    "JP2": "JPEG 2000 image",
+                    "IMG": "PDS image with an attached label",
+                    "LBL": "Detached PDS label"
+                }
+            }
+        ]
+    },
+    {
+        "title": "MRO HiRISE DTM RDR filename",
+        "reference": "MRO HiRISE RDR Products SIS (v1.3), \u00a74.4 and \u00a75.7",
+        "match": "^DT([ER])([EP])([A-Z])_([0-9]{6})_([0-9]{4})_([0-9]{6})_([0-9]{4})_([A-Z])([0-9]{2})\\.(IMG|LBL)$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 2,
+                "label": "Product type",
+                "color": "violet",
+                "description": "A \"DT\" prefix marks a digital terrain model built from a HiRISE stereo pair.",
+                "values": {
+                    "DT": "Digital terrain model (DTM)"
+                }
+            },
+            {
+                "group": 1,
+                "label": "Data type",
+                "color": "blue",
+                "description": "What the elevation values measure.",
+                "values": {
+                    "E": "Areoid elevations",
+                    "R": "Radii"
+                }
+            },
+            {
+                "group": 2,
+                "label": "Projection",
+                "color": "brown",
+                "description": "Map projection of the DTM.",
+                "values": {
+                    "E": "Equirectangular",
+                    "P": "Polar stereographic"
+                }
+            },
+            {
+                "group": 3,
+                "label": "Grid spacing",
+                "color": "green",
+                "description": "Post spacing of the terrain grid.",
+                "values": {
+                    "A": "Grid spacing 0.25 m",
+                    "B": "Grid spacing 0.5 m",
+                    "C": "Grid spacing 1.0 m",
+                    "D": "Grid spacing 2.0 m",
+                    "E": "Grid spacing 4.0 m",
+                    "F": "Grid spacing 8.0 m",
+                    "G": "Grid spacing 16.0 m"
+                }
+            },
+            {
+                "group": 4,
+                "label": "First orbit",
+                "color": "orange",
+                "description": "Orbit of the first source observation of the stereo pair.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{6})$",
+                        "meaning": "MRO orbit {number}"
+                    }
+                ]
+            },
+            {
+                "group": 5,
+                "label": "First target code",
+                "color": "teal",
+                "description": "Latitude of the observation centre expressed as tenths of a degree along the orbit track from the start of orbit \u2014 0000 the night-side equator, 0900 the south pole, 1800 the day-side equator, 2700 the north pole. Values above 3595 are off-planet or special targets.",
+                "values": {
+                    "4000": "Star observation",
+                    "4001": "Phobos observation",
+                    "4002": "Deimos observation",
+                    "4003": "Special calibration observation"
+                },
+                "patterns": [
+                    {
+                        "match": "^0000$",
+                        "meaning": "Start of orbit \u2014 the night-side equator"
+                    },
+                    {
+                        "match": "^0900$",
+                        "meaning": "90.0\u00b0 along the orbit \u2014 the south pole"
+                    },
+                    {
+                        "match": "^1800$",
+                        "meaning": "180.0\u00b0 along the orbit \u2014 the day-side equator"
+                    },
+                    {
+                        "match": "^2700$",
+                        "meaning": "270.0\u00b0 along the orbit \u2014 the north pole"
+                    },
+                    {
+                        "match": "^9[0-9]{3}$",
+                        "meaning": "Off-planet target ({value}) such as Deimos, Phobos or a star"
+                    },
+                    {
+                        "match": "^0*([0-9]+)([0-9])$",
+                        "meaning": "Centred {1}.{2}\u00b0 along the orbit from the night-side equator"
+                    }
+                ]
+            },
+            {
+                "group": 6,
+                "label": "Second orbit",
+                "color": "orange",
+                "description": "Orbit of the second source observation of the stereo pair.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{6})$",
+                        "meaning": "MRO orbit {number}"
+                    }
+                ]
+            },
+            {
+                "group": 7,
+                "label": "Second target code",
+                "color": "teal",
+                "description": "Latitude of the observation centre expressed as tenths of a degree along the orbit track from the start of orbit \u2014 0000 the night-side equator, 0900 the south pole, 1800 the day-side equator, 2700 the north pole. Values above 3595 are off-planet or special targets.",
+                "values": {
+                    "4000": "Star observation",
+                    "4001": "Phobos observation",
+                    "4002": "Deimos observation",
+                    "4003": "Special calibration observation"
+                },
+                "patterns": [
+                    {
+                        "match": "^0000$",
+                        "meaning": "Start of orbit \u2014 the night-side equator"
+                    },
+                    {
+                        "match": "^0900$",
+                        "meaning": "90.0\u00b0 along the orbit \u2014 the south pole"
+                    },
+                    {
+                        "match": "^1800$",
+                        "meaning": "180.0\u00b0 along the orbit \u2014 the day-side equator"
+                    },
+                    {
+                        "match": "^2700$",
+                        "meaning": "270.0\u00b0 along the orbit \u2014 the north pole"
+                    },
+                    {
+                        "match": "^9[0-9]{3}$",
+                        "meaning": "Off-planet target ({value}) such as Deimos, Phobos or a star"
+                    },
+                    {
+                        "match": "^0*([0-9]+)([0-9])$",
+                        "meaning": "Centred {1}.{2}\u00b0 along the orbit from the night-side equator"
+                    }
+                ]
+            },
+            {
+                "group": 8,
+                "label": "Producer",
+                "color": "pink",
+                "description": "Institution that produced the DTM.",
+                "values": {
+                    "U": "USGS",
+                    "A": "University of Arizona",
+                    "C": "Caltech",
+                    "N": "NASA Ames",
+                    "J": "JPL",
+                    "O": "Ohio State",
+                    "P": "Planetary Science Institute",
+                    "Z": "Other"
+                }
+            },
+            {
+                "group": 9,
+                "label": "Version",
+                "color": "slate",
+                "description": "Version of the DTM.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{2})$",
+                        "meaning": "Version {number}"
+                    }
+                ]
+            },
+            {
+                "group": 10,
+                "label": "Extension",
+                "color": "slate",
+                "description": "Product format.",
+                "values": {
+                    "JP2": "JPEG 2000 image",
+                    "IMG": "PDS image with an attached label",
+                    "LBL": "Detached PDS label"
+                }
+            }
+        ]
+    },
+    {
+        "title": "MRO HiRISE EDR filename",
+        "reference": "MRO HiRISE EDR Products SIS (v1.2), \u00a75.1",
+        "match": "^([A-Z0-9]{3})_([0-9]{6})_([0-9]{4})_(RED[0-9]|IR1[01]|BG1[23])_([01])\\.(IMG|LBL)$",
+        "segments": [
+            {
+                "group": 1,
+                "label": "Mission phase",
+                "color": "blue",
+                "description": "Mission phase of the observation.",
+                "values": {
+                    "AEB": "Aerobraking phase (only eight HiRISE observations were acquired)",
+                    "TRA": "Transition orbit phase",
+                    "PSP": "Primary Science Phase",
+                    "ESP": "Extended Science Phase \u2014 the archive's label for the extended mission the SIS calls \"Exx\"",
+                    "REL": "Relay phase",
+                    "INT": "Integration and testing",
+                    "CAL": "Calibration observation",
+                    "ATL": "ATLO (assembly, test and launch operations) observation",
+                    "KSC": "Kennedy Space Center observation",
+                    "SVT": "Sequence verification test",
+                    "LAU": "Launch",
+                    "CRU": "Cruise observation",
+                    "APR": "Mars approach observation"
+                },
+                "patterns": [
+                    {
+                        "match": "^E([0-9]{2})$",
+                        "meaning": "Extended mission phase {1}"
+                    },
+                    {
+                        "match": "^P([0-9]{2})$",
+                        "meaning": "CTX mission sub-phase P{1}"
+                    },
+                    {
+                        "match": "^([A-Z][0-9]{2})$",
+                        "meaning": "Mission sub-phase {value}"
+                    }
+                ]
+            },
+            {
+                "group": 2,
+                "label": "Orbit",
+                "color": "orange",
+                "description": "Orbit the observation was acquired on; a chronological sequence number instead for cruise and aerobraking observations.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{6})$",
+                        "meaning": "MRO orbit {number}"
+                    }
+                ]
+            },
+            {
+                "group": 3,
+                "label": "Target code",
+                "color": "teal",
+                "description": "Latitude of the observation centre expressed as tenths of a degree along the orbit track from the start of orbit \u2014 0000 the night-side equator, 0900 the south pole, 1800 the day-side equator, 2700 the north pole. Values above 3595 are off-planet or special targets.",
+                "values": {
+                    "4000": "Star observation",
+                    "4001": "Phobos observation",
+                    "4002": "Deimos observation",
+                    "4003": "Special calibration observation"
+                },
+                "patterns": [
+                    {
+                        "match": "^0000$",
+                        "meaning": "Start of orbit \u2014 the night-side equator"
+                    },
+                    {
+                        "match": "^0900$",
+                        "meaning": "90.0\u00b0 along the orbit \u2014 the south pole"
+                    },
+                    {
+                        "match": "^1800$",
+                        "meaning": "180.0\u00b0 along the orbit \u2014 the day-side equator"
+                    },
+                    {
+                        "match": "^2700$",
+                        "meaning": "270.0\u00b0 along the orbit \u2014 the north pole"
+                    },
+                    {
+                        "match": "^9[0-9]{3}$",
+                        "meaning": "Off-planet target ({value}) such as Deimos, Phobos or a star"
+                    },
+                    {
+                        "match": "^0*([0-9]+)([0-9])$",
+                        "meaning": "Centred {1}.{2}\u00b0 along the orbit from the night-side equator"
+                    }
+                ]
+            },
+            {
+                "group": 4,
+                "label": "Filter and CCD",
+                "color": "violet",
+                "description": "Which of the fourteen HiRISE CCDs, and so which filter, this EDR came from. One observation produces an EDR per channel of each CCD.",
+                "values": {
+                    "RED0": "Red filter, CCD 0",
+                    "RED1": "Red filter, CCD 1",
+                    "RED2": "Red filter, CCD 2",
+                    "RED3": "Red filter, CCD 3",
+                    "RED4": "Red filter, CCD 4",
+                    "RED5": "Red filter, CCD 5",
+                    "RED6": "Red filter, CCD 6",
+                    "RED7": "Red filter, CCD 7",
+                    "RED8": "Red filter, CCD 8",
+                    "RED9": "Red filter, CCD 9",
+                    "IR10": "Near-infrared filter, CCD 10",
+                    "IR11": "Near-infrared filter, CCD 11",
+                    "BG12": "Blue-green filter, CCD 12",
+                    "BG13": "Blue-green filter, CCD 13"
+                }
+            },
+            {
+                "group": 5,
+                "label": "Channel",
+                "color": "green",
+                "description": "Each CCD reads out through two channels, archived separately.",
+                "values": {
+                    "0": "Channel 0 of the CCD",
+                    "1": "Channel 1 of the CCD"
+                }
+            },
+            {
+                "group": 6,
+                "label": "Extension",
+                "color": "slate",
+                "description": "Product format.",
+                "values": {
+                    "JP2": "JPEG 2000 image",
+                    "IMG": "PDS image with an attached label",
+                    "LBL": "Detached PDS label"
+                }
+            }
+        ]
+    },
+    {
+        "title": "MRO HiRISE pre-launch EDR filename",
+        "reference": "MRO HiRISE EDR Products SIS (v1.2), \u00a75.1",
+        "match": "^(INT|CAL|ATL|KSC|SVT|LAU|CRU|APR)_([0-9]{8}T[0-9]{6})_(RED[0-9]|IR1[01]|BG1[23])_([01])\\.(IMG|LBL)$",
+        "segments": [
+            {
+                "group": 1,
+                "label": "Mission phase",
+                "color": "blue",
+                "description": "Pre-orbit phase the observation belongs to; these products are named by time rather than orbit.",
+                "values": {
+                    "AEB": "Aerobraking phase (only eight HiRISE observations were acquired)",
+                    "TRA": "Transition orbit phase",
+                    "PSP": "Primary Science Phase",
+                    "ESP": "Extended Science Phase \u2014 the archive's label for the extended mission the SIS calls \"Exx\"",
+                    "REL": "Relay phase",
+                    "INT": "Integration and testing",
+                    "CAL": "Calibration observation",
+                    "ATL": "ATLO (assembly, test and launch operations) observation",
+                    "KSC": "Kennedy Space Center observation",
+                    "SVT": "Sequence verification test",
+                    "LAU": "Launch",
+                    "CRU": "Cruise observation",
+                    "APR": "Mars approach observation"
+                }
+            },
+            {
+                "group": 2,
+                "label": "Observation time",
+                "color": "orange",
+                "description": "UTC time of the observation, as yyyymmddThhmmss.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{4})([0-9]{2})([0-9]{2})T([0-9]{2})([0-9]{2})([0-9]{2})$",
+                        "meaning": "{1}-{2}-{3} at {4}:{5}:{6} UTC"
+                    }
+                ]
+            },
+            {
+                "group": 3,
+                "label": "Filter and CCD",
+                "color": "violet",
+                "description": "Which CCD, and so which filter, this EDR came from.",
+                "values": {
+                    "RED0": "Red filter, CCD 0",
+                    "RED1": "Red filter, CCD 1",
+                    "RED2": "Red filter, CCD 2",
+                    "RED3": "Red filter, CCD 3",
+                    "RED4": "Red filter, CCD 4",
+                    "RED5": "Red filter, CCD 5",
+                    "RED6": "Red filter, CCD 6",
+                    "RED7": "Red filter, CCD 7",
+                    "RED8": "Red filter, CCD 8",
+                    "RED9": "Red filter, CCD 9",
+                    "IR10": "Near-infrared filter, CCD 10",
+                    "IR11": "Near-infrared filter, CCD 11",
+                    "BG12": "Blue-green filter, CCD 12",
+                    "BG13": "Blue-green filter, CCD 13"
+                }
+            },
+            {
+                "group": 4,
+                "label": "Channel",
+                "color": "green",
+                "description": "Which of the CCD's two channels.",
+                "values": {
+                    "0": "Channel 0 of the CCD",
+                    "1": "Channel 1 of the CCD"
+                }
+            },
+            {
+                "group": 5,
+                "label": "Extension",
+                "color": "slate",
+                "description": "Product format.",
+                "values": {
+                    "JP2": "JPEG 2000 image",
+                    "IMG": "PDS image with an attached label",
+                    "LBL": "Detached PDS label"
+                }
+            }
+        ]
+    },
+    {
+        "title": "MRO CTX EDR filename",
+        "reference": "MRO CTX EDR Products SIS (April 2007), PRODUCT_ID",
+        "match": "^([A-Z][0-9]{2}|CRU)_([0-9]{6})_([0-9]{4})_X([IN])_([0-9]{2})([NS])([0-9]{3})W\\.(IMG|LBL)$",
+        "segments": [
+            {
+                "group": 1,
+                "label": "Mission sub-phase",
+                "color": "blue",
+                "description": "Mission sub-phase the image belongs to.",
+                "values": {
+                    "AEB": "Aerobraking phase (only eight HiRISE observations were acquired)",
+                    "TRA": "Transition orbit phase",
+                    "PSP": "Primary Science Phase",
+                    "ESP": "Extended Science Phase \u2014 the archive's label for the extended mission the SIS calls \"Exx\"",
+                    "REL": "Relay phase",
+                    "INT": "Integration and testing",
+                    "CAL": "Calibration observation",
+                    "ATL": "ATLO (assembly, test and launch operations) observation",
+                    "KSC": "Kennedy Space Center observation",
+                    "SVT": "Sequence verification test",
+                    "LAU": "Launch",
+                    "CRU": "Cruise observation",
+                    "APR": "Mars approach observation"
+                },
+                "patterns": [
+                    {
+                        "match": "^E([0-9]{2})$",
+                        "meaning": "Extended mission phase {1}"
+                    },
+                    {
+                        "match": "^P([0-9]{2})$",
+                        "meaning": "CTX mission sub-phase P{1}"
+                    },
+                    {
+                        "match": "^([A-Z][0-9]{2})$",
+                        "meaning": "Mission sub-phase {value}"
+                    }
+                ]
+            },
+            {
+                "group": 2,
+                "label": "Orbit",
+                "color": "orange",
+                "description": "Orbit the image was acquired on (a sequential image number for cruise images).",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{6})$",
+                        "meaning": "MRO orbit {number}"
+                    }
+                ]
+            },
+            {
+                "group": 3,
+                "label": "Centre latitude code",
+                "color": "teal",
+                "description": "Image centre latitude in tenths of a degree, in the same along-orbit convention HiRISE uses.",
+                "values": {
+                    "4000": "Star observation",
+                    "4001": "Phobos observation",
+                    "4002": "Deimos observation",
+                    "4003": "Special calibration observation"
+                },
+                "patterns": [
+                    {
+                        "match": "^0000$",
+                        "meaning": "Start of orbit \u2014 the night-side equator"
+                    },
+                    {
+                        "match": "^0900$",
+                        "meaning": "90.0\u00b0 along the orbit \u2014 the south pole"
+                    },
+                    {
+                        "match": "^1800$",
+                        "meaning": "180.0\u00b0 along the orbit \u2014 the day-side equator"
+                    },
+                    {
+                        "match": "^2700$",
+                        "meaning": "270.0\u00b0 along the orbit \u2014 the north pole"
+                    },
+                    {
+                        "match": "^9[0-9]{3}$",
+                        "meaning": "Off-planet target ({value}) such as Deimos, Phobos or a star"
+                    },
+                    {
+                        "match": "^0*([0-9]+)([0-9])$",
+                        "meaning": "Centred {1}.{2}\u00b0 along the orbit from the night-side equator"
+                    }
+                ]
+            },
+            {
+                "group": 4,
+                "label": "Command mode",
+                "color": "violet",
+                "description": "How the image was commanded \u2014 the two mechanisms number their images independently.",
+                "values": {
+                    "I": "Interactive Target List (ITL)",
+                    "N": "Non-Interactive File Load (NIFL)"
+                }
+            },
+            {
+                "group": 5,
+                "label": "Planned latitude",
+                "color": "green",
+                "description": "Planned centre latitude of the image, in whole degrees.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{2})$",
+                        "meaning": "{number}\u00b0"
+                    }
+                ]
+            },
+            {
+                "group": 6,
+                "label": "Hemisphere",
+                "color": "brown",
+                "description": "Hemisphere of the planned centre.",
+                "values": {
+                    "N": "North",
+                    "S": "South"
+                }
+            },
+            {
+                "group": 7,
+                "label": "Planned longitude",
+                "color": "amber",
+                "description": "Planned centre west longitude of the image, in whole degrees.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{3})$",
+                        "meaning": "{number}\u00b0 west"
+                    }
+                ]
+            },
+            {
+                "group": 8,
+                "label": "Extension",
+                "color": "slate",
+                "description": "Product format.",
+                "values": {
+                    "JP2": "JPEG 2000 image",
+                    "IMG": "PDS image with an attached label",
+                    "LBL": "Detached PDS label"
+                }
+            }
+        ]
+    },
+    {
+        "title": "MRO MARCI EDR filename",
+        "reference": "MRO MARCI EDR Products SIS (April 2007), PRODUCT_ID",
+        "match": "^MARCI-([A-Z0-9]{1,4})-([A-Z])-([0-9]{5})\\.(IMG|LBL)$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 5,
+                "label": "Instrument",
+                "color": "blue",
+                "description": "Mars Color Imager (MARCI), the wide-angle daily global imager.",
+                "values": {
+                    "MARCI": "Mars Color Imager (MARCI)"
+                }
+            },
+            {
+                "group": 1,
+                "label": "Mission sub-phase",
+                "color": "brown",
+                "description": "Mission sub-phase the image belongs to.",
+                "patterns": [
+                    {
+                        "match": "^([A-Z0-9]{1,4})$",
+                        "meaning": "Mission sub-phase {value}"
+                    }
+                ]
+            },
+            {
+                "group": 2,
+                "label": "Wavelength",
+                "color": "violet",
+                "description": "Which of MARCI's five visible and two ultraviolet channels the product carries.",
+                "values": {
+                    "R": "Red",
+                    "G": "Green",
+                    "B": "Blue",
+                    "O": "Orange",
+                    "N": "Near-infrared",
+                    "A": "All five visible channels",
+                    "C": "RGB colour",
+                    "M": "Orange and blue",
+                    "U": "Both ultraviolet channels"
+                },
+                "patterns": [
+                    {
+                        "match": "^([A-Z])$",
+                        "meaning": "Channel combination \"{value}\""
+                    }
+                ]
+            },
+            {
+                "group": 3,
+                "label": "Image number",
+                "color": "orange",
+                "description": "Image number within the sub-phase.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{5})$",
+                        "meaning": "Image {number}"
+                    }
+                ]
+            },
+            {
+                "group": 4,
+                "label": "Extension",
+                "color": "slate",
+                "description": "Product format.",
+                "values": {
+                    "JP2": "JPEG 2000 image",
+                    "IMG": "PDS image with an attached label",
+                    "LBL": "Detached PDS label"
+                }
+            }
+        ]
+    }
+]

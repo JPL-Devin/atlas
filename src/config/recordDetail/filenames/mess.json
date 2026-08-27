@@ -1,0 +1,314 @@
+[
+    {
+        "title": "MESSENGER MDIS EDR filename",
+        "reference": "MESSENGER MDIS EDR SIS (v2T), \u00a75.1.4",
+        "match": "^E([WN])([01])([0-9]{9})([A-LMU])\\.(IMG|LBL)$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 1,
+                "label": "Product type",
+                "color": "violet",
+                "description": "Processing level of the product.",
+                "values": {
+                    "E": {
+                        "meaning": "EDR \u2014 raw experiment data record",
+                        "description": "EDRs are the raw MDIS frames as returned, with the instrument's own DN values."
+                    },
+                    "C": {
+                        "meaning": "CDR \u2014 calibrated data record",
+                        "description": "CDRs are single frames corrected for geometric and optical effects and converted to radiance or I/F."
+                    },
+                    "D": {
+                        "meaning": "DDR \u2014 derived data record",
+                        "description": "DDRs carry five geometry layers per frame \u2014 latitude, longitude, incidence, emission and phase angle \u2014 derived from pixel coordinates and SPICE."
+                    }
+                }
+            },
+            {
+                "group": 1,
+                "label": "Camera",
+                "color": "blue",
+                "description": "Which of MDIS's two co-aligned cameras took the frame.",
+                "values": {
+                    "W": "Wide Angle Camera (WAC)",
+                    "N": "Narrow Angle Camera (NAC)"
+                }
+            },
+            {
+                "group": 2,
+                "label": "Clock partition",
+                "color": "brown",
+                "description": "Spacecraft clock partition minus one, so it distinguishes frames taken before and after the clock reset.",
+                "values": {
+                    "0": "Spacecraft clock partition 1 \u2014 before the clock reset",
+                    "1": "Spacecraft clock partition 2 \u2014 after the clock reset"
+                }
+            },
+            {
+                "group": 3,
+                "label": "Mission Elapsed Time",
+                "color": "teal",
+                "description": "Spacecraft clock seconds counter from the image header, taken at the end of the exposure.",
+                "patterns": [
+                    {
+                        "match": "^0*([0-9]+)$",
+                        "meaning": "Mission Elapsed Time {1} seconds, at the last second of the exposure"
+                    }
+                ]
+            },
+            {
+                "group": 4,
+                "label": "Filter",
+                "color": "indigo",
+                "description": "WAC filter wheel position; the NAC has no wheel and always reads \"M\".",
+                "values": {
+                    "A": "WAC filter 1 \u2014 698.8 nm, 5.3 nm wide",
+                    "B": "WAC filter 2 \u2014 700 nm, 600 nm wide",
+                    "C": "WAC filter 3 \u2014 479.9 nm, 10.1 nm wide",
+                    "D": "WAC filter 4 \u2014 558.9 nm, 5.8 nm wide",
+                    "E": "WAC filter 5 \u2014 628.8 nm, 5.5 nm wide",
+                    "F": "WAC filter 6 \u2014 433.2 nm, 18.1 nm wide",
+                    "G": "WAC filter 7 \u2014 748.7 nm, 5.1 nm wide",
+                    "H": "WAC filter 8 \u2014 947 nm, 6.2 nm wide",
+                    "I": "WAC filter 9 \u2014 996.2 nm, 14.3 nm wide",
+                    "J": "WAC filter 10 \u2014 898.8 nm, 5.1 nm wide",
+                    "K": "WAC filter 11 \u2014 1012.6 nm, 33.3 nm wide",
+                    "L": "WAC filter 12 \u2014 828.4 nm, 5.2 nm wide",
+                    "M": "Narrow Angle Camera, which has no filter wheel",
+                    "U": "Filter wheel position unknown"
+                }
+            },
+            {
+                "group": 5,
+                "label": "Extension",
+                "color": "slate",
+                "description": "Product format.",
+                "values": {
+                    "IMG": "PDS image with an attached label",
+                    "LBL": "Detached PDS label"
+                }
+            }
+        ]
+    },
+    {
+        "title": "MESSENGER MDIS CDR / DDR filename",
+        "reference": "MESSENGER MDIS CDR / RDR SIS, \u00a73.3.5.1, \u00a73.3.6.1, \u00a73.3.7.1 and \u00a73.3.8.1",
+        "match": "^([CD])([WN])([01])([0-9]{9})([A-LMU])_(RA|IF|IU|DE)_([0-9])\\.(IMG|LBL)$",
+        "segments": [
+            {
+                "group": 1,
+                "label": "Product type",
+                "color": "violet",
+                "description": "Processing level of the product.",
+                "values": {
+                    "E": {
+                        "meaning": "EDR \u2014 raw experiment data record",
+                        "description": "EDRs are the raw MDIS frames as returned, with the instrument's own DN values."
+                    },
+                    "C": {
+                        "meaning": "CDR \u2014 calibrated data record",
+                        "description": "CDRs are single frames corrected for geometric and optical effects and converted to radiance or I/F."
+                    },
+                    "D": {
+                        "meaning": "DDR \u2014 derived data record",
+                        "description": "DDRs carry five geometry layers per frame \u2014 latitude, longitude, incidence, emission and phase angle \u2014 derived from pixel coordinates and SPICE."
+                    }
+                }
+            },
+            {
+                "group": 2,
+                "label": "Camera",
+                "color": "blue",
+                "description": "Which of MDIS's two co-aligned cameras took the frame.",
+                "values": {
+                    "W": "Wide Angle Camera (WAC)",
+                    "N": "Narrow Angle Camera (NAC)"
+                }
+            },
+            {
+                "group": 3,
+                "label": "Clock partition",
+                "color": "brown",
+                "description": "Spacecraft clock partition minus one.",
+                "values": {
+                    "0": "Spacecraft clock partition 1 \u2014 before the clock reset",
+                    "1": "Spacecraft clock partition 2 \u2014 after the clock reset"
+                }
+            },
+            {
+                "group": 4,
+                "label": "Mission Elapsed Time",
+                "color": "teal",
+                "description": "Spacecraft clock seconds counter from the image header, taken at the end of the exposure.",
+                "patterns": [
+                    {
+                        "match": "^0*([0-9]+)$",
+                        "meaning": "Mission Elapsed Time {1} seconds, at the last second of the exposure"
+                    }
+                ]
+            },
+            {
+                "group": 5,
+                "label": "Filter",
+                "color": "indigo",
+                "description": "WAC filter wheel position; the NAC has no wheel and always reads \"M\".",
+                "values": {
+                    "A": "WAC filter 1 \u2014 698.8 nm, 5.3 nm wide",
+                    "B": "WAC filter 2 \u2014 700 nm, 600 nm wide",
+                    "C": "WAC filter 3 \u2014 479.9 nm, 10.1 nm wide",
+                    "D": "WAC filter 4 \u2014 558.9 nm, 5.8 nm wide",
+                    "E": "WAC filter 5 \u2014 628.8 nm, 5.5 nm wide",
+                    "F": "WAC filter 6 \u2014 433.2 nm, 18.1 nm wide",
+                    "G": "WAC filter 7 \u2014 748.7 nm, 5.1 nm wide",
+                    "H": "WAC filter 8 \u2014 947 nm, 6.2 nm wide",
+                    "I": "WAC filter 9 \u2014 996.2 nm, 14.3 nm wide",
+                    "J": "WAC filter 10 \u2014 898.8 nm, 5.1 nm wide",
+                    "K": "WAC filter 11 \u2014 1012.6 nm, 33.3 nm wide",
+                    "L": "WAC filter 12 \u2014 828.4 nm, 5.2 nm wide",
+                    "M": "Narrow Angle Camera, which has no filter wheel",
+                    "U": "Filter wheel position unknown"
+                }
+            },
+            {
+                "group": 6,
+                "label": "Data type",
+                "color": "orange",
+                "description": "Units the pixels are calibrated to.",
+                "values": {
+                    "RA": {
+                        "meaning": "Radiance",
+                        "description": "Calibrated to absolute radiance units."
+                    },
+                    "IF": {
+                        "meaning": "I/F (radiance factor)",
+                        "description": "Radiance divided by the solar flux at Mercury, so the values are reflectance."
+                    },
+                    "IU": {
+                        "meaning": "I/F, uncorrected for responsivity drift",
+                        "description": "A WAC-only variant of I/F left uncorrected for the empirically measured time variation in responsivity."
+                    },
+                    "DE": {
+                        "meaning": "Derived geometry layers",
+                        "description": "The five-band DDR geometry backplane."
+                    }
+                }
+            },
+            {
+                "group": 7,
+                "label": "Version",
+                "color": "slate",
+                "description": "Version of the calibration run.",
+                "patterns": [
+                    {
+                        "match": "^([0-9])$",
+                        "meaning": "Version {number}"
+                    }
+                ]
+            },
+            {
+                "group": 8,
+                "label": "Extension",
+                "color": "slate",
+                "description": "Product format.",
+                "values": {
+                    "IMG": "PDS image with an attached label",
+                    "LBL": "Detached PDS label"
+                }
+            }
+        ]
+    },
+    {
+        "title": "MESSENGER MDIS map tile filename",
+        "reference": "MESSENGER MDIS CDR / RDR SIS, \u00a73.3.5.1, \u00a73.3.6.1, \u00a73.3.7.1 and \u00a73.3.8.1",
+        "match": "^MDIS_(BDR|MDR)_([0-9]{3})PPD_(H[0-9]{2})(NW|NE|SW|SE|NP|SP)([0-9])\\.(IMG|LBL)$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 4,
+                "label": "Instrument",
+                "color": "blue",
+                "description": "Mercury Dual Imaging System (MDIS).",
+                "values": {
+                    "MDIS": "Mercury Dual Imaging System (MDIS)"
+                }
+            },
+            {
+                "group": 1,
+                "label": "Product type",
+                "color": "violet",
+                "description": "Which mosaic the tile belongs to.",
+                "values": {
+                    "BDR": {
+                        "meaning": "BDR \u2014 monochrome basemap mosaic tile",
+                        "description": "Monochrome basemap imaging mosaicked into non-overlapping tiles, one per quadrant of a Mercury chart."
+                    },
+                    "MDR": {
+                        "meaning": "MDR \u2014 multispectral map tile",
+                        "description": "MDIS eight-colour imaging mosaicked into 54 non-overlapping tiles."
+                    }
+                }
+            },
+            {
+                "group": 2,
+                "label": "Resolution",
+                "color": "orange",
+                "description": "Map resolution of the tile.",
+                "patterns": [
+                    {
+                        "match": "^0*([0-9]+)$",
+                        "meaning": "{1} pixels per degree"
+                    }
+                ]
+            },
+            {
+                "group": 3,
+                "label": "Mercury chart",
+                "color": "teal",
+                "description": "The pre-existing Mercury chart the tile is cut from.",
+                "patterns": [
+                    {
+                        "match": "^H0*([0-9]+)$",
+                        "meaning": "Mercury chart H{1}"
+                    }
+                ]
+            },
+            {
+                "group": 4,
+                "label": "Quadrant",
+                "color": "green",
+                "description": "Which part of the chart the tile spans.",
+                "values": {
+                    "NW": "North-west quadrant of the chart",
+                    "NE": "North-east quadrant of the chart",
+                    "SW": "South-west quadrant of the chart",
+                    "SE": "South-east quadrant of the chart",
+                    "NP": "North polar chart",
+                    "SP": "South polar chart"
+                }
+            },
+            {
+                "group": 5,
+                "label": "Version",
+                "color": "slate",
+                "description": "Version 0 holds basemap-campaign data only; later versions add suitably illuminated data from any campaign.",
+                "patterns": [
+                    {
+                        "match": "^([0-9])$",
+                        "meaning": "Version {number}"
+                    }
+                ]
+            },
+            {
+                "group": 6,
+                "label": "Extension",
+                "color": "slate",
+                "description": "Product format.",
+                "values": {
+                    "IMG": "PDS image with an attached label",
+                    "LBL": "Detached PDS label"
+                }
+            }
+        ]
+    }
+]
