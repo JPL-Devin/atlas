@@ -7,7 +7,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import { makeStyles } from '@mui/styles'
 
 import { ES_PATHS } from '../../../../../core/constants.js'
-import { getIn, getPDSUrl, getFilename } from '../../../../../core/utils.js'
+import { getIn } from '../../../../../core/utils.js'
 import {
     formatSisSize,
     formatSisTitle,
@@ -116,8 +116,8 @@ const hostOf = (url) => {
 const first = (value) => (Array.isArray(value) ? value[0] : value)
 
 /**
- * Off-page documentation for the product: the SIS documents defining its data
- * products (or the recorded reason none exists) and its label as archived.
+ * The SIS documents defining the product's data, or the recorded reason none
+ * exists.
  */
 export const RelatedResources = (props) => {
     const { recordData, headingClassName } = props
@@ -129,12 +129,7 @@ export const RelatedResources = (props) => {
     const documents = getSisForInstrument(mission, instruments)
     const gap = documents.length === 0 ? getSisGap(mission, instruments) : null
 
-    const labelFile = getIn(recordData, ES_PATHS.label)
-    const labelUrl = labelFile
-        ? getPDSUrl(labelFile, getIn(recordData, ES_PATHS.release_id))
-        : null
-
-    if (documents.length === 0 && gap == null && labelUrl == null) return null
+    if (documents.length === 0 && gap == null) return null
 
     const renderCard = (key, { href, title, note, alternates, size, tooltip }) => (
         <Tooltip title={tooltip} arrow key={key}>
@@ -174,7 +169,7 @@ export const RelatedResources = (props) => {
         <>
             <div className={headingClassName}>Related Resources</div>
             {gap != null && <div className={c.gapCard}>{gap.note}</div>}
-            {(documents.length > 0 || labelUrl != null) && (
+            {documents.length > 0 && (
                 <div className={c.cards} aria-label="related resources">
                     {documents.map((document) =>
                         renderCard(document.id, {
@@ -187,13 +182,6 @@ export const RelatedResources = (props) => {
                                 'Software Interface Specification — defines this product’s data',
                         })
                     )}
-                    {labelUrl != null &&
-                        renderCard('label', {
-                            href: labelUrl,
-                            title: 'Raw PDS label',
-                            note: getFilename(labelFile),
-                            tooltip: 'Open the label file as archived',
-                        })}
                 </div>
             )}
         </>
