@@ -50,7 +50,7 @@
         "{{gather.common.geo_location}}"
     ],
     "caption": [
-        "{{gather.common.instrument_name}}",
+        "{{gather.common.instrument}}",
         "orbit {{gather.orbital_missions.orbit}}",
         "{{gather.common.target}}"
     ],
