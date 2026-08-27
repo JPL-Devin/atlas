@@ -907,7 +907,7 @@ const Preview = (props) => {
 
                     {related && (
                         <>
-                            <div className={c.heading}>Related</div>
+                            <div className={c.heading}>Files</div>
                             <div className={c.fileCards}>
                                 {getIn(related, 'uri') &&
                                     renderRelatedCard(
