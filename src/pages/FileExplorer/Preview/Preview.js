@@ -26,9 +26,9 @@ import { ES_PATHS, HASH_PATHS, IMAGE_EXTENSIONS, domain, endpoints } from '../..
 import { streamDownloadFile } from '../../../core/downloaders/ZipStream.js'
 
 import ProductIcons from '../../../components/ProductIcons/ProductIcons'
+import SisResources from '../../../components/SisResources/SisResources'
 
 import Typography from '@mui/material/Typography'
-import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Button from '@mui/material/Button'
@@ -57,11 +57,11 @@ const useStyles = makeStyles((theme) => ({
         height: '100%',
         overflow: 'hidden',
         boxSizing: 'border-box',
-        boxShadow: '0px 0px 6px 0px rgba(0,0,0,0.4)',
         display: 'flex',
         flexFlow: 'column',
-        background: theme.palette.swatches.grey.grey800,
-        color: theme.palette.swatches.grey.grey150,
+        background: theme.palette.swatches.grey.grey100,
+        borderLeft: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        color: theme.palette.text.primary,
         zIndex: 2,
     },
     PreviewMobile: {
@@ -69,37 +69,44 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         flexFlow: 'column',
         borderLeft: 'none',
-        background: theme.palette.swatches.grey.grey800,
-        color: theme.palette.swatches.grey.grey150,
+        background: theme.palette.swatches.grey.grey100,
+        color: theme.palette.text.primary,
     },
     header: {
         width: '100%',
         boxSizing: 'border-box',
-        boxShadow: '0px 1px 2px 0px rgba(0,0,0,0.19)',
-        background: theme.palette.swatches.grey.grey700,
+        background: theme.palette.swatches.grey.grey0,
+        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     headerMobile: {
         width: '100%',
         display: 'flex',
         justifyContent: 'center',
         boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey700,
+        background: theme.palette.swatches.grey.grey0,
+        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     headerTitle: {},
+    // Same faint-amber notice the record's Product Label uses.
     headerBanner: {
-        'fontSize': '15px',
-        'padding': '6px',
-        'background': theme.palette.swatches.orange.orange600,
-        'color': 'rgba(0,0,0,0.6)',
-        'fontWeight': 'bold',
+        'fontSize': '13px',
+        'lineHeight': 1.4,
+        'padding': '8px 12px',
+        'background': 'rgba(240, 173, 78, 0.16)',
+        'borderTop': '1px solid rgba(240, 173, 78, 0.5)',
+        'color': theme.palette.text.primary,
         'display': 'flex',
+        'alignItems': 'center',
         'justifyContent': 'space-between',
         'cursor': 'pointer',
         '& > div': {
             display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
         },
-        '& > div > div': {
-            paddingLeft: '5px',
+        '& svg': {
+            color: theme.palette.swatches.orange.orange500,
+            flexShrink: 0,
         },
     },
     icon: {
@@ -110,9 +117,9 @@ const useStyles = makeStyles((theme) => ({
         padding: '5px',
     },
     title: {
-        fontSize: '18px',
+        fontSize: '14px',
         fontWeight: 'bold',
-        margin: '8px 8px 0px 8px',
+        margin: '10px 12px 0px 12px',
         fontFamily: 'inherit',
         wordBreak: 'break-all',
     },
@@ -130,13 +137,16 @@ const useStyles = makeStyles((theme) => ({
     button: {
         'width': `${theme.headHeights[2]}px`,
         'height': `${theme.headHeights[2]}px`,
-        'color': theme.palette.swatches.blue.blue400,
+        'color': theme.palette.swatches.blue.blue600,
         '&:hover': {
-            background: 'rgba(255,255,255,0.1)',
+            background: theme.palette.swatches.grey.grey150,
         },
         '&.Mui-disabled': {
-            color: theme.palette.swatches.grey.grey400,
+            color: theme.palette.swatches.grey.grey300,
             cursor: 'not-allowed',
+        },
+        '& .MuiSvgIcon-root': {
+            fontSize: '20px',
         },
     },
     buttonMobile: {
@@ -144,42 +154,62 @@ const useStyles = makeStyles((theme) => ({
         height: `${theme.headHeights[2]}px`,
     },
     buttonIcon: {},
+    // A slim scrollbar keeps the gutter from cutting into the heading rules.
     body: {
-        flex: 1,
-        overflowY: 'auto',
-        overflowX: 'hidden',
+        'flex': 1,
+        'overflowY': 'auto',
+        'overflowX': 'hidden',
+        'scrollbarWidth': 'thin',
+        'scrollbarColor': `${theme.palette.swatches.grey.grey300} transparent`,
+        '&::-webkit-scrollbar': {
+            width: '8px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+            background: theme.palette.swatches.grey.grey300,
+            borderRadius: '4px',
+        },
     },
     bodyInner: {
-        padding: '16px 0px',
+        padding: '16px 20px 20px 20px',
     },
     bodyMobile: {},
     properties: {},
+    // The record panel's section heading: gold, uppercase, with a rule pulled
+    // out to the panel edges.
     heading: {
-        fontSize: '14px',
-        lineHeight: '30px',
-        color: theme.palette.swatches.yellow.yellow500,
+        fontSize: '12px',
+        fontWeight: 'bold',
+        letterSpacing: '0.06em',
         textTransform: 'uppercase',
-        padding: '0px 16px 4px 16px',
+        color: theme.palette.swatches.yellow.yellow800,
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        margin: '0 -20px 10px -20px',
+        padding: '12px 20px 0 20px',
     },
     sectionBody: {
         marginBottom: '20px',
     },
     relatedList: {
         'listStyleType': 'none',
-        'margin': `4px 0px 0px 0px`,
-        'padding': '0px 16px',
+        'margin': '0px',
+        'padding': '0px',
         '& > li': {
             lineHeight: '24px',
             marginBottom: '8px',
             display: 'flex',
             justifyContent: 'flex-start',
         },
+        '& > li:last-child': {
+            marginBottom: 0,
+        },
     },
     relatedGroup: {
+        fontSize: '11px',
         textTransform: 'uppercase',
+        letterSpacing: '0.04em',
         lineHeight: '28px',
         width: '70px',
-        color: theme.palette.swatches.grey.grey300,
+        color: theme.palette.swatches.grey.grey500,
     },
     relatedLinks: {
         display: 'flex',
@@ -188,12 +218,17 @@ const useStyles = makeStyles((theme) => ({
     },
     relatedItem: {},
     relatedButton: {
-        'background': theme.palette.swatches.grey.grey700,
-        'color': theme.palette.swatches.blue.blue400,
-        'border': `1px solid ${theme.palette.swatches.grey.grey900}`,
+        'background': theme.palette.swatches.grey.grey0,
+        'color': theme.palette.swatches.blue.blue700,
+        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'borderRadius': '3px',
+        'fontSize': '11px',
+        'fontWeight': 'bold',
+        'letterSpacing': '0.04em',
         'marginLeft': '4px',
         '&:hover': {
-            border: `1px solid ${theme.palette.swatches.grey.grey600}`,
+            background: theme.palette.swatches.grey.grey0,
+            border: `1px solid ${theme.palette.swatches.grey.grey300}`,
         },
         '& .MuiButton-label': {
             lineHeight: '20px',
@@ -205,37 +240,42 @@ const useStyles = makeStyles((theme) => ({
             fontSize: '14px',
         },
     },
+    // Fields sit on their own white surface, as they do on the record page.
+    card: {
+        boxSizing: 'border-box',
+        padding: '2px 12px',
+        borderRadius: '3px',
+        border: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        background: theme.palette.swatches.grey.grey0,
+    },
     propertiesList: {
         'listStyleType': 'none',
         'margin': `0px`,
         'padding': '0px',
         '& > li': {
-            'display': 'flex',
-            'justifyContent': 'space-between',
-            'lineHeight': '24px',
-            'padding': '2px 16px',
-            'transition': 'max-height 0.3s ease-in',
-            'wordBreak': 'break-all',
-            '& > div:last-child': {
-                whiteSpace: 'inherit',
-            },
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 11em) minmax(0, 1fr)',
+            columnGap: '16px',
+            fontSize: '13px',
+            lineHeight: '19px',
+            padding: '4px 0',
+            wordBreak: 'break-all',
         },
-        '& > li:nth-child(odd)': {
-            background: theme.palette.swatches.grey.grey700,
+        '& > li + li': {
+            borderTop: `1px solid ${theme.palette.swatches.grey.grey150}`,
         },
     },
     key: {
-        marginRight: '16px',
-        textTransform: 'uppercase',
-        color: theme.palette.swatches.grey.grey300,
-        fontSize: '12px',
-    },
-    value: {
+        color: theme.palette.swatches.grey.grey500,
+        whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
+    },
+    value: {
+        minWidth: 0,
         textAlign: 'right',
-        flex: '1',
+        overflowWrap: 'anywhere',
+        cursor: 'pointer',
     },
     image: {
         width: '100%',
@@ -243,8 +283,8 @@ const useStyles = makeStyles((theme) => ({
         position: 'relative',
         cursor: 'pointer',
         overflow: 'hidden',
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        background: theme.palette.swatches.grey.grey0,
+        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     previewImage: {
         'overflow': 'hidden',
@@ -261,7 +301,7 @@ const useStyles = makeStyles((theme) => ({
         top: 0,
         width: '100%',
         height: '100%',
-        boxShadow: 'inset 0px 1px 6px 1px rgba(0,0,0,0.16)',
+        boxShadow: 'inset 0px 1px 4px 0px rgba(0,0,0,0.10)',
     },
     imageless: {
         'width': '100%',
@@ -278,11 +318,11 @@ const useStyles = makeStyles((theme) => ({
     navHeader: {
         'height': `${theme.headHeights[2]}px`,
         'minHeight': `${theme.headHeights[2]}px`,
-        'background': theme.palette.swatches.grey.grey700,
+        'background': theme.palette.swatches.grey.grey0,
         'boxSizing': 'border-box',
         'display': 'flex',
         'justifyContent': 'space-between',
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey900}`,
+        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
         '& > div': {
             display: 'flex',
             justifyContent: 'space-between',
@@ -294,7 +334,7 @@ const useStyles = makeStyles((theme) => ({
     backButton: {
         lineHeight: '28px',
         borderRadius: 0,
-        color: theme.palette.swatches.grey.grey150,
+        color: theme.palette.swatches.grey.grey700,
     },
     emptyPreview: {
         textAlign: 'center',
@@ -304,20 +344,24 @@ const useStyles = makeStyles((theme) => ({
     },
     formControl: {
         minWidth: 125,
-        margin: '5px 0px 3px 8px',
+        margin: '0px',
     },
     select: {
-        'color': theme.palette.swatches.grey.grey300,
-        'background': theme.palette.swatches.grey.grey800,
-        'border-bottom': `2px solid ${theme.palette.swatches.grey.grey600}`,
+        'fontSize': '13px',
+        'color': theme.palette.text.primary,
+        'background': theme.palette.swatches.grey.grey50,
+        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'borderRadius': '3px',
         'paddingLeft': '4px',
+        '&:before, &:after': {
+            display: 'none',
+        },
         '& > div:first-child': {
-            padding: '8px 20px 6px 6px',
+            padding: '2px 20px 2px 6px',
             textAlign: 'left',
         },
         '& > svg': {
-            color: '#efefef',
-            top: '4px',
+            color: theme.palette.swatches.grey.grey500,
             right: '2px',
         },
     },
@@ -438,6 +482,19 @@ const Preview = (props) => {
         return typeof filexPreview.toJS === 'function' ? {} : filexPreview
     })
     preview = forcedPreview || preview
+
+    // The drilled-to mission, so the panel can offer the product's SIS.
+    const mission = useSelector((state) => {
+        const cols = state.get('columns')
+        if (typeof cols.toJS === 'function') return null
+        const column = cols.find(
+            (col) =>
+                col.type === 'filter' &&
+                String(col.value).split('.').pop() === 'mission' &&
+                col.active != null
+        )
+        return column ? column.active.key : null
+    })
 
     useEffect(() => {
         // Query Related
@@ -719,12 +776,7 @@ const Preview = (props) => {
 
                     {related && (
                         <div className={c.related}>
-                            <div className={c.heading}>
-                                <Typography noWrap className={c.title2} variant="subtitle2">
-                                    Related
-                                </Typography>
-                                <Divider />
-                            </div>
+                            <div className={c.heading}>Related</div>
                             <div className={c.sectionBody}>
                                 <ul className={c.relatedList}>
                                     {getIn(related, 'uri') && (
@@ -953,14 +1005,15 @@ const Preview = (props) => {
                         </div>
                     )}
 
+                    <SisResources
+                        mission={mission}
+                        instruments={preview.instrument}
+                        headingClassName={c.heading}
+                    />
+
                     <div className={c.properties}>
-                        <div className={c.heading}>
-                            <Typography noWrap className={c.title2} variant="subtitle2">
-                                Properties
-                            </Typography>
-                            <Divider />
-                        </div>
-                        <div className={c.sectionBody}>
+                        <div className={c.heading}>Properties</div>
+                        <div className={clsx(c.sectionBody, c.card)}>
                             <ul className={c.propertiesList}>
                                 {Object.keys(preview)
                                     .sort((a, b) => a.localeCompare(b))

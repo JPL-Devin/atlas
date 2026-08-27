@@ -16,7 +16,6 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 
 import { makeStyles } from '@mui/styles'
 
-import SisMenu from '../../../components/SisLink/SisMenu'
 import { setFilexPreview, removeFilexColumn } from '../../../core/redux/actions/actions.js'
 import { copyToClipboard, splitUri } from '../../../core/utils'
 import { HASH_PATHS, ES_PATHS } from '../../../core/constants'
@@ -118,17 +117,6 @@ const Heading = (props) => {
         }
     })
 
-    // The drilled-to mission and instrument, so the path can offer their SIS.
-    const activeFilter = (field) => {
-        const column = columns.find(
-            (col) =>
-                col.type === 'filter' &&
-                String(col.value).split('.').pop() === field &&
-                col.active != null
-        )
-        return column ? column.active.key : null
-    }
-
     let path = preview.uri ? preview.uri : null
     if (preview.fs_type === 'file') path += '-'
     if (path) getParams.push({ key: 'uri', value: path })
@@ -186,10 +174,6 @@ const Heading = (props) => {
                     </Typography>
                 </div>
                 <div className={c.copyLink}>
-                    <SisMenu
-                        mission={activeFilter('mission')}
-                        instruments={activeFilter('instrument')}
-                    />
                     <Tooltip title="Reset Path" arrow>
                         <IconButton
                             className={c.copyButton}
