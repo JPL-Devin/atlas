@@ -40,6 +40,10 @@ import LaunchIcon from '@mui/icons-material/Launch'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import WarningIcon from '@mui/icons-material/Warning'
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
+import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
@@ -50,6 +54,15 @@ import Image from 'mui-image'
 import { makeStyles } from '@mui/styles'
 
 import './Preview.css'
+
+const TAIL_CHARS = 8
+const BROWSE_SIZES = [
+    ['Full', undefined],
+    ['Large', 'lg'],
+    ['Medium', 'md'],
+    ['Small', 'sm'],
+    ['Tiny', 'xs'],
+]
 
 const useStyles = makeStyles((theme) => ({
     Preview: {
@@ -189,34 +202,105 @@ const useStyles = makeStyles((theme) => ({
     sectionBody: {
         marginBottom: '20px',
     },
-    relatedList: {
-        'listStyleType': 'none',
-        'margin': '0px',
-        'padding': '0px',
-        '& > li': {
-            lineHeight: '24px',
-            marginBottom: '8px',
-            display: 'flex',
-            justifyContent: 'flex-start',
-        },
-        '& > li:last-child': {
-            marginBottom: 0,
+    // The record Overview's Files cards, reused for the product's own assets.
+    fileCards: {
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr)',
+        gap: '8px',
+        marginBottom: '20px',
+    },
+    fileCard: {
+        'boxSizing': 'border-box',
+        'display': 'grid',
+        'gridTemplateColumns': 'auto minmax(0, 1fr) auto',
+        'alignItems': 'center',
+        'columnGap': '10px',
+        'padding': '10px',
+        'borderRadius': '3px',
+        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'background': theme.palette.swatches.grey.grey0,
+        'transition': 'border-color 0.15s ease-out, box-shadow 0.15s ease-out',
+        '&:hover': {
+            borderColor: theme.palette.swatches.grey.grey300,
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.08)',
         },
     },
-    relatedGroup: {
-        fontSize: '11px',
-        textTransform: 'uppercase',
-        letterSpacing: '0.04em',
-        lineHeight: '28px',
-        width: '70px',
-        color: theme.palette.swatches.grey.grey500,
+    // Cards whose actions don't fit beside the name put them on a second row.
+    fileCardStacked: {
+        'gridTemplateColumns': 'auto minmax(0, 1fr)',
+        'rowGap': '8px',
+        '& > $fileActions': {
+            gridColumn: '1 / -1',
+        },
     },
-    relatedLinks: {
+    fileBadge: {
+        'display': 'flex',
+        'alignItems': 'center',
+        'justifyContent': 'center',
+        'width': '34px',
+        'height': '34px',
+        'borderRadius': '3px',
+        'background': theme.palette.swatches.grey.grey150,
+        'color': theme.palette.swatches.grey.grey600,
+        '& > svg': {
+            fontSize: '20px',
+        },
+    },
+    fileText: {
+        minWidth: 0,
+    },
+    fileNameRow: {
         display: 'flex',
-        justifyContent: 'flex-start',
-        flex: '1',
+        alignItems: 'center',
+        gap: '6px',
+        minWidth: 0,
     },
-    relatedItem: {},
+    fileName: {
+        fontSize: '14px',
+        fontWeight: 'bold',
+        color: theme.palette.text.primary,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    },
+    fileExt: {
+        flexShrink: 0,
+        fontSize: '12px',
+        fontWeight: 'bold',
+        letterSpacing: '0.04em',
+        lineHeight: '17px',
+        padding: '0 5px',
+        borderRadius: '2px',
+        background: theme.palette.swatches.grey.grey150,
+        color: theme.palette.swatches.grey.grey600,
+    },
+    fileMeta: {
+        display: 'flex',
+        fontSize: '12px',
+        fontFamily: 'monospace',
+        color: theme.palette.swatches.grey.grey500,
+        whiteSpace: 'nowrap',
+        minWidth: 0,
+    },
+    fileMetaHead: {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+    },
+    fileMetaTail: {
+        flexShrink: 0,
+    },
+    fileActions: {
+        display: 'flex',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-end',
+        gap: '4px',
+    },
+    fileOpen: {
+        '&.MuiIconButton-root': {
+            color: theme.palette.swatches.blue.blue600,
+        },
+    },
     relatedButton: {
         'background': theme.palette.swatches.grey.grey0,
         'color': theme.palette.swatches.blue.blue700,
@@ -225,7 +309,6 @@ const useStyles = makeStyles((theme) => ({
         'fontSize': '11px',
         'fontWeight': 'bold',
         'letterSpacing': '0.04em',
-        'marginLeft': '4px',
         '&:hover': {
             background: theme.palette.swatches.grey.grey0,
             border: `1px solid ${theme.palette.swatches.grey.grey300}`,
@@ -625,6 +708,50 @@ const Preview = (props) => {
         )
     }
 
+    const openPDS = (uri, size) => {
+        if (uri) window.open(getPDSUrl(uri, release_id, size), '_blank')
+    }
+
+    // Matches the record Overview's Files card: badge, name + extension, path, actions.
+    const renderRelatedCard = (label, Icon, uri, actions, stacked) => {
+        const filename = getFilename(uri) || ''
+        const extension = getExtension(uri)
+        return (
+            <div className={`${c.fileCard} ${stacked ? c.fileCardStacked : ''}`} key={label}>
+                <div className={c.fileBadge}>
+                    <Icon />
+                </div>
+                <div className={c.fileText}>
+                    <div className={c.fileNameRow}>
+                        <span className={c.fileName}>{label}</span>
+                        {extension && <span className={c.fileExt}>{extension.toUpperCase()}</span>}
+                    </div>
+                    <div className={c.fileMeta} title={filename}>
+                        <span className={c.fileMetaHead}>{filename.slice(0, -TAIL_CHARS)}</span>
+                        <span className={c.fileMetaTail}>{filename.slice(-TAIL_CHARS)}</span>
+                    </div>
+                </div>
+                <div className={c.fileActions}>{actions}</div>
+            </div>
+        )
+    }
+
+    const openAction = (uri, size) => {
+        const filename = getFilename(uri)
+        return (
+            <Tooltip title={`Open ${filename}`} arrow>
+                <IconButton
+                    className={c.fileOpen}
+                    aria-label={`open ${filename}`}
+                    size="small"
+                    onClick={() => openPDS(uri, size)}
+                >
+                    <OpenInNewIcon />
+                </IconButton>
+            </Tooltip>
+        )
+    }
+
     return (
         <div className={clsx(c.Preview, { [c.PreviewMobile]: isMobile, ['fade-in']: isMobile })}>
             {isMobile && (
@@ -725,13 +852,17 @@ const Preview = (props) => {
                                 height: '100%',
                                 paddingTop: 'unset',
                                 position: 'initial',
-                                background:
-                                    'radial-gradient(ellipse, rgb(46, 46, 50), rgb(10, 10, 10))',
                             }}
                             duration={250}
                             src={imageUrl}
                             alt={imageUrl}
-                            errorIcon={<ProductIcons filename={imageUrl} type={preview.fs_type} />}
+                            errorIcon={
+                                <ProductIcons
+                                    filename={imageUrl}
+                                    type={preview.fs_type}
+                                    color="dark"
+                                />
+                            }
                             onLoad={() => {
                                 setHasBrowse(true)
                             }}
@@ -741,7 +872,7 @@ const Preview = (props) => {
                         />
                     ) : (
                         <div className={c.imageless}>
-                            <ProductIcons filename={imageUrl} type={preview.fs_type} />
+                            <ProductIcons filename={imageUrl} type={preview.fs_type} color="dark" />
                         </div>
                     )}
                     <div className={c.imageCover}></div>
@@ -775,241 +906,56 @@ const Preview = (props) => {
                     */}
 
                     {related && (
-                        <div className={c.related}>
+                        <>
                             <div className={c.heading}>Related</div>
-                            <div className={c.sectionBody}>
-                                <ul className={c.relatedList}>
-                                    {getIn(related, 'uri') && (
-                                        <li>
-                                            <div className={c.relatedGroup}>Product</div>
-
-                                            <div className={c.relatedLinks}>
-                                                <div className={c.relatedItem}>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(related, 'uri')
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(uri, release_id),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        {getExtension(getIn(related, 'uri'))}
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </li>
+                            <div className={c.fileCards}>
+                                {getIn(related, 'uri') &&
+                                    renderRelatedCard(
+                                        'Product',
+                                        InsertDriveFileOutlinedIcon,
+                                        getIn(related, 'uri'),
+                                        openAction(getIn(related, 'uri'))
                                     )}
-                                    {getIn(related, 'gather.pds_archive.related.label.uri') && (
-                                        <li>
-                                            <div className={c.relatedGroup}>Label</div>
-
-                                            <div className={c.relatedLinks}>
-                                                <div className={c.relatedItem}>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.label.uri'
-                                                            )
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(uri, release_id),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        {getExtension(
-                                                            getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.label.uri'
-                                                            )
-                                                        )}
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </li>
+                                {getIn(related, 'gather.pds_archive.related.label.uri') &&
+                                    renderRelatedCard(
+                                        'Label',
+                                        DescriptionOutlinedIcon,
+                                        getIn(related, 'gather.pds_archive.related.label.uri'),
+                                        openAction(
+                                            getIn(related, 'gather.pds_archive.related.label.uri')
+                                        )
                                     )}
-                                    {hasBrowse === true &&
-                                        getIn(related, 'gather.pds_archive.related.browse.uri') && (
-                                            <li>
-                                                <div className={c.relatedGroup}>Browse</div>
-                                                <div className={c.relatedLinks}>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.browse.uri'
-                                                            )
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(uri, release_id),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        <div className={c.relatedItem}>Full</div>
-                                                    </Button>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.browse.uri'
-                                                            )
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(
-                                                                        uri,
-                                                                        release_id,
-                                                                        'lg'
-                                                                    ),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        <div className={c.relatedItem}>Large</div>
-                                                    </Button>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.browse.uri'
-                                                            )
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(
-                                                                        uri,
-                                                                        release_id,
-                                                                        'md'
-                                                                    ),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        <div className={c.relatedItem}>Medium</div>
-                                                    </Button>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.browse.uri'
-                                                            )
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(
-                                                                        uri,
-                                                                        release_id,
-                                                                        'sm'
-                                                                    ),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        <div className={c.relatedItem}>Small</div>
-                                                    </Button>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.browse.uri'
-                                                            )
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(
-                                                                        uri,
-                                                                        release_id,
-                                                                        'xs'
-                                                                    ),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        <div className={c.relatedItem}>Tiny</div>
-                                                    </Button>
-                                                </div>
-                                            </li>
-                                        )}
-                                </ul>
+                                {hasBrowse === true &&
+                                    getIn(related, 'gather.pds_archive.related.browse.uri') &&
+                                    renderRelatedCard(
+                                        'Browse',
+                                        ImageOutlinedIcon,
+                                        getIn(related, 'gather.pds_archive.related.browse.uri'),
+                                        BROWSE_SIZES.map(([label, size]) => (
+                                            <Button
+                                                key={label}
+                                                className={c.relatedButton}
+                                                size="small"
+                                                variant="outlined"
+                                                endIcon={<LaunchIcon className={c.buttonIcon} />}
+                                                onClick={() =>
+                                                    openPDS(
+                                                        getIn(
+                                                            related,
+                                                            'gather.pds_archive.related.browse.uri'
+                                                        ),
+                                                        size
+                                                    )
+                                                }
+                                            >
+                                                {label}
+                                            </Button>
+                                        )),
+                                        true
+                                    )}
                             </div>
-                        </div>
+                        </>
                     )}
-
-                    <SisResources
-                        mission={mission}
-                        instruments={preview.instrument}
-                        headingClassName={c.heading}
-                    />
 
                     <div className={c.properties}>
                         <div className={c.heading}>Properties</div>
@@ -1090,6 +1036,12 @@ const Preview = (props) => {
                             </ul>
                         </div>
                     </div>
+
+                    <SisResources
+                        mission={mission}
+                        instruments={preview.instrument}
+                        headingClassName={c.heading}
+                    />
                 </div>
             </div>
         </div>
