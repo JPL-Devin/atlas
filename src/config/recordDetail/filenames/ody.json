@@ -1,0 +1,87 @@
+{
+    "title": "Odyssey THEMIS filename",
+    "reference": "Mars Odyssey THEMIS Standard Data Products SIS, \u00a73.1",
+    "ignoreCase": true,
+    "match": "^([VIRS])([A-Z0-9][0-9]{4})([0-9]{3})([A-Z]{3})\\.(QUB|IMG|CUB\\.GZ)$",
+    "segments": [
+        {
+            "group": 1,
+            "label": "Image type",
+            "color": "blue",
+            "description": "Type of image collected.",
+            "values": {
+                "V": "Visible image",
+                "I": "Infrared image",
+                "R": "Infrared reset image",
+                "S": "Infrared shutter image"
+            }
+        },
+        {
+            "group": 2,
+            "label": "Orbit",
+            "color": "teal",
+            "description": "Mission orbit number when the image was collected.",
+            "patterns": [
+                {
+                    "match": "^([0-9]{5})$",
+                    "meaning": "Mapping orbit {number}"
+                },
+                {
+                    "match": "^([A-Z])([0-9]{4})$",
+                    "meaning": "Mapping orbit past 100,000 \u2014 the leading letter carries the sixth digit (A = 10, B = 11, C = 12, and so on)"
+                }
+            ]
+        },
+        {
+            "group": 3,
+            "label": "Sequence",
+            "color": "green",
+            "description": "Order in which images were collected during that orbit.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Image {1} of the orbit"
+                }
+            ]
+        },
+        {
+            "group": 4,
+            "label": "Processing level",
+            "color": "violet",
+            "description": "Processing level of the image data. Codes outside the SIS list appear in the archive for reprojected renditions.",
+            "values": {
+                "EDR": {
+                    "meaning": "EDR \u2014 raw data",
+                    "description": "Uncompressed band-sequential 8-bit qube as collected: up to 10 bands for IR, 5 for VIS."
+                },
+                "RDR": {
+                    "meaning": "RDR \u2014 radiometrically calibrated data",
+                    "description": "Same geometry as the source EDR, with calibrated values scaled into 16-bit integers."
+                },
+                "BTR": {
+                    "meaning": "BTR \u2014 infrared derived brightness temperature",
+                    "description": "Single-band 8-bit image of brightness temperature, the same size as one band of the source IR RDR."
+                },
+                "ABR": {
+                    "meaning": "ABR \u2014 visible derived apparent brightness",
+                    "description": "Single-band 8-bit image of apparent brightness, the same size as one band of the source VIS RDR."
+                },
+                "BWS": {
+                    "meaning": "Browse product",
+                    "description": "Browse rendition of the observation; the SIS lists it among the PDS4 collections rather than the standard product types."
+                }
+            }
+        },
+        {
+            "group": 5,
+            "label": "Extension",
+            "color": "slate",
+            "description": "Product format.",
+            "values": {
+                "QUB": "PDS SPECTRAL_QUBE format",
+                "IMG": "PDS IMAGE format",
+                "CUB.GZ": "Gzipped ISIS cube \u2014 a reprojected rendition distributed in the archive, outside the SIS standard product formats"
+            }
+        }
+    ]
+}

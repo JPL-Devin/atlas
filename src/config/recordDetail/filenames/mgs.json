@@ -1,0 +1,90 @@
+{
+    "title": "MGS MOC filename",
+    "reference": "MGS MOC RDR SIS, \u00a73.1 (Data Product Naming and Organization); MOC SDP/EDR SIS (mocsis), \u00a7PRODUCT_ID",
+    "ignoreCase": true,
+    "match": "^(AB1|SP1|SP2|CAL|FHA|[MERS][0-9]{2})([0-9]{5})(?:_(GB|GR|NA|WB|WR))?\\.(IMG|IMQ|LBL)$",
+    "segments": [
+        {
+            "group": 1,
+            "label": "Cycle",
+            "color": "violet",
+            "description": "Three-character mission cycle or phase the image was taken in.",
+            "values": {
+                "AB1": "Initial aero-braking phase",
+                "SP1": "First science phasing phase",
+                "SP2": "Second science phasing phase",
+                "CAL": "Calibration, transition to mapping",
+                "FHA": "Fixed high gain antenna testing"
+            },
+            "patterns": [
+                {
+                    "match": "^M0*([0-9]+)$",
+                    "meaning": "Primary mapping phase, cycle {1} (m01\u2013m23)"
+                },
+                {
+                    "match": "^E0*([0-9]+)$",
+                    "meaning": "Start of extended operations, cycle {1} (e01\u2013e23)"
+                },
+                {
+                    "match": "^R0*([0-9]+)$",
+                    "meaning": "Relay phase supporting MER, cycle {1} (r01\u2013r23)"
+                },
+                {
+                    "match": "^S0*([0-9]+)$",
+                    "meaning": "Continuation of extended operations, cycle {1} (s01\u2013s23)"
+                }
+            ]
+        },
+        {
+            "group": 2,
+            "label": "Image number",
+            "color": "teal",
+            "description": "Sequential image number within that cycle; together with the cycle it forms the MOC product ID.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Image {1}"
+                }
+            ]
+        },
+        {
+            "group": 3,
+            "label": "Camera / filter",
+            "color": "orange",
+            "description": "Instrument, or instrument and global-filter, designation.",
+            "values": {
+                "GB": {
+                    "meaning": "Wide angle global map swath, blue filter",
+                    "description": "A non-targeted daily global map swath, typically a full planet scan, taken through the wide angle camera's blue filter."
+                },
+                "GR": {
+                    "meaning": "Wide angle global map swath, red filter",
+                    "description": "As \"gb\" but through the wide angle camera's red filter."
+                },
+                "NA": {
+                    "meaning": "Narrow angle camera",
+                    "description": "A commanded narrow angle frame \u2014 MOC's high-resolution camera."
+                },
+                "WB": {
+                    "meaning": "Wide angle camera, blue filter",
+                    "description": "A commanded wide angle frame, often the context image for a narrow angle observation."
+                },
+                "WR": {
+                    "meaning": "Wide angle camera, red filter",
+                    "description": "As \"wb\" but through the red filter."
+                }
+            }
+        },
+        {
+            "group": 4,
+            "label": "Extension",
+            "color": "slate",
+            "description": "Product format.",
+            "values": {
+                "IMG": "PDS image file",
+                "IMQ": "MOC-compressed image as returned by the instrument, which needs the mission's decompression tool before use",
+                "LBL": "Detached PDS label"
+            }
+        }
+    ]
+}

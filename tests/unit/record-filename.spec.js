@@ -129,7 +129,7 @@ test.describe('parseFilename', () => {
         expect(parse(undefined)).toBe(null)
     })
 
-    test('records from missions with no spec render as plain text', () => {
+    test('unsupported missions and filenames render as plain text', () => {
         const forRecord = (record) =>
             parseFilename(
                 record.gather.pds_archive.file_name,
@@ -138,7 +138,9 @@ test.describe('parseFilename', () => {
                     pds_standard: record.gather.pds_archive.pds_standard,
                 })
             )
-        expect(forRecord(mgsMoc)).toBe(null)
+        expect(resolveFilenameSpec({ mission: 'not_a_mission' })).toBe(null)
+        expect(parseFilename('anything.img', null)).toBe(null)
+        expect(forRecord(mgsMoc)).not.toBe(null)
         expect(forRecord(mslPds3)).not.toBe(null)
         expect(forRecord(mars2020Navcam)).not.toBe(null)
     })

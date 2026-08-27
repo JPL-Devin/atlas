@@ -1,0 +1,174 @@
+{
+    "title": "Chandrayaan-1 M3 filename",
+    "reference": "Chandrayaan-1 M3 Data Product SIS, \u00a72.5.6 (Labeling and Identification)",
+    "ignoreCase": true,
+    "match": "^(M3)([GT])([0-9]{4})([0-9]{2})([0-9]{2})T([0-9]{2})([0-9]{2})([0-9]{2})_V([0-9]{2})_([A-Z0-9]{2,3})\\.(IMG|HDR|LBL|TXT|TAB)$",
+    "segments": [
+        {
+            "group": 1,
+            "label": "Instrument",
+            "color": "blue",
+            "description": "Moon Mineralogy Mapper (M3), the imaging spectrometer.",
+            "values": {
+                "M3": "Moon Mineralogy Mapper (M3)"
+            }
+        },
+        {
+            "group": 2,
+            "label": "Imaging mode",
+            "color": "violet",
+            "description": "M3 imaging mode.",
+            "values": {
+                "G": {
+                    "meaning": "Global mode",
+                    "description": "M3's survey mode, covering the Moon at reduced spectral and spatial resolution."
+                },
+                "T": {
+                    "meaning": "Target mode",
+                    "description": "M3's full-resolution mode, used over selected targets."
+                }
+            }
+        },
+        {
+            "group": 3,
+            "label": "Year",
+            "color": "teal",
+            "description": "Year of the time stamp of the first frame of the image cube.",
+            "patterns": [
+                {
+                    "match": "^([0-9]{4})$",
+                    "meaning": "Year {number}"
+                }
+            ]
+        },
+        {
+            "group": 4,
+            "label": "Month",
+            "color": "green",
+            "description": "Month of that time stamp.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Month {1}"
+                }
+            ]
+        },
+        {
+            "group": 5,
+            "label": "Day",
+            "color": "orange",
+            "description": "Day of that time stamp.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Day {1}"
+                }
+            ]
+        },
+        {
+            "group": 6,
+            "label": "Hour",
+            "color": "brown",
+            "description": "Hour (UTC) of that time stamp.",
+            "patterns": [
+                {
+                    "match": "^([0-9]{2})$",
+                    "meaning": "Hour {number}"
+                }
+            ]
+        },
+        {
+            "group": 7,
+            "label": "Minute",
+            "color": "indigo",
+            "description": "Minute of that time stamp.",
+            "patterns": [
+                {
+                    "match": "^([0-9]{2})$",
+                    "meaning": "Minute {number}"
+                }
+            ]
+        },
+        {
+            "group": 8,
+            "label": "Second",
+            "color": "teal",
+            "description": "Second of that time stamp.",
+            "patterns": [
+                {
+                    "match": "^([0-9]{2})$",
+                    "meaning": "Second {number}"
+                }
+            ]
+        },
+        {
+            "group": 9,
+            "label": "Version",
+            "color": "amber",
+            "description": "Version number of the product.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Version {1}"
+                }
+            ]
+        },
+        {
+            "group": 10,
+            "label": "Product type",
+            "color": "violet",
+            "description": "Type of data product.",
+            "values": {
+                "L0": {
+                    "meaning": "Level 0",
+                    "description": "Raw M3 data."
+                },
+                "L1B": {
+                    "meaning": "Level 1B",
+                    "description": "Calibrated radiance data with its associated location, geometry and timing files."
+                },
+                "L2": {
+                    "meaning": "Level 2",
+                    "description": "Reflectance data derived from Level 1B."
+                },
+                "RDN": {
+                    "meaning": "Spectral radiance data (Level 1B)",
+                    "description": "The calibrated radiance image cube."
+                },
+                "LOC": {
+                    "meaning": "Pixel-located data (Level 1B)",
+                    "description": "Per-pixel latitude, longitude and elevation backplanes for the radiance cube."
+                },
+                "OBS": {
+                    "meaning": "Observation geometry data (Level 1B)",
+                    "description": "Per-pixel viewing and illumination geometry for the radiance cube."
+                },
+                "TIM": {
+                    "meaning": "Observation timing data (Level 1B)",
+                    "description": "Per-frame timing table for the radiance cube."
+                },
+                "RFL": {
+                    "meaning": "Spectral reflectance data (Level 2)",
+                    "description": "Reflectance cube derived from Level 1B version 2.0 radiance."
+                },
+                "SUP": {
+                    "meaning": "Supplementary data for the reflectance product (Level 2)",
+                    "description": "Ancillary bands supporting the Level 2 reflectance cube."
+                }
+            }
+        },
+        {
+            "group": 11,
+            "label": "Extension",
+            "color": "slate",
+            "description": "Product format.",
+            "values": {
+                "IMG": "Image object",
+                "HDR": "Detached header file",
+                "LBL": "Detached label file",
+                "TXT": "ASCII text file",
+                "TAB": "ASCII data table"
+            }
+        }
+    ]
+}
