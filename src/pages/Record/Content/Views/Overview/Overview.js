@@ -55,6 +55,7 @@ import { setRecordViewTab, setSnackBarText } from '../../../../../core/redux/act
 import tileIcons from './tileIcons.js'
 import PanelHeader from '../../PanelHeader/PanelHeader'
 import LabelActions from '../../PanelHeader/LabelActions'
+import RelatedResources from './RelatedResources.js'
 
 // File cards read by type: rasters, text/label formats, tilesets, then binary.
 const FILE_ICONS = {
@@ -1233,6 +1234,10 @@ const Overview = (props) => {
                             })}
                         </div>
                         {renderFiles()}
+                        <RelatedResources
+                            recordData={recordData}
+                            headingClassName={c.heading}
+                        />
                         {presentation.citation != null && getAppConfig().enableRecordCitation && (
                             <>
                                 <div className={c.citationHeading}>
