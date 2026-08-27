@@ -50,6 +50,7 @@ const useStyles = makeStyles((theme) => ({
     },
     pathTitle: {
         'fontSize': 14,
+        'fontWeight': 'bold',
         'lineHeight': `${theme.headHeights[2]}px`,
         'fontFamily': 'monospace',
         'textOverflow': 'ellipsis',

@@ -457,6 +457,12 @@ const useStyles = makeStyles((theme) => ({
             right: '2px',
         },
     },
+    // Keeps the version control on the value column's right edge.
+    versionSelect: {
+        display: 'flex',
+        justifyContent: 'flex-end',
+        minWidth: 0,
+    },
     versionSelectItem: {},
 }))
 
@@ -995,7 +1001,7 @@ const Preview = (props) => {
                                             versions.length > 0
                                         ) {
                                             versionSelector = (
-                                                <div>
+                                                <div className={c.versionSelect}>
                                                     <FormControl
                                                         className={c.formControl}
                                                         size="small"
