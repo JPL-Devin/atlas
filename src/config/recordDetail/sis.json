@@ -7,11 +7,7 @@
             "url": "https://pds-geosciences.wustl.edu/m2020/urn-nasa-pds-mars2020_mission/document_camera/Mars2020_Camera_SIS.pdf",
             "size": 19222290,
             "document": "JPL D-99960",
-            "revision": "July 15, 2025",
-            "note": "The PDS Imaging copy is the earlier v3.1 (February 2022).",
-            "alternates": [
-                "https://pds-imaging.jpl.nasa.gov/documentation/Mars2020_Camera_SIS.pdf"
-            ]
+            "revision": "July 15, 2025"
         },
         "m20_mastcamz_derived": {
             "title": "Mastcam-Z Derived Product SIS",
@@ -44,10 +40,7 @@
                 "RHAZ_RIGHT_B",
                 "CHEMCAM_RMI"
             ],
-            "note": "The engineering-camera and ChemCam RMI SIS; Malin\u2019s MMM cameras have their own.",
-            "alternates": [
-                "https://pds-geosciences.wustl.edu/msl/msl-m-chemcam-libs-4_5-rdr-v1/mslccm_1xxx/document/msl_camera_sis.pdf"
-            ]
+            "note": "The engineering-camera and ChemCam RMI SIS; Malin’s MMM cameras have their own."
         },
         "msl_mmm": {
             "title": "MSL Mastcam, MAHLI and MARDI EDR/RDR Data Products SIS",
@@ -61,10 +54,6 @@
                 "MARDI",
                 "MAST_LEFT",
                 "MAST_RIGHT"
-            ],
-            "alternates": [
-                "https://planetarydata.jpl.nasa.gov/img/data/mahli/MSLMHL_0001/DOCUMENT/MSL_MMM_EDR_RDR_DPSIS.PDF",
-                "https://planetarydata.jpl.nasa.gov/img/data/mardi/MSLMRD_0001/DOCUMENT/MSL_MMM_EDR_RDR_DPSIS.PDF"
             ]
         },
         "mer_camsis": {
@@ -75,10 +64,7 @@
             "size": 19860728,
             "document": "JPL D-22846",
             "revision": "v4.4",
-            "note": "One SIS for both rovers and all four cameras.",
-            "alternates": [
-                "https://planetarydata.jpl.nasa.gov/img/data/mer/mer1do_0xxx/document/CAMSIS_latest.PDF"
-            ]
+            "note": "One SIS for both rovers and all four cameras."
         },
         "nsyt_camera": {
             "title": "InSight Camera EDR / RDR Data Products SIS",
@@ -87,10 +73,7 @@
             "url": "https://pds-imaging.jpl.nasa.gov/documentation/NSYT_Cam_SIS_3.4.pdf",
             "size": 84644824,
             "document": "JPL D-33231",
-            "revision": "v3.4",
-            "alternates": [
-                "https://planetarydata.jpl.nasa.gov/img/data/nsyt/insight_cameras/document/NSYT_Cam_SIS_3.4.pdf"
-            ]
+            "revision": "v3.4"
         },
         "phx_camera": {
             "title": "Phoenix Camera EDR / RDR Data Products SIS",
@@ -98,10 +81,7 @@
             "camera": true,
             "url": "https://planetarydata.jpl.nasa.gov/img/data/phoenix/phxmos_0xxx/document/cam_edr_rdr_sis.pdf",
             "size": 2675729,
-            "document": "PHX-274-327",
-            "alternates": [
-                "https://pds-geosciences.wustl.edu/missions/phoenix/phxCamSis.pdf"
-            ]
+            "document": "PHX-274-327"
         },
         "mpf_imp": {
             "title": "Imager for Mars Pathfinder EDR Data Product SIS",
@@ -112,9 +92,6 @@
             "revision": "v1.5",
             "instruments": [
                 "IMP"
-            ],
-            "alternates": [
-                "https://planetarydata.jpl.nasa.gov/img/data/mpf/imp/mpim_0001/document/edrsis.pdf"
             ]
         },
         "mpf_rover": {
@@ -126,9 +103,6 @@
             "revision": "v1.5",
             "instruments": [
                 "RVR"
-            ],
-            "alternates": [
-                "https://planetarydata.jpl.nasa.gov/img/data/mpf/rover/mprv_0001/document/roversis.pdf"
             ]
         },
         "mro_hirise_edr": {
@@ -141,10 +115,7 @@
             "instruments": [
                 "HIRISE"
             ],
-            "note": "Maintained by the HiRISE team at LPL rather than in the PDS archive.",
-            "alternates": [
-                "https://pds-imaging.jpl.nasa.gov/documentation/MRO_HiRISE_EDR_SIS_2007_03_15.pdf"
-            ]
+            "note": "Maintained by the HiRISE team at LPL rather than in the PDS archive."
         },
         "mro_hirise_rdr": {
             "title": "MRO HiRISE RDR Products SIS",
@@ -167,9 +138,6 @@
             "revision": "April 2007",
             "instruments": [
                 "CTX"
-            ],
-            "alternates": [
-                "https://planetarydata.jpl.nasa.gov/img/data/mro/ctx/mrox_0001/document/ctxsis.pdf"
             ]
         },
         "mro_marci": {
@@ -228,11 +196,7 @@
             "instruments": [
                 "ISS"
             ],
-            "note": "One SIS for both the narrow- and wide-angle cameras; the PDS Imaging and volume copies are the earlier Tour Version 1.1 (2004).",
-            "alternates": [
-                "https://pds-imaging.jpl.nasa.gov/documentation/Cassini_edrsis.pdf",
-                "https://planetarydata.jpl.nasa.gov/img/data/co-s-issna_isswa-2-edr-v1.0/coiss_2001/document/edrsis.pdf"
-            ]
+            "note": "One SIS for both the narrow- and wide-angle cameras."
         },
         "cas_iss_carto": {
             "title": "Cassini Cartographic (Map-Projected ISS) Products SIS",
@@ -253,10 +217,7 @@
             "instruments": [
                 "VIMS"
             ],
-            "note": "Imaging spectrometer cubes rather than framing-camera images.",
-            "alternates": [
-                "https://planetarydata.jpl.nasa.gov/img/data/co-e_v_j_s-vims-2-qube-v1.0/covims_0001/document/dpsis.txt"
-            ]
+            "note": "Imaging spectrometer cubes rather than framing-camera images."
         },
         "cas_radar_bidr": {
             "title": "Cassini RADAR BIDR SIS",
@@ -267,10 +228,7 @@
             "instruments": [
                 "RADAR"
             ],
-            "note": "Radar/SAR products, not camera images.",
-            "alternates": [
-                "https://planetarydata.jpl.nasa.gov/img/data/co-ssa-radar-5-bidr-v1.0/CORADR_0035/DOCUMENT/BIDRSIS.PDF"
-            ]
+            "note": "Radar/SAR products, not camera images."
         },
         "ody_themis": {
             "title": "Mars Odyssey THEMIS Standard Data Products SIS",
@@ -286,10 +244,7 @@
             "camera": true,
             "url": "https://pds-imaging.jpl.nasa.gov/documentation/clementine_edrsis.pdf",
             "size": 69502,
-            "note": "Covers all five Clementine cameras; the archive copies are ASCII/Word only.",
-            "alternates": [
-                "https://planetarydata.jpl.nasa.gov/img/data/clementine/cl_0001/document/edrsis.asc"
-            ]
+            "note": "Covers all five Clementine cameras."
         },
         "ch1_m3": {
             "title": "Chandrayaan-1 M3 Data Product SIS",
@@ -300,10 +255,7 @@
             "instruments": [
                 "M3"
             ],
-            "note": "Imaging spectrometer rather than a framing camera; the PDS Imaging /documentation copy is an earlier revision.",
-            "alternates": [
-                "https://pds-imaging.jpl.nasa.gov/documentation/M3_DPSIS.PDF"
-            ]
+            "note": "Imaging spectrometer rather than a framing camera."
         },
         "juno_jnc": {
             "title": "JunoCam EDR / RDR Data Product SIS",
@@ -334,9 +286,6 @@
             "document": "JPL D-11805",
             "instruments": [
                 "SSI"
-            ],
-            "alternates": [
-                "https://pds-rings.seti.org/holdings/documents/GO_0xxx/Data-Product-SIS.pdf"
             ]
         },
         "go_ssi_cdvol": {

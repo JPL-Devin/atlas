@@ -11,6 +11,7 @@ import { getIn } from '../../../../../core/utils.js'
 import {
     formatSisSize,
     formatSisTitle,
+    getLatestSis,
     getSisForInstrument,
     getSisGap,
 } from '../../../../../core/sis.js'
@@ -66,21 +67,6 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '12px',
         lineHeight: 1.4,
     },
-    // Mirrors and archive-resident copies, kept small under the canonical link.
-    alternates: {
-        'display': 'flex',
-        'flexWrap': 'wrap',
-        'gap': '2px 8px',
-        'marginTop': '2px',
-        'color': theme.palette.swatches.grey.grey500,
-        'fontSize': '12px',
-        '& > a': {
-            'color': 'inherit',
-            '&:hover, &:focus-visible': {
-                color: theme.palette.swatches.grey.grey700,
-            },
-        },
-    },
     actions: {
         display: 'flex',
         alignItems: 'center',
@@ -105,18 +91,10 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const hostOf = (url) => {
-    try {
-        return new URL(url).hostname.replace(/^www\./, '')
-    } catch {
-        return url
-    }
-}
-
 const first = (value) => (Array.isArray(value) ? value[0] : value)
 
 /**
- * The SIS documents defining the product's data, or the recorded reason none
+ * The current SIS defining the product's data, or the recorded reason none
  * exists.
  */
 export const RelatedResources = (props) => {
@@ -126,62 +104,46 @@ export const RelatedResources = (props) => {
 
     const mission = first(getIn(recordData, ES_PATHS.mission))
     const instruments = getIn(recordData, ES_PATHS.instrument)
-    const documents = getSisForInstrument(mission, instruments)
-    const gap = documents.length === 0 ? getSisGap(mission, instruments) : null
+    const sis = getLatestSis(getSisForInstrument(mission, instruments))
+    const gap = sis == null ? getSisGap(mission, instruments) : null
 
-    if (documents.length === 0 && gap == null) return null
+    if (sis == null && gap == null) return null
 
-    const renderCard = (key, { href, title, note, alternates, size, tooltip }) => (
-        <Tooltip title={tooltip} arrow key={key}>
-            <a className={c.card} href={href} target="_blank" rel="noopener noreferrer">
-                <div className={c.badge}>
-                    <DescriptionOutlinedIcon />
-                </div>
-                <div>
-                    <div className={c.title}>{title}</div>
-                    {note != null && <div className={c.note}>{note}</div>}
-                    {alternates != null && alternates.length > 0 && (
-                        <div className={c.alternates}>
-                            <span>Also at</span>
-                            {alternates.map((url) => (
-                                <a
-                                    href={url}
-                                    key={url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={(event) => event.stopPropagation()}
-                                >
-                                    {hostOf(url)}
-                                </a>
-                            ))}
-                        </div>
-                    )}
-                </div>
-                <div className={c.actions}>
-                    {size != null && <span>{size}</span>}
-                    <OpenInNewIcon className={c.actionIcon} />
-                </div>
-            </a>
-        </Tooltip>
-    )
+    const size = formatSisSize(sis?.size)
 
     return (
         <>
             <div className={headingClassName}>Related Resources</div>
             {gap != null && <div className={c.gapCard}>{gap.note}</div>}
-            {documents.length > 0 && (
+            {sis != null && (
                 <div className={c.cards} aria-label="related resources">
-                    {documents.map((document) =>
-                        renderCard(document.id, {
-                            href: document.url,
-                            title: formatSisTitle(document),
-                            note: document.note,
-                            alternates: document.alternates,
-                            size: formatSisSize(document.size),
-                            tooltip:
-                                'Software Interface Specification — defines this product’s data',
-                        })
-                    )}
+                    <Tooltip
+                        title="Software Interface Specification — defines this product’s data"
+                        arrow
+                    >
+                        <a
+                            className={c.card}
+                            href={sis.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <div className={c.badge}>
+                                <DescriptionOutlinedIcon />
+                            </div>
+                            <div>
+                                <div className={c.title}>
+                                    {formatSisTitle(sis)}
+                                </div>
+                                {sis.note != null && (
+                                    <div className={c.note}>{sis.note}</div>
+                                )}
+                            </div>
+                            <div className={c.actions}>
+                                {size != null && <span>{size}</span>}
+                                <OpenInNewIcon className={c.actionIcon} />
+                            </div>
+                        </a>
+                    </Tooltip>
                 </div>
             )}
         </>

@@ -33,6 +33,34 @@ export const getSisForInstrument = (mission, instruments) => {
         .map((id) => ({ id, ...documents[id] }))
 }
 
+// Sort key for a revision string, handling both dates and version numbers.
+const revisionKey = (document) => {
+    const revision = document.revision
+    if (!revision) return [0, 0, 0]
+    const time = Date.parse(revision)
+    if (!isNaN(time)) return [2, time, 0]
+    const version = /(\d+)(?:\.(\d+))?/.exec(revision)
+    if (version == null) return [0, 0, 0]
+    return [1, Number(version[1]), Number(version[2] || 0)]
+}
+
+const isNewer = (a, b) => {
+    const [ka, kb] = [revisionKey(a), revisionKey(b)]
+    for (let i = 0; i < ka.length; i++) if (ka[i] !== kb[i]) return ka[i] > kb[i]
+    return false
+}
+
+/**
+ * The single most current document of a set, preferring camera SIS and then the
+ * latest revision, for surfaces that show one link rather than a list.
+ */
+export const getLatestSis = (candidates) =>
+    asList(candidates).reduce((latest, document) => {
+        if (latest == null) return document
+        if (!!latest.camera !== !!document.camera) return latest.camera ? latest : document
+        return isNewer(document, latest) ? document : latest
+    }, null)
+
 /**
  * The recorded reason a mission or instrument has no SIS, so an absence can be
  * explained rather than left blank.

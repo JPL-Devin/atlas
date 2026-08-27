@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test'
 import {
     formatSisSize,
     formatSisTitle,
+    getLatestSis,
     getSisDocuments,
     getSisForInstrument,
     getSisGap,
@@ -21,6 +22,8 @@ test.describe('the SIS registry', () => {
             expect(document.url, id).toMatch(/^https:\/\//)
             expect(document.size, id).toBeGreaterThan(0)
             expect(typeof document.camera, id).toBe('boolean')
+            // Only the current revision is registered, so there are no mirrors.
+            expect(document.alternates, id).toBe(undefined)
         })
     })
 
@@ -70,6 +73,30 @@ test.describe('getSisForInstrument', () => {
         expect(getSisForInstrument('msl').map((d) => d.id)).toEqual(['msl_camera', 'msl_mmm'])
         expect(getSisForInstrument(null)).toEqual([])
         expect(getSisForInstrument('vgr')).toEqual([])
+    })
+})
+
+test.describe('getLatestSis', () => {
+    test('picks the newest revision, dates and versions alike', () => {
+        expect(getLatestSis(getSisForInstrument('mro', 'HIRISE')).id).toBe('mro_hirise_rdr')
+        expect(
+            getLatestSis([
+                { id: 'old', revision: 'February 2022' },
+                { id: 'new', revision: 'July 15, 2025' },
+            ]).id
+        ).toBe('new')
+        expect(getLatestSis([{ id: 'unversioned' }, { id: 'v1', revision: 'v1.0' }]).id).toBe('v1')
+    })
+
+    test('prefers a camera SIS over an instrument one, and tolerates nothing', () => {
+        expect(
+            getLatestSis([
+                { id: 'spectrometer', camera: false, revision: 'v9.0' },
+                { id: 'camera', camera: true, revision: 'v1.0' },
+            ]).id
+        ).toBe('camera')
+        expect(getLatestSis([])).toBe(null)
+        expect(getLatestSis(null)).toBe(null)
     })
 })
 
