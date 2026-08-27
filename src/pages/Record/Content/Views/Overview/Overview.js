@@ -55,7 +55,7 @@ import { setRecordViewTab, setSnackBarText } from '../../../../../core/redux/act
 import tileIcons from './tileIcons.js'
 import PanelHeader from '../../PanelHeader/PanelHeader'
 import LabelActions from '../../PanelHeader/LabelActions'
-import RelatedResources from './RelatedResources.js'
+import { RelatedResources } from './RelatedResources.js'
 
 // File cards read by type: rasters, text/label formats, tilesets, then binary.
 const FILE_ICONS = {
@@ -394,14 +394,12 @@ const useStyles = makeStyles((theme) => ({
         marginLeft: '10px',
         borderLeft: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
-    fieldsHeading: {
+    // A heading with a control on its right, otherwise spaced like the rest.
+    actionHeading: {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: '8px',
-        marginTop: '20px',
-        marginBottom: '10px',
-        paddingBottom: '4px',
     },
     allFields: {
         'fontFamily': 'inherit',
@@ -425,7 +423,7 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        margin: '8px 0 8px 0',
+        margin: '0 0 8px 0',
     },
     // A quiet inset field rather than an underline, so it doesn't compete with
     // the section dividers below it.
@@ -660,20 +658,6 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '12px',
         color: theme.palette.swatches.grey.grey500,
         padding: '8px 0',
-    },
-    citationHeading: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '8px',
-        fontSize: '12px',
-        fontWeight: 'bold',
-        letterSpacing: '0.06em',
-        textTransform: 'uppercase',
-        color: theme.palette.swatches.yellow.yellow800,
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey200}`,
-        margin: '0 -20px 10px -20px',
-        padding: '12px 20px 6px 20px',
     },
     // Same surface as the caption card, copy control included.
     citationCard: {
@@ -1115,7 +1099,7 @@ const Overview = (props) => {
                         </div>
                     ))}
                 </div>
-                <div className={`${c.heading} ${c.fieldsHeading}`}>General Fields</div>
+                <div className={`${c.heading} ${c.actionHeading}`}>General Fields</div>
                 <div className={c.filter}>
                     <Skeleton className={c.skeleton} variant="text" width="100%" height={32} />
                 </div>
@@ -1153,7 +1137,7 @@ const Overview = (props) => {
                             ))}
                         </div>
                         {renderTimeline()}
-                        <div className={`${c.heading} ${c.fieldsHeading}`}>
+                        <div className={`${c.heading} ${c.actionHeading}`}>
                             <span>General Fields</span>
                             <Tooltip title="Open the full product label" arrow>
                                 <button
@@ -1240,7 +1224,7 @@ const Overview = (props) => {
                         />
                         {presentation.citation != null && getAppConfig().enableRecordCitation && (
                             <>
-                                <div className={c.citationHeading}>
+                                <div className={`${c.heading} ${c.actionHeading}`}>
                                     <span>Citation</span>
                                 </div>
                                 <div className={c.citationCard} aria-label="record citation">
