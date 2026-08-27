@@ -15,21 +15,24 @@ const fill = (template, value, match) =>
 
 // A segment's meaning comes from an exact code lookup, then the code groups
 // (whole families sharing one meaning), then the ordered patterns, which cover
-// the ranged fields (sol, clock, site, drive, version).
+// the ranged fields (sol, clock, site, drive, version). An exact entry may be a
+// bare meaning or a { meaning, description } pair carrying its own long form.
 const describeValue = (segment, value) => {
     const exact = segment.values ? segment.values[value] : null
-    if (exact != null) return exact
+    if (typeof exact === 'string') return { meaning: exact }
+    if (exact != null) return { meaning: exact.meaning, description: exact.description }
 
     const groups = segment.valueGroups || []
     for (let i = 0; i < groups.length; i++)
-        if (groups[i].codes.split(/\s+/).indexOf(value) !== -1) return groups[i].meaning
+        if (groups[i].codes.split(/\s+/).indexOf(value) !== -1)
+            return { meaning: groups[i].meaning }
 
     const patterns = segment.patterns || []
     for (let i = 0; i < patterns.length; i++) {
         const match = value.match(new RegExp(patterns[i].match))
-        if (match) return fill(patterns[i].meaning, value, match)
+        if (match) return { meaning: fill(patterns[i].meaning, value, match) }
     }
-    return null
+    return {}
 }
 
 /** The mission's spec, or the PDS-standard-specific one when both exist. */
@@ -56,12 +59,13 @@ export const parseFilename = (filename, spec) => {
         // Characters between segments (the extension dot) carry no meaning.
         if (from > cursor) pieces.push({ text: filename.slice(cursor, from) })
         const value = filename.slice(from, to)
+        const described = describeValue(segment, value)
         pieces.push({
             text: value,
             label: segment.label,
             color: segment.color || null,
-            description: segment.description || null,
-            meaning: describeValue(segment, value),
+            description: described.description || segment.description || null,
+            meaning: described.meaning || null,
         })
         cursor = to
     })

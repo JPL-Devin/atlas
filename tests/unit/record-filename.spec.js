@@ -41,7 +41,7 @@ test.describe('parseFilename', () => {
         expect(meaningOf(parsed, 'Spacecraft clock')).toBe('SCLK 739564747 seconds')
         expect(meaningOf(parsed, 'Milliseconds')).toBe('23 ms')
         expect(valueOf(parsed, 'Product type')).toBe('IDM')
-        expect(meaningOf(parsed, 'Product type')).toBe('RDR — miscellaneous product')
+        expect(meaningOf(parsed, 'Product type')).toBe('Miscellaneous — Index Depth Map')
         expect(meaningOf(parsed, 'Thumbnail')).toContain('not a thumbnail')
         expect(meaningOf(parsed, 'Site')).toBe('Site 39')
         expect(meaningOf(parsed, 'Drive')).toBe('Drive 1469')
@@ -84,6 +84,28 @@ test.describe('parseFilename', () => {
         expect(meaningOf(parsed, 'Instrument')).toBe(null)
         expect(meaningOf(parsed, 'Product type')).toBe(null)
         expect(segment(parsed, 'Instrument').description).toContain('Camera that acquired')
+    })
+
+    test('product type codes carry a short paragraph of their own', () => {
+        const paragraph = (filename) => segment(parse(filename), 'Product type').description
+        // Radiometric, XYZ and colour codes each explain their own family.
+        expect(paragraph('NRF_0368_0699599710_551RAD_N0110108NCAM00600_0A00LLJ01.IMG')).toContain(
+            'Radiometric RDRs convert raw DN into physical units'
+        )
+        expect(paragraph('NRM_0818_0739564747_023XYZ_N0391469VCE_16000_0A02LLJ02.IMG')).toContain(
+            'three-dimensional position'
+        )
+        expect(paragraph('ZL0_0673_0761234567_123DWG_N0301234ZCAM03456_1100LMA03.IMG')).toContain(
+            'the raw-DN member of the set'
+        )
+        // Each paragraph ends on the SIS facts for that code.
+        expect(paragraph('NRF_0368_0699599710_551RAD_N0110108NCAM00600_0A00LLJ01.IMG')).toContain(
+            'PDS processing level calibrated; derived image type IMAGE'
+        )
+        // An unlisted code falls back to the segment's own description.
+        expect(paragraph('NRM_0818_0739564747_023QQQ_N0391469VCE_16000_0A02LLJ02.IMG')).toContain(
+            'What kind of product this is'
+        )
     })
 
     test('out-of-range fields decode as such', () => {

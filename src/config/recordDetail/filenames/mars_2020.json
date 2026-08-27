@@ -72,6 +72,14 @@
             "color": "green",
             "description": "Colour space band, filter position or illumination state.",
             "values": {
+                "0": "Mastcam-Z filter 0, or SHERLOC cover closed with LEDs off",
+                "1": "Mastcam-Z filter 1, or SHERLOC cover open with LEDs off",
+                "2": "Mastcam-Z filter 2, or SHERLOC cover closed with LEDs on",
+                "3": "Mastcam-Z filter 3, or SHERLOC cover open with LEDs on",
+                "4": "Mastcam-Z filter 4",
+                "5": "Mastcam-Z filter 5",
+                "6": "Mastcam-Z filter 6",
+                "7": "Mastcam-Z filter 7",
                 "E": "Raw Bayer pattern",
                 "M": "Grayscale (monochrome / panchromatic)",
                 "A": "Upper green Bayer cells (G1)",
@@ -95,15 +103,7 @@
                 "S": "HSI band 2 (saturation), or PIXL sparse SLI-B illumination",
                 "I": "HSI band 3 (intensity)",
                 "W": "PIXL multiple LED colours",
-                "U": "PIXL UV LEDs",
-                "0": "Mastcam-Z filter 0, or SHERLOC cover closed with LEDs off",
-                "1": "Mastcam-Z filter 1, or SHERLOC cover open with LEDs off",
-                "2": "Mastcam-Z filter 2, or SHERLOC cover closed with LEDs on",
-                "3": "Mastcam-Z filter 3, or SHERLOC cover open with LEDs on",
-                "4": "Mastcam-Z filter 4",
-                "5": "Mastcam-Z filter 5",
-                "6": "Mastcam-Z filter 6",
-                "7": "Mastcam-Z filter 7"
+                "U": "PIXL UV LEDs"
             }
         },
         {
@@ -112,7 +112,9 @@
             "label": "Special processing",
             "color": "slate",
             "description": "Marks off-nominal processing; the meaning of each letter is assigned per sol. EDRs are always \"_\".",
-            "values": { "_": "Nominal processing" }
+            "values": {
+                "_": "Nominal processing"
+            }
         },
         {
             "start": 5,
@@ -120,8 +122,15 @@
             "label": "Sol",
             "color": "orange",
             "description": "Primary timestamp. On the surface this is the Mars solar day; in cruise and ground test it is an encoded Earth year and day-of-year instead.",
-            "values": { "____": "Out of range" },
-            "patterns": [{ "match": "^[0-9]{4}$", "meaning": "Sol {number}" }]
+            "values": {
+                "____": "Out of range"
+            },
+            "patterns": [
+                {
+                    "match": "^[0-9]{4}$",
+                    "meaning": "Sol {number}"
+                }
+            ]
         },
         {
             "start": 9,
@@ -145,8 +154,15 @@
             "label": "Spacecraft clock",
             "color": "teal",
             "description": "Secondary timestamp: whole seconds of the spacecraft clock at the start of the observation (Earth-received time in ground tests where the clock resets).",
-            "values": { "__________": "Out of range" },
-            "patterns": [{ "match": "^[0-9]{10}$", "meaning": "SCLK {number} seconds" }]
+            "values": {
+                "__________": "Out of range"
+            },
+            "patterns": [
+                {
+                    "match": "^[0-9]{10}$",
+                    "meaning": "SCLK {number} seconds"
+                }
+            ]
         },
         {
             "start": 20,
@@ -166,7 +182,12 @@
             "label": "Milliseconds",
             "color": "amber",
             "description": "Milliseconds of the spacecraft clock or UTC timestamp.",
-            "patterns": [{ "match": "^[0-9]{3}$", "meaning": "{number} ms" }]
+            "patterns": [
+                {
+                    "match": "^[0-9]{3}$",
+                    "meaning": "{number} ms"
+                }
+            ]
         },
         {
             "start": 24,
@@ -175,44 +196,834 @@
             "color": "violet",
             "description": "What kind of product this is — raw EDR, decompanded, radiometrically corrected, geometry, and so on.",
             "values": {
-                "ECM": "EDR — original companded image, as downlinked",
-                "EJP": "EDR — JPEG-compressed image, as downlinked",
-                "ECV": "EDR — single frame of a video sequence",
-                "ECZ": "EDR — onboard best-focus Z-stack",
-                "EDM": "EDR — Z-stack depth map",
-                "ECR": "EDR — recovered product, metadata unavailable",
-                "EDR": "EDR — decompanded image (nominal product)",
-                "EVD": "EDR — decompanded video frame",
-                "EZS": "EDR — decompanded Z-stack",
-                "ERD": "EDR — decompanded recovered product",
-                "EBY": "EDR — de-bayered colour image",
-                "EAU": "EDR — audio",
-                "ERS": "EDR — row-summed array",
-                "ECS": "EDR — column-summed array",
-                "ERP": "EDR — Skycam reference pixels",
-                "EHG": "EDR — DN histogram",
-                "EID": "EDR — image data product header only",
-                "FDR": "FDR — full data record, reassembled image",
-                "FAU": "FDR — reassembled audio",
-                "TDR": "FDR — terrain-corrected data record"
-            },
-            "valueGroups": [
-                { "codes": "DEM MXY XOZ XRM XRR XRZ XXF XXX XYE XYF XYM XYO XYR XYZ YYF YYY ZIH ZZF ZZZ", "meaning": "RDR — XYZ surface coordinate map" },
-                { "codes": "ARK ARM ARO MAR", "meaning": "RDR — arm reachability map" },
-                { "codes": "DNB DNF DNG DNR DNS DPB DPD DPF DPG DPS DSB DSD DSF DSG DSS DWB DWD DWF DWG DWS", "meaning": "RDR — colour product from raw DN" },
-                { "codes": "CNB CNF CNG CNR CNS CPB CPD CPF CPG CPS CSB CSD CSF CSG CSS CWB CWD CWF CWG CWS", "meaning": "RDR — colour product, energy-to-camera" },
-                { "codes": "AGS MNB MNF MNG MNR MNS MPB MPD MPF MPG MPS MSB MSD MSF MSG MSS MWB MWD MWF MWG MWS", "meaning": "RDR — masked colour product" },
-                { "codes": "AGM", "meaning": "RDR — metadata product" },
-                { "codes": "ICM IDM IDX IEF IEP MSK TEN TER", "meaning": "RDR — miscellaneous product" },
-                { "codes": "IOF IOI RAD RAF RAG RAS RAY RDM RIE RIF RSM RZD RZF RZS RZY", "meaning": "RDR — radiometrically corrected image" },
-                { "codes": "RNE RNF RNG RNM RNO RNR RXY", "meaning": "RDR — range map" },
-                { "codes": "SEN SHD SHO SLO SLP SMG SMO SNO SNT SRD", "meaning": "RDR — slope product" },
-                { "codes": "COE COF DDD DDL DDS DFF DFL DFS DSE DSL DSP DSR MDS", "meaning": "RDR — stereo correlation product" },
-                { "codes": "FST GRA GRC GRN GSR GUA GUC GUH GUN SLH", "meaning": "RDR — stereo goodness map" },
-                { "codes": "TFH UIH UUF UUU UVF UVO UVP UVS UVT UVW VVF VVV WWF WWW", "meaning": "RDR — surface normal product" },
-                { "codes": "RUC RUF RUH RUS", "meaning": "RDR — surface roughness map" },
-                { "codes": "ZNB ZNF ZNG ZNR ZNS ZPB ZPD ZPF ZPG ZPS ZSB ZSD ZSF ZSG ZSS ZWB ZWD ZWF ZWG ZWS", "meaning": "RDR — zenith-scaled colour product" }
-            ]
+                "ECM": {
+                    "meaning": "EDR — original companded image, as downlinked",
+                    "description": "Original Image Product, Possibly Companded (8->12bit). EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level raw; 1 or 3 bands of byte or short data. Camera SIS §5.2.1."
+                },
+                "EJP": {
+                    "meaning": "EDR — JPEG-compressed image, as downlinked",
+                    "description": "Original JPEG as received from the rover. EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level raw. Camera SIS §5.3.7."
+                },
+                "ECV": {
+                    "meaning": "EDR — single frame of a video sequence",
+                    "description": "Single frame of a Video Sequence (possibly companded). EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level raw; 1 or 3 bands of byte or short data. Camera SIS §5.2.1."
+                },
+                "ECZ": {
+                    "meaning": "EDR — onboard best-focus Z-stack",
+                    "description": "Z-stack frame (possibly companded). EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level raw; 1 or 3 bands of byte or short data. Camera SIS §5.2.1."
+                },
+                "EDM": {
+                    "meaning": "EDR — Z-stack depth map",
+                    "description": "Depth Map. EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level raw; 1 band of byte data. Camera SIS §5.3.3."
+                },
+                "EHM": {
+                    "meaning": "EDR — Height Map",
+                    "description": "EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level raw."
+                },
+                "ECR": {
+                    "meaning": "EDR — recovered product, metadata unavailable",
+                    "description": "Recovered Product (possibly companded). EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level raw; 1 or 3 bands of byte or short data. Camera SIS §5.2.1."
+                },
+                "ERP": {
+                    "meaning": "EDR — Skycam reference pixels",
+                    "description": "Reference Pixel. EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level raw. Camera SIS §5.7.3."
+                },
+                "ERS": {
+                    "meaning": "EDR — row-summed array",
+                    "description": "Row Summed. EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level raw."
+                },
+                "ECS": {
+                    "meaning": "EDR — column-summed array",
+                    "description": "Column Summed. EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level raw."
+                },
+                "EHG": {
+                    "meaning": "EDR — DN histogram",
+                    "description": "Histogram. EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level raw."
+                },
+                "EAU": {
+                    "meaning": "EDR — audio",
+                    "description": "Audio. EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level raw. Camera SIS §5.9.2."
+                },
+                "EDR": {
+                    "meaning": "EDR — decompanded image (nominal product)",
+                    "description": "Decompanded Image Product. EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level partially processed; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §5.2.2."
+                },
+                "EVD": {
+                    "meaning": "EDR — decompanded video frame",
+                    "description": "Single frame of a Video Sequence (de-companded). EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level partially processed; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §5.2.2."
+                },
+                "EZS": {
+                    "meaning": "EDR — decompanded Z-stack",
+                    "description": "Z-stack frame (de-companded). EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level partially processed; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §5.2.2."
+                },
+                "ERD": {
+                    "meaning": "EDR — decompanded recovered product",
+                    "description": "Recovered Product (de-companded). EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level partially processed; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §5.2.2."
+                },
+                "EBY": {
+                    "meaning": "EDR — de-bayered colour image",
+                    "description": "De-Bayered (de-mosaicked). EDRs are the earliest products: the image as telemetered, decompressed into a raster but not radiometrically or geometrically processed. PDS processing level partially processed; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §5.2.3."
+                },
+                "FDR": {
+                    "meaning": "FDR — full data record, reassembled image",
+                    "description": "Base image from which all RDRs are derived. FDRs reassemble what was downlinked into the single full-frame image that every RDR is derived from. PDS processing level partially processed; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §6."
+                },
+                "TDR": {
+                    "meaning": "FDR — terrain-corrected data record",
+                    "description": "Tile Data Record. FDRs reassemble what was downlinked into the single full-frame image that every RDR is derived from. PDS processing level partially processed; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §6.2.2."
+                },
+                "FAU": {
+                    "meaning": "FDR — reassembled audio",
+                    "description": "Audio Reconstructed. FDRs reassemble what was downlinked into the single full-frame image that every RDR is derived from. PDS processing level partially processed. Camera SIS §6.4."
+                },
+                "IOF": {
+                    "meaning": "Radiometric — Rad-corrected IOF radiance factor, float",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of float data. Camera SIS §7.1."
+                },
+                "IOI": {
+                    "meaning": "Radiometric — Rad-corrected IOF radiance factor, integer",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §7.1."
+                },
+                "RAF": {
+                    "meaning": "Radiometric — Rad-corrected absolute radiance units, float",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of float data. Camera SIS §7.1."
+                },
+                "RAD": {
+                    "meaning": "Radiometric — Rad-corrected absolute radiance units, 15-bit integer static scale",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §7.1."
+                },
+                "RAS": {
+                    "meaning": "Radiometric — Rad-corrected absolute radiance units, 12-bit integer static scale",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §7.1."
+                },
+                "RAY": {
+                    "meaning": "Radiometric — Rad-corrected absolute radiance units, 15-bit int dynamic scale",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §7.1."
+                },
+                "RDM": {
+                    "meaning": "Radiometric — Rad-corrected radiance (RAD), masked",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §7.1."
+                },
+                "RIE": {
+                    "meaning": "Radiometric — Rad-corrected for Instrument Effects only, integer DN",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §7.1."
+                },
+                "RIF": {
+                    "meaning": "Radiometric — Rad-corrected for Instrument Effects only, float",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of float data. Camera SIS §7.1."
+                },
+                "RSM": {
+                    "meaning": "Radiometric — Rad-corrected scaled radiance (RAS), masked",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §7.1."
+                },
+                "RAG": {
+                    "meaning": "Radiometric — Gamma-corrected radiance, no longer calibrated units, byte",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level derived; derived image type IMAGE; 1 or 3 bands of byte data. Camera SIS §7.1."
+                },
+                "RZF": {
+                    "meaning": "Radiometric — Zenith-scaled radiance, float",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of float data. Camera SIS §7.1.5."
+                },
+                "RZD": {
+                    "meaning": "Radiometric — Zenith-scaled radiance, 15-bit integer static scale",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §7.1.5."
+                },
+                "RZS": {
+                    "meaning": "Radiometric — Zenith-scaled radiance, 12-bit integer static scale",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §7.1.5."
+                },
+                "RZY": {
+                    "meaning": "Radiometric — Zenith-scaled radiance, 15-bit integer dynamic scale",
+                    "description": "Radiometric RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. PDS processing level calibrated; derived image type IMAGE; 1 or 3 bands of short data. Camera SIS §7.1.5."
+                },
+                "CNR": {
+                    "meaning": "Color — No Illuminant, 15-bit scaled integer, linear space (exposure-time-compensated)",
+                    "description": "Color, No Illuminant, 15-bit scaled integer, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "DNR": {
+                    "meaning": "Color — No Illuminant, 15-bit scaled integer, linear space (raw-DN)",
+                    "description": "Color, No Illuminant, 15-bit scaled integer, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "ZNR": {
+                    "meaning": "Color — No Illuminant, 15-bit scaled integer, linear space (zenith-scaled)",
+                    "description": "Color, No Illuminant, 15-bit scaled integer, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "MNR": {
+                    "meaning": "Color — No Illuminant, 15-bit scaled integer, linear space (masked)",
+                    "description": "Color, No Illuminant, 15-bit scaled integer, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "CNS": {
+                    "meaning": "Color — No Illuminant, 12-bit scaled integer, linear space (exposure-time-compensated)",
+                    "description": "Color, No Illuminant, 12-bit scaled integer, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "DNS": {
+                    "meaning": "Color — No Illuminant, 12-bit scaled integer, linear space (raw-DN)",
+                    "description": "Color, No Illuminant, 12-bit scaled integer, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "ZNS": {
+                    "meaning": "Color — No Illuminant, 12-bit scaled integer, linear space (zenith-scaled)",
+                    "description": "Color, No Illuminant, 12-bit scaled integer, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "MNS": {
+                    "meaning": "Color — No Illuminant, 12-bit scaled integer, linear space (masked)",
+                    "description": "Color, No Illuminant, 12-bit scaled integer, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "CNF": {
+                    "meaning": "Color — No Illuminant, Float, linear space (exposure-time-compensated)",
+                    "description": "Color, No Illuminant, Float, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "DNF": {
+                    "meaning": "Color — No Illuminant, Float, linear space (raw-DN)",
+                    "description": "Color, No Illuminant, Float, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "ZNF": {
+                    "meaning": "Color — No Illuminant, Float, linear space (zenith-scaled)",
+                    "description": "Color, No Illuminant, Float, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "MNF": {
+                    "meaning": "Color — No Illuminant, Float, linear space (masked)",
+                    "description": "Color, No Illuminant, Float, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "CNB": {
+                    "meaning": "Color — No Illuminant, Byte, linear space (exposure-time-compensated)",
+                    "description": "Color, No Illuminant, Byte, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "DNB": {
+                    "meaning": "Color — No Illuminant, Byte, linear space (raw-DN)",
+                    "description": "Color, No Illuminant, Byte, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "ZNB": {
+                    "meaning": "Color — No Illuminant, Byte, linear space (zenith-scaled)",
+                    "description": "Color, No Illuminant, Byte, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "MNB": {
+                    "meaning": "Color — No Illuminant, Byte, linear space (masked)",
+                    "description": "Color, No Illuminant, Byte, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "CNG": {
+                    "meaning": "Color — No Illuminant, Byte, Gamma-corrected (exposure-time-compensated)",
+                    "description": "Color, No Illuminant, Byte, Gamma-corrected — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "DNG": {
+                    "meaning": "Color — No Illuminant, Byte, Gamma-corrected (raw-DN)",
+                    "description": "Color, No Illuminant, Byte, Gamma-corrected — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "ZNG": {
+                    "meaning": "Color — No Illuminant, Byte, Gamma-corrected (zenith-scaled)",
+                    "description": "Color, No Illuminant, Byte, Gamma-corrected — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "MNG": {
+                    "meaning": "Color — No Illuminant, Byte, Gamma-corrected (masked)",
+                    "description": "Color, No Illuminant, Byte, Gamma-corrected — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "CSD": {
+                    "meaning": "Color — Standard Illuminant, 15-bit scaled integer, linear space (exposure-time-compensated)",
+                    "description": "Color, Standard Illuminant, 15-bit scaled integer, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "DSD": {
+                    "meaning": "Color — Standard Illuminant, 15-bit scaled integer, linear space (raw-DN)",
+                    "description": "Color, Standard Illuminant, 15-bit scaled integer, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "ZSD": {
+                    "meaning": "Color — Standard Illuminant, 15-bit scaled integer, linear space (zenith-scaled)",
+                    "description": "Color, Standard Illuminant, 15-bit scaled integer, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "MSD": {
+                    "meaning": "Color — Standard Illuminant, 15-bit scaled integer, linear space (masked)",
+                    "description": "Color, Standard Illuminant, 15-bit scaled integer, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "CSS": {
+                    "meaning": "Color — Standard Illuminant, 12-bit scaled integer, linear space (exposure-time-compensated)",
+                    "description": "Color, Standard Illuminant, 12-bit scaled integer, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "DSS": {
+                    "meaning": "Color — Standard Illuminant, 12-bit scaled integer, linear space (raw-DN)",
+                    "description": "Color, Standard Illuminant, 12-bit scaled integer, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "ZSS": {
+                    "meaning": "Color — Standard Illuminant, 12-bit scaled integer, linear space (zenith-scaled)",
+                    "description": "Color, Standard Illuminant, 12-bit scaled integer, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "MSS": {
+                    "meaning": "Color — Standard Illuminant, 12-bit scaled integer, linear space (masked)",
+                    "description": "Color, Standard Illuminant, 12-bit scaled integer, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "CSF": {
+                    "meaning": "Color — Standard Illuminant, Float, linear space (exposure-time-compensated)",
+                    "description": "Color, Standard Illuminant, Float, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "DSF": {
+                    "meaning": "Color — Standard Illuminant, Float, linear space (raw-DN)",
+                    "description": "Color, Standard Illuminant, Float, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "ZSF": {
+                    "meaning": "Color — Standard Illuminant, Float, linear space (zenith-scaled)",
+                    "description": "Color, Standard Illuminant, Float, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "MSF": {
+                    "meaning": "Color — Standard Illuminant, Float, linear space (masked)",
+                    "description": "Color, Standard Illuminant, Float, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "CSB": {
+                    "meaning": "Color — Standard Illuminant, Byte, linear space (exposure-time-compensated)",
+                    "description": "Color, Standard Illuminant, Byte, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "DSB": {
+                    "meaning": "Color — Standard Illuminant, Byte, linear space (raw-DN)",
+                    "description": "Color, Standard Illuminant, Byte, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "ZSB": {
+                    "meaning": "Color — Standard Illuminant, Byte, linear space (zenith-scaled)",
+                    "description": "Color, Standard Illuminant, Byte, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "MSB": {
+                    "meaning": "Color — Standard Illuminant, Byte, linear space (masked)",
+                    "description": "Color, Standard Illuminant, Byte, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "CSG": {
+                    "meaning": "Color — Standard Illuminant, Byte, Gamma-corrected (exposure-time-compensated)",
+                    "description": "Color, Standard Illuminant, Byte, Gamma-corrected — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "DSG": {
+                    "meaning": "Color — Standard Illuminant, Byte, Gamma-corrected (raw-DN)",
+                    "description": "Color, Standard Illuminant, Byte, Gamma-corrected — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "ZSG": {
+                    "meaning": "Color — Standard Illuminant, Byte, Gamma-corrected (zenith-scaled)",
+                    "description": "Color, Standard Illuminant, Byte, Gamma-corrected — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "MSG": {
+                    "meaning": "Color — Standard Illuminant, Byte, Gamma-corrected (masked)",
+                    "description": "Color, Standard Illuminant, Byte, Gamma-corrected — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "CPD": {
+                    "meaning": "Color — White Bal, Mars Illuminant, 15-bit scaled int, linear space (exposure-time-compensated)",
+                    "description": "Color, White Bal, Mars Illuminant, 15-bit scaled int, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "DPD": {
+                    "meaning": "Color — White Bal, Mars Illuminant, 15-bit scaled int, linear space (raw-DN)",
+                    "description": "Color, White Bal, Mars Illuminant, 15-bit scaled int, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "ZPD": {
+                    "meaning": "Color — White Bal, Mars Illuminant, 15-bit scaled int, linear space (zenith-scaled)",
+                    "description": "Color, White Bal, Mars Illuminant, 15-bit scaled int, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "MPD": {
+                    "meaning": "Color — White Bal, Mars Illuminant, 15-bit scaled int, linear space (masked)",
+                    "description": "Color, White Bal, Mars Illuminant, 15-bit scaled int, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "CPS": {
+                    "meaning": "Color — White Bal, Mars Illuminant, 12-bit scaled int, linear space (exposure-time-compensated)",
+                    "description": "Color, White Bal, Mars Illuminant, 12-bit scaled int, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "DPS": {
+                    "meaning": "Color — White Bal, Mars Illuminant, 12-bit scaled int, linear space (raw-DN)",
+                    "description": "Color, White Bal, Mars Illuminant, 12-bit scaled int, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "ZPS": {
+                    "meaning": "Color — White Bal, Mars Illuminant, 12-bit scaled int, linear space (zenith-scaled)",
+                    "description": "Color, White Bal, Mars Illuminant, 12-bit scaled int, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "MPS": {
+                    "meaning": "Color — White Bal, Mars Illuminant, 12-bit scaled int, linear space (masked)",
+                    "description": "Color, White Bal, Mars Illuminant, 12-bit scaled int, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "CPF": {
+                    "meaning": "Color — White Balanced, Mars Illuminant, Float, linear space (exposure-time-compensated)",
+                    "description": "Color, White Balanced, Mars Illuminant, Float, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "DPF": {
+                    "meaning": "Color — White Balanced, Mars Illuminant, Float, linear space (raw-DN)",
+                    "description": "Color, White Balanced, Mars Illuminant, Float, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "ZPF": {
+                    "meaning": "Color — White Balanced, Mars Illuminant, Float, linear space (zenith-scaled)",
+                    "description": "Color, White Balanced, Mars Illuminant, Float, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "MPF": {
+                    "meaning": "Color — White Balanced, Mars Illuminant, Float, linear space (masked)",
+                    "description": "Color, White Balanced, Mars Illuminant, Float, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "CPB": {
+                    "meaning": "Color — White Balanced, Mars Illuminant, Byte, linear space (exposure-time-compensated)",
+                    "description": "Color, White Balanced, Mars Illuminant, Byte, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "DPB": {
+                    "meaning": "Color — White Balanced, Mars Illuminant, Byte, linear space (raw-DN)",
+                    "description": "Color, White Balanced, Mars Illuminant, Byte, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "ZPB": {
+                    "meaning": "Color — White Balanced, Mars Illuminant, Byte, linear space (zenith-scaled)",
+                    "description": "Color, White Balanced, Mars Illuminant, Byte, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "MPB": {
+                    "meaning": "Color — White Balanced, Mars Illuminant, Byte, linear space (masked)",
+                    "description": "Color, White Balanced, Mars Illuminant, Byte, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "CPG": {
+                    "meaning": "Color — White Balanced, Mars Illuminant, Byte, Gamma-corrected (exposure-time-compensated)",
+                    "description": "Color, White Balanced, Mars Illuminant, Byte, Gamma-corrected — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "DPG": {
+                    "meaning": "Color — White Balanced, Mars Illuminant, Byte, Gamma-corrected (raw-DN)",
+                    "description": "Color, White Balanced, Mars Illuminant, Byte, Gamma-corrected — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "ZPG": {
+                    "meaning": "Color — White Balanced, Mars Illuminant, Byte, Gamma-corrected (zenith-scaled)",
+                    "description": "Color, White Balanced, Mars Illuminant, Byte, Gamma-corrected — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "MPG": {
+                    "meaning": "Color — White Balanced, Mars Illuminant, Byte, Gamma-corrected (masked)",
+                    "description": "Color, White Balanced, Mars Illuminant, Byte, Gamma-corrected — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "CWD": {
+                    "meaning": "Color — White Balanced, 15-bit scaled integer, linear space (exposure-time-compensated)",
+                    "description": "Color, White Balanced, 15-bit scaled integer, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "DWD": {
+                    "meaning": "Color — White Balanced, 15-bit scaled integer, linear space (raw-DN)",
+                    "description": "Color, White Balanced, 15-bit scaled integer, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "ZWD": {
+                    "meaning": "Color — White Balanced, 15-bit scaled integer, linear space (zenith-scaled)",
+                    "description": "Color, White Balanced, 15-bit scaled integer, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "MWD": {
+                    "meaning": "Color — White Balanced, 15-bit scaled integer, linear space (masked)",
+                    "description": "Color, White Balanced, 15-bit scaled integer, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "CWS": {
+                    "meaning": "Color — White Balanced, 12-bit scaled integer, linear space (exposure-time-compensated)",
+                    "description": "Color, White Balanced, 12-bit scaled integer, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "DWS": {
+                    "meaning": "Color — White Balanced, 12-bit scaled integer, linear space (raw-DN)",
+                    "description": "Color, White Balanced, 12-bit scaled integer, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "ZWS": {
+                    "meaning": "Color — White Balanced, 12-bit scaled integer, linear space (zenith-scaled)",
+                    "description": "Color, White Balanced, 12-bit scaled integer, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "MWS": {
+                    "meaning": "Color — White Balanced, 12-bit scaled integer, linear space (masked)",
+                    "description": "Color, White Balanced, 12-bit scaled integer, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of short data. Camera SIS §7.2."
+                },
+                "CWF": {
+                    "meaning": "Color — White Balanced, Float, linear space (exposure-time-compensated)",
+                    "description": "Color, White Balanced, Float, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "DWF": {
+                    "meaning": "Color — White Balanced, Float, linear space (raw-DN)",
+                    "description": "Color, White Balanced, Float, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "ZWF": {
+                    "meaning": "Color — White Balanced, Float, linear space (zenith-scaled)",
+                    "description": "Color, White Balanced, Float, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "MWF": {
+                    "meaning": "Color — White Balanced, Float, linear space (masked)",
+                    "description": "Color, White Balanced, Float, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of float data. Camera SIS §7.2."
+                },
+                "CWB": {
+                    "meaning": "Color — White Balanced, Byte, linear space (exposure-time-compensated)",
+                    "description": "Color, White Balanced, Byte, linear space — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "DWB": {
+                    "meaning": "Color — White Balanced, Byte, linear space (raw-DN)",
+                    "description": "Color, White Balanced, Byte, linear space — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "ZWB": {
+                    "meaning": "Color — White Balanced, Byte, linear space (zenith-scaled)",
+                    "description": "Color, White Balanced, Byte, linear space — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "MWB": {
+                    "meaning": "Color — White Balanced, Byte, linear space (masked)",
+                    "description": "Color, White Balanced, Byte, linear space — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "CWG": {
+                    "meaning": "Color — White Balanced, Byte, Gamma-corrected (exposure-time-compensated)",
+                    "description": "Color, White Balanced, Byte, Gamma-corrected — the exposure-time-compensated member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "DWG": {
+                    "meaning": "Color — White Balanced, Byte, Gamma-corrected (raw-DN)",
+                    "description": "Color, White Balanced, Byte, Gamma-corrected — the raw-DN member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "ZWG": {
+                    "meaning": "Color — White Balanced, Byte, Gamma-corrected (zenith-scaled)",
+                    "description": "Color, White Balanced, Byte, Gamma-corrected — the zenith-scaled member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "MWG": {
+                    "meaning": "Color — White Balanced, Byte, Gamma-corrected (masked)",
+                    "description": "Color, White Balanced, Byte, Gamma-corrected — the masked member of the set. Color RDRs interpolate the Bayer pattern and apply a white-balance or illuminant model to produce a three-band image. PDS processing level derived; derived image type IMAGE; 3 bands of byte data. Camera SIS §7.2."
+                },
+                "DDD": {
+                    "meaning": "Correlation — Stereo Delta Disparity (2-band, true disparity offset)",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type DISP_DELTA_MAP; 2 bands of float data. Camera SIS §8.6."
+                },
+                "DDL": {
+                    "meaning": "Correlation — Stereo Delta Disparity Line (single-band)",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type DISP_DELTA_LINE_MAP; 1 band of float data. Camera SIS §8.6."
+                },
+                "DDS": {
+                    "meaning": "Correlation — Stereo Delta Disparity Sample (single-band)",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type DISP_DELTA_SAMPLE_MAP; 1 band of float data. Camera SIS §8.6."
+                },
+                "DSE": {
+                    "meaning": "Correlation — Stereo Disparity Error Metric",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type DISPARITY_ERROR_MAP; 4 bands of float data. Camera SIS §8.7.1."
+                },
+                "DSP": {
+                    "meaning": "Correlation — Stereo Disparity Final",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type DISPARITY_MAP; 2 bands of float data. Camera SIS §8.6."
+                },
+                "DSR": {
+                    "meaning": "Correlation — Stereo Disparity Raw",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type DISPARITY_MAP; 2 bands of float data. Camera SIS §8.6."
+                },
+                "MDS": {
+                    "meaning": "Correlation — Stereo Disparity Mask File",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type MASK; 1 band of byte data. Camera SIS §8.6."
+                },
+                "DFF": {
+                    "meaning": "Correlation — Stereo First-stage Disparity Final",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type DISPARITY_MAP; 2 bands of float data. Camera SIS §8.6."
+                },
+                "DFL": {
+                    "meaning": "Correlation — Stereo First-stage Disparity Line",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type DISPARITY_LINE_MAP; 1 band of float data. Camera SIS §8.6."
+                },
+                "DSL": {
+                    "meaning": "Correlation — Stereo Disparity Line",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type DISPARITY_LINE_MAP; 1 band of float data. Camera SIS §8.6."
+                },
+                "DFS": {
+                    "meaning": "Correlation — Stereo First-stage Disparity Sample",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type DISPARITY_SAMPLE_MAP; 1 band of float data. Camera SIS §8.6."
+                },
+                "COF": {
+                    "meaning": "Correlation — Correlation Coefficients, First-stage",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type DISPARITY_COEFS_MAP; 6 bands of float data. Camera SIS §8.5."
+                },
+                "COE": {
+                    "meaning": "Correlation — Correlation Coefficients, Second-stage",
+                    "description": "Correlation RDRs hold stereo disparity — the parallax in pixels between a point in the reference image and its match in the stereo partner. PDS processing level derived; derived image type DISPARITY_COEFS_MAP; 6 bands of float data. Camera SIS §8.5."
+                },
+                "XYZ": {
+                    "meaning": "XYZ — XYZ expressed in Site frame",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level calibrated; derived image type XYZ_MAP; 3 bands of float data. Camera SIS §8.7."
+                },
+                "XYM": {
+                    "meaning": "XYZ — XYZ expressed in Site frame, Masked",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level calibrated; derived image type XYZ_MAP; 3 bands of float data. Camera SIS §8.7."
+                },
+                "XYR": {
+                    "meaning": "XYZ — XYZ expressed in Rover Nav frame",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level calibrated; derived image type XYZ_MAP; 3 bands of float data. Camera SIS §8.7."
+                },
+                "XRM": {
+                    "meaning": "XYZ — XYZ expressed in Rover, Masked",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level calibrated; derived image type XYZ_MAP; 3 bands of float data. Camera SIS §8.7."
+                },
+                "XYE": {
+                    "meaning": "XYZ — XYZ Error Metric",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level calibrated; derived image type XYZ_ERROR_MAP; 3 bands of float data. Camera SIS §8.7.1."
+                },
+                "MXY": {
+                    "meaning": "XYZ — XYZ Mask File",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level calibrated; derived image type MASK; 3 bands of byte data. Camera SIS §8.7."
+                },
+                "XYF": {
+                    "meaning": "XYZ — XYZ Filled",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level derived; derived image type XYZ_MAP; 3 bands of float data. Camera SIS §8.7."
+                },
+                "XYO": {
+                    "meaning": "XYZ — XYZ with Overlay",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level derived; derived image type IMAGE. Camera SIS §8.7."
+                },
+                "XRZ": {
+                    "meaning": "XYZ — XYZ from disparity raw expressed in Site frame",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level derived; derived image type XYZ_MAP; 3 bands of float data. Camera SIS §8.7."
+                },
+                "XRR": {
+                    "meaning": "XYZ — XYZ from disparity raw expressed in Rover Nav frame",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level derived; derived image type XYZ_MAP; 3 bands of float data. Camera SIS §8.7."
+                },
+                "XXX": {
+                    "meaning": "XYZ — XYZ X-band",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level calibrated; derived image type X_MAP; 1 band of float data. Camera SIS §8.7."
+                },
+                "YYY": {
+                    "meaning": "XYZ — XYZ Y-band",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level calibrated; derived image type Y_MAP; 1 band of float data. Camera SIS §8.7."
+                },
+                "ZZZ": {
+                    "meaning": "XYZ — XYZ Z-band",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level calibrated; derived image type Z_MAP; 1 band of float data. Camera SIS §8.7."
+                },
+                "DEM": {
+                    "meaning": "XYZ — Digital Elevation Model. Like ZZZ but positive up",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level calibrated; derived image type ELEVATION_MAP; 1 band of float data. Camera SIS §8.7."
+                },
+                "XOZ": {
+                    "meaning": "XYZ — Orbital XYZ",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level calibrated; derived image type XYZ_MAP; 3 bands of float data. Camera SIS §8.7.1."
+                },
+                "XXF": {
+                    "meaning": "XYZ — XYZ X-band Filled",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level derived; derived image type X_MAP; 1 band of float data. Camera SIS §8.7."
+                },
+                "YYF": {
+                    "meaning": "XYZ — XYZ Y-band Filled",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level derived; derived image type Y_MAP; 1 band of float data. Camera SIS §8.7."
+                },
+                "ZZF": {
+                    "meaning": "XYZ — XYZ Z-band Filled",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level derived; derived image type Z_MAP; 1 band of float data. Camera SIS §8.7."
+                },
+                "ZIH": {
+                    "meaning": "XYZ — Instrument Z value for Helicopter",
+                    "description": "XYZ RDRs give every pixel a three-dimensional position in one of the M2020 coordinate frames, so the scene can be measured. PDS processing level derived; derived image type Z_MAP; 3 bands of float data. Camera SIS §14.2.2.2."
+                },
+                "RNE": {
+                    "meaning": "Range — Range Error Metric",
+                    "description": "Range RDRs hold the Cartesian distance from a reference point — the camera for RNG, the rover origin for RNR — to each pixel’s XYZ point. PDS processing level calibrated; derived image type RANGE_ERROR_MAP; 3 bands of float data. Camera SIS §8.7.1."
+                },
+                "RNF": {
+                    "meaning": "Range — Range Filled",
+                    "description": "Range RDRs hold the Cartesian distance from a reference point — the camera for RNG, the rover origin for RNR — to each pixel’s XYZ point. PDS processing level derived; derived image type RANGE_MAP; 1 band of float data."
+                },
+                "RNG": {
+                    "meaning": "Range — Range from Camera",
+                    "description": "Range RDRs hold the Cartesian distance from a reference point — the camera for RNG, the rover origin for RNR — to each pixel’s XYZ point. PDS processing level calibrated; derived image type RANGE_MAP; 1 band of float data."
+                },
+                "RNM": {
+                    "meaning": "Range — Range from Camera, Masked",
+                    "description": "Range RDRs hold the Cartesian distance from a reference point — the camera for RNG, the rover origin for RNR — to each pixel’s XYZ point. PDS processing level calibrated; derived image type RANGE_MAP; 1 band of float data."
+                },
+                "RNR": {
+                    "meaning": "Range — Range from Rover Origin",
+                    "description": "Range RDRs hold the Cartesian distance from a reference point — the camera for RNG, the rover origin for RNR — to each pixel’s XYZ point. PDS processing level calibrated; derived image type RANGE_MAP; 1 band of float data."
+                },
+                "RXY": {
+                    "meaning": "Range — Range in XY plane",
+                    "description": "Range RDRs hold the Cartesian distance from a reference point — the camera for RNG, the rover origin for RNR — to each pixel’s XYZ point. PDS processing level calibrated; derived image type RANGE_MAP; 1 band of float data."
+                },
+                "RNO": {
+                    "meaning": "Range — Range with Overlay",
+                    "description": "Range RDRs hold the Cartesian distance from a reference point — the camera for RNG, the rover origin for RNR — to each pixel’s XYZ point. PDS processing level derived; derived image type IMAGE."
+                },
+                "UVF": {
+                    "meaning": "Surface Normal — Surface Normal (UVW) Filled",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level derived; derived image type UVW_MAP; 3 bands of float data. Camera SIS §8.10."
+                },
+                "UVO": {
+                    "meaning": "Surface Normal — Surface Normal (UVW) with Overlay",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level derived; derived image type IMAGE."
+                },
+                "UVP": {
+                    "meaning": "Surface Normal — Surface Normal (UVW) Projected onto Plane",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level derived; derived image type UVW_MAP; 1 band of float data."
+                },
+                "UVS": {
+                    "meaning": "Surface Normal — Surface Normal (UVW) for Slope computations",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level calibrated; derived image type UVW_MAP; 3 bands of float data. Camera SIS §8.10."
+                },
+                "UVT": {
+                    "meaning": "Surface Normal — Surface Normal (UVW) Angle (Theta) between Normal and Plane",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level derived; derived image type ANGLE_MAP; 1 band of float data. Camera SIS §8.10."
+                },
+                "UVW": {
+                    "meaning": "Surface Normal — Surface Normal (UVW)",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level calibrated; derived image type UVW_MAP; 3 bands of float data. Camera SIS §8.10."
+                },
+                "UUU": {
+                    "meaning": "Surface Normal — Surface Normal (UVW) U-band",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level calibrated; derived image type U_MAP; 1 band of float data. Camera SIS §8.10."
+                },
+                "VVV": {
+                    "meaning": "Surface Normal — Surface Normal (UVW) V-band",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level calibrated; derived image type V_MAP; 1 band of float data. Camera SIS §8.10."
+                },
+                "WWW": {
+                    "meaning": "Surface Normal — Surface Normal (UVW) W-band",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level calibrated; derived image type W_MAP; 1 band of float data. Camera SIS §8.10."
+                },
+                "UUF": {
+                    "meaning": "Surface Normal — Surface Normal (UVW) U-band Filled",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level derived; derived image type U_MAP; 1 band of float data. Camera SIS §8.10."
+                },
+                "VVF": {
+                    "meaning": "Surface Normal — Surface Normal (UVW) V-band Filled",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level derived; derived image type V_MAP; 1 band of float data. Camera SIS §8.10."
+                },
+                "WWF": {
+                    "meaning": "Surface Normal — Surface Normal (UVW) W-band Filled",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level derived; derived image type W_MAP; 1 band of float data. Camera SIS §8.10."
+                },
+                "UIH": {
+                    "meaning": "Surface Normal — Instrument Normal for Helicopter",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level derived; 3 bands of float data. Camera SIS §14.2.2.2."
+                },
+                "TFH": {
+                    "meaning": "Surface Normal — Tilt for Helicopter",
+                    "description": "Surface-normal (UVW) RDRs carry a unit vector per pixel pointing out of the surface, sharing the geometry of the XYZ product. PDS processing level derived; derived image type TILT_MAP; 3 bands of float data. Camera SIS §14.2.2.2."
+                },
+                "SEN": {
+                    "meaning": "Slope — Solar Energy",
+                    "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. PDS processing level derived; derived image type SOLAR_ENERGY_MAP; 1 band of float data."
+                },
+                "SHD": {
+                    "meaning": "Slope — Slope Heading",
+                    "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. PDS processing level derived; derived image type SLOPE_HEADING_MAP; 1 band of float data. Camera SIS §8.13.2."
+                },
+                "SHO": {
+                    "meaning": "Slope — Slope Heading with Overlay",
+                    "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. PDS processing level derived; derived image type IMAGE."
+                },
+                "SLO": {
+                    "meaning": "Slope — Slope with Overlay",
+                    "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. PDS processing level derived; derived image type IMAGE."
+                },
+                "SLP": {
+                    "meaning": "Slope — Slope",
+                    "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. PDS processing level derived; derived image type SLOPE_MAP; 1 band of float data. Camera SIS §8.13.1."
+                },
+                "SMG": {
+                    "meaning": "Slope — Slope Magnitude",
+                    "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. PDS processing level derived; derived image type SLOPE_MAGNITUDE_MAP; 1 band of float data. Camera SIS §8.13.4."
+                },
+                "SMO": {
+                    "meaning": "Slope — Slope Magnitude with Overlay",
+                    "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. PDS processing level derived; derived image type IMAGE."
+                },
+                "SNO": {
+                    "meaning": "Slope — Slope Northerly Tilt with Overlay",
+                    "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. PDS processing level derived; derived image type IMAGE."
+                },
+                "SNT": {
+                    "meaning": "Slope — Slope Northerly Tilt",
+                    "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. PDS processing level derived; derived image type NORTHERLY_TILT_MAP; 1 band of float data. Camera SIS §8.13.5."
+                },
+                "SRD": {
+                    "meaning": "Slope — Slope Radial Direction",
+                    "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. PDS processing level derived; derived image type RADIAL_SLOPE_MAP; 1 band of float data. Camera SIS §8.13.3."
+                },
+                "ARK": {
+                    "meaning": "Reachability — Arm Reachability, Masked",
+                    "description": "Reachability RDRs record whether the arm’s instruments can reach the point each pixel represents, derived from the XYZ and UVW products. PDS processing level derived; derived image type REACHABILITY_MAP; 6 bands of short data. Camera SIS §10.2."
+                },
+                "ARM": {
+                    "meaning": "Reachability — Arm Reachability",
+                    "description": "Reachability RDRs record whether the arm’s instruments can reach the point each pixel represents, derived from the XYZ and UVW products. PDS processing level derived; derived image type REACHABILITY_MAP; 6 bands of short data. Camera SIS §10.2."
+                },
+                "ARO": {
+                    "meaning": "Reachability — Arm Reachability with overlay",
+                    "description": "Reachability RDRs record whether the arm’s instruments can reach the point each pixel represents, derived from the XYZ and UVW products. PDS processing level derived; derived image type IMAGE. Camera SIS §10.2."
+                },
+                "MAR": {
+                    "meaning": "Reachability — Arm Reachability Mask File",
+                    "description": "Reachability RDRs record whether the arm’s instruments can reach the point each pixel represents, derived from the XYZ and UVW products. PDS processing level derived; derived image type MASK; 1 band of byte data. Camera SIS §10.2."
+                },
+                "RUF": {
+                    "meaning": "Roughness — Surface Roughness (general, not instrument-specific)",
+                    "description": "Roughness RDRs estimate peak-to-peak surface variation about the local normal plane, with a goodness flag per pixel. PDS processing level derived; derived image type ROUGHNESS_MAP; 3 bands of float data. Camera SIS §10.1."
+                },
+                "RUS": {
+                    "meaning": "Roughness — Surface Roughness (for Drill Stabilizer and Coring)",
+                    "description": "Roughness RDRs estimate peak-to-peak surface variation about the local normal plane, with a goodness flag per pixel. PDS processing level derived; derived image type ROUGHNESS_MAP; 3 bands of float data. Camera SIS §10.1."
+                },
+                "RUC": {
+                    "meaning": "Roughness — Surface Curvature for Drill",
+                    "description": "Roughness RDRs estimate peak-to-peak surface variation about the local normal plane, with a goodness flag per pixel. PDS processing level derived; derived image type ROUGHNESS_MAP; 3 bands of float data. Camera SIS §10.1."
+                },
+                "RUH": {
+                    "meaning": "Roughness — Surface Roughness for Helicopter",
+                    "description": "Roughness RDRs estimate peak-to-peak surface variation about the local normal plane, with a goodness flag per pixel. PDS processing level derived; derived image type ROUGHNESS_MAP; 3 bands of float data. Camera SIS §14.2.2.2."
+                },
+                "GUN": {
+                    "meaning": "Goodness — Goodness (Overall for Natural Surface Tools)",
+                    "description": "Goodness maps compare another product’s values against preset thresholds, as a screening tool for where a tool or activity is viable. PDS processing level derived; derived image type GOODNESS_MAP; 1 band of byte data. Camera SIS §10.3."
+                },
+                "GUA": {
+                    "meaning": "Goodness — Goodness (Overall for Abrading Tools)",
+                    "description": "Goodness maps compare another product’s values against preset thresholds, as a screening tool for where a tool or activity is viable. PDS processing level derived; derived image type GOODNESS_MAP; 1 band of byte data. Camera SIS §10.3."
+                },
+                "GUC": {
+                    "meaning": "Goodness — Goodness (Overall for Coring Tools)",
+                    "description": "Goodness maps compare another product’s values against preset thresholds, as a screening tool for where a tool or activity is viable. PDS processing level derived; derived image type GOODNESS_MAP; 1 band of byte data. Camera SIS §10.3."
+                },
+                "GRN": {
+                    "meaning": "Goodness — Goodness (For Reachability of Natural Surface Tools)",
+                    "description": "Goodness maps compare another product’s values against preset thresholds, as a screening tool for where a tool or activity is viable. PDS processing level derived; derived image type GOODNESS_MAP; 1 or 2 bands of byte data. Camera SIS §10.3."
+                },
+                "GRA": {
+                    "meaning": "Goodness — Goodness (For Reachability of Abrading Tools)",
+                    "description": "Goodness maps compare another product’s values against preset thresholds, as a screening tool for where a tool or activity is viable. PDS processing level derived; derived image type GOODNESS_MAP; 1 or 2 bands of byte data. Camera SIS §10.3."
+                },
+                "GRC": {
+                    "meaning": "Goodness — Goodness (For Reachability of Coring Tools)",
+                    "description": "Goodness maps compare another product’s values against preset thresholds, as a screening tool for where a tool or activity is viable. PDS processing level derived; derived image type GOODNESS_MAP; 1 or 2 bands of byte data. Camera SIS §10.3."
+                },
+                "GSR": {
+                    "meaning": "Goodness — Goodness (Combined for Surface Roughness)",
+                    "description": "Goodness maps compare another product’s values against preset thresholds, as a screening tool for where a tool or activity is viable. PDS processing level derived; derived image type GOODNESS_MAP; 1 band of byte data. Camera SIS §10.3."
+                },
+                "FST": {
+                    "meaning": "Goodness — Goodness for Free-Space Tilt",
+                    "description": "Goodness maps compare another product’s values against preset thresholds, as a screening tool for where a tool or activity is viable. PDS processing level derived; derived image type GOODNESS_MAP; 1 band of byte data. Camera SIS §10.3."
+                },
+                "GUH": {
+                    "meaning": "Goodness — Goodness (Helicopter)",
+                    "description": "Goodness maps compare another product’s values against preset thresholds, as a screening tool for where a tool or activity is viable. PDS processing level derived; derived image type GOODNESS_MAP; 1 band of byte data. Camera SIS §14.2.2.3."
+                },
+                "SLH": {
+                    "meaning": "Goodness — Slope Goodness for Helicopter",
+                    "description": "Goodness maps compare another product’s values against preset thresholds, as a screening tool for where a tool or activity is viable. PDS processing level derived; derived image type GOODNESS_MAP; 1 band of byte data. Camera SIS §14.2.2.3."
+                },
+                "MSK": {
+                    "meaning": "Miscellaneous — Image Mask File",
+                    "description": "A supporting product rather than an image of the scene: masks, terrain classes, angle maps and mosaic bookkeeping. PDS processing level derived; derived image type MASK."
+                },
+                "TEN": {
+                    "meaning": "Miscellaneous — Terrain Class Confidence",
+                    "description": "A supporting product rather than an image of the scene: masks, terrain classes, angle maps and mosaic bookkeeping. PDS processing level derived; derived image type TERRAIN_CLASSIFICATION_MAP."
+                },
+                "TER": {
+                    "meaning": "Miscellaneous — Terrain Class",
+                    "description": "A supporting product rather than an image of the scene: masks, terrain classes, angle maps and mosaic bookkeeping. PDS processing level derived; derived image type TERRAIN_CLASSIFICATION_MAP."
+                },
+                "IEF": {
+                    "meaning": "Miscellaneous — Incidence, Emission, Phase angles Filled",
+                    "description": "A supporting product rather than an image of the scene: masks, terrain classes, angle maps and mosaic bookkeeping. PDS processing level derived; derived image type IEP_MAP; 3 bands of float data."
+                },
+                "IEP": {
+                    "meaning": "Miscellaneous — Incidence, Emission, Phase angles",
+                    "description": "A supporting product rather than an image of the scene: masks, terrain classes, angle maps and mosaic bookkeeping. PDS processing level derived; derived image type IEP_MAP; 3 bands of float data."
+                },
+                "IDM": {
+                    "meaning": "Miscellaneous — Index Depth Map",
+                    "description": "A supporting product rather than an image of the scene: masks, terrain classes, angle maps and mosaic bookkeeping. PDS processing level derived; derived image type IDM_MAP; 1 band of byte data. Camera SIS §0."
+                },
+                "AGS": {
+                    "meaning": "Miscellaneous — AEGIS Targets Map",
+                    "description": "A supporting product rather than an image of the scene: masks, terrain classes, angle maps and mosaic bookkeeping. PDS processing level derived; derived image type AEGIS_MAP; 1 band of short data. Camera SIS §8.15."
+                },
+                "AGM": {
+                    "meaning": "Miscellaneous — AEGIS Target Metadata File (JSON format)",
+                    "description": "A supporting product rather than an image of the scene: masks, terrain classes, angle maps and mosaic bookkeeping. PDS processing level derived; delivered as a text file. Camera SIS §8.15."
+                },
+                "IDX": {
+                    "meaning": "Miscellaneous — Mosaic Input Index File",
+                    "description": "A supporting product rather than an image of the scene: masks, terrain classes, angle maps and mosaic bookkeeping. PDS processing level derived; derived image type IDX_MAP; 1 band of short data. Camera SIS §12.9."
+                },
+                "ICM": {
+                    "meaning": "Miscellaneous — Mosaic Input Coregistration Map",
+                    "description": "A supporting product rather than an image of the scene: masks, terrain classes, angle maps and mosaic bookkeeping. PDS processing level derived; derived image type ICM_MAP; 2 bands of float data. Camera SIS §12.9."
+                },
+                "EID": {
+                    "meaning": "EDR — image data product header only"
+                }
+            }
         },
         {
             "start": 27,
@@ -244,8 +1055,15 @@
             "label": "Site",
             "color": "red",
             "description": "First element of the Rover Motion Counter: the site the rover was at (flight number for Ingenuity, set number for LCAM). Values above 999 are alpha-encoded.",
-            "values": { "___": "Out of range" },
-            "patterns": [{ "match": "^[0-9]{3}$", "meaning": "Site {number}" }]
+            "values": {
+                "___": "Out of range"
+            },
+            "patterns": [
+                {
+                    "match": "^[0-9]{3}$",
+                    "meaning": "Site {number}"
+                }
+            ]
         },
         {
             "start": 32,
@@ -253,8 +1071,15 @@
             "label": "Drive",
             "color": "indigo",
             "description": "Second element of the Rover Motion Counter: the drive within the site (position for Ingenuity, instance for LCAM). Values above 9999 are alpha-encoded.",
-            "values": { "____": "Out of range" },
-            "patterns": [{ "match": "^[0-9]{4}$", "meaning": "Drive {number}" }]
+            "values": {
+                "____": "Out of range"
+            },
+            "patterns": [
+                {
+                    "match": "^[0-9]{4}$",
+                    "meaning": "Drive {number}"
+                }
+            ]
         },
         {
             "start": 36,
@@ -301,8 +1126,14 @@
                 "FH": "Frame extracted from H.264 video"
             },
             "patterns": [
-                { "match": "^0[1-9]$|^[1-9][0-9]$", "meaning": "JPEG quality level {number}" },
-                { "match": "^I([1-8])$", "meaning": "ICER, {1} bits per pixel" }
+                {
+                    "match": "^0[1-9]$|^[1-9][0-9]$",
+                    "meaning": "JPEG quality level {number}"
+                },
+                {
+                    "match": "^I([1-8])$",
+                    "meaning": "ICER, {1} bits per pixel"
+                }
             ]
         },
         {
@@ -324,8 +1155,15 @@
             "label": "Version",
             "color": "slate",
             "description": "Product version, incremented whenever an otherwise identical filename already exists. Values above 99 are alpha-encoded.",
-            "values": { "__": "Out of range" },
-            "patterns": [{ "match": "^[0-9]{2}$", "meaning": "Version {number}" }]
+            "values": {
+                "__": "Out of range"
+            },
+            "patterns": [
+                {
+                    "match": "^[0-9]{2}$",
+                    "meaning": "Version {number}"
+                }
+            ]
         },
         {
             "start": 56,
