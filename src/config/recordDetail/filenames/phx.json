@@ -1,0 +1,426 @@
+[
+    {
+        "title": "Phoenix EDR / single-frame RDR filename",
+        "reference": "Phoenix Camera EDR / RDR Data Products SIS (JPL D-33231, PHX-274-327), \u00a74.4.1",
+        "ignoreCase": true,
+        "match": "^[A-Z][SCT][0-9]{3}[A-Z]{3}[0-9]{9}[A-Z0-9_][A-Z0-9]{4}[A-Z0-9][LRMAN][A-Z0-9][A-Z][A-Z0-9]\\.[A-Za-z]{2,3}$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 1,
+                "label": "Instrument",
+                "color": "blue",
+                "description": "Phoenix instrument that acquired the data.",
+                "values": {
+                    "S": "Surface Stereo Imager (SSI)",
+                    "R": "Robotic Arm Camera (RAC)",
+                    "O": "MECA Optical Microscope",
+                    "D": "Mars Descent Imager (MARDI)",
+                    "A": "Robotic Arm (not a camera; not described by the camera SIS)",
+                    "E": "Entry science (not described by the camera SIS)",
+                    "F": "MECA Atomic Force Microscope (not described by the camera SIS)",
+                    "L": "MET LIDAR (not described by the camera SIS)",
+                    "M": "MET pressure and temperature (not described by the camera SIS)",
+                    "P": "MECA Thermal and Electrical Conductivity Probe (not described by the camera SIS)",
+                    "T": "Thermal and Evolved Gas Analyzer (not described by the camera SIS)",
+                    "W": "MECA Wet Chemistry (not described by the camera SIS)",
+                    "X": "MECA miscellaneous (not described by the camera SIS)"
+                }
+            },
+            {
+                "start": 2,
+                "length": 1,
+                "label": "Epoch",
+                "color": "brown",
+                "description": "Which model and mission phase the data came from.",
+                "values": {
+                    "S": "Surface, flight model",
+                    "C": "Cruise, flight model",
+                    "T": "Testbed"
+                }
+            },
+            {
+                "start": 3,
+                "length": 3,
+                "label": "Sol",
+                "color": "orange",
+                "description": "Martian solar day of the observation.",
+                "patterns": [
+                    {
+                        "match": "^[0-9]{3}$",
+                        "meaning": "Sol {number} on the surface (landing day is sol 1), or day of year if the epoch is cruise or testbed"
+                    }
+                ]
+            },
+            {
+                "start": 6,
+                "length": 3,
+                "label": "Product type",
+                "color": "violet",
+                "description": "What the product holds. A leading \"E\" marks an EDR; on an RDR a trailing \"L\" marks a linearized (distortion-removed) product.",
+                "values": {
+                    "EFF": {
+                        "meaning": "EDR \u2014 Full frame EDR",
+                        "description": "EDRs are raw: no camera model linearization and no radiometric correction. SIS \u00a75.1."
+                    },
+                    "ESF": {
+                        "meaning": "EDR \u2014 Sub-frame EDR",
+                        "description": "EDRs are raw: no camera model linearization and no radiometric correction. SIS \u00a75.1."
+                    },
+                    "EDN": {
+                        "meaning": "EDR \u2014 Downsampled EDR",
+                        "description": "EDRs are raw: no camera model linearization and no radiometric correction. SIS \u00a75.1."
+                    },
+                    "EDK": {
+                        "meaning": "EDR \u2014 Dark current EDR",
+                        "description": "EDRs are raw: no camera model linearization and no radiometric correction. SIS \u00a75.1."
+                    },
+                    "ERP": {
+                        "meaning": "EDR \u2014 Reference pixels EDR",
+                        "description": "EDRs are raw: no camera model linearization and no radiometric correction. SIS \u00a75.1."
+                    },
+                    "FFL": {
+                        "meaning": "Linearized \u2014 Geometrically corrected full frame",
+                        "description": "Geometrically corrected RDRs repeat the EDR pixels with the camera distortion removed, so stereo geometry is linear. SIS \u00a75.2.1.1. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "SFL": {
+                        "meaning": "Linearized \u2014 Geometrically corrected sub-frame",
+                        "description": "Geometrically corrected RDRs repeat the EDR pixels with the camera distortion removed, so stereo geometry is linear. SIS \u00a75.2.1.1. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "DNL": {
+                        "meaning": "Linearized \u2014 Geometrically corrected downsampled image",
+                        "description": "Geometrically corrected RDRs repeat the EDR pixels with the camera distortion removed, so stereo geometry is linear. SIS \u00a75.2.1.1. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "RAD": {
+                        "meaning": "Radiometric \u2014 Radiometrically corrected to absolute radiance units",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RAL": {
+                        "meaning": "Radiometric \u2014 Radiometrically corrected to absolute radiance units, linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "RSD": {
+                        "meaning": "Radiometric \u2014 Radiometrically corrected, contrast enhanced",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RSL": {
+                        "meaning": "Radiometric \u2014 Radiometrically corrected, contrast enhanced, linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "IOF": {
+                        "meaning": "Radiometric \u2014 Radiometrically corrected to I/F radiance factor",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "IOL": {
+                        "meaning": "Radiometric \u2014 Radiometrically corrected to I/F radiance factor, linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "DIS": {
+                        "meaning": "Disparity \u2014 Stereo disparity",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in one eye and its match in the other, the input to the XYZ products. SIS \u00a75.2.1.3."
+                    },
+                    "DIL": {
+                        "meaning": "Disparity \u2014 Stereo disparity, linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in one eye and its match in the other, the input to the XYZ products. SIS \u00a75.2.1.3. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "DSS": {
+                        "meaning": "Disparity \u2014 Stereo disparity of samples",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in one eye and its match in the other, the input to the XYZ products. SIS \u00a75.2.1.3."
+                    },
+                    "DSL": {
+                        "meaning": "Disparity \u2014 Stereo disparity of samples, linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in one eye and its match in the other, the input to the XYZ products. SIS \u00a75.2.1.3. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "DLS": {
+                        "meaning": "Disparity \u2014 Stereo disparity of lines",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in one eye and its match in the other, the input to the XYZ products. SIS \u00a75.2.1.3."
+                    },
+                    "DLL": {
+                        "meaning": "Disparity \u2014 Stereo disparity of lines, linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in one eye and its match in the other, the input to the XYZ products. SIS \u00a75.2.1.3. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "XYZ": {
+                        "meaning": "XYZ \u2014 XYZ position per pixel",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a Phoenix coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYL": {
+                        "meaning": "XYZ \u2014 XYZ position per pixel, linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a Phoenix coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "MSK": {
+                        "meaning": "Mask \u2014 XYZ lander volume exclusion mask",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because lander hardware fills them. SIS \u00a75.2.1.4."
+                    },
+                    "MSL": {
+                        "meaning": "Mask \u2014 XYZ lander volume exclusion mask, linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because lander hardware fills them. SIS \u00a75.2.1.4. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "XMZ": {
+                        "meaning": "XYZ \u2014 Masked XYZ",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a Phoenix coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XML": {
+                        "meaning": "XYZ \u2014 Masked XYZ, linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a Phoenix coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "XXX": {
+                        "meaning": "XYZ \u2014 XYZ X component",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a Phoenix coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XXL": {
+                        "meaning": "XYZ \u2014 XYZ X component, linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a Phoenix coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "YYY": {
+                        "meaning": "XYZ \u2014 XYZ Y component",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a Phoenix coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "YYL": {
+                        "meaning": "XYZ \u2014 XYZ Y component, linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a Phoenix coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "ZZZ": {
+                        "meaning": "XYZ \u2014 XYZ Z component",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a Phoenix coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "ZZL": {
+                        "meaning": "XYZ \u2014 XYZ Z component, linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a Phoenix coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "RNG": {
+                        "meaning": "Range \u2014 Range (distance from the camera)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RNL": {
+                        "meaning": "Range \u2014 Range (distance from the camera), linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a75.2.1.5. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "UVW": {
+                        "meaning": "Surface normal \u2014 UVW surface normal",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness. SIS \u00a75.2.1.6."
+                    },
+                    "UVL": {
+                        "meaning": "Surface normal \u2014 UVW surface normal, linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness. SIS \u00a75.2.1.6. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "UUU": {
+                        "meaning": "Surface normal \u2014 Surface normal U component",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness. SIS \u00a75.2.1.6."
+                    },
+                    "UUL": {
+                        "meaning": "Surface normal \u2014 Surface normal U component, linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness. SIS \u00a75.2.1.6. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "VVV": {
+                        "meaning": "Surface normal \u2014 Surface normal V component",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness. SIS \u00a75.2.1.6."
+                    },
+                    "VVL": {
+                        "meaning": "Surface normal \u2014 Surface normal V component, linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness. SIS \u00a75.2.1.6. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "WWW": {
+                        "meaning": "Surface normal \u2014 Surface normal W component",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness. SIS \u00a75.2.1.6."
+                    },
+                    "WWL": {
+                        "meaning": "Surface normal \u2014 Surface normal W component, linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness. SIS \u00a75.2.1.6. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "RUF": {
+                        "meaning": "Roughness \u2014 Surface roughness",
+                        "description": "Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a75.2.1.7."
+                    },
+                    "RUL": {
+                        "meaning": "Roughness \u2014 Surface roughness, linearized",
+                        "description": "Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a75.2.1.7. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "SLP": {
+                        "meaning": "Slope \u2014 Slope",
+                        "description": "Slope RDRs derive terrain steepness, heading and magnitude from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SLL": {
+                        "meaning": "Slope \u2014 Slope, linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and magnitude from the surface normals. SIS \u00a75.2.1.8. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "SHP": {
+                        "meaning": "Slope \u2014 Slope heading",
+                        "description": "Slope RDRs derive terrain steepness, heading and magnitude from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SHL": {
+                        "meaning": "Slope \u2014 Slope heading, linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and magnitude from the surface normals. SIS \u00a75.2.1.8. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "SMP": {
+                        "meaning": "Slope \u2014 Slope magnitude",
+                        "description": "Slope RDRs derive terrain steepness, heading and magnitude from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SML": {
+                        "meaning": "Slope \u2014 Slope magnitude, linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and magnitude from the surface normals. SIS \u00a75.2.1.8. A trailing \"L\" on an RDR code means the product is linearized."
+                    },
+                    "IDD": {
+                        "meaning": "Reachability \u2014 Robotic Arm reachability",
+                        "description": "Reachability RDRs mark which terrain the Robotic Arm can reach \u2014 the products that drove Phoenix's digging. SIS \u00a75.2.1.9."
+                    },
+                    "IDL": {
+                        "meaning": "Reachability \u2014 Robotic Arm reachability, linearized",
+                        "description": "Reachability RDRs mark which terrain the Robotic Arm can reach \u2014 the products that drove Phoenix's digging. SIS \u00a75.2.1.9. A trailing \"L\" on an RDR code means the product is linearized."
+                    }
+                }
+            },
+            {
+                "start": 9,
+                "length": 9,
+                "label": "Spacecraft clock",
+                "color": "teal",
+                "description": "Spacecraft clock count at the start of the camera event.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{9})$",
+                        "meaning": "SCLK {number} seconds"
+                    }
+                ]
+            },
+            {
+                "start": 18,
+                "length": 1,
+                "label": "Special processing",
+                "color": "slate",
+                "description": "Marks off-nominal or special processing.",
+                "values": {
+                    "_": "Nominal processing"
+                },
+                "patterns": [
+                    {
+                        "match": "^[A-Z0-9]$",
+                        "meaning": "Special processing \"{value}\" \u2014 an off-nominal treatment used consistently within one activity and listed in the archive's special-processing text file"
+                    }
+                ]
+            },
+            {
+                "start": 19,
+                "length": 4,
+                "label": "Activity ID",
+                "color": "amber",
+                "description": "Planned activity the observation belongs to, taken from the round-trip accountability token.",
+                "patterns": [
+                    {
+                        "match": "^[A-Z0-9]{4}$",
+                        "meaning": "Activity \"{value}\", assigned at planning time and carried in the round-trip accountability token"
+                    }
+                ]
+            },
+            {
+                "start": 23,
+                "length": 1,
+                "label": "Payload flag",
+                "color": "pink",
+                "description": "Four bits of the accountability token describing the observation: mosaic or not, stereo or not, and its purpose.",
+                "values": {
+                    "0": "SSI / RAC: non-mosaic, non-stereo (general science). Optical Microscope: single frame, single focus, monochrome (clean)",
+                    "1": "SSI / RAC: non-mosaic, non-stereo (calibration). Optical Microscope: single frame, single focus, monochrome (exposed)",
+                    "2": "SSI / RAC: non-mosaic, non-stereo, mesh or reachability (operations). Optical Microscope: single frame, single focus, colour (clean)",
+                    "3": "SSI / RAC: non-mosaic, non-stereo (atmospheric). Optical Microscope: single frame, single focus, colour (exposed)",
+                    "4": "SSI / RAC: non-mosaic, stereo (general science). Optical Microscope: single frame, through focus, monochrome (clean)",
+                    "5": "SSI / RAC: non-mosaic, stereo (calibration). Optical Microscope: single frame, through focus, monochrome (exposed)",
+                    "6": "SSI / RAC: non-mosaic, stereo, mesh or reachability (operations). Optical Microscope: single frame, through focus, colour (clean)",
+                    "7": "SSI / RAC: non-mosaic, stereo (atmospheric). Optical Microscope: single frame, through focus, colour (exposed)",
+                    "8": "SSI / RAC: mosaic, non-stereo (general science). Optical Microscope: mosaic, single focus, monochrome (clean)",
+                    "9": "SSI / RAC: mosaic, non-stereo (calibration). Optical Microscope: mosaic, single focus, monochrome (exposed)",
+                    "A": "SSI / RAC: mosaic, non-stereo, mesh or reachability (operations). Optical Microscope: mosaic, single focus, colour (clean)",
+                    "B": "SSI / RAC: mosaic, non-stereo (atmospheric). Optical Microscope: mosaic, single focus, colour (exposed)",
+                    "C": "SSI / RAC: mosaic, stereo (general science). Optical Microscope: mosaic, through focus, monochrome (clean)",
+                    "D": "SSI / RAC: mosaic, stereo (calibration). Optical Microscope: mosaic, through focus, monochrome (exposed)",
+                    "E": "SSI / RAC: mosaic, stereo, mesh or reachability (operations). Optical Microscope: mosaic, through focus, colour (clean)",
+                    "F": "SSI / RAC: mosaic, stereo (atmospheric). Optical Microscope: mosaic, through focus, colour (exposed)"
+                }
+            },
+            {
+                "start": 24,
+                "length": 1,
+                "label": "Camera eye",
+                "color": "green",
+                "description": "Which eye the image came from.",
+                "values": {
+                    "L": "Left camera eye",
+                    "R": "Right camera eye",
+                    "M": "Monoscopic (non-stereo camera)",
+                    "A": "Anaglyph \u2014 left, right and right eyes mapped to red, green and blue",
+                    "N": "Not applicable"
+                }
+            },
+            {
+                "start": 25,
+                "length": 1,
+                "label": "Filter / LED",
+                "color": "indigo",
+                "description": "SSI spectral filter position, or which LED lit the RAC or Optical Microscope frame.",
+                "values": {
+                    "R": "Red LED",
+                    "G": "Green LED",
+                    "B": "Blue LED",
+                    "D": "LEDs off (dark)",
+                    "W": "White LED (Optical Microscope)",
+                    "U": "Ultraviolet LED (Optical Microscope)",
+                    "O": "Several LEDs combined"
+                },
+                "patterns": [
+                    {
+                        "match": "^[0-9A-F]$",
+                        "meaning": "SSI filter position {value} (hexadecimal)"
+                    }
+                ]
+            },
+            {
+                "start": 26,
+                "length": 1,
+                "label": "Creator",
+                "color": "green",
+                "description": "Team that produced the product.",
+                "values": {
+                    "M": "MIPL (OPGS at JPL)",
+                    "A": "University of Arizona",
+                    "O": "MECA Optical Microscope team",
+                    "T": "Texas A&M (SSI science team)",
+                    "X": "Other"
+                }
+            },
+            {
+                "start": 27,
+                "length": 1,
+                "label": "Version",
+                "color": "slate",
+                "description": "Increments whenever an otherwise identical filename would be produced, independently of the special processing field, so the highest version is the best copy.",
+                "patterns": [
+                    {
+                        "match": "^[1-9]$",
+                        "meaning": "Version {number}"
+                    },
+                    {
+                        "match": "^[A-Z]$",
+                        "meaning": "Version \"{value}\" (10 through 35)"
+                    }
+                ]
+            },
+            {
+                "start": 29,
+                "length": 3,
+                "label": "Extension",
+                "color": "teal",
+                "description": "Product format.",
+                "values": {
+                    "IMG": "Image EDR / RDR with a PDS label",
+                    "LBL": "Detached PDS label",
+                    "TXT": "Text file",
+                    "DAT": "Non-image data",
+                    "JPG": "JPEG compressed image",
+                    "IV": "Terrain mesh in Inventor format",
+                    "HT": "Terrain mesh height map",
+                    "RGB": "Terrain mesh skin in SGI RGB format",
+                    "TAB": "Table data"
+                }
+            }
+        ]
+    }
+]
