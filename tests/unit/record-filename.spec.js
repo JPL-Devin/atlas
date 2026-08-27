@@ -8,6 +8,7 @@ import mslPds3 from '../fixtures/records/msl-pds3-mastcam.json'
 import mgsMoc from '../fixtures/records/mgs-moc.json'
 
 const m20 = filenameSpecs.mars_2020
+const variantsOf = (spec) => (Array.isArray(spec) ? spec : [spec])
 
 const parse = (filename) => parseFilename(filename, m20)
 const segment = (parsed, label) => parsed.pieces.find((p) => p.label === label)
@@ -23,7 +24,10 @@ const meaningOf = (parsed, label) => {
 test.describe('resolveFilenameSpec', () => {
     test('only missions with a spec get one', () => {
         expect(resolveFilenameSpec({ mission: 'mars_2020', pds_standard: 'pds4' })).toBe(m20)
-        expect(resolveFilenameSpec({ mission: 'msl', pds_standard: 'pds3' })).toBe(null)
+        expect(resolveFilenameSpec({ mission: 'msl', pds_standard: 'pds3' })).toBe(
+            filenameSpecs.msl
+        )
+        expect(resolveFilenameSpec({ mission: 'vgr', pds_standard: 'pds3' })).toBe(null)
         expect(resolveFilenameSpec({})).toBe(null)
     })
 })
@@ -134,21 +138,94 @@ test.describe('parseFilename', () => {
                     pds_standard: record.gather.pds_archive.pds_standard,
                 })
             )
-        expect(forRecord(mslPds3)).toBe(null)
         expect(forRecord(mgsMoc)).toBe(null)
+        expect(forRecord(mslPds3)).not.toBe(null)
         expect(forRecord(mars2020Navcam)).not.toBe(null)
     })
 })
 
+test.describe('missions with several conventions', () => {
+    const decode = (mission, filename) => {
+        const parsed = parseFilename(filename, filenameSpecs[mission])
+        return {
+            title: parsed && parsed.title,
+            value: (label) => valueOf(parsed, label),
+            meaning: (label) => meaningOf(parsed, label),
+        }
+    }
+
+    test('an msl single-frame RDR decodes to its SIS fields', () => {
+        const msl = decode('msl', 'MLF_628039357RAD_S0772786MCAM13654D1.IMG')
+        expect(msl.title).toContain('single-frame')
+        expect(msl.meaning('Instrument')).toBe('Mastcam Left')
+        expect(msl.meaning('Spacecraft clock')).toBe('SCLK 628039357 seconds')
+        expect(msl.value('Product type')).toBe('RAD')
+        expect(msl.meaning('Site')).toBe('Site 77')
+        expect(msl.meaning('Drive')).toBe('Drive 2786')
+        expect(msl.meaning('Version')).toBe('Version 1')
+    })
+
+    test('a mer single-frame RDR decodes to its SIS fields', () => {
+        // Lower case, as the MER archive writes them.
+        const mer = decode('mer', '1p580940096mrdd2fcp2391l2m1.img')
+        expect(mer.title).toContain('single-frame')
+        expect(mer.meaning('Rover')).toContain('Opportunity')
+        expect(mer.meaning('Instrument')).toBe('Pancam')
+        expect(mer.meaning('Product type')).toContain('MIPLRAD rad-corrected')
+        expect(mer.meaning('Sequence category')).toContain('remote sensing')
+        expect(mer.value('Sequence number')).toBe('2391')
+        expect(mer.meaning('Camera eye')).toBe('Left camera eye')
+        expect(mer.meaning('Producer')).toContain('MIPL')
+    })
+
+    test('a mer terrain mesh uses the variable-length convention', () => {
+        const mesh = decode('mer', '1mesh_4621x_rfnp_203_ffl_0_v2.ht')
+        expect(mesh.title).toContain('terrain mesh')
+        expect(mesh.value('Ending sol')).toBe('4621x')
+        expect(mesh.meaning('Ending sol')).toContain('last of several')
+        expect(mesh.meaning('Instruments')).toContain('several instruments')
+        expect(mesh.meaning('Ending site')).toBe('Site 203')
+        expect(mesh.meaning('Input product type')).toContain('full-frame')
+        expect(mesh.meaning('Version')).toBe('Version 2')
+        expect(mesh.meaning('Extension')).toContain('Height map')
+    })
+
+    test('a name matching none of a mission\u2019s conventions stays plain text', () => {
+        expect(parseFilename('1mesh_4621x_rfnp.tar.gz', filenameSpecs.mer)).toBe(null)
+        expect(parseFilename('MLF_628039357RAD.txt', filenameSpecs.msl)).toBe(null)
+    })
+})
+
+const eachVariant = (visit) =>
+    Object.keys(filenameSpecs).forEach((key) =>
+        variantsOf(filenameSpecs[key]).forEach((spec) =>
+            visit(spec, `${key} — ${spec.title || 'untitled'}`)
+        )
+    )
+
 test.describe('filename spec config', () => {
+    test('every variant is titled and references its SIS', () => {
+        eachVariant((spec, key) => {
+            expect(spec.title, key).toBeTruthy()
+            expect(spec.reference, key).toContain('SIS')
+            expect(spec.match, key).toBeTruthy()
+        })
+    })
+
     test('segments are ordered, non-overlapping and fully labelled', () => {
-        Object.keys(filenameSpecs).forEach((key) => {
-            const spec = filenameSpecs[key]
+        eachVariant((spec, key) => {
             expect(spec.segments.length).toBeGreaterThan(0)
             let cursor = 0
             spec.segments.forEach((s) => {
                 expect(s.label, `${key} segment at ${s.start}`).toBeTruthy()
                 expect(s.description, `${key} ${s.label}`).toBeTruthy()
+                // Variable-length conventions place their fields by capture
+                // group instead of by character position.
+                if (s.group != null) {
+                    expect(s.group, `${key} ${s.label}`).toBeGreaterThan(cursor)
+                    cursor = s.group
+                    return
+                }
                 expect(s.start, `${key} ${s.label}`).toBeGreaterThan(cursor)
                 expect(s.length).toBeGreaterThan(0)
                 cursor = s.start - 1 + s.length
@@ -157,24 +234,23 @@ test.describe('filename spec config', () => {
     })
 
     test('neighbouring segments never share a colour', () => {
-        Object.keys(filenameSpecs).forEach((key) => {
-            const segments = filenameSpecs[key].segments
-            segments.forEach((s, i) => {
+        eachVariant((spec, key) => {
+            spec.segments.forEach((s, i) => {
                 if (i === 0) return
-                expect(s.color, `${key} ${segments[i - 1].label} / ${s.label}`).not.toBe(
-                    segments[i - 1].color
+                expect(s.color, `${key} ${spec.segments[i - 1].label} / ${s.label}`).not.toBe(
+                    spec.segments[i - 1].color
                 )
             })
         })
     })
 
     test('no code is claimed twice within a segment', () => {
-        Object.keys(filenameSpecs).forEach((key) => {
-            filenameSpecs[key].segments.forEach((s) => {
+        eachVariant((spec) => {
+            spec.segments.forEach((s) => {
                 const seen = new Set(Object.keys(s.values || {}))
                 ;(s.valueGroups || []).forEach((group) => {
                     group.codes.split(/\s+/).forEach((code) => {
-                        expect(seen.has(code), `${key} ${s.label} ${code}`).toBe(false)
+                        expect(seen.has(code), `${s.label} ${code}`).toBe(false)
                         seen.add(code)
                     })
                 })

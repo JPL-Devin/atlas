@@ -35,31 +35,36 @@ const describeValue = (segment, value) => {
     return {}
 }
 
-/** The mission's spec, or the PDS-standard-specific one when both exist. */
+/**
+ * The mission's spec, or the PDS-standard-specific one when both exist. A
+ * mission whose products follow several conventions registers them as a list.
+ */
 export const resolveFilenameSpec = ({ mission, pds_standard } = {}) => {
     if (!mission) return null
     const specific = filenameSpecs[`${mission}.${pds_standard}`]
     return specific != null ? specific : filenameSpecs[mission] || null
 }
 
-/**
- * Splits a filename into labelled, decoded pieces for display. Returns null
- * when no spec covers the name, so callers can render it as plain text.
- */
-export const parseFilename = (filename, spec) => {
-    if (typeof filename !== 'string' || spec == null) return null
-    if (spec.match != null && !new RegExp(spec.match).test(filename)) return null
+const parseOne = (filename, spec) => {
+    const flags = spec.ignoreCase ? 'i' : ''
+    const match = spec.match != null ? filename.match(new RegExp(spec.match, flags)) : null
+    if (spec.match != null && match == null) return null
 
     const pieces = []
     let cursor = 0
     ;(spec.segments || []).forEach((segment) => {
-        const from = segment.start - 1
-        const to = from + segment.length
+        // Variable-length conventions locate their fields by capture group
+        // instead of by character position.
+        const captured = segment.group != null ? match[segment.group] : null
+        if (segment.group != null && !captured) return
+        const from = captured != null ? filename.indexOf(captured, cursor) : segment.start - 1
+        const to = from + (captured != null ? captured.length : segment.length)
+        if (from < 0) return
         if (from < cursor || to > filename.length) return
         // Characters between segments (the extension dot) carry no meaning.
         if (from > cursor) pieces.push({ text: filename.slice(cursor, from) })
         const value = filename.slice(from, to)
-        const described = describeValue(segment, value)
+        const described = describeValue(segment, spec.ignoreCase ? value.toUpperCase() : value)
         pieces.push({
             text: value,
             label: segment.label,
@@ -73,6 +78,21 @@ export const parseFilename = (filename, spec) => {
     if (cursor < filename.length) pieces.push({ text: filename.slice(cursor) })
 
     return { title: spec.title || null, reference: spec.reference || null, pieces }
+}
+
+/**
+ * Splits a filename into labelled, decoded pieces for display, using the first
+ * of the mission's conventions that covers it. Returns null when none does, so
+ * callers can render the name as plain text.
+ */
+export const parseFilename = (filename, spec) => {
+    if (typeof filename !== 'string' || spec == null) return null
+    const variants = Array.isArray(spec) ? spec : [spec]
+    for (let i = 0; i < variants.length; i++) {
+        const parsed = parseOne(filename, variants[i])
+        if (parsed != null) return parsed
+    }
+    return null
 }
 
 const first = (value) => (Array.isArray(value) ? value[0] : value)
