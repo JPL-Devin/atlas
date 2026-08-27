@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import LinkIcon from '@mui/icons-material/Link'
 
 import { HASH_PATHS, ES_PATHS } from '../../../../core/constants'
@@ -32,6 +32,10 @@ const useStyles = makeStyles((theme) => ({
         background: theme.palette.swatches.grey.grey100,
         color: theme.palette.text.primary,
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        // Stacked, the identity, actions and tabs lead the page, above the image.
+        [theme.breakpoints.down('lg')]: {
+            order: -2,
+        },
     },
     // Title and its filename details share one white surface, ruled off from
     // the actions below.
@@ -49,14 +53,18 @@ const useStyles = makeStyles((theme) => ({
         height: `${theme.headHeights[2]}px`,
         padding: '0 8px 0 4px',
     },
-    backButton: {
-        padding: 2,
-        borderRadius: 0,
-        color: 'inherit',
-        flexShrink: 0,
-    },
-    backIcon: {
-        fontSize: 30,
+    copyName: {
+        'flexShrink': 0,
+        'padding': '4px',
+        'color': theme.palette.swatches.grey.grey500,
+        'transition': 'color 0.15s ease-out, background 0.15s ease-out',
+        '&:hover': {
+            color: theme.palette.swatches.grey.grey900,
+            background: theme.palette.swatches.grey.grey150,
+        },
+        '& .MuiSvgIcon-root': {
+            fontSize: '16px',
+        },
     },
     name: {
         flex: 1,
@@ -150,36 +158,34 @@ const PanelHeader = (props) => {
         }
     }, [])
 
-    const back = new URLSearchParams(window.location.search).get('back')
+    const filename = getIn(recordData, ES_PATHS.file_name, '--')
 
     return (
         <div className={c.PanelHeader}>
             <div className={c.titleBlock}>
                 <div className={c.identity}>
-                    <Tooltip title={back === 'page' ? 'Back' : 'Back to Search'} arrow>
-                        <IconButton
-                            className={c.backButton}
-                            aria-label={back === 'page' ? 'go back a page' : 'return to search'}
-                            onClick={() => {
-                                if (back === 'page') navigate(-1)
-                                else navigate(HASH_PATHS.search)
-                            }}
-                        >
-                            <ChevronLeftIcon className={c.backIcon} />
-                        </IconButton>
-                    </Tooltip>
                     <div className={c.name}>
                         {parsedFilename != null ? (
                             <FilenameName selection={filenameSelection} />
                         ) : (
-                            <div
-                                className={c.plainName}
-                                title={getIn(recordData, ES_PATHS.file_name, '--')}
-                            >
-                                {getIn(recordData, ES_PATHS.file_name, '--')}
+                            <div className={c.plainName} title={filename}>
+                                {filename}
                             </div>
                         )}
                     </div>
+                    <Tooltip title="Copy filename" arrow>
+                        <IconButton
+                            className={c.copyName}
+                            aria-label="copy record filename"
+                            size="small"
+                            onClick={() => {
+                                copyToClipboard(filename)
+                                dispatch(setSnackBarText('Copied filename to clipboard!', 'success'))
+                            }}
+                        >
+                            <ContentCopyIcon />
+                        </IconButton>
+                    </Tooltip>
                 </div>
                 {parsedFilename != null && (
                     <div className={c.details}>

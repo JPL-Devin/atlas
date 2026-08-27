@@ -107,6 +107,22 @@ const useStyles = makeStyles((theme) => ({
         lineHeight: '19px',
         padding: '3px 0',
     },
+    // Every segment at once reads as a table, so values, labels, meanings and
+    // descriptions line up in their own columns.
+    table: {
+        display: 'grid',
+        gridTemplateColumns: 'auto auto minmax(90px, 1fr) minmax(0, 1.6fr)',
+        columnGap: '12px',
+    },
+    // Cells of one entry share a top rule, so the row reads as a row.
+    cell: {
+        'minWidth': 0,
+        'padding': '4px 0',
+        'borderTop': `1px solid ${theme.palette.swatches.grey.grey150}`,
+        '&:nth-child(-n+4)': {
+            borderTop: 'none',
+        },
+    },
     entryValue: {
         fontFamily: 'monospace',
         fontSize: '16px',
@@ -128,6 +144,9 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '13px',
         color: theme.palette.swatches.grey.grey600,
     },
+    entryDescriptionCell: {
+        minWidth: 0,
+    },
     reference: {
         marginTop: '8px',
         fontSize: '11px',
@@ -141,10 +160,10 @@ export const useFilenameSelection = (parsed) => {
     const dispatch = useDispatch()
     const part = useSelector((state) => state.get('recordFilenamePart'))
 
-    const selected = part?.get('selected') ?? null
+    const chosen = part?.get('selected') ?? null
     const showAll = part?.get('showAll') ?? false
     const setSelected = (next) => dispatch(setRecordFilenamePart(next, showAll))
-    const setShowAll = (next) => dispatch(setRecordFilenamePart(selected, next))
+    const setShowAll = (next) => dispatch(setRecordFilenamePart(chosen, next))
 
     const pieces = (parsed?.pieces || []).map((piece, idx) => ({
         ...piece,
@@ -152,12 +171,15 @@ export const useFilenameSelection = (parsed) => {
         color: LIGHT_COLORS[piece.color] || 'inherit',
     }))
     const labelled = pieces.filter((piece) => piece.label != null)
+    const selected = chosen
+
+    let entries = []
+    if (showAll) entries = labelled
+    else if (chosen != null) entries = labelled.filter((piece) => piece.idx === chosen)
 
     return {
         pieces,
-        entries: showAll
-            ? labelled
-            : labelled.filter((piece) => selected != null && piece.idx === selected),
+        entries,
         selected,
         setSelected,
         showAll,
@@ -193,21 +215,23 @@ export const FilenameName = (props) => {
                         </button>
                     )
                 )}
-            </div>
-            <Tooltip
-                title={showAll ? 'Hide all file naming details' : 'Show all file naming details'}
-                arrow
-            >
-                <button
-                    type="button"
-                    className={c.allButton}
-                    aria-label="show all file naming details"
-                    aria-pressed={showAll}
-                    onClick={() => setShowAll(!showAll)}
+                <Tooltip
+                    title={
+                        showAll ? 'Hide all file naming details' : 'Show all file naming details'
+                    }
+                    arrow
                 >
-                    *
-                </button>
-            </Tooltip>
+                    <button
+                        type="button"
+                        className={c.allButton}
+                        aria-label="show all file naming details"
+                        aria-pressed={showAll}
+                        onClick={() => setShowAll(!showAll)}
+                    >
+                        *
+                    </button>
+                </Tooltip>
+            </div>
         </div>
     )
 }
@@ -218,7 +242,7 @@ FilenameName.propTypes = {
 
 export const FilenameDetails = (props) => {
     const { parsed, selection } = props
-    const { entries } = selection
+    const { entries, showAll } = selection
 
     const c = useStyles()
 
@@ -234,35 +258,60 @@ export const FilenameDetails = (props) => {
         const observer = new ResizeObserver(measure)
         observer.observe(content)
         return () => observer.disconnect()
-    }, [entries.length])
+    }, [entries.length, entries[0]?.idx])
 
+    const rows = entries.length
     const scrolls = entries.length > 1
 
     return (
         <div
             className={`${c.details} ${scrolls ? c.detailsAll : ''}`}
             style={{
-                height: entries.length === 0 ? 0 : `min(${contentHeight}px, 40vh)`,
+                height: rows === 0 ? 0 : `min(${contentHeight}px, 40vh)`,
             }}
         >
             <div
-                className={`${c.detailsContent} ${entries.length === 1 ? c.detailsContentOne : ''}`}
+                className={`${c.detailsContent} ${
+                    entries.length === 1 ? c.detailsContentOne : ''
+                }`}
                 ref={contentRef}
             >
-                {entries.map((piece) => (
-                    <div className={c.entry} key={piece.idx}>
-                        <span className={c.entryValue} style={{ color: piece.color }}>
-                            {piece.text}
-                        </span>
-                        <span className={c.entryLabel}>{piece.label}</span>
-                        {piece.meaning != null && (
-                            <div className={c.entryMeaning}>{piece.meaning}</div>
-                        )}
-                        {piece.description != null && (
-                            <div className={c.entryDescription}>{piece.description}</div>
-                        )}
+                {showAll ? (
+                    <div className={c.table}>
+                        {entries.map((piece) => (
+                            <React.Fragment key={piece.idx}>
+                                <span
+                                    className={`${c.cell} ${c.entryValue}`}
+                                    style={{ color: piece.color }}
+                                >
+                                    {piece.text}
+                                </span>
+                                <span className={`${c.cell} ${c.entryLabel}`}>{piece.label}</span>
+                                <span className={`${c.cell} ${c.entryMeaning}`}>
+                                    {piece.meaning}
+                                </span>
+                                <span className={`${c.cell} ${c.entryDescription}`}>
+                                    {piece.description}
+                                </span>
+                            </React.Fragment>
+                        ))}
                     </div>
-                ))}
+                ) : (
+                    entries.map((piece) => (
+                        <div className={c.entry} key={piece.idx}>
+                            <span className={c.entryValue} style={{ color: piece.color }}>
+                                {piece.text}
+                            </span>
+                            <span className={c.entryLabel}>{piece.label}</span>
+                            {piece.meaning != null && (
+                                <div className={c.entryMeaning}>{piece.meaning}</div>
+                            )}
+                            {piece.description != null && (
+                                <div className={c.entryDescription}>{piece.description}</div>
+                            )}
+                        </div>
+                    ))
+                )}
                 {entries.length > 0 && parsed.reference != null && (
                     <div className={c.reference}>{parsed.reference}</div>
                 )}

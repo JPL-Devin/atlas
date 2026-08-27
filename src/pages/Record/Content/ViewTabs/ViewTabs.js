@@ -28,9 +28,13 @@ const useStyles = makeStyles((theme) => ({
             height: '100%',
             alignItems: 'stretch',
         },
-        // The tabs sit centred in the panel header rather than hugging its edge.
+        // The tabs share the panel width evenly.
         '& .MuiTabs-flexContainer': {
-            justifyContent: 'center',
+            justifyContent: 'stretch',
+        },
+        '& .MuiTab-root': {
+            flex: 1,
+            maxWidth: 'none',
         },
     },
 }))
@@ -106,8 +110,7 @@ const ViewTabs = (props) => {
         <div className={c.ViewTabs}>
             <StyledTabs
                 className={c.tabs}
-                variant="scrollable"
-                scrollButtons="auto"
+                variant="fullWidth"
                 value={VIEW_TABS.indexOf(recordViewTab)}
                 onChange={handleChange}
                 aria-label="record view tab"

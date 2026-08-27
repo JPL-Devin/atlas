@@ -33,11 +33,9 @@ const useStyles = makeStyles((theme) => ({
         background: theme.palette.swatches.grey.grey100,
         color: theme.palette.text.primary,
         borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        // Stacked, the panel's rows join the page column directly (see Overview).
         [theme.breakpoints.down('lg')]: {
-            width: '100%',
-            height: 'unset',
-            borderRight: 'none',
-            borderTop: `2px solid ${theme.palette.swatches.grey.grey200}`,
+            display: 'contents',
         },
     },
     // A slim scrollbar keeps the gutter from cutting into the heading rules.

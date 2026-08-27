@@ -329,9 +329,9 @@ const useStyles = makeStyles((theme) => ({
         borderRight: `1px solid ${theme.palette.swatches.grey.grey150}`,
         width: 'var(--record-panel-width, 770px)',
         background: theme.palette.swatches.grey.grey100,
+        // Stacked, the panel's rows join the page column directly (see Overview).
         [theme.breakpoints.down('lg')]: {
-            width: '100%',
-            borderRight: 'none',
+            display: 'contents',
         },
     },
     top: {

@@ -125,6 +125,7 @@ test.describe('resolvePresentation', () => {
         expect(serialized).not.toContain('gather.')
         expect(serialized).not.toContain('{{')
         expect(Object.keys(p.tiles[0]).sort()).toEqual([
+            'description',
             'icon',
             'label',
             'pair',

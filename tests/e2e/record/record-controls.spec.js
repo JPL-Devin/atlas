@@ -6,7 +6,7 @@ import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-hel
  *
  *   1. Tab switching (Overview <-> Product Label)
  *   2. OpenSeadragon viewer controls (home / fullscreen / rotate / zoom)
- *   3. "return to search" button navigates back to /search
+ *   3. Browser back navigates from /record to /search
  *   4. "copy link to record page" button is reachable
  *
  * The record page is opened by clicking a result on /search. We rely
@@ -104,15 +104,10 @@ test.describe('/record - OpenSeadragon viewer controls', () => {
 })
 
 test.describe('/record - secondary controls', () => {
-    test('"return to search" navigates back to /search', async ({ page }) => {
+    test('browser back navigates from /record to /search', async ({ page }) => {
         await openFirstRecordFromSearch(page)
 
-        // The aria-label conditionally toggles between 'go back a page'
-        // and 'return to search' depending on history state. Match either.
-        const back = page
-            .getByRole('button', { name: 'return to search' })
-            .or(page.getByRole('button', { name: 'go back a page' }))
-        await back.first().click()
+        await page.goBack()
         await page.waitForURL((u) => u.pathname.includes('/search'), { timeout: 30_000 })
         expect(page.url()).toContain('/search')
     })

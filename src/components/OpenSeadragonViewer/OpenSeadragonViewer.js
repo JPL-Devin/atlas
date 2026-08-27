@@ -63,8 +63,9 @@ const useStyles = makeStyles((theme) => ({
         'alignItems': 'center',
         'justifyContent': 'center',
         'boxSizing': 'border-box',
-        'width': '40px',
-        'height': '40px',
+        'width': '34px',
+        'height': '34px',
+        'fontSize': '19px',
         'pointerEvents': 'all',
         'background': theme.palette.swatches.grey.grey100,
         'color': theme.palette.swatches.grey.grey700,
@@ -240,7 +241,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
         if (viewer && svgOverlay) {
             drawFeatures(viewer.svgOverlay(), features)
         }
-    }, [features])
+    }, [features, viewer, svgOverlay])
 
     // Labels counter-scale, so they follow every viewport change.
     useEffect(() => {
@@ -368,10 +369,13 @@ const LABEL_MIN_BOX_PX = 44
  * @param {Array} features - GeoJSON features, optionally with _color and _label
  */
 function drawFeatures(overlay, features) {
-    if (!overlay || !features) return
+    if (!overlay) return
 
     const node = overlay.node()
     node.innerHTML = ''
+    // No features means the overlay is cleared, e.g. leaving the ML tab.
+    if (!features) return
+
     const imageSize = overlay._viewer.world._contentSize
 
     features.forEach((feature) => {

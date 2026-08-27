@@ -44,7 +44,12 @@ import {
 import { streamDownloadFile } from '../../../../../core/downloaders/ZipStream.js'
 import { HASH_PATHS, ES_PATHS } from '../../../../../core/constants.js'
 import { getAppConfig, getAppInstanceKey } from '../../../../../core/appConfig.js'
-import { resolvePresentation } from '../../../../../core/recordPresentation'
+import {
+    parseRecordFilename,
+    readProductType,
+    resolvePresentation,
+} from '../../../../../core/recordPresentation'
+import { LIGHT_COLORS } from '../../../filenameColors'
 import { setRecordViewTab, setSnackBarText } from '../../../../../core/redux/actions/actions.js'
 
 import tileIcons from './tileIcons.js'
@@ -95,18 +100,26 @@ const useStyles = makeStyles((theme) => ({
     // The caption leads the panel body rather than floating over the image.
     captionCard: {
         boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '6px',
         padding: '10px 12px 8px 12px',
         marginBottom: '20px',
         borderRadius: '3px',
         border: `1px solid ${theme.palette.swatches.grey.grey200}`,
         background: theme.palette.swatches.grey.grey0,
     },
+    // The copy control sits in the card's top-right corner, clear of the text.
+    cardBody: {
+        flex: 1,
+        minWidth: 0,
+    },
     captionChips: {
         display: 'flex',
         alignItems: 'center',
         flexWrap: 'wrap',
         gap: '6px',
-        marginBottom: '6px',
+        marginTop: '8px',
     },
     // Classifications sit opposite the descriptive chips.
     mlChips: {
@@ -134,6 +147,19 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey800,
         whiteSpace: 'nowrap',
     },
+    // A code the filename grammar can explain: it takes that segment's colour
+    // and carries its meaning on hover.
+    explained: {
+        cursor: 'help',
+        textDecoration: 'underline dotted currentColor',
+        textUnderlineOffset: '3px',
+    },
+    chipExplained: {
+        fontWeight: 'bold',
+        cursor: 'help',
+        textDecoration: 'underline dotted currentColor',
+        textUnderlineOffset: '2px',
+    },
     captionTitle: {
         fontSize: '14px',
         fontWeight: 'bold',
@@ -149,7 +175,6 @@ const useStyles = makeStyles((theme) => ({
     captionFoot: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
         gap: '8px',
         marginTop: '6px',
     },
@@ -220,6 +245,11 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey500,
         whiteSpace: 'nowrap',
     },
+    // A dotted underline marks the labels that explain themselves on hover.
+    timelineLabelExplained: {
+        cursor: 'help',
+        borderBottom: `1px dotted ${theme.palette.swatches.grey.grey400}`,
+    },
     timelineValue: {
         fontSize: '12px',
         color: theme.palette.swatches.grey.grey700,
@@ -261,11 +291,10 @@ const useStyles = makeStyles((theme) => ({
         flexFlow: 'column',
         background: theme.palette.swatches.grey.grey100,
         borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        // Stacked, the panel's rows join the page column directly so the header
+        // can sit above the image while the body follows it.
         [theme.breakpoints.down('lg')]: {
-            width: '100%',
-            height: 'unset',
-            borderRight: 'none',
-            borderTop: `1px solid ${theme.palette.swatches.grey.grey200}`,
+            display: 'contents',
         },
     },
     // A slim scrollbar keeps the gutter from cutting into the heading rules.
@@ -489,7 +518,7 @@ const useStyles = makeStyles((theme) => ({
     },
     fileCards: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+        gridTemplateColumns: 'minmax(0, 1fr)',
         gap: '8px',
         marginBottom: '20px',
     },
@@ -533,7 +562,7 @@ const useStyles = makeStyles((theme) => ({
         minWidth: 0,
     },
     fileName: {
-        fontSize: '13px',
+        fontSize: '14px',
         fontWeight: 'bold',
         color: theme.palette.text.primary,
         overflow: 'hidden',
@@ -542,10 +571,10 @@ const useStyles = makeStyles((theme) => ({
     },
     fileExt: {
         flexShrink: 0,
-        fontSize: '10px',
+        fontSize: '12px',
         fontWeight: 'bold',
         letterSpacing: '0.04em',
-        lineHeight: '15px',
+        lineHeight: '17px',
         padding: '0 5px',
         borderRadius: '2px',
         background: theme.palette.swatches.grey.grey150,
@@ -553,7 +582,7 @@ const useStyles = makeStyles((theme) => ({
     },
     fileMeta: {
         display: 'flex',
-        fontSize: '11px',
+        fontSize: '12px',
         fontFamily: 'monospace',
         color: theme.palette.swatches.grey.grey500,
         whiteSpace: 'nowrap',
@@ -569,7 +598,7 @@ const useStyles = makeStyles((theme) => ({
     },
     fileSize: {
         flexShrink: 0,
-        fontSize: '12px',
+        fontSize: '14px',
         color: theme.palette.swatches.grey.grey600,
         whiteSpace: 'nowrap',
     },
@@ -584,7 +613,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     sectionCount: {
-        fontSize: '11px',
+        fontSize: '12px',
         fontWeight: 'normal',
         color: theme.palette.swatches.grey.grey500,
     },
@@ -648,6 +677,9 @@ const useStyles = makeStyles((theme) => ({
     // Same surface as the caption card, copy control included.
     citationCard: {
         boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '6px',
         padding: '12px 12px 8px 12px',
         marginBottom: '20px',
         borderRadius: '3px',
@@ -663,7 +695,6 @@ const useStyles = makeStyles((theme) => ({
     citationFoot: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
         gap: '8px',
         marginTop: '6px',
     },
@@ -729,6 +760,15 @@ const Overview = (props) => {
     const tiles = available.slice(0, wholeRows || available.length)
     const caption = presentation.caption || presentation.shortCaption
 
+    // The filename's product type code, so wherever that code shows up it can
+    // explain itself on hover instead of reading as an acronym.
+    const productType = readProductType(
+        parseRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
+    )
+    const productTypeTitle = productType == null ? null : productType.meaning
+    const productTypeColor = productType == null ? null : LIGHT_COLORS[productType.color]
+    const isProductType = (value) => productType != null && value === productType.code
+
     // Only confident classifications are worth a chip, best confidence first.
     const mlChips = []
     const classifications = getIn(recordData, ES_PATHS.ml_classifications, [])
@@ -749,6 +789,7 @@ const Overview = (props) => {
     // dividing rule.
     const renderTileHalf = (part, paired = false) => {
         const Icon = tileIcons[part.icon]
+        const explained = isProductType(part.value)
         return (
             <div className={`${c.tileHalf} ${paired ? c.tileHalfPaired : ''}`}>
                 <div className={c.tileLabel}>
@@ -757,9 +798,20 @@ const Overview = (props) => {
                         {part.shortLabel}
                     </span>
                 </div>
-                <div className={c.tileValue} title={part.value}>
-                    {part.value}
-                </div>
+                {explained ? (
+                    <Tooltip title={productTypeTitle} arrow>
+                        <div
+                            className={`${c.tileValue} ${c.explained}`}
+                            style={{ color: productTypeColor }}
+                        >
+                            {part.value}
+                        </div>
+                    </Tooltip>
+                ) : (
+                    <div className={c.tileValue} title={part.value}>
+                        {part.value}
+                    </div>
+                )}
             </div>
         )
     }
@@ -942,7 +994,17 @@ const Overview = (props) => {
                                 <div
                                     className={`${c.timelineDot} ${dotColors[point.color] || ''}`}
                                 />
-                                <div className={c.timelineLabel}>{point.label}</div>
+                                <Tooltip title={point.description || ''} arrow>
+                                    <div
+                                        className={`${c.timelineLabel} ${
+                                            point.description != null
+                                                ? c.timelineLabelExplained
+                                                : ''
+                                        }`}
+                                    >
+                                        {point.label}
+                                    </div>
+                                </Tooltip>
                                 <div className={c.timelineValue}>{point.value}</div>
                             </div>
                         </React.Fragment>
@@ -956,51 +1018,62 @@ const Overview = (props) => {
         if (presentation.captionTitle == null && caption == null) return null
         return (
             <div className={c.captionCard} aria-label="record caption">
-                {(presentation.captionChips.length > 0 || mlChips.length > 0) && (
-                    <div className={c.captionChips}>
-                        {presentation.captionChips.map((chip, idx) => (
-                            <span className={c.chip} key={idx}>
-                                {chip}
-                            </span>
-                        ))}
-                        {mlChips.length > 0 && (
-                            <div className={c.mlChips}>
-                                {mlChips.map((chip) => (
-                                    <Chip
-                                        key={chip.class}
-                                        className={c.mlChip}
-                                        label={`ML - ${prettify(chip.class)}`}
-                                        size="small"
-                                    />
-                                ))}
+                <div className={c.cardBody}>
+                    {presentation.captionTitle != null && (
+                        <div className={c.captionTitle}>{presentation.captionTitle}</div>
+                    )}
+                    {caption != null && <div className={c.captionText}>{caption}</div>}
+                    {(presentation.captionChips.length > 0 || mlChips.length > 0) && (
+                        <div className={c.captionChips}>
+                            {presentation.captionChips.map((chip, idx) =>
+                                isProductType(chip) ? (
+                                    <Tooltip title={productTypeTitle} arrow key={idx}>
+                                        <span
+                                            className={`${c.chip} ${c.chipExplained}`}
+                                            style={{ color: productTypeColor }}
+                                        >
+                                            {chip}
+                                        </span>
+                                    </Tooltip>
+                                ) : (
+                                    <span className={c.chip} key={idx}>
+                                        {chip}
+                                    </span>
+                                )
+                            )}
+                            {mlChips.length > 0 && (
+                                <div className={c.mlChips}>
+                                    {mlChips.map((chip) => (
+                                        <Chip
+                                            key={chip.class}
+                                            className={c.mlChip}
+                                            label={`ML - ${prettify(chip.class)}`}
+                                            size="small"
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    {presentation.citationAuthor != null && (
+                        <div className={c.captionFoot}>
+                            <div className={c.captionAuthor}>
+                                @{presentation.citationAuthor}
                             </div>
-                        )}
-                    </div>
-                )}
-                {presentation.captionTitle != null && (
-                    <div className={c.captionTitle}>{presentation.captionTitle}</div>
-                )}
-                {caption != null && <div className={c.captionText}>{caption}</div>}
-                {(caption != null || presentation.citationAuthor != null) && (
-                    <div className={c.captionFoot}>
-                        {caption != null ? (
-                            <Tooltip title="Copy caption" arrow>
-                                <IconButton
-                                    className={c.captionCopy}
-                                    aria-label="copy record caption"
-                                    size="small"
-                                    onClick={() => copy(caption, 'Copied caption to clipboard!')}
-                                >
-                                    <ContentCopyIcon />
-                                </IconButton>
-                            </Tooltip>
-                        ) : (
-                            <span />
-                        )}
-                        {presentation.citationAuthor != null && (
-                            <div className={c.captionAuthor}>{presentation.citationAuthor}</div>
-                        )}
-                    </div>
+                        </div>
+                    )}
+                </div>
+                {caption != null && (
+                    <Tooltip title="Copy caption" arrow>
+                        <IconButton
+                            className={c.captionCopy}
+                            aria-label="copy record caption"
+                            size="small"
+                            onClick={() => copy(caption, 'Copied caption to clipboard!')}
+                        >
+                            <ContentCopyIcon />
+                        </IconButton>
+                    </Tooltip>
                 )}
             </div>
         )
@@ -1166,26 +1239,28 @@ const Overview = (props) => {
                                     <span>Citation</span>
                                 </div>
                                 <div className={c.citationCard}>
-                                    <div className={c.citation}>{presentation.citation}</div>
-                                    <div className={c.citationFoot}>
-                                        <Tooltip title="Copy citation" arrow>
-                                            <IconButton
-                                                className={c.captionCopy}
-                                                aria-label="copy record citation"
-                                                size="small"
-                                                onClick={() =>
-                                                    copy(
-                                                        presentation.citation,
-                                                        'Copied citation to clipboard!'
-                                                    )
-                                                }
-                                            >
-                                                <ContentCopyIcon />
-                                            </IconButton>
-                                        </Tooltip>
+                                    <Tooltip title="Copy citation" arrow>
+                                        <IconButton
+                                            className={c.captionCopy}
+                                            aria-label="copy record citation"
+                                            size="small"
+                                            onClick={() =>
+                                                copy(
+                                                    presentation.citation,
+                                                    'Copied citation to clipboard!'
+                                                )
+                                            }
+                                        >
+                                            <ContentCopyIcon />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <div className={c.cardBody}>
+                                        <div className={c.citation}>{presentation.citation}</div>
                                         {presentation.citationAuthor != null && (
-                                            <div className={c.captionAuthor}>
-                                                {presentation.citationAuthor}
+                                            <div className={c.citationFoot}>
+                                                <div className={c.captionAuthor}>
+                                                    @{presentation.citationAuthor}
+                                                </div>
                                             </div>
                                         )}
                                     </div>

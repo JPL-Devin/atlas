@@ -51,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.down('lg')]: {
             flexFlow: 'column',
             overflowY: 'auto',
+            background: theme.palette.swatches.grey.grey100,
         },
     },
 }))

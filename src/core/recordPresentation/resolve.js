@@ -69,6 +69,7 @@ const readTile = (recordData, path, format) => {
     return {
         label: field.label,
         shortLabel: field.shortLabel || field.label,
+        description: field.description || null,
         icon: field.icon || null,
         value,
     }
@@ -104,7 +105,13 @@ const readTimeline = (recordData, entries) => {
             const at = parseTime(first(getIn(recordData, path)))
             if (at == null) return null
             const color = typeof entry === 'string' ? null : entry.color || null
-            return { label: tile.shortLabel, value: tile.value, color, at }
+            return {
+                label: tile.shortLabel,
+                value: tile.value,
+                description: tile.description,
+                color,
+                at,
+            }
         })
         .filter((point) => point != null)
         .sort((a, b) => a.at - b.at)
@@ -113,6 +120,7 @@ const readTimeline = (recordData, entries) => {
     return points.map((point, i) => ({
         label: point.label,
         value: point.value,
+        description: point.description,
         color: point.color,
         gap: i === 0 ? null : formatElapsed(point.at - points[i - 1].at),
     }))

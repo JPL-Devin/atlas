@@ -65,6 +65,7 @@
     "gather.time.start_time": {
         "label": "Start time",
         "shortLabel": "Start",
+        "description": "When the observation itself began, in spacecraft time.",
         "icon": "calendar",
         "format": "datetime"
     },
@@ -77,6 +78,7 @@
     "gather.time.product_creation_time": {
         "label": "Created",
         "shortLabel": "Created",
+        "description": "When this data product file was generated on the ground.",
         "icon": "calendar",
         "format": "datetime"
     },
@@ -94,6 +96,7 @@
     "gather.time.earth_received_start_time": {
         "label": "Earth received",
         "shortLabel": "ERT",
+        "description": "Earth-received time: when the downlinked data reached a ground station.",
         "icon": "calendar",
         "format": "datetime"
     },
@@ -506,6 +509,7 @@
     },
     "archive.updated_at": {
         "label": "Published",
+        "description": "When this product was last published to the PDS Imaging archive.",
         "icon": "calendar",
         "format": "datetime"
     },

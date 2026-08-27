@@ -73,6 +73,19 @@ export const parseFilename = (filename, spec) => {
 
 const first = (value) => (Array.isArray(value) ? value[0] : value)
 
+const PRODUCT_TYPE = 'product type'
+
+// The product type code the filename carries, with the mission's own wording
+// for it, so chips and tiles showing that code can explain themselves.
+export const readProductType = (parsed) => {
+    const piece = (parsed?.pieces || []).find(
+        (part) => String(part.label).toLowerCase() === PRODUCT_TYPE
+    )
+    const meaning = piece?.meaning || piece?.description
+    if (piece == null || meaning == null) return null
+    return { code: piece.text, color: piece.color, meaning }
+}
+
 // Resolves the spec from the record itself, so callers share one gate on
 // whether a filename has a breakdown at all.
 export const parseRecordFilename = (filename, recordData) =>
