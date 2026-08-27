@@ -1238,7 +1238,17 @@ const Overview = (props) => {
                                 <div className={c.citationHeading}>
                                     <span>Citation</span>
                                 </div>
-                                <div className={c.citationCard}>
+                                <div className={c.citationCard} aria-label="record citation">
+                                    <div className={c.cardBody}>
+                                        <div className={c.citation}>{presentation.citation}</div>
+                                        {presentation.citationAuthor != null && (
+                                            <div className={c.citationFoot}>
+                                                <div className={c.captionAuthor}>
+                                                    @{presentation.citationAuthor}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                     <Tooltip title="Copy citation" arrow>
                                         <IconButton
                                             className={c.captionCopy}
@@ -1254,16 +1264,6 @@ const Overview = (props) => {
                                             <ContentCopyIcon />
                                         </IconButton>
                                     </Tooltip>
-                                    <div className={c.cardBody}>
-                                        <div className={c.citation}>{presentation.citation}</div>
-                                        {presentation.citationAuthor != null && (
-                                            <div className={c.citationFoot}>
-                                                <div className={c.captionAuthor}>
-                                                    @{presentation.citationAuthor}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
                                 </div>
                             </>
                         )}

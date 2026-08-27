@@ -17,12 +17,12 @@
             "pair": "gather.landed_missions.start_local_true_solar_time"
         },
         {
-            "path": "gather.landed_missions.site_solar_elevation",
-            "pair": "gather.landed_missions.site_solar_azimuth"
+            "path": "gather.landed_missions.site_solar_azimuth",
+            "pair": "gather.landed_missions.site_solar_elevation"
         },
         {
-            "path": "gather.landed_missions.site_instrument_elevation",
-            "pair": "gather.landed_missions.site_instrument_azimuth"
+            "path": "gather.landed_missions.site_instrument_azimuth",
+            "pair": "gather.landed_missions.site_instrument_elevation"
         },
         "gather.ancillary.eye_type",
         "gather.lighting_geometry.solar_longitude",

@@ -48,7 +48,8 @@ test.describe('resolvePresentation', () => {
         expect(valueOf(p, 'Sol')).toBe('818')
         expect(valueOf(p, 'Local mean solar time')).toBe('14:19:46')
         expect(labels(p)).not.toContain('Local true solar time')
-        expect(valueOf(p, 'Instrument elevation')).toBe('-32.9°')
+        expect(valueOf(p, 'Instrument azimuth')).toBe('0.2°')
+        expect(tileOf(p, 'Instrument azimuth').pair.value).toBe('-32.9°')
         expect(p.caption).toContain('NAVCAM_RIGHT')
         expect(p.caption).toContain('14:19:46 local mean solar time')
     })
@@ -151,7 +152,7 @@ test.describe('resolvePresentation', () => {
 
     test('paired tiles carry a second field of equal weight', () => {
         const p = resolvePresentation(mars2020Navcam)
-        expect(tileOf(p, 'Instrument elevation').pair.value).toBe('0.2°')
+        expect(tileOf(p, 'Instrument azimuth').pair.value).toBe('-32.9°')
         expect(tileOf(p, 'Local mean solar time').pair.shortLabel).toBe('LTST')
         expect(tileOf(p, 'Site').pair.shortLabel).toBe('Drive')
         expect(tileOf(p, 'Sol').pair).toBe(null)
