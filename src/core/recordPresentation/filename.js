@@ -77,7 +77,12 @@ const parseOne = (filename, spec) => {
     if (cursor === 0) return null
     if (cursor < filename.length) pieces.push({ text: filename.slice(cursor) })
 
-    return { title: spec.title || null, reference: spec.reference || null, pieces }
+    return {
+        title: spec.title || null,
+        reference: spec.reference || null,
+        sis: spec.sis || null,
+        pieces,
+    }
 }
 
 /**

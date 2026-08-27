@@ -1,5 +1,6 @@
 {
     "title": "Clementine EDR filename",
+    "sis": "clem_edr",
     "reference": "Clementine EDR SIS, \u00a74.1 and the PRODUCT_ID definition in \u00a74.3.2",
     "ignoreCase": true,
     "match": "^([PLEAB])([ABUHNL])([A-F])([0-9]{4})([A-Z])\\.([0-9]{3})$",

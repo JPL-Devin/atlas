@@ -1,5 +1,6 @@
 {
     "title": "Odyssey THEMIS filename",
+    "sis": "ody_themis",
     "reference": "Mars Odyssey THEMIS Standard Data Products SIS, \u00a73.1",
     "ignoreCase": true,
     "match": "^([VIRS])([A-Z0-9][0-9]{4})([0-9]{3})([A-Z]{3})\\.(QUB|IMG|CUB\\.GZ)$",

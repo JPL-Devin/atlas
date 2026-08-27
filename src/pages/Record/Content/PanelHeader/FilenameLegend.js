@@ -6,6 +6,8 @@ import Tooltip from '@mui/material/Tooltip'
 import { makeStyles } from '@mui/styles'
 
 import { LIGHT_COLORS } from '../../filenameColors'
+import { SisLink } from '../../../../components/SisLink/SisLink'
+import { getSisDocuments } from '../../../../core/sis'
 import { setRecordFilenamePart } from '../../../../core/redux/actions/actions'
 
 const useStyles = makeStyles((theme) => ({
@@ -152,7 +154,49 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '11px',
         color: theme.palette.swatches.grey.grey500,
     },
+    referenceLinks: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        columnGap: '12px',
+    },
 }))
+
+// The citation under the details, linked to the SIS PDF that defines the
+// convention when the grammar names one.
+const FilenameReference = (props) => {
+    const { parsed, className } = props
+
+    const documents = getSisDocuments(parsed.sis)
+
+    if (documents.length === 0)
+        return parsed.reference != null ? (
+            <div className={className}>{parsed.reference}</div>
+        ) : null
+
+    if (documents.length === 1 && parsed.reference != null)
+        return (
+            <div className={className}>
+                <SisLink document={documents[0]} label={parsed.reference} />
+            </div>
+        )
+
+    return (
+        <div className={className}>
+            {parsed.reference != null && <div>{parsed.reference}</div>}
+            <div className={props.linksClassName}>
+                {documents.map((document) => (
+                    <SisLink document={document} key={document.id} />
+                ))}
+            </div>
+        </div>
+    )
+}
+
+FilenameReference.propTypes = {
+    parsed: PropTypes.object.isRequired,
+    className: PropTypes.string,
+    linksClassName: PropTypes.string,
+}
 
 // Colours the parsed segments and tracks which one is open. The selection lives
 // in redux so it survives switching record tabs.
@@ -312,8 +356,12 @@ export const FilenameDetails = (props) => {
                         </div>
                     ))
                 )}
-                {entries.length > 0 && parsed.reference != null && (
-                    <div className={c.reference}>{parsed.reference}</div>
+                {entries.length > 0 && (
+                    <FilenameReference
+                        parsed={parsed}
+                        className={c.reference}
+                        linksClassName={c.referenceLinks}
+                    />
                 )}
             </div>
         </div>

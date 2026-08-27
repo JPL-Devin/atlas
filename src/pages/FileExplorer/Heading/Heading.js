@@ -16,6 +16,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 
 import { makeStyles } from '@mui/styles'
 
+import SisMenu from '../../../components/SisLink/SisMenu'
 import { setFilexPreview, removeFilexColumn } from '../../../core/redux/actions/actions.js'
 import { copyToClipboard, splitUri } from '../../../core/utils'
 import { HASH_PATHS, ES_PATHS } from '../../../core/constants'
@@ -39,11 +40,14 @@ const useStyles = makeStyles((theme) => ({
         height: '0px',
         overflow: 'hidden',
     },
+    // Shrinks to whatever the trailing icon buttons leave, however many there
+    // are.
     path: {
         margin: 0,
         padding: `0px ${theme.spacing(1)} 0px ${theme.spacing(3)}`,
         boxSizing: 'border-box',
-        width: 'calc(100% - 80px)',
+        flex: 1,
+        minWidth: 0,
     },
     pathTitle: {
         'fontSize': 14,
@@ -58,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
     },
     copyLink: {
         display: 'flex',
+        flexShrink: 0,
     },
     copyButton: {
         'padding': 10,
@@ -112,6 +117,17 @@ const Heading = (props) => {
             }
         }
     })
+
+    // The drilled-to mission and instrument, so the path can offer their SIS.
+    const activeFilter = (field) => {
+        const column = columns.find(
+            (col) =>
+                col.type === 'filter' &&
+                String(col.value).split('.').pop() === field &&
+                col.active != null
+        )
+        return column ? column.active.key : null
+    }
 
     let path = preview.uri ? preview.uri : null
     if (preview.fs_type === 'file') path += '-'
@@ -170,6 +186,10 @@ const Heading = (props) => {
                     </Typography>
                 </div>
                 <div className={c.copyLink}>
+                    <SisMenu
+                        mission={activeFilter('mission')}
+                        instruments={activeFilter('instrument')}
+                    />
                     <Tooltip title="Reset Path" arrow>
                         <IconButton
                             className={c.copyButton}

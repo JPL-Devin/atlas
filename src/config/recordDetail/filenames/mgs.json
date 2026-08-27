@@ -1,5 +1,9 @@
 {
     "title": "MGS MOC filename",
+    "sis": [
+        "mgs_moc_rdr",
+        "mgs_moc_sdp"
+    ],
     "reference": "MGS MOC RDR SIS, \u00a73.1 (Data Product Naming and Organization); MOC SDP/EDR SIS (mocsis), \u00a7PRODUCT_ID",
     "ignoreCase": true,
     "match": "^(AB1|SP1|SP2|CAL|FHA|[MERS][0-9]{2})([0-9]{5})(?:_(GB|GR|NA|WB|WR))?\\.(IMG|IMQ|LBL)$",

@@ -1,6 +1,7 @@
 [
     {
         "title": "MER EDR / single-frame RDR filename",
+        "sis": "mer_camsis",
         "reference": "MER Camera EDR / RDR Ops & Science Data Products SIS (JPL D-22846, v4.4), \u00a74.4.1",
         "ignoreCase": true,
         "match": "^[1-4][A-Za-z][0-9]{9}[A-Za-z]{3}[A-Za-z0-9_#]{4}[A-Za-z][0-9]{4}[A-Za-z][A-Za-z0-9][A-Za-z][A-Za-z0-9]\\.[A-Za-z]{3}$",
@@ -954,6 +955,7 @@
     },
     {
         "title": "MER mosaic RDR filename",
+        "sis": "mer_camsis",
         "reference": "MER Camera EDR / RDR Ops & Science Data Products SIS (JPL D-22846, v4.4), \u00a74.4.2",
         "ignoreCase": true,
         "match": "^[1-4][A-Za-z]{2}[A-Za-z0-9_#]{3}[A-Za-z]{3}[A-Za-z0-9_#]{2}[A-Za-z]{3}[A-Za-z0-9_#]{2}[A-Za-z][0-9]{4}[A-Za-z][0-9]{3}[A-Za-z][A-Za-z0-9]\\.[A-Za-z]{3}$",
@@ -1956,6 +1958,7 @@
     },
     {
         "title": "MER terrain mesh RDR filename",
+        "sis": "mer_camsis",
         "reference": "MER Camera EDR / RDR Ops & Science Data Products SIS (JPL D-22846, v4.4), \u00a74.4.3",
         "ignoreCase": true,
         "match": "^([1-4])mesh_([0-9]{1,4}x?)_([A-Za-z]+)_([0-9]{1,4}x?)_([A-Za-z]{3}(?:-[A-Za-z]{3})*)_([0-9]{1,4}x?)_v([0-9]+)\\.([A-Za-z]{2,4})$",

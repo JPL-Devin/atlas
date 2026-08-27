@@ -1,6 +1,7 @@
 [
     {
         "title": "Phoenix EDR / single-frame RDR filename",
+        "sis": "phx_camera",
         "reference": "Phoenix Camera EDR / RDR Data Products SIS (JPL D-33231, PHX-274-327), \u00a74.4.1",
         "ignoreCase": true,
         "match": "^[A-Z][SCT][0-9]{3}[A-Z]{3}[0-9]{9}[A-Z0-9_][A-Z0-9]{4}[A-Z0-9][LRMAN][A-Z0-9][A-Z][A-Z0-9]\\.[A-Za-z]{2,3}$",

@@ -1,6 +1,7 @@
 [
     {
         "title": "Mars Pathfinder IMP EDR filename",
+        "sis": "mpf_imp",
         "reference": "Imager for Mars Pathfinder EDR Data Product SIS (v1.5), \u00a72.2.2",
         "ignoreCase": true,
         "match": "^I[0-9]{6}[LRSN]\\.[A-Za-z]{3}$",
@@ -62,6 +63,7 @@
     },
     {
         "title": "Mars Pathfinder Rover camera EDR filename",
+        "sis": "mpf_rover",
         "reference": "Mars Pathfinder Rover Camera EDR Data Product SIS (v1.5), \u00a72.2.2",
         "ignoreCase": true,
         "match": "^R[0-9]{6}\\.[A-Za-z]{3}$",

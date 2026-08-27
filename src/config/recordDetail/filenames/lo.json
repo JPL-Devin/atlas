@@ -1,5 +1,6 @@
 {
     "title": "Lunar Orbiter (LOIRP) filename",
+    "sis": "lo_loirp",
     "reference": "Lunar Orbiter Image Recovery Project (LOIRP) SIS, \u00a74.3.4 (File Labeling and Naming Conventions) and Table 1 (Image Taxonomy)",
     "ignoreCase": true,
     "match": "^(FRAME)_([1-5])([0-9]{3})_(M|H1|H2|H3|Res)\\.(IMG|LBL)$",

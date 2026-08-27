@@ -25,12 +25,16 @@ import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
 import MenuButton from '../../../../../components/MenuButton/MenuButton'
+import SisDocumentation from '../../../../../components/SisLink/SisDocumentation'
+import { ES_PATHS } from '../../../../../core/constants'
 import PanelHeader from '../../PanelHeader/PanelHeader'
 import LabelActions from '../../PanelHeader/LabelActions'
 import Highlighter from 'react-highlight-words'
 import flat from 'flat'
 
 import { getRawLabel, withoutLabelBranches } from './labelData'
+
+const first = (value) => (Array.isArray(value) ? value[0] : value)
 
 function TransitionComponent(props) {
     const style = useSpring({
@@ -430,6 +434,10 @@ const ProductLabel = (props) => {
                     extraActions={
                         !isMobile ? <LabelActions recordData={recordData} /> : null
                     }
+                />
+                <SisDocumentation
+                    mission={first(getIn(recordData, ES_PATHS.mission))}
+                    instruments={getIn(recordData, ES_PATHS.instrument)}
                 />
                 {missingRawLabel && (
                     <Box className={c.missingLabel}>

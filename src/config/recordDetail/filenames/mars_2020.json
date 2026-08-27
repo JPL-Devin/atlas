@@ -1182,5 +1182,6 @@
                 "WAV": "Audio"
             }
         }
-    ]
+    ],
+    "sis": "m20_camera"
 }

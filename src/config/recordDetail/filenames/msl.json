@@ -1,6 +1,7 @@
 [
     {
         "title": "MSL EDR / single-frame RDR filename",
+        "sis": "msl_camera",
         "reference": "MSL Camera & LIBS EDR / RDR Data Products SIS (JPL D-38107, v4.1), \u00a76.1.1",
         "match": "^[A-Z]{2}[A-Z0-9][A-Z_][A-Z0-9][0-9]{8}[A-Z0-9]{3}[A-Z0-9_]{20}\\.[A-Za-z]{2,4}$",
         "segments": [
@@ -1075,6 +1076,7 @@
     },
     {
         "title": "MSL mosaic RDR filename",
+        "sis": "msl_camera",
         "reference": "MSL Camera & LIBS EDR / RDR Data Products SIS (JPL D-38107, v4.1), \u00a76.1.2",
         "match": "^[FRNMHDC][FRNMHDCX_][LRMSCAGNX][A-Z0-9]{3}[A-Z_][A-Z0-9_]{4}[_X][A-Z0-9]{3}[A-Z0-9_]{3}[A-Z]{3}[A-Z_]{3}[A-Z0-9_]{4}[_X][A-Z0-9_]{5}[A-Z][A-Z0-9_]\\.[A-Za-z]{2,3}$",
         "segments": [
@@ -2204,6 +2206,7 @@
     },
     {
         "title": "MSL Mastcam / MAHLI / MARDI (MMM) filename",
+        "sis": "msl_mmm",
         "reference": "MSL Mast Camera, Mars Hand Lens Imager and Mars Descent Imager EDR/RDR Data Products SIS (JPL D-75179), \u00a73.4",
         "match": "^(?:[0-9]{4}|[A-Z]{3}_)(?:ML|MR|MH|MD)[0-9]{16}[A-Z][0-9A-F][0-9A-Z]_[A-Z]{4}\\.[A-Z]{3}$",
         "segments": [

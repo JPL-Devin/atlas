@@ -1,5 +1,6 @@
 {
     "title": "LRO LAMP filename",
+    "sis": "lro_lamp_edr",
     "reference": "LRO LAMP EDR Data Product SIS, \u00a74.3.4 (Labeling and Identification)",
     "ignoreCase": true,
     "match": "^(LAMP)_(ENG|SCI)_([0-9]{10})_([0-9]{2})\\.(FIT|LBL)$",

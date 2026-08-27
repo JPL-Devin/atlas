@@ -1,5 +1,6 @@
 {
     "title": "LCROSS filename",
+    "sis": "lcro_dpsis",
     "reference": "LCROSS Data Product SIS, \u00a74.3.5 (Labeling and Identification)",
     "ignoreCase": true,
     "match": "^(LCROSS)_(VIS|NIR1|NIR2|MIR1|MIR2|NSP1|NSP2|VSP|TLP)_(RAW|CAL)_([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{3})\\.(IMG|TAB|LBL)$",

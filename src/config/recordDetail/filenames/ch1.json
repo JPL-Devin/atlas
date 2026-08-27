@@ -1,5 +1,6 @@
 {
     "title": "Chandrayaan-1 M3 filename",
+    "sis": "ch1_m3",
     "reference": "Chandrayaan-1 M3 Data Product SIS, \u00a72.5.6 (Labeling and Identification)",
     "ignoreCase": true,
     "match": "^(M3)([GT])([0-9]{4})([0-9]{2})([0-9]{2})T([0-9]{2})([0-9]{2})([0-9]{2})_V([0-9]{2})_([A-Z0-9]{2,3})\\.(IMG|HDR|LBL|TXT|TAB)$",
