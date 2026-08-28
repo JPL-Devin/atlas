@@ -570,7 +570,8 @@ function setRecordFilenamePart(state, payload) {
  */
 function addFilexColumn(state, payload) {
     let currentColumns = state.getIn(['columns'])
-    if (!currentColumns.length > 0) currentColumns = []
+    // Copy so downstream reference-equality checks see the change
+    currentColumns = currentColumns.length > 0 ? currentColumns.slice() : []
     if (payload.type === 'filter') {
         let finalFilterIndex = -1
         for (let i = 0; i < currentColumns.length; i++) {

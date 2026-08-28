@@ -1,14 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, Suspense, lazy } from 'react'
 import { useDispatch } from 'react-redux'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 import Topbar from '../../components/Topbar'
 import SnackBar from '../../components/SnackBar/SnackBar'
-
-import Search from '../../pages/Search/Search'
-import Record from '../../pages/Record/Record'
-import FileExplorer from '../../pages/FileExplorer/FileExplorer'
-import Cart from '../../pages/Cart/Cart'
 
 import InformationModal from '../../pages/Search/Modals/InformationModal/InformationModal'
 import FeedbackModal from '../../pages/Search/Modals/FeedbackModal/FeedbackModal'
@@ -18,6 +13,12 @@ import { getAppConfig } from '../appConfig'
 import { loadMappings } from '../redux/actions/actions.js'
 
 import './routes.css'
+
+// Route-level code splitting keeps each page's heavy deps out of the main bundle
+const Search = lazy(() => import('../../pages/Search/Search'))
+const Record = lazy(() => import('../../pages/Record/Record'))
+const FileExplorer = lazy(() => import('../../pages/FileExplorer/FileExplorer'))
+const Cart = lazy(() => import('../../pages/Cart/Cart'))
 
 export const AppRoutes = () => {
     const dispatch = useDispatch()
@@ -37,16 +38,21 @@ export const AppRoutes = () => {
                 <div className="routeMain">
                     <Topbar />
                     <div className="routeContent">
-                        <Routes>
-                            <Route path="/search" element={<Search />} />
-                            <Route path="/record" element={<Record />} />
-                            {getAppConfig().enableCart && (
-                                <Route path="/cart" element={<Cart />} />
-                            )}
-                            {getAppConfig().enableArchiveExplorer && (
-                                <Route path="/archive-explorer" element={<FileExplorer />} />
-                            )}
-                        </Routes>
+                        <Suspense fallback={null}>
+                            <Routes>
+                                <Route path="/search" element={<Search />} />
+                                <Route path="/record" element={<Record />} />
+                                {getAppConfig().enableCart && (
+                                    <Route path="/cart" element={<Cart />} />
+                                )}
+                                {getAppConfig().enableArchiveExplorer && (
+                                    <Route
+                                        path="/archive-explorer"
+                                        element={<FileExplorer />}
+                                    />
+                                )}
+                            </Routes>
+                        </Suspense>
                     </div>
                 </div>
             </Router>

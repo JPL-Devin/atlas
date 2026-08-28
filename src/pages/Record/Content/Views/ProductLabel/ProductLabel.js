@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo, useDeferredValue } from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -268,14 +268,11 @@ const makeTree = (data, filterString, classes) => {
                         )}
                     </StyledTreeGroup>
                 )
-            } else {
+            } else if (shown.shown)
                 tree.push(
                     <StyledTreeItem
                         itemId={`${keyI}`}
                         key={keyI}
-                        style={{
-                            display: shown.shown ? 'inherit' : 'none',
-                        }}
                         label={
                             <FilterTreeLabel
                                 id={keyI}
@@ -289,7 +286,6 @@ const makeTree = (data, filterString, classes) => {
                         }}
                     />
                 )
-            }
         }
         return tree
     }
@@ -395,23 +391,38 @@ const ProductLabel = (props) => {
     const dispatch = useDispatch()
 
     const [filterString, setFilterString] = useState('')
+    // Defer tree rebuilds so typing in the label search stays responsive.
+    const deferredFilterString = useDeferredValue(filterString)
 
     const label_id = getIn(recordData, ['atlas', 'label_id'], '')
-    const rawLabel = getRawLabel(recordData)
-    // Without a raw label, fall back to the rest of the indexed metadata so the
-    // tab still shows what the record carries.
-    const missingRawLabel = Object.keys(rawLabel).length === 0
-    const labelDataRaw = missingRawLabel ? withoutLabelBranches(recordData) : rawLabel
-    const labelDataRawFlat = flat.flatten(labelDataRaw, { delimiter: ':' })
-    const labelDataRawFlatSorted = Object.keys(labelDataRawFlat)
-        .sort()
-        .reduce((obj, key) => {
-            obj[key] = labelDataRawFlat[key]
-            return obj
-        }, {})
-    const labelData = flat.unflatten(labelDataRawFlatSorted, { delimiter: ':' })
+    const { missingRawLabel, labelData } = useMemo(() => {
+        const rawLabel = getRawLabel(recordData)
+        // Without a raw label, fall back to the rest of the indexed metadata so
+        // the tab still shows what the record carries.
+        const missing = Object.keys(rawLabel).length === 0
+        const labelDataRaw = missing ? withoutLabelBranches(recordData) : rawLabel
+        const labelDataRawFlat = flat.flatten(labelDataRaw, { delimiter: ':' })
+        const labelDataRawFlatSorted = Object.keys(labelDataRawFlat)
+            .sort()
+            .reduce((obj, key) => {
+                obj[key] = labelDataRawFlat[key]
+                return obj
+            }, {})
+        return {
+            missingRawLabel: missing,
+            labelData: flat.unflatten(labelDataRawFlatSorted, { delimiter: ':' }),
+        }
+    }, [recordData])
 
-    if (Object.keys(labelData).length === 0)
+    const labelTree = useMemo(
+        () =>
+            Object.keys(labelData).length === 0
+                ? null
+                : makeTree(labelData, deferredFilterString, c),
+        [labelData, deferredFilterString, c]
+    )
+
+    if (labelTree == null)
         return (
             <div className={c.panel}>
                 <PanelHeader recordData={recordData} />
@@ -422,7 +433,6 @@ const ProductLabel = (props) => {
             </div>
         )
     else {
-        const labelTree = makeTree(labelData, filterString, c)
         return (
             <div className={c.panel}>
                 <PanelHeader

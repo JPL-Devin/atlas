@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -41,12 +41,12 @@ const Record = (props) => {
     const [activeVersion, setActiveVersion] = useState(null)
     const [loading, setLoading] = useState(true)
 
-    const recordData = useSelector((state) => {
+    const recordDataImm = useSelector((state) => {
         return state.get('recordData')
-    }).toJS()
+    })
+    const recordData = useMemo(() => recordDataImm.toJS(), [recordDataImm])
 
     useEffect(() => {
-        if (Object.keys(recordData).length === 0) dispatch(searchRecordByURI())
         // On unmount
         return () => {
             dispatch(setRecordData({}))
@@ -54,85 +54,82 @@ const Record = (props) => {
     }, [])
 
     // `uri` lives in the query string, so the record refetches when it changes.
+    // Runs on mount too, so no separate initial fetch is needed.
     useEffect(() => {
         setLoading(true)
         Promise.resolve(dispatch(searchRecordByURI())).then(() => setLoading(false))
     }, [location.search])
 
+    const pds_standard = getIn(recordData, ES_PATHS.pds_standard)
+    const lidvid = getIn(recordData, ES_PATHS.pds4_label.lidvid)
+
     // Query for different product versions
     useEffect(() => {
-        const pds_standard = getIn(recordData, ES_PATHS.pds_standard)
-
         // Query Versions (Current PDS4 specific)
-        if (pds_standard === 'pds4') {
-            const lidvid = getIn(recordData, ES_PATHS.pds4_label.lidvid)
-            if (lidvid) {
-                let [lid, vid] = lidvid.split('::')
-                lid = lid
-                    .replaceAll('/', '\\/')
-                    .replaceAll(':', '\\:')
-                    .replace(/\.[^/.]+$/, '')
-                const dsl = {
-                    query: {
-                        bool: {
-                            must: [
-                                {
-                                    regexp: {
-                                        [ES_PATHS.pds4_label.lidvid.join('.')]: {
-                                            value: `${lid}.*`,
-                                        },
+        if (pds_standard === 'pds4' && lidvid) {
+            let [lid, vid] = lidvid.split('::')
+            lid = lid
+                .replaceAll('/', '\\/')
+                .replaceAll(':', '\\:')
+                .replace(/\.[^/.]+$/, '')
+            const dsl = {
+                query: {
+                    bool: {
+                        must: [
+                            {
+                                regexp: {
+                                    [ES_PATHS.pds4_label.lidvid.join('.')]: {
+                                        value: `${lid}.*`,
                                     },
                                 },
-                            ],
-                        },
+                            },
+                        ],
                     },
-                    _source: ['uri', ES_PATHS.pds4_label.lidvid.join('.')],
-                }
+                },
+                _source: ['uri', ES_PATHS.pds4_label.lidvid.join('.')],
+            }
 
-                axios
-                    .post(`${domain}${endpoints.search}`, dsl, getHeader())
-                    .then((response) => {
-                        const nextVersions = []
-                        if (response?.data?.hits?.hits?.[0] != null) {
-                            response.data.hits.hits.forEach((r) => {
-                                if (r._source?.pds4_label?.lidvid != null) {
-                                    let [rlid, rvid] = r._source.pds4_label.lidvid.split('::')
-                                    nextVersions.push({
-                                        uri: r._source.uri,
-                                        name: r._source.uri.split('/').pop(),
-                                        version: `Version ${rvid}`,
-                                        versionRaw: rvid,
-                                        versionNum: parseFloat(rvid),
-                                    })
-                                }
-                            })
-                            nextVersions.sort(function (a, b) {
-                                return b.versionNum - a.versionNum
-                            })
-                        }
+            axios
+                .post(`${domain}${endpoints.search}`, dsl, getHeader())
+                .then((response) => {
+                    const nextVersions = []
+                    if (response?.data?.hits?.hits?.[0] != null) {
+                        response.data.hits.hits.forEach((r) => {
+                            if (r._source?.pds4_label?.lidvid != null) {
+                                let [rlid, rvid] = r._source.pds4_label.lidvid.split('::')
+                                nextVersions.push({
+                                    uri: r._source.uri,
+                                    name: r._source.uri.split('/').pop(),
+                                    version: `Version ${rvid}`,
+                                    versionRaw: rvid,
+                                    versionNum: parseFloat(rvid),
+                                })
+                            }
+                        })
+                        nextVersions.sort(function (a, b) {
+                            return b.versionNum - a.versionNum
+                        })
+                    }
 
-                        if (nextVersions.length > 0) {
-                            const [flid, fvid] = lidvid.split('::')
-                            for (let i = 0; i < nextVersions.length; i++) {
-                                if (nextVersions[i].versionRaw == fvid) {
-                                    setActiveVersion(i)
-                                    break
-                                }
+                    if (nextVersions.length > 0) {
+                        const [flid, fvid] = lidvid.split('::')
+                        for (let i = 0; i < nextVersions.length; i++) {
+                            if (nextVersions[i].versionRaw == fvid) {
+                                setActiveVersion(i)
+                                break
                             }
                         }
+                    }
 
-                        setVersions(nextVersions)
-                    })
-                    .catch((err) => {
-                        setVersions([])
-                    })
-            } else {
-                setVersions([])
-            }
+                    setVersions(nextVersions)
+                })
+                .catch((err) => {
+                    setVersions([])
+                })
         } else {
             setVersions([])
         }
-    }, [JSON.stringify(recordData)])
+    }, [pds_standard, lidvid])
 
     return (
         <div className={c.Record}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
@@ -118,39 +118,43 @@ const FilterList = (props) => {
     const navigate = useNavigate()
 
     const [expandedFilter, setExpandedFilter] = useState('_text')
-    const activeFilters = useSelector((state) => {
+    const activeFiltersImm = useSelector((state) => {
         return state.getIn(['activeFilters'])
-    }).toJS()
+    })
+    const activeFilters = useMemo(() => activeFiltersImm.toJS(), [activeFiltersImm])
     useEffect(() => {
         const currentURL = new Url(window.location)
         const desiredSearchUrl = getSearchURL(activeFilters)
         if (currentURL.pathname + currentURL.query !== desiredSearchUrl) {
             navigate(desiredSearchUrl, { replace: true })
         }
-    }, [JSON.stringify(activeFilters)])
+    }, [activeFilters])
 
-    const sortedActiveFilterKeys = Object.keys(activeFilters).sort((a, b) => {
-        return activeFilters[a].order - activeFilters[b].order
-    })
+    const { textKey, groupedKeys, sortedGroups } = useMemo(() => {
+        const sortedActiveFilterKeys = Object.keys(activeFilters).sort((a, b) => {
+            return activeFilters[a].order - activeFilters[b].order
+        })
 
-    // Separate '_text' from the rest, then bucket by group
-    const textKey = sortedActiveFilterKeys.includes('_text') ? '_text' : null
-    const groupedKeys = {}
-    sortedActiveFilterKeys.forEach((key) => {
-        if (key === '_text') return
-        const group = getGroupKey(key)
-        if (!groupedKeys[group]) groupedKeys[group] = []
-        groupedKeys[group].push(key)
-    })
+        // Separate '_text' from the rest, then bucket by group
+        const text = sortedActiveFilterKeys.includes('_text') ? '_text' : null
+        const grouped = {}
+        sortedActiveFilterKeys.forEach((key) => {
+            if (key === '_text') return
+            const group = getGroupKey(key)
+            if (!grouped[group]) grouped[group] = []
+            grouped[group].push(key)
+        })
 
-    const sortedGroups = Object.keys(groupedKeys).sort((a, b) => {
-        const ai = GROUP_ORDER.indexOf(a)
-        const bi = GROUP_ORDER.indexOf(b)
-        if (ai >= 0 && bi >= 0) return ai - bi
-        if (ai >= 0) return -1
-        if (bi >= 0) return 1
-        return a.localeCompare(b)
-    })
+        const sorted = Object.keys(grouped).sort((a, b) => {
+            const ai = GROUP_ORDER.indexOf(a)
+            const bi = GROUP_ORDER.indexOf(b)
+            if (ai >= 0 && bi >= 0) return ai - bi
+            if (ai >= 0) return -1
+            if (bi >= 0) return 1
+            return a.localeCompare(b)
+        })
+        return { textKey: text, groupedKeys: grouped, sortedGroups: sorted }
+    }, [activeFilters])
 
     const renderFilter = (filterKey, idx) => (
         <Filter

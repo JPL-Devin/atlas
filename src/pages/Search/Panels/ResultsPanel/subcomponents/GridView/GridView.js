@@ -212,6 +212,8 @@ const GridView = (props) => {
     // Every time our scroll position changes, update the ideal result view index
     // in case the user switches views
     useEffect(() => {
+        // Wait for the scroll to settle so the DOM scan runs once per gesture
+        if (isScrolling) return
         // Does the current page match the page we expect from scroll?
         // Hmm, let's do this by looking at all the current masonry divs
         let masonryItems = [...document.getElementsByClassName('GridViewMasonryItem')]
@@ -232,7 +234,7 @@ const GridView = (props) => {
                 setResultViewIndex(currentResultViewIndex)
             }
         }
-    }, [scrollTop])
+    }, [scrollTop, isScrolling])
 
     // Load more. If we're near enough to the edge of one page, preload the next
     useEffect(() => {
@@ -251,7 +253,7 @@ const GridView = (props) => {
                 }
             }
         }
-    })
+    }, [scrollTop, isScrolling, height, results.length, paging.total])
 
     return (
         <div className={`${c.GridView} fade-in`} ref={ref}>

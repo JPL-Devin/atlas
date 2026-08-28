@@ -239,6 +239,8 @@ const ListView = (props) => {
     // Every time our scroll position changes, update the ideal result view index
     // in case the user switches views
     useEffect(() => {
+        // Wait for the scroll to settle so the DOM scan runs once per gesture
+        if (isScrolling) return
         // Does the current page match the page we expect from scroll?
         // Hmm, let's do this by looking at all the current masonry divs
         let masonryItems = [...document.getElementsByClassName('ListViewMasonryItem')]
@@ -259,7 +261,7 @@ const ListView = (props) => {
                 setResultViewIndex(currentResultViewIndex)
             }
         }
-    }, [scrollTop])
+    }, [scrollTop, isScrolling])
 
     // Load More
     useEffect(() => {
@@ -278,7 +280,7 @@ const ListView = (props) => {
                 }
             }
         }
-    })
+    }, [scrollTop, isScrolling, height, results.length, paging.total])
 
     return (
         <div className={`${c.ListView} fade-in`} ref={ref}>

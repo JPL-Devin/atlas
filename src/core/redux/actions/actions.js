@@ -358,6 +358,9 @@ export const updateGeoGrid = (buckets) => {
  * @param {boolean} filtersNeedUpdate (opt) - true if they do
  * @param {boolean} pageNeedsUpdate (opt) - true if it does
  */
+// In-flight search, aborted when a newer search supersedes it.
+let searchAbortController = null
+
 export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiveFilters) => {
     return (dispatch, getState) => {
         const state = getState()
@@ -786,6 +789,9 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
             source = source.concat(resultsTable.columns)
         }
 
+        // Paging reuses the query, so its agg buckets would repeat page 0's.
+        const includeAggs = !(page > 0) || filtersNeedUpdate === true
+
         const dsl = {
             query,
             from,
@@ -797,18 +803,24 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                     [ES_PATHS.release_id.join('.')]: 'desc',
                 },
             ],
-            aggs,
             collapse: {
                 field: 'uri',
             },
             track_total_hits: true,
             _source: [...new Set(source)],
         }
+        if (includeAggs) dsl.aggs = aggs
 
         lastDSL = dsl
 
+        if (searchAbortController) searchAbortController.abort()
+        searchAbortController = new AbortController()
+
         axios
-            .post(`${domain}${endpoints.search}`, dsl, getHeader())
+            .post(`${domain}${endpoints.search}`, dsl, {
+                ...getHeader(),
+                signal: searchAbortController.signal,
+            })
             .then((response) => {
                 const aggs = response.data.aggregations || {}
                 const urlHasQuery = url != null ? Object.keys(url.query).length > 0 : false
@@ -904,9 +916,7 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                         .sort((a, b) => parseFloat(a.min) - parseFloat(b.max))
                     aggs['bounding_box'] = geoLngLatBuckets
                     dispatch(updateGeoGrid(geoGrid))
-                } else {
-                    dispatch(updateGeoGrid([]))
-                }
+                } else if (includeAggs) dispatch(updateGeoGrid([]))
 
                 // Update Filters
                 let nextActiveFilters = activeFilters
@@ -1064,6 +1074,8 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                 // console.log(state.toJS())
             })
             .catch((err) => {
+                // A superseded (aborted) search isn't an error.
+                if (axios.isCancel(err)) return
                 dispatch(
                     setResultsStatus(resultsStatuses.ERROR, { error: err == null ? '' : err + '' })
                 )

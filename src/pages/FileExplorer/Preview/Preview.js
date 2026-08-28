@@ -602,7 +602,11 @@ const Preview = (props) => {
         return column ? column.active.key : null
     })
 
+    // Debounced so arrow-keying through rows doesn't fire a query per item;
+    // aborting also keeps stale responses from overwriting the latest selection.
     useEffect(() => {
+        const controller = new AbortController()
+        const debounce = setTimeout(() => {
         // Query Related
         if (preview.uri && preview.fs_type === 'file') {
             let uri = preview.uri
@@ -628,7 +632,10 @@ const Preview = (props) => {
             }
 
             axios
-                .post(`${domain}${endpoints.search}`, dsl, getHeader())
+                .post(`${domain}${endpoints.search}`, dsl, {
+                    ...getHeader(),
+                    signal: controller.signal,
+                })
                 .then((response) => {
                     const hit = response?.data?.hits?.hits?.[0]?._source
                     if (hit) {
@@ -637,7 +644,7 @@ const Preview = (props) => {
                     } else setRelated(null)
                 })
                 .catch((err) => {
-                    setRelated(null)
+                    if (!axios.isCancel(err)) setRelated(null)
                 })
         } else {
             setRelated(null)
@@ -672,7 +679,10 @@ const Preview = (props) => {
             }
 
             axios
-                .post(`${domain}${endpoints.search}`, dsl, getHeader())
+                .post(`${domain}${endpoints.search}`, dsl, {
+                    ...getHeader(),
+                    signal: controller.signal,
+                })
                 .then((response) => {
                     const nextVersions = []
                     if (response?.data?.hits?.hits?.[0] != null) {
@@ -706,12 +716,17 @@ const Preview = (props) => {
                     setVersions(nextVersions)
                 })
                 .catch((err) => {
-                    setVersions([])
+                    if (!axios.isCancel(err)) setVersions([])
                 })
         } else {
             setVersions([])
         }
-    }, [JSON.stringify(preview)])
+        }, 200)
+        return () => {
+            clearTimeout(debounce)
+            controller.abort()
+        }
+    }, [preview.uri, preview.fs_type, preview.lidvid])
 
     if (!showMobilePreview && isMobile && (preview == null || preview.fs_type != 'file'))
         return null
