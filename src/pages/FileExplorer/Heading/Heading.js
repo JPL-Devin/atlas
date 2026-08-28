@@ -39,14 +39,18 @@ const useStyles = makeStyles((theme) => ({
         height: '0px',
         overflow: 'hidden',
     },
+    // Shrinks to whatever the trailing icon buttons leave, however many there
+    // are.
     path: {
         margin: 0,
         padding: `0px ${theme.spacing(1)} 0px ${theme.spacing(3)}`,
         boxSizing: 'border-box',
-        width: 'calc(100% - 80px)',
+        flex: 1,
+        minWidth: 0,
     },
     pathTitle: {
         'fontSize': 14,
+        'fontWeight': 'bold',
         'lineHeight': `${theme.headHeights[2]}px`,
         'fontFamily': 'monospace',
         'textOverflow': 'ellipsis',
@@ -58,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
     },
     copyLink: {
         display: 'flex',
+        flexShrink: 0,
     },
     copyButton: {
         'padding': 10,

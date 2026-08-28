@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     ThreeViewer: {
         width: '100%',
         height: '100%',
-        background: theme.palette.swatches.grey.grey50,
+        background: theme.palette.swatches.grey.grey150,
         position: 'relative',
     },
     ThreeContainer: {
@@ -77,7 +77,7 @@ const ThreeViewer = ({ url, release_id, supplemental, settings }) => {
             const renderer = new THREE.WebGLRenderer({ canvas: canvas.current })
             renderer.setPixelRatio(window.devicePixelRatio)
             renderer.setSize(canvas.current.offsetWidth, canvas.current.offsetHeight)
-            renderer.setClearColor(0x17171b)
+            renderer.setClearColor(0xe7e7e7)
 
             const fov = 45
             const aspect = canvas.current.offsetWidth / canvas.current.offsetHeight
@@ -92,7 +92,7 @@ const ThreeViewer = ({ url, release_id, supplemental, settings }) => {
 
             const scene = new THREE.Scene()
 
-            const grid = new THREE.GridHelper(64, 32, 0x464649, 0x2e2e32)
+            const grid = new THREE.GridHelper(64, 32, 0xb9b9bd, 0xd1d1d1)
             scene.add(grid)
 
             //Light

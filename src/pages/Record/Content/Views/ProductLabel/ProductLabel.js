@@ -3,14 +3,7 @@ import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
 import { setSnackBarText } from '../../../../../core/redux/actions/actions'
-import {
-    getIn,
-    getPDSUrl,
-    getExtension,
-    isObject,
-    copyToClipboard,
-} from '../../../../../core/utils.js'
-import { ES_PATHS, IMAGE_EXTENSIONS } from '../../../../../core/constants.js'
+import { getIn, isObject, copyToClipboard } from '../../../../../core/utils.js'
 
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
@@ -24,16 +17,20 @@ import { useSpring, animated } from '@react-spring/web'
 
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SearchIcon from '@mui/icons-material/Search'
+import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import CloseIcon from '@mui/icons-material/Close'
 
 import { makeStyles, withStyles } from '@mui/styles'
 import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
 import MenuButton from '../../../../../components/MenuButton/MenuButton'
+import PanelHeader from '../../PanelHeader/PanelHeader'
+import LabelActions from '../../PanelHeader/LabelActions'
 import Highlighter from 'react-highlight-words'
 import flat from 'flat'
+
+import { getRawLabel, withoutLabelBranches } from './labelData'
 
 function TransitionComponent(props) {
     const style = useSpring({
@@ -301,48 +298,45 @@ const makeTree = (data, filterString, classes) => {
 }
 
 const useStyles = makeStyles((theme) => ({
-    ProductLabel: {
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        overflow: 'hidden',
-        background: theme.palette.swatches.grey.grey0,
-    },
     loading: {
         position: 'absolute',
         left: 'calc(50% - 20px)',
         top: 'calc(50% + 20px)',
     },
-    notFound: {
-        'position': 'absolute',
-        'left': 'calc(50%)',
-        'top': 'calc(50%)',
-        '& > div': {
-            transform: 'translateX(-50%) translateY(50%)',
-            background: theme.palette.swatches.orange.orange500,
-            padding: '8px 16px',
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '16px',
-            borderRadius: '2px',
-        },
+    // Flags a record with no raw label, above its indexed metadata.
+    missingLabel: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        flexShrink: 0,
+        boxSizing: 'border-box',
+        padding: '8px 12px',
+        background: 'rgba(240, 173, 78, 0.16)',
+        borderBottom: '1px solid rgba(240, 173, 78, 0.5)',
+        color: theme.palette.text.primary,
+        fontSize: '13px',
+        lineHeight: 1.4,
     },
-    left: {
-        flex: 1,
+    missingLabelIcon: {
+        color: theme.palette.swatches.orange.orange500,
+        flexShrink: 0,
     },
-    right: {
-        borderLeft: `1px solid ${theme.palette.swatches.grey.grey150}`,
-        width: '960px',
+    panel: {
+        display: 'flex',
+        flexFlow: 'column',
+        height: '100%',
+        boxSizing: 'border-box',
+        borderRight: `1px solid ${theme.palette.swatches.grey.grey150}`,
+        width: 'var(--record-panel-width, 770px)',
         background: theme.palette.swatches.grey.grey100,
+        // Stacked, the panel's rows join the page column directly (see Overview).
         [theme.breakpoints.down('lg')]: {
-            width: '660px',
-        },
-        [theme.breakpoints.down('md')]: {
-            width: '100%',
+            display: 'contents',
         },
     },
     top: {
-        height: `${theme.headHeights[2]}px`,
+        flexShrink: 0,
+        height: '36px',
         display: 'flex',
         justifyContent: 'space-between',
         boxSizing: 'border-box',
@@ -350,22 +344,19 @@ const useStyles = makeStyles((theme) => ({
         background: theme.palette.swatches.grey.grey0,
     },
     bottom: {
+        flex: 1,
+        minHeight: 0,
         overflowX: 'hidden',
         overflowY: 'auto',
-        height: `calc(100% - ${theme.headHeights[2]}px)`,
         padding: `4px 8px`,
         boxSizing: 'border-box',
-    },
-    viewer: {
-        height: '100%',
-        flex: 1,
     },
     search: {
         flex: 1,
     },
     input: {
-        width: '100%',
-        'margin': `${theme.spacing(1)} 0 ${theme.spacing(2)} 0`,
+        'width': '100%',
+        'height': '100%',
         'padding': `0 0 0 ${theme.spacing(2)}`,
         'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
         '&:before': {
@@ -382,17 +373,9 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
     },
     buttons: {
+        display: 'flex',
+        alignItems: 'center',
         padding: '4px 2px 4px 0px',
-    },
-    button1: {
-        height: 30,
-        margin: '0px 3px',
-        color: theme.palette.text.primary,
-        border: "1px solid rgba(0, 0, 0, 0.23)",
-        "&:hover": {
-          border: "1px solid rgba(0, 0, 0, 0.23)",
-          'background': "#0000000a",
-        },
     },
     snackbar: {
         fontSize: 14,
@@ -413,29 +396,12 @@ const ProductLabel = (props) => {
 
     const [filterString, setFilterString] = useState('')
 
-    const release_id = getIn(recordData, ES_PATHS.release_id)
-
-    const uri = getIn(recordData, ES_PATHS.uri)
-
-    const browse_uri = getIn(recordData, ES_PATHS.browse)
-    let imgURL = getPDSUrl(browse_uri, release_id)
-
-    let type = getExtension(imgURL, true)
-    if (!IMAGE_EXTENSIONS.includes(type)) {
-        imgURL = getPDSUrl(uri, release_id)
-        type = getExtension(imgURL, true)
-    }
-
-    const label_uri = getIn(recordData, ES_PATHS.label)
-    const labelURL = getPDSUrl(label_uri, release_id)
-
     const label_id = getIn(recordData, ['atlas', 'label_id'], '')
-    const pdsStandard = getIn(recordData, ES_PATHS.pds_standard)
-    const labelDataRaw = getIn(
-        recordData,
-        pdsStandard === 'pds4' ? ES_PATHS.pds4_label : ES_PATHS.pds3_label,
-        {}
-    )
+    const rawLabel = getRawLabel(recordData)
+    // Without a raw label, fall back to the rest of the indexed metadata so the
+    // tab still shows what the record carries.
+    const missingRawLabel = Object.keys(rawLabel).length === 0
+    const labelDataRaw = missingRawLabel ? withoutLabelBranches(recordData) : rawLabel
     const labelDataRawFlat = flat.flatten(labelDataRaw, { delimiter: ':' })
     const labelDataRawFlatSorted = Object.keys(labelDataRawFlat)
         .sort()
@@ -447,126 +413,98 @@ const ProductLabel = (props) => {
 
     if (Object.keys(labelData).length === 0)
         return (
-            <div className={c.ProductLabel}>
-                <Box className={c.notFound}>
-                    <div>Label Not Found</div>
+            <div className={c.panel}>
+                <PanelHeader recordData={recordData} />
+                <Box className={c.missingLabel}>
+                    <WarningAmberIcon className={c.missingLabelIcon} fontSize="small" />
+                    <div>This product carries no indexed metadata.</div>
                 </Box>
             </div>
         )
     else {
         const labelTree = makeTree(labelData, filterString, c)
         return (
-            <div className={c.ProductLabel}>
-                {!isMobile && (
-                    <div className={c.left}>
-                        <div className={c.viewer}>
-                            <OpenSeadragonViewer
-                                image={{
-                                    src: imgURL,
-                                }}
-                                settings={{ defaultZoomLevel: 0.5, showNavigator: false }}
-                            />
+            <div className={c.panel}>
+                <PanelHeader
+                    recordData={recordData}
+                    extraActions={
+                        !isMobile ? <LabelActions recordData={recordData} /> : null
+                    }
+                />
+                {missingRawLabel && (
+                    <Box className={c.missingLabel}>
+                        <WarningAmberIcon className={c.missingLabelIcon} fontSize="small" />
+                        <div>
+                            No raw PDS label is indexed for this product. Showing its
+                            other indexed metadata instead.
                         </div>
-                    </div>
+                    </Box>
                 )}
-                <div className={c.right}>
-                    <div className={c.top}>
-                        <div className={c.search}>
-                            <Input
-                                className={c.input}
-                                value={filterString}
-                                placeholder="Search in Label"
-                                startAdornment={
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                }
-                                endAdornment={
-                                  <InputAdornment>
-                                    <IconButton
-                                        className={c.searchCancelButton}
-                                        aria-label={`clear search`}
-                                        size="small"
-                                        style={{
-                                            opacity: filterString.length > 0 ? '1' : '0',
-                                        }}
-                                        onClick={() => setFilterString('')}
-                                    >
-                                        <CloseIcon />
-                                    </IconButton>
-                                  </InputAdornment>
-                                }
-                                onChange={(e) => setFilterString(e.target.value)}
+                <div className={c.top}>
+                    <div className={c.search}>
+                        <Input
+                            className={c.input}
+                            value={filterString}
+                            placeholder="Search in Label"
+                            startAdornment={
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            }
+                            endAdornment={
+                              <InputAdornment>
+                                <IconButton
+                                    className={c.searchCancelButton}
+                                    aria-label={`clear search`}
+                                    size="small"
+                                    style={{
+                                        opacity: filterString.length > 0 ? '1' : '0',
+                                    }}
+                                    onClick={() => setFilterString('')}
+                                >
+                                    <CloseIcon />
+                                </IconButton>
+                              </InputAdornment>
+                            }
+                            onChange={(e) => setFilterString(e.target.value)}
+                        />
+                    </div>
+
+                    {isMobile && (
+                        <div>
+                            <MenuButton
+                                options={['Copy Label JSON', 'View Raw Label']}
+                                buttonComponent={<MoreVertIcon fontSize="inherit" />}
+                                onChange={(option, idx) => {
+                                    switch (option) {
+                                        case 'Copy Label JSON':
+                                            copyToClipboard(JSON.stringify(labelData, null, 2))
+                                            dispatch(
+                                                setSnackBarText(
+                                                    'Copied Label JSON to Clipboard!',
+                                                    'success'
+                                                )
+                                            )
+                                            break
+                                        case 'View Raw Label':
+                                            break
+                                        default:
+                                            break
+                                    }
+                                }}
                             />
                         </div>
-
-                        {!isMobile && (
-                            <div className={c.buttons}>
-                                <Button
-                                    className={c.button1}
-                                    variant="outlined"
-                                    aria-label="copy label json button"
-                                    size="small"
-                                    onClick={() => {
-                                        copyToClipboard(JSON.stringify(labelDataRaw, null, 2))
-                                        dispatch(
-                                            setSnackBarText(
-                                                'Copied Label JSON to Clipboard!',
-                                                'success'
-                                            )
-                                        )
-                                    }}
-                                >
-                                    Copy Label JSON
-                                </Button>
-                                <Button
-                                    className={c.button1}
-                                    variant="outlined"
-                                    aria-label="view raw label button"
-                                    size="small"
-                                    href={labelURL}
-                                    target="_blank"
-                                >
-                                    View Raw Label
-                                </Button>
-                            </div>
-                        )}
-                        {isMobile && (
-                            <div>
-                                <MenuButton
-                                    options={['Copy Label JSON', 'View Raw Label']}
-                                    buttonComponent={<MoreVertIcon fontSize="inherit" />}
-                                    onChange={(option, idx) => {
-                                        switch (option) {
-                                            case 'Copy Label JSON':
-                                                copyToClipboard(JSON.stringify(labelData, null, 2))
-                                                dispatch(
-                                                    setSnackBarText(
-                                                        'Copied Label JSON to Clipboard!',
-                                                        'success'
-                                                    )
-                                                )
-                                                break
-                                            case 'View Raw Label':
-                                                break
-                                            default:
-                                                break
-                                        }
-                                    }}
-                                />
-                            </div>
-                        )}
-                    </div>
-                    <div className={c.bottom}>
-                        <SimpleTreeView
-                            defaultExpandedItems={Array(labelTree.numOfKeys)
-                                .fill()
-                                .map((x, i) => String(i))
-                            }
-                        >
-                            {labelTree.tree}
-                        </SimpleTreeView>
-                    </div>
+                    )}
+                </div>
+                <div className={c.bottom}>
+                    <SimpleTreeView
+                        defaultExpandedItems={Array(labelTree.numOfKeys)
+                            .fill()
+                            .map((x, i) => String(i))
+                        }
+                    >
+                        {labelTree.tree}
+                    </SimpleTreeView>
                 </div>
             </div>
         )

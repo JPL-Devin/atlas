@@ -1,0 +1,85 @@
+{
+    "gather": {
+        "pds_archive": {
+            "related": {
+                "src": {
+                    "uri": "atlas:pds3:mgs:mars_global_surveyor:/mgsc_1052/m07018/m0701853.imq"
+                },
+                "label": {
+                    "uri": "atlas:pds3:mgs:mars_global_surveyor:/mgsc_1052/m07018/m0701853.imq.attached"
+                },
+                "browse": {
+                    "uri": "atlas:pds3:mgs:mars_global_surveyor:/mgsc_1052/extras/browse/m07018/m0701853.imq.jpg"
+                }
+            },
+            "volume_id": "mgsc_1052",
+            "product_id": "M07/01853",
+            "pds_standard": "pds3",
+            "file_name": "m0701853.imq",
+            "data_set_id": "MGS-M-MOC-NA/WA-2-SDP-L0-V1.0"
+        },
+        "common": {
+            "mission_phase_name": "MAPPING",
+            "target": "MARS",
+            "mission": "mgs",
+            "geo_location": [
+                -95.86,
+                56.83
+            ],
+            "product_type": "EDR",
+            "instrument": "MOC",
+            "instrument_name": "MOC Wide Angle",
+            "spacecraft": "mars_global_surveyor",
+            "geo_footprint": {
+                "type": "polygon",
+                "coordinates": [
+                    [
+                        [
+                            97.54,
+                            55.77
+                        ],
+                        [
+                            93.69,
+                            55.94
+                        ],
+                        [
+                            94.03,
+                            57.87
+                        ],
+                        [
+                            98.1,
+                            57.69
+                        ],
+                        [
+                            97.54,
+                            55.77
+                        ]
+                    ]
+                ]
+            },
+            "filter": "RED"
+        },
+        "uri": "atlas:pds3:mgs:mars_global_surveyor:/mgsc_1052/m07018/m0701853.imq",
+        "orbital_missions": {
+            "orbit": 2272
+        }
+    },
+    "archive": {
+        "size": 233472,
+        "release_id": 0,
+        "md5_updated_at": "2025-03-14T19:43:08Z",
+        "uri": "atlas:pds3:mgs:mars_global_surveyor:/mgsc_1052/m07018/m0701853.imq",
+        "pds_standard": "pds3",
+        "fs_type": "file",
+        "spacecraft": "mars_global_surveyor",
+        "data_set_id": "mgsc_1052",
+        "file_extension": "imq",
+        "parent_uri": "atlas:pds3:mgs:mars_global_surveyor:/mgsc_1052/m07018",
+        "release_id_num": 0.0,
+        "mission": "mgs",
+        "volume_id": "mgsc_1052",
+        "instrument": [],
+        "updated_at": "2000-12-21T01:16:32Z",
+        "name": "m0701853.imq"
+    }
+}

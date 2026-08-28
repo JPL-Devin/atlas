@@ -79,3 +79,10 @@ body > #root > div:first-child {
 .mui-image-wrapper {
     position: absolute !important;
 }
+/* The record panel's width animates across tab switches, so the value lives on
+   the persistent content wrapper rather than the panel that remounts. */
+@property --record-panel-width {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 700px;
+}

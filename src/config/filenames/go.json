@@ -1,0 +1,58 @@
+{
+    "title": "Galileo SSI REDR filename",
+    "sis": [
+        "go_ssi_cdvol",
+        "go_ssi_redr"
+    ],
+    "reference": "Galileo SSI Raw Experiment Data Record CD-ROM SIS (D-232-16), \u00a73.2.1.6 (Target Directories), with the REDR product defined by the SSI REDR Data Product SIS (D-11805)",
+    "ignoreCase": true,
+    "match": "^([0-9]{2})([0-9]{2})(R)\\.(IMG|LBL)$",
+    "segments": [
+        {
+            "group": 1,
+            "label": "RIM count",
+            "color": "blue",
+            "description": "Last two of the eight RIM-count digits of the spacecraft clock; the first six name the containing directory.",
+            "patterns": [
+                {
+                    "match": "^([0-9]{2})$",
+                    "meaning": "RIM ..{number}"
+                }
+            ]
+        },
+        {
+            "group": 2,
+            "label": "MOD91 count",
+            "color": "teal",
+            "description": "MOD91 count of the spacecraft clock.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "MOD91 {1}"
+                }
+            ]
+        },
+        {
+            "group": 3,
+            "label": "Product type",
+            "color": "violet",
+            "description": "Raw experiment data record.",
+            "values": {
+                "R": {
+                    "meaning": "REDR \u2014 raw experiment data record",
+                    "description": "The byte, uncalibrated REDR image, 800 by 800 samples (400 by 400 in summation mode). REDR files are not radiometrically corrected."
+                }
+            }
+        },
+        {
+            "group": 4,
+            "label": "Extension",
+            "color": "slate",
+            "description": "Product format.",
+            "values": {
+                "IMG": "PDS image file",
+                "LBL": "Detached PDS label"
+            }
+        }
+    ]
+}

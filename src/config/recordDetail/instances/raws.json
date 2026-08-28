@@ -1,0 +1,101 @@
+{
+    "instance": "raws",
+    "missions": {
+        "mars_2020": {
+            "tiles": [
+                {
+                    "path": "gather.landed_missions.planet_day_number",
+                    "pair": "gather.landed_missions.start_local_mean_solar_time"
+                },
+                {
+                    "path": "gather.common.instrument",
+                    "pair": "gather.ancillary.eye_type"
+                },
+                {
+                    "path": "gather.landed_missions.rmc_site",
+                    "pair": "gather.landed_missions.rmc_drive"
+                },
+                "gather.ancillary.color_filter",
+                {
+                    "path": "gather.time.start_time",
+                    "format": "datetime_short"
+                },
+                {
+                    "path": "gather.time.earth_received_start_time",
+                    "format": "datetime_short"
+                }
+            ],
+            "maxTiles": 6,
+            "priorityTiles": 3,
+            "caption": [
+                "{{gather.common.instrument}}",
+                "Sol {{gather.landed_missions.planet_day_number}}",
+                "{{gather.landed_missions.start_local_mean_solar_time}} LMST"
+            ],
+            "shortCaption": [
+                "Sol {{gather.landed_missions.planet_day_number}}",
+                "· {{gather.common.instrument}}"
+            ],
+            "instruments": {
+                "NAVCAM_LEFT": {
+                    "tiles": [
+                        {
+                            "path": "gather.landed_missions.planet_day_number",
+                            "pair": "gather.landed_missions.start_local_mean_solar_time"
+                        },
+                        {
+                            "path": "gather.landed_missions.rmc_site",
+                            "pair": "gather.landed_missions.rmc_drive"
+                        },
+                        {
+                            "path": "gather.landed_missions.site_instrument_elevation",
+                            "pair": "gather.landed_missions.site_instrument_azimuth"
+                        },
+                        "gather.ancillary.eye_type",
+                        {
+                            "path": "gather.time.start_time",
+                            "format": "datetime_short"
+                        },
+                        "gather.ancillary.color_filter"
+                    ],
+                    "maxTiles": 6,
+                    "caption": [
+                        "Navcam Left",
+                        "Sol {{gather.landed_missions.planet_day_number}}",
+                        "{{gather.landed_missions.start_local_mean_solar_time}} LMST",
+                        "looking {{gather.landed_missions.site_instrument_azimuth}} azimuth"
+                    ]
+                },
+                "NAVCAM_RIGHT": {
+                    "tiles": [
+                        {
+                            "path": "gather.landed_missions.planet_day_number",
+                            "pair": "gather.landed_missions.start_local_mean_solar_time"
+                        },
+                        {
+                            "path": "gather.landed_missions.rmc_site",
+                            "pair": "gather.landed_missions.rmc_drive"
+                        },
+                        {
+                            "path": "gather.landed_missions.site_instrument_elevation",
+                            "pair": "gather.landed_missions.site_instrument_azimuth"
+                        },
+                        "gather.ancillary.eye_type",
+                        {
+                            "path": "gather.time.start_time",
+                            "format": "datetime_short"
+                        },
+                        "gather.ancillary.color_filter"
+                    ],
+                    "maxTiles": 6,
+                    "caption": [
+                        "Navcam Right",
+                        "Sol {{gather.landed_missions.planet_day_number}}",
+                        "{{gather.landed_missions.start_local_mean_solar_time}} LMST",
+                        "looking {{gather.landed_missions.site_instrument_azimuth}} azimuth"
+                    ]
+                }
+            }
+        }
+    }
+}

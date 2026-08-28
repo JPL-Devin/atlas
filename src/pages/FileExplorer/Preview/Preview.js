@@ -26,9 +26,9 @@ import { ES_PATHS, HASH_PATHS, IMAGE_EXTENSIONS, domain, endpoints } from '../..
 import { streamDownloadFile } from '../../../core/downloaders/ZipStream.js'
 
 import ProductIcons from '../../../components/ProductIcons/ProductIcons'
+import SisResources from '../../../components/SisResources/SisResources'
 
 import Typography from '@mui/material/Typography'
-import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Button from '@mui/material/Button'
@@ -40,6 +40,10 @@ import LaunchIcon from '@mui/icons-material/Launch'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import WarningIcon from '@mui/icons-material/Warning'
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
+import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
@@ -51,17 +55,26 @@ import { makeStyles } from '@mui/styles'
 
 import './Preview.css'
 
+const TAIL_CHARS = 8
+const BROWSE_SIZES = [
+    ['Full', undefined],
+    ['Large', 'lg'],
+    ['Medium', 'md'],
+    ['Small', 'sm'],
+    ['Tiny', 'xs'],
+]
+
 const useStyles = makeStyles((theme) => ({
     Preview: {
         width: '100%',
         height: '100%',
         overflow: 'hidden',
         boxSizing: 'border-box',
-        boxShadow: '0px 0px 6px 0px rgba(0,0,0,0.4)',
         display: 'flex',
         flexFlow: 'column',
-        background: theme.palette.swatches.grey.grey800,
-        color: theme.palette.swatches.grey.grey150,
+        background: theme.palette.swatches.grey.grey100,
+        borderLeft: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        color: theme.palette.text.primary,
         zIndex: 2,
     },
     PreviewMobile: {
@@ -69,37 +82,44 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         flexFlow: 'column',
         borderLeft: 'none',
-        background: theme.palette.swatches.grey.grey800,
-        color: theme.palette.swatches.grey.grey150,
+        background: theme.palette.swatches.grey.grey100,
+        color: theme.palette.text.primary,
     },
     header: {
         width: '100%',
         boxSizing: 'border-box',
-        boxShadow: '0px 1px 2px 0px rgba(0,0,0,0.19)',
-        background: theme.palette.swatches.grey.grey700,
+        background: theme.palette.swatches.grey.grey0,
+        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     headerMobile: {
         width: '100%',
         display: 'flex',
         justifyContent: 'center',
         boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey700,
+        background: theme.palette.swatches.grey.grey0,
+        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     headerTitle: {},
+    // Same faint-amber notice the record's Product Label uses.
     headerBanner: {
-        'fontSize': '15px',
-        'padding': '6px',
-        'background': theme.palette.swatches.orange.orange600,
-        'color': 'rgba(0,0,0,0.6)',
-        'fontWeight': 'bold',
+        'fontSize': '13px',
+        'lineHeight': 1.4,
+        'padding': '8px 12px',
+        'background': 'rgba(240, 173, 78, 0.16)',
+        'borderTop': '1px solid rgba(240, 173, 78, 0.5)',
+        'color': theme.palette.text.primary,
         'display': 'flex',
+        'alignItems': 'center',
         'justifyContent': 'space-between',
         'cursor': 'pointer',
         '& > div': {
             display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
         },
-        '& > div > div': {
-            paddingLeft: '5px',
+        '& svg': {
+            color: theme.palette.swatches.orange.orange500,
+            flexShrink: 0,
         },
     },
     icon: {
@@ -110,9 +130,9 @@ const useStyles = makeStyles((theme) => ({
         padding: '5px',
     },
     title: {
-        fontSize: '18px',
+        fontSize: '14px',
         fontWeight: 'bold',
-        margin: '8px 8px 0px 8px',
+        margin: '10px 12px 0px 12px',
         fontFamily: 'inherit',
         wordBreak: 'break-all',
     },
@@ -127,73 +147,180 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         justifyContent: 'space-between',
     },
-    button: {
-        'width': `${theme.headHeights[2]}px`,
-        'height': `${theme.headHeights[2]}px`,
-        'color': theme.palette.swatches.blue.blue400,
-        '&:hover': {
-            background: 'rgba(255,255,255,0.1)',
-        },
-        '&.Mui-disabled': {
-            color: theme.palette.swatches.grey.grey400,
-            cursor: 'not-allowed',
-        },
-    },
-    buttonMobile: {
-        width: `${theme.headHeights[2]}px`,
-        height: `${theme.headHeights[2]}px`,
-    },
     buttonIcon: {},
+    // Labelled, filled controls matching the record page's action row.
+    actions: {
+        'display': 'flex',
+        'alignItems': 'stretch',
+        'justifyContent': 'center',
+        'flexWrap': 'wrap',
+        'gap': '4px',
+        'boxSizing': 'border-box',
+        'padding': '6px 8px',
+        '& .MuiButton-root': {
+            fontSize: '12px',
+            lineHeight: '16px',
+            minWidth: 0,
+            padding: '4px 8px',
+            borderRadius: '2px',
+            textTransform: 'none',
+            whiteSpace: 'nowrap',
+        },
+        '& .MuiButton-startIcon': {
+            marginRight: '4px',
+        },
+        '& .MuiSvgIcon-root': {
+            fontSize: '16px',
+        },
+    },
+    action: {
+        flexShrink: 0,
+    },
+    // A slim scrollbar keeps the gutter from cutting into the heading rules.
     body: {
-        flex: 1,
-        overflowY: 'auto',
-        overflowX: 'hidden',
+        'flex': 1,
+        'overflowY': 'auto',
+        'overflowX': 'hidden',
+        'scrollbarWidth': 'thin',
+        'scrollbarColor': `${theme.palette.swatches.grey.grey300} transparent`,
+        '&::-webkit-scrollbar': {
+            width: '8px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+            background: theme.palette.swatches.grey.grey300,
+            borderRadius: '4px',
+        },
     },
     bodyInner: {
-        padding: '16px 0px',
+        padding: '16px 20px 20px 20px',
     },
     bodyMobile: {},
     properties: {},
+    // The record panel's section heading: gold, uppercase, with a rule pulled
+    // out to the panel edges.
     heading: {
-        fontSize: '14px',
-        lineHeight: '30px',
-        color: theme.palette.swatches.yellow.yellow500,
+        fontSize: '12px',
+        fontWeight: 'bold',
+        letterSpacing: '0.06em',
         textTransform: 'uppercase',
-        padding: '0px 16px 4px 16px',
+        color: theme.palette.swatches.yellow.yellow800,
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        margin: '0 -20px 10px -20px',
+        padding: '12px 20px 0 20px',
     },
     sectionBody: {
         marginBottom: '20px',
     },
-    relatedList: {
-        'listStyleType': 'none',
-        'margin': `4px 0px 0px 0px`,
-        'padding': '0px 16px',
-        '& > li': {
-            lineHeight: '24px',
-            marginBottom: '8px',
-            display: 'flex',
-            justifyContent: 'flex-start',
+    // The record Overview's Files cards, reused for the product's own assets.
+    fileCards: {
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr)',
+        gap: '8px',
+        marginBottom: '20px',
+    },
+    fileCard: {
+        'boxSizing': 'border-box',
+        'display': 'grid',
+        'gridTemplateColumns': 'auto minmax(0, 1fr) auto',
+        'alignItems': 'center',
+        'columnGap': '10px',
+        'padding': '10px',
+        'borderRadius': '3px',
+        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'background': theme.palette.swatches.grey.grey0,
+        'transition': 'border-color 0.15s ease-out, box-shadow 0.15s ease-out',
+        '&:hover': {
+            borderColor: theme.palette.swatches.grey.grey300,
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.08)',
         },
     },
-    relatedGroup: {
-        textTransform: 'uppercase',
-        lineHeight: '28px',
-        width: '70px',
-        color: theme.palette.swatches.grey.grey300,
+    // Cards whose actions don't fit beside the name put them on a second row.
+    fileCardStacked: {
+        'gridTemplateColumns': 'auto minmax(0, 1fr)',
+        'rowGap': '8px',
+        '& > $fileActions': {
+            gridColumn: '1 / -1',
+        },
     },
-    relatedLinks: {
+    fileBadge: {
+        'display': 'flex',
+        'alignItems': 'center',
+        'justifyContent': 'center',
+        'width': '34px',
+        'height': '34px',
+        'borderRadius': '3px',
+        'background': theme.palette.swatches.grey.grey150,
+        'color': theme.palette.swatches.grey.grey600,
+        '& > svg': {
+            fontSize: '20px',
+        },
+    },
+    fileText: {
+        minWidth: 0,
+    },
+    fileNameRow: {
         display: 'flex',
-        justifyContent: 'flex-start',
-        flex: '1',
+        alignItems: 'center',
+        gap: '6px',
+        minWidth: 0,
     },
-    relatedItem: {},
+    fileName: {
+        fontSize: '14px',
+        fontWeight: 'bold',
+        color: theme.palette.text.primary,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    },
+    fileExt: {
+        flexShrink: 0,
+        fontSize: '12px',
+        fontWeight: 'bold',
+        letterSpacing: '0.04em',
+        lineHeight: '17px',
+        padding: '0 5px',
+        borderRadius: '2px',
+        background: theme.palette.swatches.grey.grey150,
+        color: theme.palette.swatches.grey.grey600,
+    },
+    fileMeta: {
+        display: 'flex',
+        fontSize: '12px',
+        fontFamily: 'monospace',
+        color: theme.palette.swatches.grey.grey500,
+        whiteSpace: 'nowrap',
+        minWidth: 0,
+    },
+    fileMetaHead: {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+    },
+    fileMetaTail: {
+        flexShrink: 0,
+    },
+    fileActions: {
+        display: 'flex',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-end',
+        gap: '4px',
+    },
+    fileOpen: {
+        '&.MuiIconButton-root': {
+            color: theme.palette.swatches.blue.blue600,
+        },
+    },
     relatedButton: {
-        'background': theme.palette.swatches.grey.grey700,
-        'color': theme.palette.swatches.blue.blue400,
-        'border': `1px solid ${theme.palette.swatches.grey.grey900}`,
-        'marginLeft': '4px',
+        'background': theme.palette.swatches.grey.grey0,
+        'color': theme.palette.swatches.blue.blue700,
+        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'borderRadius': '3px',
+        'fontSize': '11px',
+        'fontWeight': 'bold',
+        'letterSpacing': '0.04em',
         '&:hover': {
-            border: `1px solid ${theme.palette.swatches.grey.grey600}`,
+            background: theme.palette.swatches.grey.grey0,
+            border: `1px solid ${theme.palette.swatches.grey.grey300}`,
         },
         '& .MuiButton-label': {
             lineHeight: '20px',
@@ -205,37 +332,42 @@ const useStyles = makeStyles((theme) => ({
             fontSize: '14px',
         },
     },
+    // Fields sit on their own white surface, as they do on the record page.
+    card: {
+        boxSizing: 'border-box',
+        padding: '2px 12px',
+        borderRadius: '3px',
+        border: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        background: theme.palette.swatches.grey.grey0,
+    },
     propertiesList: {
         'listStyleType': 'none',
         'margin': `0px`,
         'padding': '0px',
         '& > li': {
-            'display': 'flex',
-            'justifyContent': 'space-between',
-            'lineHeight': '24px',
-            'padding': '2px 16px',
-            'transition': 'max-height 0.3s ease-in',
-            'wordBreak': 'break-all',
-            '& > div:last-child': {
-                whiteSpace: 'inherit',
-            },
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 11em) minmax(0, 1fr)',
+            columnGap: '16px',
+            fontSize: '13px',
+            lineHeight: '19px',
+            padding: '4px 0',
+            wordBreak: 'break-all',
         },
-        '& > li:nth-child(odd)': {
-            background: theme.palette.swatches.grey.grey700,
+        '& > li + li': {
+            borderTop: `1px solid ${theme.palette.swatches.grey.grey150}`,
         },
     },
     key: {
-        marginRight: '16px',
-        textTransform: 'uppercase',
-        color: theme.palette.swatches.grey.grey300,
-        fontSize: '12px',
-    },
-    value: {
+        color: theme.palette.swatches.grey.grey500,
+        whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
+    },
+    value: {
+        minWidth: 0,
         textAlign: 'right',
-        flex: '1',
+        overflowWrap: 'anywhere',
+        cursor: 'pointer',
     },
     image: {
         width: '100%',
@@ -243,8 +375,8 @@ const useStyles = makeStyles((theme) => ({
         position: 'relative',
         cursor: 'pointer',
         overflow: 'hidden',
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        background: theme.palette.swatches.grey.grey0,
+        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     previewImage: {
         'overflow': 'hidden',
@@ -261,7 +393,7 @@ const useStyles = makeStyles((theme) => ({
         top: 0,
         width: '100%',
         height: '100%',
-        boxShadow: 'inset 0px 1px 6px 1px rgba(0,0,0,0.16)',
+        boxShadow: 'inset 0px 1px 4px 0px rgba(0,0,0,0.10)',
     },
     imageless: {
         'width': '100%',
@@ -278,11 +410,11 @@ const useStyles = makeStyles((theme) => ({
     navHeader: {
         'height': `${theme.headHeights[2]}px`,
         'minHeight': `${theme.headHeights[2]}px`,
-        'background': theme.palette.swatches.grey.grey700,
+        'background': theme.palette.swatches.grey.grey0,
         'boxSizing': 'border-box',
         'display': 'flex',
         'justifyContent': 'space-between',
-        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey900}`,
+        'borderBottom': `1px solid ${theme.palette.swatches.grey.grey200}`,
         '& > div': {
             display: 'flex',
             justifyContent: 'space-between',
@@ -294,7 +426,7 @@ const useStyles = makeStyles((theme) => ({
     backButton: {
         lineHeight: '28px',
         borderRadius: 0,
-        color: theme.palette.swatches.grey.grey150,
+        color: theme.palette.swatches.grey.grey700,
     },
     emptyPreview: {
         textAlign: 'center',
@@ -304,41 +436,53 @@ const useStyles = makeStyles((theme) => ({
     },
     formControl: {
         minWidth: 125,
-        margin: '5px 0px 3px 8px',
+        margin: '0px',
     },
     select: {
-        'color': theme.palette.swatches.grey.grey300,
-        'background': theme.palette.swatches.grey.grey800,
-        'border-bottom': `2px solid ${theme.palette.swatches.grey.grey600}`,
+        'fontSize': '13px',
+        'color': theme.palette.text.primary,
+        'background': theme.palette.swatches.grey.grey50,
+        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'borderRadius': '3px',
         'paddingLeft': '4px',
+        '&:before, &:after': {
+            display: 'none',
+        },
         '& > div:first-child': {
-            padding: '8px 20px 6px 6px',
+            padding: '2px 20px 2px 6px',
             textAlign: 'left',
         },
         '& > svg': {
-            color: '#efefef',
-            top: '4px',
+            color: theme.palette.swatches.grey.grey500,
             right: '2px',
         },
+    },
+    // Keeps the version control on the value column's right edge.
+    versionSelect: {
+        display: 'flex',
+        justifyContent: 'flex-end',
+        minWidth: 0,
     },
     versionSelectItem: {},
 }))
 
 const ButtonBar = (props) => {
-    const { isMobile, preview, related } = props
+    const { preview, related } = props
     const c = useStyles()
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    let iconSize = isMobile ? 'inherit' : 'inherit'
-
     return (
-        <div className={c.buttonBar}>
-            <Tooltip title="View" arrow>
+        <div className={c.actions} aria-label="product actions">
+            <Tooltip title="View this product's record page" arrow>
                 <span>
-                    <IconButton
-                        className={clsx(c.button, { [c.buttonMobile]: isMobile })}
+                    <Button
+                        className={c.action}
+                        variant="contained"
+                        color="primary"
+                        size="small"
                         aria-label="view"
+                        startIcon={<PageviewIcon fontSize="small" />}
                         disabled={
                             preview.fs_type !== 'file' || related == null || related.uri == null
                         }
@@ -346,17 +490,20 @@ const ButtonBar = (props) => {
                             if (related && related.uri)
                                 navigate(`${HASH_PATHS.record}?uri=${related.uri}&back=page`)
                         }}
-                        size="large"
                     >
-                        <PageviewIcon className={c.buttonIcon} fontSize={iconSize} />
-                    </IconButton>
+                        View
+                    </Button>
                 </span>
             </Tooltip>
-            <Tooltip title="Open" arrow>
+            <Tooltip title="Open at the PDS archive" arrow>
                 <span>
-                    <IconButton
-                        className={clsx(c.button, { [c.buttonMobile]: isMobile })}
+                    <Button
+                        className={c.action}
+                        variant="contained"
+                        color="primary"
+                        size="small"
                         aria-label="open"
+                        startIcon={<LaunchIcon fontSize="small" />}
                         disabled={preview.fs_type !== 'file'}
                         onClick={() => {
                             if (preview.uri)
@@ -365,17 +512,20 @@ const ButtonBar = (props) => {
                                     '_blank'
                                 )
                         }}
-                        size="large"
                     >
-                        <LaunchIcon className={c.buttonIcon} fontSize={iconSize} />
-                    </IconButton>
+                        Open
+                    </Button>
                 </span>
             </Tooltip>
-            <Tooltip title="Download" arrow>
+            <Tooltip title="Download this file" arrow>
                 <span>
-                    <IconButton
-                        className={clsx(c.button, { [c.buttonMobile]: isMobile })}
+                    <Button
+                        className={c.action}
+                        variant="contained"
+                        color="primary"
+                        size="small"
                         aria-label="quick download"
+                        startIcon={<GetAppIcon fontSize="small" />}
                         disabled={preview.fs_type !== 'file'}
                         onClick={() => {
                             if (preview.uri != null) {
@@ -385,19 +535,20 @@ const ButtonBar = (props) => {
                                 )
                             }
                         }}
-                        size="large"
                     >
-                        <GetAppIcon className={c.buttonIcon} fontSize={iconSize} />
-                    </IconButton>
+                        Download
+                    </Button>
                 </span>
             </Tooltip>
             <Tooltip title="Add to Cart" arrow>
                 <span>
-                    <IconButton
-                        className={clsx(c.button, {
-                            [c.buttonMobile]: isMobile,
-                        })}
+                    <Button
+                        className={c.action}
+                        variant="contained"
+                        color="primary"
+                        size="small"
                         aria-label="add to cart"
+                        startIcon={<AddShoppingCartIcon fontSize="small" />}
                         disabled={preview.fs_type !== 'file' && preview.fs_type !== 'directory'}
                         onClick={() => {
                             dispatch(
@@ -410,10 +561,9 @@ const ButtonBar = (props) => {
                             )
                             dispatch(setSnackBarText('Added to Cart!', 'success'))
                         }}
-                        size="large"
                     >
-                        <AddShoppingCartIcon size="small" />
-                    </IconButton>
+                        Add to cart
+                    </Button>
                 </span>
             </Tooltip>
         </div>
@@ -438,6 +588,19 @@ const Preview = (props) => {
         return typeof filexPreview.toJS === 'function' ? {} : filexPreview
     })
     preview = forcedPreview || preview
+
+    // The drilled-to mission, so the panel can offer the product's SIS.
+    const mission = useSelector((state) => {
+        const cols = state.get('columns')
+        if (typeof cols.toJS === 'function') return null
+        const column = cols.find(
+            (col) =>
+                col.type === 'filter' &&
+                String(col.value).split('.').pop() === 'mission' &&
+                col.active != null
+        )
+        return column ? column.active.key : null
+    })
 
     useEffect(() => {
         // Query Related
@@ -568,6 +731,50 @@ const Preview = (props) => {
         )
     }
 
+    const openPDS = (uri, size) => {
+        if (uri) window.open(getPDSUrl(uri, release_id, size), '_blank')
+    }
+
+    // Matches the record Overview's Files card: badge, name + extension, path, actions.
+    const renderRelatedCard = (label, Icon, uri, actions, stacked) => {
+        const filename = getFilename(uri) || ''
+        const extension = getExtension(uri)
+        return (
+            <div className={`${c.fileCard} ${stacked ? c.fileCardStacked : ''}`} key={label}>
+                <div className={c.fileBadge}>
+                    <Icon />
+                </div>
+                <div className={c.fileText}>
+                    <div className={c.fileNameRow}>
+                        <span className={c.fileName}>{label}</span>
+                        {extension && <span className={c.fileExt}>{extension.toUpperCase()}</span>}
+                    </div>
+                    <div className={c.fileMeta} title={filename}>
+                        <span className={c.fileMetaHead}>{filename.slice(0, -TAIL_CHARS)}</span>
+                        <span className={c.fileMetaTail}>{filename.slice(-TAIL_CHARS)}</span>
+                    </div>
+                </div>
+                <div className={c.fileActions}>{actions}</div>
+            </div>
+        )
+    }
+
+    const openAction = (uri, size) => {
+        const filename = getFilename(uri)
+        return (
+            <Tooltip title={`Open ${filename}`} arrow>
+                <IconButton
+                    className={c.fileOpen}
+                    aria-label={`open ${filename}`}
+                    size="small"
+                    onClick={() => openPDS(uri, size)}
+                >
+                    <OpenInNewIcon />
+                </IconButton>
+            </Tooltip>
+        )
+    }
+
     return (
         <div className={clsx(c.Preview, { [c.PreviewMobile]: isMobile, ['fade-in']: isMobile })}>
             {isMobile && (
@@ -668,13 +875,17 @@ const Preview = (props) => {
                                 height: '100%',
                                 paddingTop: 'unset',
                                 position: 'initial',
-                                background:
-                                    'radial-gradient(ellipse, rgb(46, 46, 50), rgb(10, 10, 10))',
                             }}
                             duration={250}
                             src={imageUrl}
                             alt={imageUrl}
-                            errorIcon={<ProductIcons filename={imageUrl} type={preview.fs_type} />}
+                            errorIcon={
+                                <ProductIcons
+                                    filename={imageUrl}
+                                    type={preview.fs_type}
+                                    color="dark"
+                                />
+                            }
                             onLoad={() => {
                                 setHasBrowse(true)
                             }}
@@ -684,7 +895,7 @@ const Preview = (props) => {
                         />
                     ) : (
                         <div className={c.imageless}>
-                            <ProductIcons filename={imageUrl} type={preview.fs_type} />
+                            <ProductIcons filename={imageUrl} type={preview.fs_type} color="dark" />
                         </div>
                     )}
                     <div className={c.imageCover}></div>
@@ -718,249 +929,60 @@ const Preview = (props) => {
                     */}
 
                     {related && (
-                        <div className={c.related}>
-                            <div className={c.heading}>
-                                <Typography noWrap className={c.title2} variant="subtitle2">
-                                    Related
-                                </Typography>
-                                <Divider />
-                            </div>
-                            <div className={c.sectionBody}>
-                                <ul className={c.relatedList}>
-                                    {getIn(related, 'uri') && (
-                                        <li>
-                                            <div className={c.relatedGroup}>Product</div>
-
-                                            <div className={c.relatedLinks}>
-                                                <div className={c.relatedItem}>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(related, 'uri')
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(uri, release_id),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        {getExtension(getIn(related, 'uri'))}
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </li>
+                        <>
+                            <div className={c.heading}>Files</div>
+                            <div className={c.fileCards}>
+                                {getIn(related, 'uri') &&
+                                    renderRelatedCard(
+                                        'Product',
+                                        InsertDriveFileOutlinedIcon,
+                                        getIn(related, 'uri'),
+                                        openAction(getIn(related, 'uri'))
                                     )}
-                                    {getIn(related, 'gather.pds_archive.related.label.uri') && (
-                                        <li>
-                                            <div className={c.relatedGroup}>Label</div>
-
-                                            <div className={c.relatedLinks}>
-                                                <div className={c.relatedItem}>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.label.uri'
-                                                            )
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(uri, release_id),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        {getExtension(
-                                                            getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.label.uri'
-                                                            )
-                                                        )}
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </li>
+                                {getIn(related, 'gather.pds_archive.related.label.uri') &&
+                                    renderRelatedCard(
+                                        'Label',
+                                        DescriptionOutlinedIcon,
+                                        getIn(related, 'gather.pds_archive.related.label.uri'),
+                                        openAction(
+                                            getIn(related, 'gather.pds_archive.related.label.uri')
+                                        )
                                     )}
-                                    {hasBrowse === true &&
-                                        getIn(related, 'gather.pds_archive.related.browse.uri') && (
-                                            <li>
-                                                <div className={c.relatedGroup}>Browse</div>
-                                                <div className={c.relatedLinks}>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.browse.uri'
-                                                            )
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(uri, release_id),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        <div className={c.relatedItem}>Full</div>
-                                                    </Button>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.browse.uri'
-                                                            )
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(
-                                                                        uri,
-                                                                        release_id,
-                                                                        'lg'
-                                                                    ),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        <div className={c.relatedItem}>Large</div>
-                                                    </Button>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.browse.uri'
-                                                            )
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(
-                                                                        uri,
-                                                                        release_id,
-                                                                        'md'
-                                                                    ),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        <div className={c.relatedItem}>Medium</div>
-                                                    </Button>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.browse.uri'
-                                                            )
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(
-                                                                        uri,
-                                                                        release_id,
-                                                                        'sm'
-                                                                    ),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        <div className={c.relatedItem}>Small</div>
-                                                    </Button>
-                                                    <Button
-                                                        className={c.relatedButton}
-                                                        size="small"
-                                                        variant="outlined"
-                                                        endIcon={
-                                                            <LaunchIcon className={c.buttonIcon} />
-                                                        }
-                                                        onClick={() => {
-                                                            const uri = getIn(
-                                                                related,
-                                                                'gather.pds_archive.related.browse.uri'
-                                                            )
-                                                            const release_id = getIn(
-                                                                related,
-                                                                ES_PATHS.release_id
-                                                            )
-                                                            if (uri)
-                                                                window.open(
-                                                                    getPDSUrl(
-                                                                        uri,
-                                                                        release_id,
-                                                                        'xs'
-                                                                    ),
-                                                                    '_blank'
-                                                                )
-                                                        }}
-                                                    >
-                                                        <div className={c.relatedItem}>Tiny</div>
-                                                    </Button>
-                                                </div>
-                                            </li>
-                                        )}
-                                </ul>
+                                {hasBrowse === true &&
+                                    getIn(related, 'gather.pds_archive.related.browse.uri') &&
+                                    renderRelatedCard(
+                                        'Browse',
+                                        ImageOutlinedIcon,
+                                        getIn(related, 'gather.pds_archive.related.browse.uri'),
+                                        BROWSE_SIZES.map(([label, size]) => (
+                                            <Button
+                                                key={label}
+                                                className={c.relatedButton}
+                                                size="small"
+                                                variant="outlined"
+                                                endIcon={<LaunchIcon className={c.buttonIcon} />}
+                                                onClick={() =>
+                                                    openPDS(
+                                                        getIn(
+                                                            related,
+                                                            'gather.pds_archive.related.browse.uri'
+                                                        ),
+                                                        size
+                                                    )
+                                                }
+                                            >
+                                                {label}
+                                            </Button>
+                                        )),
+                                        true
+                                    )}
                             </div>
-                        </div>
+                        </>
                     )}
 
                     <div className={c.properties}>
-                        <div className={c.heading}>
-                            <Typography noWrap className={c.title2} variant="subtitle2">
-                                Properties
-                            </Typography>
-                            <Divider />
-                        </div>
-                        <div className={c.sectionBody}>
+                        <div className={c.heading}>Properties</div>
+                        <div className={clsx(c.sectionBody, c.card)}>
                             <ul className={c.propertiesList}>
                                 {Object.keys(preview)
                                     .sort((a, b) => a.localeCompare(b))
@@ -979,7 +1001,7 @@ const Preview = (props) => {
                                             versions.length > 0
                                         ) {
                                             versionSelector = (
-                                                <div>
+                                                <div className={c.versionSelect}>
                                                     <FormControl
                                                         className={c.formControl}
                                                         size="small"
@@ -1037,6 +1059,12 @@ const Preview = (props) => {
                             </ul>
                         </div>
                     </div>
+
+                    <SisResources
+                        mission={mission}
+                        instruments={preview.instrument}
+                        headingClassName={c.heading}
+                    />
                 </div>
             </div>
         </div>

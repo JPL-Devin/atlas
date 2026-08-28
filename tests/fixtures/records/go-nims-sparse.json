@@ -1,0 +1,52 @@
+{
+    "gather": {
+        "uri": "atlas:pds3:go:galileo_orbiter:/go_1006/jupiter/edr/10j007.edr",
+        "common": {
+            "mission_phase_name": "CALLISTO_10_ENCOUNTER",
+            "instrument": "NIMS",
+            "mission": "go",
+            "spacecraft": "galileo_orbiter",
+            "product_type": "EDR",
+            "instrument_name": "GO NIMS",
+            "target": "JUPITER"
+        },
+        "pds_archive": {
+            "related": {
+                "src": {
+                    "uri": "atlas:pds3:go:galileo_orbiter:/go_1006/jupiter/edr/10j007.edr"
+                },
+                "label": {
+                    "uri": "atlas:pds3:go:galileo_orbiter:/go_1006/jupiter/edr/10j007.edr.attached"
+                }
+            },
+            "product_id": "10JNFEA09902A.6",
+            "data_set_id": "GO-J-NIMS-2-EDR-V2.0",
+            "pds_standard": "pds3",
+            "file_name": "10j007.edr",
+            "volume_id": "go_1006"
+        },
+        "time": {
+            "product_creation_time": "1998-04-30T10:57:12.000Z",
+            "earth_received_stop_time": "1997-10-09T23:49:19.000Z",
+            "earth_received_start_time": "1997-10-09T22:33:00.000Z"
+        }
+    },
+    "archive": {
+        "size": 561152,
+        "md5_updated_at": "2024-12-11T23:38:21Z",
+        "release_id_num": 0.0,
+        "mission": "go",
+        "volume_id": "go_1006",
+        "parent_uri": "atlas:pds3:go:galileo_orbiter:/go_1006/jupiter/edr",
+        "data_set_id": "go_1006",
+        "file_extension": "edr",
+        "pds_standard": "pds3",
+        "updated_at": "2009-01-29T21:38:47Z",
+        "fs_type": "file",
+        "instrument": [],
+        "release_id": 0,
+        "uri": "atlas:pds3:go:galileo_orbiter:/go_1006/jupiter/edr/10j007.edr",
+        "name": "10j007.edr",
+        "spacecraft": "galileo_orbiter"
+    }
+}

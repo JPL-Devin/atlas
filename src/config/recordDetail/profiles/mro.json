@@ -1,0 +1,64 @@
+{
+    "match": {
+        "mission": "mro"
+    },
+    "tiles": [
+        "gather.common.mission",
+        "gather.common.spacecraft",
+        "gather.common.instrument",
+        "gather.common.product_type",
+        {
+            "path": "gather.orbital_missions.orbit",
+            "pair": "gather.orbital_missions.spacecraft_altitude"
+        },
+        "gather.common.geo_location",
+        {
+            "path": "gather.lighting_geometry.incidence_angle",
+            "pair": "gather.lighting_geometry.emission_angle"
+        },
+        "gather.lighting_geometry.phase_angle",
+        "gather.orbital_missions.solar_longitude",
+        "gather.orbital_missions.map_projection_type",
+        {
+            "path": "gather.time.start_time",
+            "format": "datetime_short"
+        },
+        "gather.pds_archive.data_set_id"
+    ],
+    "maxTiles": 9,
+    "priorityTiles": 6,
+    "sections": [
+        "identification",
+        "observation",
+        "geometry_orbital",
+        "content"
+    ],
+    "description": [
+        "{{gather.common.product_type}} product from {{gather.common.instrument}} aboard {{gather.common.spacecraft}}.",
+        "It was acquired on orbit {{gather.orbital_missions.orbit}} over {{gather.common.target}} at {{gather.common.geo_location}}.",
+        "The Sun was {{gather.lighting_geometry.incidence_angle}} from zenith, viewed at {{gather.lighting_geometry.emission_angle}} emission and {{gather.lighting_geometry.phase_angle}} phase.",
+        "The product is archived in {{gather.pds_archive.data_set_id}}."
+    ],
+    "captionTitle": [
+        "{{gather.common.instrument}}",
+        "orbit {{gather.orbital_missions.orbit}}"
+    ],
+    "captionChips": [
+        "Orbit {{gather.orbital_missions.orbit}}",
+        "{{gather.common.target}}",
+        "{{gather.common.instrument}}",
+        "{{gather.common.product_type}}",
+        "{{gather.common.geo_location}}",
+        "Incidence {{gather.lighting_geometry.incidence_angle}}"
+    ],
+    "caption": [
+        "{{gather.common.instrument}}",
+        "{{gather.common.target}}",
+        "orbit {{gather.orbital_missions.orbit}}"
+    ],
+    "shortCaption": [
+        "{{gather.common.instrument}}",
+        "orbit {{gather.orbital_missions.orbit}}"
+    ],
+    "emptyState": "no_browse_generic"
+}

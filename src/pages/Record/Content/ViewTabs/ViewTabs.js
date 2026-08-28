@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -10,12 +10,32 @@ import { prettify } from '../../../../core/utils.js'
 import { setRecordViewTab } from '../../../../core/redux/actions/actions.js'
 
 const useStyles = makeStyles((theme) => ({
+    // Sits in the record title row, so it inherits that bar's surface.
     ViewTabs: {
-        height: theme.headHeights[2],
+        display: 'flex',
+        alignItems: 'stretch',
+        justifyContent: 'center',
+        width: '100%',
+        height: '100%',
         boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey100,
-        borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
         color: theme.palette.text.main,
+    },
+    tabs: {
+        'minHeight': 0,
+        'height': '100%',
+        'width': '100%',
+        '& .MuiTabs-scroller, & .MuiTabs-flexContainer': {
+            height: '100%',
+            alignItems: 'stretch',
+        },
+        // The tabs share the panel width evenly.
+        '& .MuiTabs-flexContainer': {
+            justifyContent: 'stretch',
+        },
+        '& .MuiTab-root': {
+            flex: 1,
+            maxWidth: 'none',
+        },
     },
 }))
 
@@ -33,20 +53,35 @@ const StyledTabs = withStyles((theme) => ({
         'justifyContent': 'center',
         'backgroundColor': 'transparent',
         'height': '5px',
+        // Spans the whole tab, however long its label is.
         '& > span': {
-            maxWidth: 124,
             width: '100%',
             backgroundColor: theme.palette.accent.main,
         },
     },
 }))((props) => <Tabs {...props} TabIndicatorProps={{ children: <span /> }} />)
 
+// Bold labels and a lit surface on the active tab, so the row reads as the
+// panel's primary navigation.
 const StyledTab = withStyles((theme) => ({
     root: {
-        'color': theme.palette.text.main,
+        'color': theme.palette.swatches.grey.grey600,
         'fontSize': theme.typography.pxToRem(14),
-        'marginRight': theme.spacing(1),
-        'minWidth': 88,
+        'fontWeight': 'bold',
+        'letterSpacing': '0.08em',
+        'minWidth': 96,
+        'minHeight': 0,
+        'height': '100%',
+        'justifyContent': 'center',
+        'padding': `0 ${theme.spacing(2)}`,
+        'whiteSpace': 'nowrap',
+        '&:hover': {
+            color: theme.palette.text.primary,
+            background: theme.palette.swatches.grey.grey150,
+        },
+        '&.Mui-selected': {
+            color: theme.palette.text.primary,
+        },
         '&:focus': {
             opacity: 1,
         },
@@ -59,6 +94,13 @@ const ViewTabs = (props) => {
 
     const dispatch = useDispatch()
 
+    // Tabs place their indicator before the panel finishes resizing, so nudge
+    // them to re-measure once the width transition ends.
+    useEffect(() => {
+        const t = setTimeout(() => window.dispatchEvent(new Event('resize')), 300)
+        return () => clearTimeout(t)
+    }, [recordViewTab])
+
     const handleChange = (event, newTabIndex) => {
         // eslint-disable-next-line security/detect-object-injection
         dispatch(setRecordViewTab(VIEW_TABS[newTabIndex]))
@@ -67,6 +109,8 @@ const ViewTabs = (props) => {
     return (
         <div className={c.ViewTabs}>
             <StyledTabs
+                className={c.tabs}
+                variant="fullWidth"
                 value={VIEW_TABS.indexOf(recordViewTab)}
                 onChange={handleChange}
                 aria-label="record view tab"

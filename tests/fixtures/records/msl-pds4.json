@@ -1,0 +1,35 @@
+{
+    "gather": {
+        "uri": "atlas:pds4:msl:curiosity:/deen_pdart16_msl_msam/data/sol/00138/opgs/rdr/mesh/MRF_409730592RZS_S0051858AUT_04096D1.IMG",
+        "pds_archive": {
+            "release_id": "1",
+            "related": {
+                "supplemental": [],
+                "browse": {
+                    "uri": "atlas:pds4:msl:curiosity:/deen_pdart16_msl_msam/browse/sol/00138/opgs/rdr/mesh/MRF_409730592RZS_S0051858AUT_04096D1.png"
+                },
+                "label": {
+                    "uri": "atlas:pds4:msl:curiosity:/deen_pdart16_msl_msam/data/sol/00138/opgs/rdr/mesh/MRF_409730592RZS_S0051858AUT_04096D1.xml"
+                }
+            },
+            "release_id_num": 1.0,
+            "file_name": "MRF_409730592RZS_S0051858AUT_04096D1.obj",
+            "collection_id": "data",
+            "product_id": "urn:nasa:pds:deen_pdart16_msl_msam:data:mrf_409730592rzs_s0051858aut_04096d.obj",
+            "pds_standard": "pds4",
+            "bundle_id": "deen_pdart16_msl_msam"
+        },
+        "common": {
+            "kind": "model",
+            "target": [
+                "mars"
+            ],
+            "spacecraft": "curiosity",
+            "mission": "msl"
+        },
+        "time": {
+            "stop_time": "2012-12-25T18:07:50.185Z",
+            "start_time": "2012-12-25T18:07:49.968Z"
+        }
+    }
+}

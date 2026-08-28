@@ -1,0 +1,2391 @@
+[
+    {
+        "title": "MSL EDR / single-frame RDR filename",
+        "sis": "msl_camera",
+        "reference": "MSL Camera & LIBS EDR / RDR Data Products SIS (JPL D-38107, v4.1), \u00a76.1.1",
+        "match": "^[A-Z]{2}[A-Z0-9][A-Z_][A-Z0-9][0-9]{8}[A-Z0-9]{3}[A-Z0-9_]{20}\\.[A-Za-z]{2,4}$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 2,
+                "label": "Instrument",
+                "color": "blue",
+                "description": "Camera or instrument that acquired the data.",
+                "values": {
+                    "FL": "Front Hazcam Left",
+                    "FR": "Front Hazcam Right",
+                    "FS": "Front Hazcam Stereo (2-band)",
+                    "FA": "Front Hazcam Anaglyph (3-band)",
+                    "RL": "Rear Hazcam Left",
+                    "RR": "Rear Hazcam Right",
+                    "RS": "Rear Hazcam Stereo (2-band)",
+                    "RA": "Rear Hazcam Anaglyph (3-band)",
+                    "NL": "Navcam Left",
+                    "NR": "Navcam Right",
+                    "NS": "Navcam Stereo (2-band)",
+                    "NA": "Navcam Anaglyph (3-band)",
+                    "ML": "Mastcam Left",
+                    "MR": "Mastcam Right",
+                    "MS": "Mastcam Stereo (2-band)",
+                    "MA": "Mastcam Anaglyph (3-band)",
+                    "MG": "Mastcam Colorglyph (Lr, Rg, Rb)",
+                    "MH": "MAHLI",
+                    "HL": "MAHLI as stereo left",
+                    "HR": "MAHLI as stereo right",
+                    "HS": "MAHLI Stereo (2-band)",
+                    "HA": "MAHLI Anaglyph (3-band)",
+                    "HG": "MAHLI Colorglyph (Lr, Rg, Rb)",
+                    "MD": "MARDI",
+                    "CR": "ChemCam RMI",
+                    "CL": "ChemCam LIBS",
+                    "CC": "ChemCam generic",
+                    "AP": "APXS (not covered by the camera SIS)",
+                    "CM": "CheMin (not covered by the camera SIS)",
+                    "DN": "DAN (not covered by the camera SIS)",
+                    "RD": "RAD (not covered by the camera SIS)",
+                    "RM": "REMS (not covered by the camera SIS)",
+                    "SM": "SAM (not covered by the camera SIS)",
+                    "SP": "SA/SPaH (not covered by the camera SIS)"
+                }
+            },
+            {
+                "start": 3,
+                "length": 1,
+                "label": "Configuration",
+                "color": "green",
+                "description": "Operational attribute of the instrument: A/B side for the engineering cameras, filter position or Bayer treatment for the MMM cameras, data type for ChemCam.",
+                "values": {
+                    "A": "A-side configuration (engineering cameras) or, on Bayer / colour-split MMM RDRs, all cells with 2\u00d72 averaging",
+                    "B": "B-side configuration (engineering cameras) or, on Bayer / colour-split MMM RDRs, blue Bayer cells only",
+                    "R": "Red Bayer cells only, or the red band of a JPEG product",
+                    "G": "Green Bayer cells only, or the green band of a JPEG product",
+                    "F": "Full colour, de-Bayered RGB merged into a single 3-band image",
+                    "U": "Upper half of the green cells only",
+                    "L": "Lower half of the green cells only",
+                    "D": "All green cells (double resolution in one dimension)",
+                    "C": "All cells, corrected for responsivity with the filter"
+                },
+                "patterns": [
+                    {
+                        "match": "^[0-9]$",
+                        "meaning": "Configuration {value}: MMM filter position, ChemCam data type or non-filter camera, per the instrument's table in SIS \u00a76.1.1"
+                    }
+                ]
+            },
+            {
+                "start": 4,
+                "length": 1,
+                "label": "Special processing",
+                "color": "slate",
+                "description": "Marks off-nominal or special processing of an RDR; always \"_\" on EDRs.",
+                "values": {
+                    "_": "Nominal processing",
+                    "T": "Best tactical copy of a specially processed product"
+                },
+                "patterns": [
+                    {
+                        "match": "^[A-SU-Z]$",
+                        "meaning": "Special processing method \"{value}\", defined ad hoc for the sols it was used on"
+                    }
+                ]
+            },
+            {
+                "start": 5,
+                "length": 9,
+                "label": "Spacecraft clock",
+                "color": "teal",
+                "description": "Spacecraft clock start count in seconds, generally the time the data was acquired.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{9})$",
+                        "meaning": "SCLK {number} seconds"
+                    },
+                    {
+                        "match": "^([A-Z])([0-9]{8})$",
+                        "meaning": "SCLK above 999999999 seconds, letter-coded range \"{1}\""
+                    }
+                ]
+            },
+            {
+                "start": 14,
+                "length": 3,
+                "label": "Product type",
+                "color": "violet",
+                "description": "What kind of product this is. A leading \"E\" marks an EDR, a leading \"N\" a Nav Map EDR; anything else is an RDR.",
+                "values": {
+                    "AGM": {
+                        "meaning": "AEGIS \u2014 AEGIS JSON Target File",
+                        "description": "AEGIS RDRs record the targets the onboard autonomous targeting software selected. SIS \u00a75.2.1.15."
+                    },
+                    "AGS": {
+                        "meaning": "AEGIS \u2014 AEGIS Target Map (with \u201cAGM\u201d JSON target file)",
+                        "description": "AEGIS RDRs record the targets the onboard autonomous targeting software selected. SIS \u00a75.2.1.15."
+                    },
+                    "ARK": {
+                        "meaning": "Arm reachability \u2014 Arm Reachability Masked",
+                        "description": "Arm Reachability RDRs mark which terrain the arm can reach, and with what preload. SIS \u00a75.2.1.9."
+                    },
+                    "ARM": {
+                        "meaning": "Arm reachability \u2014 Arm Reachability",
+                        "description": "Arm Reachability RDRs mark which terrain the arm can reach, and with what preload. SIS \u00a75.2.1.9."
+                    },
+                    "ARO": {
+                        "meaning": "Arm reachability \u2014 Arm Reachability with Overlay",
+                        "description": "Arm Reachability RDRs mark which terrain the arm can reach, and with what preload. SIS \u00a75.2.1.9."
+                    },
+                    "ARP": {
+                        "meaning": "Arm reachability \u2014 Arm Preload Values",
+                        "description": "Arm Reachability RDRs mark which terrain the arm can reach, and with what preload. SIS \u00a75.2.1.9."
+                    },
+                    "BAY": {
+                        "meaning": "EDR-like \u2014 Bayer pattern (identical to \u201cEDR\u201d except for Bayer pattern extract)",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization \u2014 so they differ from the EDR only in that respect. SIS \u00a75.1.1.1.7, \u00a75.2.1.1."
+                    },
+                    "CCS": {
+                        "meaning": "LIBS \u2014 Intermediate Clean Calibrated Spectra",
+                        "description": "Spectroscopy RDRs are the ChemCam LIBS spectra and the compositions derived from them. SIS \u00a75.2.2."
+                    },
+                    "CXM": {
+                        "meaning": "Mask \u2014 ChemCam Exclusion Zone Mask",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "CXR": {
+                        "meaning": "Range \u2014 Range from ChemCam RMI",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "DDD": {
+                        "meaning": "Disparity \u2014 Stereo Delta Disparity (2-band, true disparity offset)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DDL": {
+                        "meaning": "Disparity \u2014 Stereo Delta Disparity Line (single-band)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DDS": {
+                        "meaning": "Disparity \u2014 Stereo Delta Disparity Sample (single-band)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DFF": {
+                        "meaning": "Disparity \u2014 Stereo First-stage Disparity Final",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DFL": {
+                        "meaning": "Disparity \u2014 Stereo First-stage Disparity Line",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DFS": {
+                        "meaning": "Disparity \u2014 Stereo First-stage Disparity Sample",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DRW": {
+                        "meaning": "Radiometric \u2014 MMM-produced Rad-corrected and White Balanced",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "DRX": {
+                        "meaning": "Radiometric \u2014 MMM-produced Rad-corrected",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "DSE": {
+                        "meaning": "Disparity \u2014 Stereo Disparity Error Metric",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DSG": {
+                        "meaning": "Disparity \u2014 Stereo Disparity Grid",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DSL": {
+                        "meaning": "Disparity \u2014 Stereo Disparity of Lines (single-band)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DSP": {
+                        "meaning": "Disparity \u2014 Stereo Disparity Final",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DSR": {
+                        "meaning": "Disparity \u2014 Stereo Disparity Raw",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DSS": {
+                        "meaning": "Disparity \u2014 Stereo Disparity of Samples (single-band)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "ECS": {
+                        "meaning": "EDR \u2014 Column-summed",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EDM": {
+                        "meaning": "EDR \u2014 Depth map image (MMM cameras only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EDR": {
+                        "meaning": "EDR \u2014 First order product",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EHG": {
+                        "meaning": "EDR \u2014 Histogram",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EID": {
+                        "meaning": "EDR \u2014 IDPH-only",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EIN": {
+                        "meaning": "EDR \u2014 State-of-Health Initialize (ChemCam SOH only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EJP": {
+                        "meaning": "EDR \u2014 Original JPEG as received from rover (MMM cameras only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EPO": {
+                        "meaning": "EDR \u2014 State-of-Health Power Off (ChemCam SOH only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EPW": {
+                        "meaning": "EDR \u2014 State-of-Health Power On (ChemCam SOH only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "ERD": {
+                        "meaning": "EDR \u2014 Recovered EDR (MMM cameras only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "ERP": {
+                        "meaning": "EDR \u2014 Reference Pixel",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "ERS": {
+                        "meaning": "EDR \u2014 Row-summed",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "ESS": {
+                        "meaning": "EDR \u2014 State-of-Health Sun Safe (ChemCam SOH only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EVD": {
+                        "meaning": "EDR \u2014 Video image (MMM cameras only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EWU": {
+                        "meaning": "EDR \u2014 State-of-Health Warmup (ChemCam SOH only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EZS": {
+                        "meaning": "EDR \u2014 Z-stack combined image (MMM cameras only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "ICM": {
+                        "meaning": "Coregistration \u2014 Mosaic-to-Image Coregistration Map",
+                        "description": "Coregistration products relate a mosaic back to the individual images that built it. SIS \u00a75.2.1.13.12."
+                    },
+                    "IDX": {
+                        "meaning": "Coregistration \u2014 Mosaic-to-Image Coregistration Index",
+                        "description": "Coregistration products relate a mosaic back to the individual images that built it. SIS \u00a75.2.1.13.12."
+                    },
+                    "IEF": {
+                        "meaning": "Photometry \u2014 Incidence, Emission, Phase angles Filled",
+                        "description": "Photometry RDRs give the incidence, emission and phase angles at each pixel. SIS \u00a75.2.1.11."
+                    },
+                    "IEP": {
+                        "meaning": "Photometry \u2014 Incidence, Emission, Phase angles",
+                        "description": "Photometry RDRs give the incidence, emission and phase angles at each pixel. SIS \u00a75.2.1.11."
+                    },
+                    "ILC": {
+                        "meaning": "EDR-like \u2014 Inverse lookup table (ILUT) with corrections such as despike",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization \u2014 so they differ from the EDR only in that respect. SIS \u00a75.1.1.1.7, \u00a75.2.1.1."
+                    },
+                    "ILP": {
+                        "meaning": "EDR-like \u2014 Inverse lookup table (ILUT) with pointing correction applied",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization \u2014 so they differ from the EDR only in that respect. SIS \u00a75.1.1.1.7, \u00a75.2.1.1."
+                    },
+                    "ILT": {
+                        "meaning": "EDR-like \u2014 Inverse lookup table (ILUT)",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization \u2014 so they differ from the EDR only in that respect. SIS \u00a75.1.1.1.7, \u00a75.2.1.1."
+                    },
+                    "IOF": {
+                        "meaning": "Rad-corrected IOF radiance factor, float",
+                        "description": "See the product-type tables in SIS \u00a76.1.1 for this code."
+                    },
+                    "IOI": {
+                        "meaning": "Rad-corrected IOF radiance factor, integer",
+                        "description": "See the product-type tables in SIS \u00a76.1.1 for this code."
+                    },
+                    "LIN": {
+                        "meaning": "EDR-like \u2014 CAHV-linearized (identical to \u201cEDR\u201d except for Geometry type)",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization \u2014 so they differ from the EDR only in that respect. SIS \u00a75.1.1.1.7, \u00a75.2.1.1."
+                    },
+                    "MAR": {
+                        "meaning": "Mask \u2014 Arm Reachability Mask File",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "MCE": {
+                        "meaning": "Mask \u2014 ChemCam Finder Error Mask",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "MCF": {
+                        "meaning": "Mask \u2014 ChemCam Finder Combo Risk/Error Mask",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "MCR": {
+                        "meaning": "Mask \u2014 ChemCam Finder Risk Mask",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "MDS": {
+                        "meaning": "Mask \u2014 Stereo Disparity Mask File",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "MOC": {
+                        "meaning": "LIBS \u2014 Multivariate Prediction of Oxide Composition",
+                        "description": "Spectroscopy RDRs are the ChemCam LIBS spectra and the compositions derived from them. SIS \u00a75.2.2."
+                    },
+                    "MSK": {
+                        "meaning": "Mask \u2014 Image Mask File",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "MXY": {
+                        "meaning": "Mask \u2014 XYZ Mask File",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "N2D": {
+                        "meaning": "Nav Map \u2014 Nav Map Second Stereo Disparity",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "N2F": {
+                        "meaning": "Nav Map \u2014 Nav Map Second Stereo Filters",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "N2L": {
+                        "meaning": "Nav Map \u2014 Nav Map Second Left Rectified",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "N2R": {
+                        "meaning": "Nav Map \u2014 Nav Map Second Right Rectified",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NCE": {
+                        "meaning": "Nav Map \u2014 Nav Map Certainty",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NDC": {
+                        "meaning": "Nav Map \u2014 Nav Map D-star Cost",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NDF": {
+                        "meaning": "Nav Map \u2014 Nav Map D-star Field",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NDL": {
+                        "meaning": "Nav Map \u2014 Nav Map D-star Look Ahead",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NDR": {
+                        "meaning": "Nav Map \u2014 Nav Map D-star Layer Cost",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NED": {
+                        "meaning": "Nav Map \u2014 Nav Map Elevation Difference",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NEL": {
+                        "meaning": "Nav Map \u2014 Nav Map Elevation",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NFE": {
+                        "meaning": "Nav Map \u2014 Nav Map FOV Edge",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NFP": {
+                        "meaning": "Nav Map \u2014 Nav Map Footprint",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NFV": {
+                        "meaning": "Nav Map \u2014 Nav Map FOV",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NGD": {
+                        "meaning": "Nav Map \u2014 Nav Map Goodness",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NGK": {
+                        "meaning": "Nav Map \u2014 Nav Map Good Keep",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NID": {
+                        "meaning": "Nav Map \u2014 Nav Map Idles",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NKO": {
+                        "meaning": "Nav Map \u2014 Nav Map Keepout",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NKP": {
+                        "meaning": "Nav Map \u2014 Nav Map Keepout Path Site",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NKS": {
+                        "meaning": "Nav Map \u2014 Nav Map Keepout Site",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL0": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 0",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL1": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 1",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL2": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 2",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL3": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 3",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL4": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 4",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL5": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 5",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL6": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 6",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL7": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 7",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL8": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 8",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL9": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 9",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLA": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 10",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLB": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 11",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLC": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 12",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLD": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 13",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLE": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 14",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLF": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 15",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLR": {
+                        "meaning": "Nav Map \u2014 Nav Map Left Rectified",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLY": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer Certainty",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NMC": {
+                        "meaning": "Nav Map \u2014 Nav Map Minimum Cells",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NMI": {
+                        "meaning": "Nav Map \u2014 Nav Map IDPH",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NMN": {
+                        "meaning": "Nav Map \u2014 Nav Map Minimum Count",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NMO": {
+                        "meaning": "Nav Map \u2014 Nav Map Moments",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NMS": {
+                        "meaning": "Nav Map \u2014 Nav Map Memory Manager Status",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NMX": {
+                        "meaning": "Nav Map \u2014 Nav Map Maximum Count",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NNE": {
+                        "meaning": "Nav Map \u2014 Nav Map Num Entries",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NNX": {
+                        "meaning": "Nav Map \u2014 Nav Map Normal X",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NNY": {
+                        "meaning": "Nav Map \u2014 Nav Map Normal Y",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NNZ": {
+                        "meaning": "Nav Map \u2014 Nav Map Normal Z",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NOF": {
+                        "meaning": "Nav Map \u2014 Nav Map Offset",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NPC": {
+                        "meaning": "Nav Map \u2014 Nav Map D-star Planning Cost",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NPI": {
+                        "meaning": "Nav Map \u2014 Nav Map Path Information",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NRG": {
+                        "meaning": "Nav Map \u2014 Nav Map Roughness Goodness",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NRK": {
+                        "meaning": "Nav Map \u2014 Nav Map Rock",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NRR": {
+                        "meaning": "Nav Map \u2014 Nav Map Right Rectified",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NRS": {
+                        "meaning": "Nav Map \u2014 Nav Map Residual",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NSD": {
+                        "meaning": "Nav Map \u2014 Nav Map Stereo Disparity",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NSF": {
+                        "meaning": "Nav Map \u2014 Nav Map Stereo Filters",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NSG": {
+                        "meaning": "Nav Map \u2014 Nav Map Step Goodness",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NSP": {
+                        "meaning": "Nav Map \u2014 Nav Map Stereo Points",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT0": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 0",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT1": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 1",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT2": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 2",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT3": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 3",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT4": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 4",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT5": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 5",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT6": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 6",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT7": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 7",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT8": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 8",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT9": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 9",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTA": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 10",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTB": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 11",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTC": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 12",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTD": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 13",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTE": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 14",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTF": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 15",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTG": {
+                        "meaning": "Nav Map \u2014 Nav Map Tilt Goodness",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTL": {
+                        "meaning": "Nav Map \u2014 Nav Map Tilt",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NVF": {
+                        "meaning": "Nav Map \u2014 Nav Map VO Features",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NWR": {
+                        "meaning": "Nav Map \u2014 Nav Map Wraparound",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "PRC": {
+                        "meaning": "Radiometric \u2014 ChemCam RMI Partially Rad-corrected",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RAD": {
+                        "meaning": "Radiometric \u2014 Rad-corrected absolute radiance units, integer",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RAF": {
+                        "meaning": "Radiometric \u2014 Rad-corrected absolute radiance units, float",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RAS": {
+                        "meaning": "Radiometric \u2014 Rad-corrected absolute radiance units, scaled to 12-bit",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RDR": {
+                        "meaning": "LIBS \u2014 Initial LIBS Spectrum",
+                        "description": "Spectroscopy RDRs are the ChemCam LIBS spectra and the compositions derived from them. SIS \u00a75.2.2."
+                    },
+                    "RIE": {
+                        "meaning": "Radiometric \u2014 Rad-corrected for Instrument Effects only, integer DN",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RIF": {
+                        "meaning": "Radiometric \u2014 Rad-corrected for Instrument Effects only, float",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RNE": {
+                        "meaning": "Range \u2014 Range Error Metric",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RNF": {
+                        "meaning": "Range \u2014 Range Filled",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RNG": {
+                        "meaning": "Range \u2014 Range from Camera",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RNM": {
+                        "meaning": "Range \u2014 Range from Camera, Masked",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RNO": {
+                        "meaning": "Range \u2014 Range with Overlay",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RNR": {
+                        "meaning": "Range \u2014 Range from Rover Nav frame origin",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RUD": {
+                        "meaning": "Roughness \u2014 Surface Roughness (Drill)",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane, sized for the drill or the dust removal tool. SIS \u00a75.2.1.7."
+                    },
+                    "RUT": {
+                        "meaning": "Roughness \u2014 Surface Roughness (DRT)",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane, sized for the drill or the dust removal tool. SIS \u00a75.2.1.7."
+                    },
+                    "SEN": {
+                        "meaning": "Solar energy \u2014 Solar Energy",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a75.2.1.8.6."
+                    },
+                    "SEO": {
+                        "meaning": "Solar energy \u2014 Solar Energy with Overlay",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a75.2.1.8.6."
+                    },
+                    "SHD": {
+                        "meaning": "Slope \u2014 Slope Heading",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SHO": {
+                        "meaning": "Slope \u2014 Slope Heading with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SLO": {
+                        "meaning": "Slope \u2014 Slope with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SLP": {
+                        "meaning": "Slope \u2014 Slope",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SMG": {
+                        "meaning": "Slope \u2014 Slope Magnitude",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SMO": {
+                        "meaning": "Slope \u2014 Slope Magnitude with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SNO": {
+                        "meaning": "Slope \u2014 Slope Northerly Tilt with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SNT": {
+                        "meaning": "Slope \u2014 Slope Northerly Tilt",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SRD": {
+                        "meaning": "Slope \u2014 Slope Rover Direction",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SRO": {
+                        "meaning": "Slope \u2014 Slope Rover Direction with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "TEN": {
+                        "meaning": "Terrain \u2014 Terrain Classifier Probability Map",
+                        "description": "Terrain Classifier RDRs label the terrain by type, either as a per-class probability map or as a single classification. SIS \u00a75.2.1.16."
+                    },
+                    "TER": {
+                        "meaning": "Terrain \u2014 Terrain Classification Map",
+                        "description": "Terrain Classifier RDRs label the terrain by type, either as a per-class probability map or as a single classification. SIS \u00a75.2.1.16."
+                    },
+                    "UUF": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) U-band Filled",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UUU": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) U-band",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UVF": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) Filled",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UVO": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) with Overlay",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UVP": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) Projected onto Plane",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UVS": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) for Slope computations",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UVT": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) Angle (\u2018T\u2019 for theta) between Normal and Plane",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UVW": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "VVF": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) V-band Filled",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "VVV": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) V-band",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "WWF": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) W-band Filled",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "WWW": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) W-band",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "XXF": {
+                        "meaning": "XYZ \u2014 XYZ X-band Filled",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XXX": {
+                        "meaning": "XYZ \u2014 XYZ X-band",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYE": {
+                        "meaning": "XYZ \u2014 XYZ Error Metric",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYF": {
+                        "meaning": "XYZ \u2014 XYZ Filled",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYM": {
+                        "meaning": "XYZ \u2014 XYZ Masked",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYO": {
+                        "meaning": "XYZ \u2014 XYZ with Overlay",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYR": {
+                        "meaning": "XYZ \u2014 XYZ expressed in Rover Nav frame",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYZ": {
+                        "meaning": "XYZ \u2014 XYZ expressed in Site frame",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "YYF": {
+                        "meaning": "XYZ \u2014 XYZ Y-band Filled",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "YYY": {
+                        "meaning": "XYZ \u2014 XYZ Y-band",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "ZZF": {
+                        "meaning": "XYZ \u2014 XYZ Z-band Filled",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "ZZO": {
+                        "meaning": "XYZ \u2014 XYZ Z-band with Overlay",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "ZZZ": {
+                        "meaning": "XYZ \u2014 XYZ Z-band",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "RZS": {
+                        "meaning": "Radiometric \u2014 Zenith-scaled radiance, 12-bit integer static scale",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. This code postdates SIS v4.1; the wording is the OPGS product-type table shared with M2020."
+                    },
+                    "RZF": {
+                        "meaning": "Radiometric \u2014 Zenith-scaled radiance, float",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. This code postdates SIS v4.1; the wording is the OPGS product-type table shared with M2020."
+                    },
+                    "RZD": {
+                        "meaning": "Radiometric \u2014 Zenith-scaled radiance, decompanded",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. This code postdates SIS v4.1; the wording is the OPGS product-type table shared with M2020."
+                    },
+                    "XRZ": {
+                        "meaning": "XYZ \u2014 XYZ from raw disparity, expressed in Site frame",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4. This code postdates SIS v4.1; the wording is the OPGS product-type table shared with M2020."
+                    },
+                    "XRR": {
+                        "meaning": "XYZ \u2014 XYZ from raw disparity, expressed in Rover Nav frame",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4. This code postdates SIS v4.1; the wording is the OPGS product-type table shared with M2020."
+                    }
+                }
+            },
+            {
+                "start": 17,
+                "length": 1,
+                "label": "Geometry",
+                "color": "green",
+                "description": "Whether camera distortion was removed (\"linearized\"), and for MMM cameras which compression mode this copy came down in.",
+                "values": {
+                    "_": "Non-linearized, first compression mode received",
+                    "L": "Linearized against the nominal stereo partner, first compression mode",
+                    "A": "Linearized against the actual stereo partner, first compression mode"
+                },
+                "patterns": [
+                    {
+                        "match": "^[0-9]$",
+                        "meaning": "Non-linearized, MMM compression mode index \"{value}\""
+                    },
+                    {
+                        "match": "^[M-V]$",
+                        "meaning": "Linearized (nominal partner), MMM compression mode index \"{value}\""
+                    },
+                    {
+                        "match": "^[B-K]$",
+                        "meaning": "Linearized (actual partner), MMM compression mode index \"{value}\""
+                    }
+                ]
+            },
+            {
+                "start": 18,
+                "length": 1,
+                "label": "Sample type",
+                "color": "blue",
+                "description": "How the data was sampled.",
+                "values": {
+                    "F": "Full frame, full resolution",
+                    "S": "Subframed, full resolution",
+                    "D": "Downsampled, reduced resolution",
+                    "M": "Mixed subframe and downsample",
+                    "T": "Thumbnail, reduced resolution",
+                    "B": "Bayer extraction subsampling (MMM only)",
+                    "Y": "Thumbnail Bayer extraction subsampling (MMM only)",
+                    "N": "Non-raster data"
+                }
+            },
+            {
+                "start": 19,
+                "length": 3,
+                "label": "Site",
+                "color": "red",
+                "description": "Site index from the Rover Motion Counter.",
+                "patterns": [
+                    {
+                        "match": "^___$",
+                        "meaning": "Out of range"
+                    },
+                    {
+                        "match": "^[0-9]{3}$",
+                        "meaning": "Site {number}"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{3}$",
+                        "meaning": "Site {value} (letter-coded range)"
+                    }
+                ]
+            },
+            {
+                "start": 22,
+                "length": 4,
+                "label": "Drive",
+                "color": "indigo",
+                "description": "Drive (position within site) index from the Rover Motion Counter.",
+                "patterns": [
+                    {
+                        "match": "^____$",
+                        "meaning": "Out of range"
+                    },
+                    {
+                        "match": "^[0-9]{4}$",
+                        "meaning": "Drive {number}"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{4}$",
+                        "meaning": "Drive {value} (letter-coded range)"
+                    }
+                ]
+            },
+            {
+                "start": 26,
+                "length": 9,
+                "label": "Sequence ID",
+                "color": "amber",
+                "description": "Commanded sequence identifier: a four-character category followed by a five-digit number.",
+                "patterns": [
+                    {
+                        "match": "^([A-Z0-9_]{4})([0-9]{5})$",
+                        "meaning": "Sequence category \"{1}\", number {2}"
+                    }
+                ]
+            },
+            {
+                "start": 35,
+                "length": 1,
+                "label": "Venue / producer",
+                "color": "green",
+                "description": "Flight versus engineering rover, and which institution produced the product.",
+                "values": {
+                    "M": "Flight rover, product by MIPL (OPGS at JPL)",
+                    "Z": "Engineering rover, product by MIPL (OPGS at JPL)",
+                    "P": "Flight rover, product by the instrument's Principal Investigator",
+                    "Y": "Engineering rover, product by the instrument's Principal Investigator"
+                },
+                "patterns": [
+                    {
+                        "match": "^[A-L]$",
+                        "meaning": "Flight rover, product by a Co-Investigator (\"{value}\", assigned per instrument)"
+                    },
+                    {
+                        "match": "^[Q-X]$",
+                        "meaning": "Engineering rover, product by a Co-Investigator (\"{value}\", assigned per instrument)"
+                    }
+                ]
+            },
+            {
+                "start": 36,
+                "length": 1,
+                "label": "Version",
+                "color": "slate",
+                "description": "Increments whenever an otherwise identical filename would be produced.",
+                "patterns": [
+                    {
+                        "match": "^_$",
+                        "meaning": "Version 36 or higher"
+                    },
+                    {
+                        "match": "^[1-9]$",
+                        "meaning": "Version {number}"
+                    },
+                    {
+                        "match": "^[A-Z]$",
+                        "meaning": "Version {value} (10 through 35)"
+                    }
+                ]
+            },
+            {
+                "start": 38,
+                "length": 3,
+                "label": "Extension",
+                "color": "teal",
+                "description": "Product format.",
+                "values": {
+                    "IMG": "Image EDR / RDR with an ODL label",
+                    "VIC": "Image EDR / RDR with only a VICAR label",
+                    "LBL": "Detached PDS or ODL label",
+                    "JPG": "JPEG compressed image",
+                    "TIF": "TIFF image",
+                    "PNG": "PNG image",
+                    "TXT": "Text file for specially processed products",
+                    "QUB": "Multi-layer spectral cube",
+                    "CSV": "Comma-separated values, used for LIBS RDRs",
+                    "DAT": "Non-imaging instrument data, including LIBS and state of health",
+                    "TAB": "Table data",
+                    "iv": "Per-XYZ terrain mesh in Inventor binary format",
+                    "ht": "Per-XYZ height map with a VICAR label",
+                    "rgb": "Per-XYZ terrain mesh texture in RGB format",
+                    "tar": "Tar file of per-XYZ terrain mesh vertex tiles",
+                    "obj": "Terrain mesh in Wavefront OBJ format",
+                    "LIS": "ASCII list of the EDR / RDR files a mosaic was built from",
+                    "NAV": "Mosaic navigation (geometric correction) file",
+                    "BRT": "Mosaic brightness correction file",
+                    "TIE": "Mosaic tiepoint file",
+                    "OVR": "Mosaic overlap file",
+                    "mod": "ASCII index of the mesh height map and vertex tile files"
+                }
+            }
+        ]
+    },
+    {
+        "title": "MSL mosaic RDR filename",
+        "sis": "msl_camera",
+        "reference": "MSL Camera & LIBS EDR / RDR Data Products SIS (JPL D-38107, v4.1), \u00a76.1.2",
+        "match": "^[FRNMHDC][FRNMHDCX_][LRMSCAGNX][A-Z0-9]{3}[A-Z_][A-Z0-9_]{4}[_X][A-Z0-9]{3}[A-Z0-9_]{3}[A-Z]{3}[A-Z_]{3}[A-Z0-9_]{4}[_X][A-Z0-9_]{5}[A-Z][A-Z0-9_]\\.[A-Za-z]{2,3}$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 1,
+                "label": "Instrument",
+                "color": "blue",
+                "description": "Primary instrument whose frames the mosaic is built from.",
+                "values": {
+                    "F": "Front Hazcam",
+                    "R": "Rear Hazcam",
+                    "N": "Navcam",
+                    "M": "Mastcam",
+                    "H": "MAHLI",
+                    "D": "MARDI",
+                    "C": "ChemCam RMI"
+                }
+            },
+            {
+                "start": 2,
+                "length": 1,
+                "label": "Second instrument",
+                "color": "cyan",
+                "description": "Second contributing instrument, if any.",
+                "values": {
+                    "F": "Front Hazcam",
+                    "R": "Rear Hazcam",
+                    "N": "Navcam",
+                    "M": "Mastcam",
+                    "H": "MAHLI",
+                    "D": "MARDI",
+                    "C": "ChemCam RMI",
+                    "X": "More than two instruments contributed",
+                    "_": "No second instrument"
+                }
+            },
+            {
+                "start": 3,
+                "length": 1,
+                "label": "Camera eye",
+                "color": "green",
+                "description": "Which eye the frames came from.",
+                "values": {
+                    "L": "Left camera eye",
+                    "R": "Right camera eye",
+                    "M": "Monoscopic (non-stereo camera)",
+                    "S": "Stereo (2-band)",
+                    "C": "Colour stereo (6-band)",
+                    "A": "Anaglyph",
+                    "G": "Colorglyph (Lr, Rg, Rb)",
+                    "N": "Not applicable",
+                    "X": "Mixed"
+                }
+            },
+            {
+                "start": 4,
+                "length": 3,
+                "label": "Filter",
+                "color": "amber",
+                "description": "Spectral filter position.",
+                "values": {
+                    "000": "Non-filter camera",
+                    "RGB": "sRGB colour space or de-Bayered result",
+                    "XYI": "xyY colour space"
+                },
+                "patterns": [
+                    {
+                        "match": "^00([0-8])$",
+                        "meaning": "MMM filter position {1}"
+                    },
+                    {
+                        "match": "^A",
+                        "meaning": "Alternative colour space"
+                    }
+                ]
+            },
+            {
+                "start": 7,
+                "length": 1,
+                "label": "Special processing",
+                "color": "slate",
+                "description": "Marks off-nominal or special processing.",
+                "values": {
+                    "_": "Nominal processing",
+                    "T": "Best tactical copy of a specially processed product"
+                },
+                "patterns": [
+                    {
+                        "match": "^[A-SU-Z]$",
+                        "meaning": "Special processing method \"{value}\", defined ad hoc for the sols it was used on"
+                    }
+                ]
+            },
+            {
+                "start": 8,
+                "length": 4,
+                "label": "Sol",
+                "color": "orange",
+                "description": "Sol (or testbed day of year) of the last input frame in the mosaic.",
+                "patterns": [
+                    {
+                        "match": "^____$",
+                        "meaning": "Out of range"
+                    },
+                    {
+                        "match": "^[0-9]{4}$",
+                        "meaning": "Sol {number}"
+                    },
+                    {
+                        "match": "^Y([0-9]{3})$",
+                        "meaning": "Day of year {1} of 2012 (testbed)"
+                    },
+                    {
+                        "match": "^Z([0-9]{3})$",
+                        "meaning": "Day of year {1} of 2013 (testbed)"
+                    },
+                    {
+                        "match": "^([A-X])([0-9]{3})$",
+                        "meaning": "Sol {value} (letter-coded range \"{1}\")"
+                    }
+                ]
+            },
+            {
+                "start": 12,
+                "length": 1,
+                "label": "Multiple sols",
+                "color": "blue",
+                "description": "Whether a significant part of the content came from other sols.",
+                "values": {
+                    "_": "Single sol",
+                    "X": "Last of multiple sols"
+                }
+            },
+            {
+                "start": 13,
+                "length": 3,
+                "label": "Product type",
+                "color": "violet",
+                "description": "Product type of the frames the mosaic was built from.",
+                "values": {
+                    "AGM": {
+                        "meaning": "AEGIS \u2014 AEGIS JSON Target File",
+                        "description": "AEGIS RDRs record the targets the onboard autonomous targeting software selected. SIS \u00a75.2.1.15."
+                    },
+                    "AGS": {
+                        "meaning": "AEGIS \u2014 AEGIS Target Map (with \u201cAGM\u201d JSON target file)",
+                        "description": "AEGIS RDRs record the targets the onboard autonomous targeting software selected. SIS \u00a75.2.1.15."
+                    },
+                    "ARK": {
+                        "meaning": "Arm reachability \u2014 Arm Reachability Masked",
+                        "description": "Arm Reachability RDRs mark which terrain the arm can reach, and with what preload. SIS \u00a75.2.1.9."
+                    },
+                    "ARM": {
+                        "meaning": "Arm reachability \u2014 Arm Reachability",
+                        "description": "Arm Reachability RDRs mark which terrain the arm can reach, and with what preload. SIS \u00a75.2.1.9."
+                    },
+                    "ARO": {
+                        "meaning": "Arm reachability \u2014 Arm Reachability with Overlay",
+                        "description": "Arm Reachability RDRs mark which terrain the arm can reach, and with what preload. SIS \u00a75.2.1.9."
+                    },
+                    "ARP": {
+                        "meaning": "Arm reachability \u2014 Arm Preload Values",
+                        "description": "Arm Reachability RDRs mark which terrain the arm can reach, and with what preload. SIS \u00a75.2.1.9."
+                    },
+                    "BAY": {
+                        "meaning": "EDR-like \u2014 Bayer pattern (identical to \u201cEDR\u201d except for Bayer pattern extract)",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization \u2014 so they differ from the EDR only in that respect. SIS \u00a75.1.1.1.7, \u00a75.2.1.1."
+                    },
+                    "CCS": {
+                        "meaning": "LIBS \u2014 Intermediate Clean Calibrated Spectra",
+                        "description": "Spectroscopy RDRs are the ChemCam LIBS spectra and the compositions derived from them. SIS \u00a75.2.2."
+                    },
+                    "CXM": {
+                        "meaning": "Mask \u2014 ChemCam Exclusion Zone Mask",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "CXR": {
+                        "meaning": "Range \u2014 Range from ChemCam RMI",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "DDD": {
+                        "meaning": "Disparity \u2014 Stereo Delta Disparity (2-band, true disparity offset)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DDL": {
+                        "meaning": "Disparity \u2014 Stereo Delta Disparity Line (single-band)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DDS": {
+                        "meaning": "Disparity \u2014 Stereo Delta Disparity Sample (single-band)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DFF": {
+                        "meaning": "Disparity \u2014 Stereo First-stage Disparity Final",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DFL": {
+                        "meaning": "Disparity \u2014 Stereo First-stage Disparity Line",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DFS": {
+                        "meaning": "Disparity \u2014 Stereo First-stage Disparity Sample",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DRW": {
+                        "meaning": "Radiometric \u2014 MMM-produced Rad-corrected and White Balanced",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "DRX": {
+                        "meaning": "Radiometric \u2014 MMM-produced Rad-corrected",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "DSE": {
+                        "meaning": "Disparity \u2014 Stereo Disparity Error Metric",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DSG": {
+                        "meaning": "Disparity \u2014 Stereo Disparity Grid",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DSL": {
+                        "meaning": "Disparity \u2014 Stereo Disparity of Lines (single-band)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DSP": {
+                        "meaning": "Disparity \u2014 Stereo Disparity Final",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DSR": {
+                        "meaning": "Disparity \u2014 Stereo Disparity Raw",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "DSS": {
+                        "meaning": "Disparity \u2014 Stereo Disparity of Samples (single-band)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3."
+                    },
+                    "ECS": {
+                        "meaning": "EDR \u2014 Column-summed",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EDM": {
+                        "meaning": "EDR \u2014 Depth map image (MMM cameras only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EDR": {
+                        "meaning": "EDR \u2014 First order product",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EHG": {
+                        "meaning": "EDR \u2014 Histogram",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EID": {
+                        "meaning": "EDR \u2014 IDPH-only",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EIN": {
+                        "meaning": "EDR \u2014 State-of-Health Initialize (ChemCam SOH only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EJP": {
+                        "meaning": "EDR \u2014 Original JPEG as received from rover (MMM cameras only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EPO": {
+                        "meaning": "EDR \u2014 State-of-Health Power Off (ChemCam SOH only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EPW": {
+                        "meaning": "EDR \u2014 State-of-Health Power On (ChemCam SOH only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "ERD": {
+                        "meaning": "EDR \u2014 Recovered EDR (MMM cameras only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "ERP": {
+                        "meaning": "EDR \u2014 Reference Pixel",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "ERS": {
+                        "meaning": "EDR \u2014 Row-summed",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "ESS": {
+                        "meaning": "EDR \u2014 State-of-Health Sun Safe (ChemCam SOH only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EVD": {
+                        "meaning": "EDR \u2014 Video image (MMM cameras only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EWU": {
+                        "meaning": "EDR \u2014 State-of-Health Warmup (ChemCam SOH only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "EZS": {
+                        "meaning": "EDR \u2014 Z-stack combined image (MMM cameras only)",
+                        "description": "EDRs are the first-order products: the image as received, with no geometric (\"linearization\") or radiometric correction applied. SIS \u00a74."
+                    },
+                    "ICM": {
+                        "meaning": "Coregistration \u2014 Mosaic-to-Image Coregistration Map",
+                        "description": "Coregistration products relate a mosaic back to the individual images that built it. SIS \u00a75.2.1.13.12."
+                    },
+                    "IDX": {
+                        "meaning": "Coregistration \u2014 Mosaic-to-Image Coregistration Index",
+                        "description": "Coregistration products relate a mosaic back to the individual images that built it. SIS \u00a75.2.1.13.12."
+                    },
+                    "IEF": {
+                        "meaning": "Photometry \u2014 Incidence, Emission, Phase angles Filled",
+                        "description": "Photometry RDRs give the incidence, emission and phase angles at each pixel. SIS \u00a75.2.1.11."
+                    },
+                    "IEP": {
+                        "meaning": "Photometry \u2014 Incidence, Emission, Phase angles",
+                        "description": "Photometry RDRs give the incidence, emission and phase angles at each pixel. SIS \u00a75.2.1.11."
+                    },
+                    "ILC": {
+                        "meaning": "EDR-like \u2014 Inverse lookup table (ILUT) with corrections such as despike",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization \u2014 so they differ from the EDR only in that respect. SIS \u00a75.1.1.1.7, \u00a75.2.1.1."
+                    },
+                    "ILP": {
+                        "meaning": "EDR-like \u2014 Inverse lookup table (ILUT) with pointing correction applied",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization \u2014 so they differ from the EDR only in that respect. SIS \u00a75.1.1.1.7, \u00a75.2.1.1."
+                    },
+                    "ILT": {
+                        "meaning": "EDR-like \u2014 Inverse lookup table (ILUT)",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization \u2014 so they differ from the EDR only in that respect. SIS \u00a75.1.1.1.7, \u00a75.2.1.1."
+                    },
+                    "IOF": {
+                        "meaning": "Rad-corrected IOF radiance factor, float",
+                        "description": "See the product-type tables in SIS \u00a76.1.1 for this code."
+                    },
+                    "IOI": {
+                        "meaning": "Rad-corrected IOF radiance factor, integer",
+                        "description": "See the product-type tables in SIS \u00a76.1.1 for this code."
+                    },
+                    "LIN": {
+                        "meaning": "EDR-like \u2014 CAHV-linearized (identical to \u201cEDR\u201d except for Geometry type)",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization \u2014 so they differ from the EDR only in that respect. SIS \u00a75.1.1.1.7, \u00a75.2.1.1."
+                    },
+                    "MAR": {
+                        "meaning": "Mask \u2014 Arm Reachability Mask File",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "MCE": {
+                        "meaning": "Mask \u2014 ChemCam Finder Error Mask",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "MCF": {
+                        "meaning": "Mask \u2014 ChemCam Finder Combo Risk/Error Mask",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "MCR": {
+                        "meaning": "Mask \u2014 ChemCam Finder Risk Mask",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "MDS": {
+                        "meaning": "Mask \u2014 Stereo Disparity Mask File",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "MOC": {
+                        "meaning": "LIBS \u2014 Multivariate Prediction of Oxide Composition",
+                        "description": "Spectroscopy RDRs are the ChemCam LIBS spectra and the compositions derived from them. SIS \u00a75.2.2."
+                    },
+                    "MSK": {
+                        "meaning": "Mask \u2014 Image Mask File",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "MXY": {
+                        "meaning": "Mask \u2014 XYZ Mask File",
+                        "description": "Mask files flag which pixels of a companion product are valid, excluded (rover hardware in frame) or risky. SIS \u00a75.1.1.1.5, \u00a75.2.1.17."
+                    },
+                    "N2D": {
+                        "meaning": "Nav Map \u2014 Nav Map Second Stereo Disparity",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "N2F": {
+                        "meaning": "Nav Map \u2014 Nav Map Second Stereo Filters",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "N2L": {
+                        "meaning": "Nav Map \u2014 Nav Map Second Left Rectified",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "N2R": {
+                        "meaning": "Nav Map \u2014 Nav Map Second Right Rectified",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NCE": {
+                        "meaning": "Nav Map \u2014 Nav Map Certainty",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NDC": {
+                        "meaning": "Nav Map \u2014 Nav Map D-star Cost",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NDF": {
+                        "meaning": "Nav Map \u2014 Nav Map D-star Field",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NDL": {
+                        "meaning": "Nav Map \u2014 Nav Map D-star Look Ahead",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NDR": {
+                        "meaning": "Nav Map \u2014 Nav Map D-star Layer Cost",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NED": {
+                        "meaning": "Nav Map \u2014 Nav Map Elevation Difference",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NEL": {
+                        "meaning": "Nav Map \u2014 Nav Map Elevation",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NFE": {
+                        "meaning": "Nav Map \u2014 Nav Map FOV Edge",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NFP": {
+                        "meaning": "Nav Map \u2014 Nav Map Footprint",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NFV": {
+                        "meaning": "Nav Map \u2014 Nav Map FOV",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NGD": {
+                        "meaning": "Nav Map \u2014 Nav Map Goodness",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NGK": {
+                        "meaning": "Nav Map \u2014 Nav Map Good Keep",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NID": {
+                        "meaning": "Nav Map \u2014 Nav Map Idles",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NKO": {
+                        "meaning": "Nav Map \u2014 Nav Map Keepout",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NKP": {
+                        "meaning": "Nav Map \u2014 Nav Map Keepout Path Site",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NKS": {
+                        "meaning": "Nav Map \u2014 Nav Map Keepout Site",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL0": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 0",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL1": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 1",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL2": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 2",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL3": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 3",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL4": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 4",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL5": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 5",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL6": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 6",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL7": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 7",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL8": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 8",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NL9": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 9",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLA": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 10",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLB": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 11",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLC": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 12",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLD": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 13",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLE": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 14",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLF": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer 15",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLR": {
+                        "meaning": "Nav Map \u2014 Nav Map Left Rectified",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NLY": {
+                        "meaning": "Nav Map \u2014 Nav Map Layer Certainty",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NMC": {
+                        "meaning": "Nav Map \u2014 Nav Map Minimum Cells",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NMI": {
+                        "meaning": "Nav Map \u2014 Nav Map IDPH",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NMN": {
+                        "meaning": "Nav Map \u2014 Nav Map Minimum Count",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NMO": {
+                        "meaning": "Nav Map \u2014 Nav Map Moments",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NMS": {
+                        "meaning": "Nav Map \u2014 Nav Map Memory Manager Status",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NMX": {
+                        "meaning": "Nav Map \u2014 Nav Map Maximum Count",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NNE": {
+                        "meaning": "Nav Map \u2014 Nav Map Num Entries",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NNX": {
+                        "meaning": "Nav Map \u2014 Nav Map Normal X",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NNY": {
+                        "meaning": "Nav Map \u2014 Nav Map Normal Y",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NNZ": {
+                        "meaning": "Nav Map \u2014 Nav Map Normal Z",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NOF": {
+                        "meaning": "Nav Map \u2014 Nav Map Offset",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NPC": {
+                        "meaning": "Nav Map \u2014 Nav Map D-star Planning Cost",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NPI": {
+                        "meaning": "Nav Map \u2014 Nav Map Path Information",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NRG": {
+                        "meaning": "Nav Map \u2014 Nav Map Roughness Goodness",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NRK": {
+                        "meaning": "Nav Map \u2014 Nav Map Rock",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NRR": {
+                        "meaning": "Nav Map \u2014 Nav Map Right Rectified",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NRS": {
+                        "meaning": "Nav Map \u2014 Nav Map Residual",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NSD": {
+                        "meaning": "Nav Map \u2014 Nav Map Stereo Disparity",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NSF": {
+                        "meaning": "Nav Map \u2014 Nav Map Stereo Filters",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NSG": {
+                        "meaning": "Nav Map \u2014 Nav Map Step Goodness",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NSP": {
+                        "meaning": "Nav Map \u2014 Nav Map Stereo Points",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT0": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 0",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT1": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 1",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT2": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 2",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT3": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 3",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT4": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 4",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT5": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 5",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT6": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 6",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT7": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 7",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT8": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 8",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NT9": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 9",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTA": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 10",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTB": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 11",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTC": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 12",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTD": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 13",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTE": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 14",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTF": {
+                        "meaning": "Nav Map \u2014 Nav Map Temporary Storage Layer 15",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTG": {
+                        "meaning": "Nav Map \u2014 Nav Map Tilt Goodness",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NTL": {
+                        "meaning": "Nav Map \u2014 Nav Map Tilt",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NVF": {
+                        "meaning": "Nav Map \u2014 Nav Map VO Features",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "NWR": {
+                        "meaning": "Nav Map \u2014 Nav Map Wraparound",
+                        "description": "Nav Map products are the layers of the rover's onboard navigation map, downlinked as images so the ground can see what the flight software saw. SIS \u00a74.2.4.2."
+                    },
+                    "PRC": {
+                        "meaning": "Radiometric \u2014 ChemCam RMI Partially Rad-corrected",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RAD": {
+                        "meaning": "Radiometric \u2014 Rad-corrected absolute radiance units, integer",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RAF": {
+                        "meaning": "Radiometric \u2014 Rad-corrected absolute radiance units, float",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RAS": {
+                        "meaning": "Radiometric \u2014 Rad-corrected absolute radiance units, scaled to 12-bit",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RDR": {
+                        "meaning": "LIBS \u2014 Initial LIBS Spectrum",
+                        "description": "Spectroscopy RDRs are the ChemCam LIBS spectra and the compositions derived from them. SIS \u00a75.2.2."
+                    },
+                    "RIE": {
+                        "meaning": "Radiometric \u2014 Rad-corrected for Instrument Effects only, integer DN",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RIF": {
+                        "meaning": "Radiometric \u2014 Rad-corrected for Instrument Effects only, float",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2."
+                    },
+                    "RNE": {
+                        "meaning": "Range \u2014 Range Error Metric",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RNF": {
+                        "meaning": "Range \u2014 Range Filled",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RNG": {
+                        "meaning": "Range \u2014 Range from Camera",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RNM": {
+                        "meaning": "Range \u2014 Range from Camera, Masked",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RNO": {
+                        "meaning": "Range \u2014 Range with Overlay",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RNR": {
+                        "meaning": "Range \u2014 Range from Rover Nav frame origin",
+                        "description": "Range RDRs give the distance from the camera (or from the Rover Nav frame origin) to the surface at each pixel. SIS \u00a75.2.1.5."
+                    },
+                    "RUD": {
+                        "meaning": "Roughness \u2014 Surface Roughness (Drill)",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane, sized for the drill or the dust removal tool. SIS \u00a75.2.1.7."
+                    },
+                    "RUT": {
+                        "meaning": "Roughness \u2014 Surface Roughness (DRT)",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane, sized for the drill or the dust removal tool. SIS \u00a75.2.1.7."
+                    },
+                    "SEN": {
+                        "meaning": "Solar energy \u2014 Solar Energy",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a75.2.1.8.6."
+                    },
+                    "SEO": {
+                        "meaning": "Solar energy \u2014 Solar Energy with Overlay",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a75.2.1.8.6."
+                    },
+                    "SHD": {
+                        "meaning": "Slope \u2014 Slope Heading",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SHO": {
+                        "meaning": "Slope \u2014 Slope Heading with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SLO": {
+                        "meaning": "Slope \u2014 Slope with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SLP": {
+                        "meaning": "Slope \u2014 Slope",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SMG": {
+                        "meaning": "Slope \u2014 Slope Magnitude",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SMO": {
+                        "meaning": "Slope \u2014 Slope Magnitude with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SNO": {
+                        "meaning": "Slope \u2014 Slope Northerly Tilt with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SNT": {
+                        "meaning": "Slope \u2014 Slope Northerly Tilt",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SRD": {
+                        "meaning": "Slope \u2014 Slope Rover Direction",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "SRO": {
+                        "meaning": "Slope \u2014 Slope Rover Direction with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8."
+                    },
+                    "TEN": {
+                        "meaning": "Terrain \u2014 Terrain Classifier Probability Map",
+                        "description": "Terrain Classifier RDRs label the terrain by type, either as a per-class probability map or as a single classification. SIS \u00a75.2.1.16."
+                    },
+                    "TER": {
+                        "meaning": "Terrain \u2014 Terrain Classification Map",
+                        "description": "Terrain Classifier RDRs label the terrain by type, either as a per-class probability map or as a single classification. SIS \u00a75.2.1.16."
+                    },
+                    "UUF": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) U-band Filled",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UUU": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) U-band",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UVF": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) Filled",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UVO": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) with Overlay",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UVP": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) Projected onto Plane",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UVS": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) for Slope computations",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UVT": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) Angle (\u2018T\u2019 for theta) between Normal and Plane",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "UVW": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "VVF": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) V-band Filled",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "VVV": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) V-band",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "WWF": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) W-band Filled",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "WWW": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) W-band",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a75.2.1.6."
+                    },
+                    "XXF": {
+                        "meaning": "XYZ \u2014 XYZ X-band Filled",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XXX": {
+                        "meaning": "XYZ \u2014 XYZ X-band",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYE": {
+                        "meaning": "XYZ \u2014 XYZ Error Metric",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYF": {
+                        "meaning": "XYZ \u2014 XYZ Filled",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYM": {
+                        "meaning": "XYZ \u2014 XYZ Masked",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYO": {
+                        "meaning": "XYZ \u2014 XYZ with Overlay",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYR": {
+                        "meaning": "XYZ \u2014 XYZ expressed in Rover Nav frame",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "XYZ": {
+                        "meaning": "XYZ \u2014 XYZ expressed in Site frame",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "YYF": {
+                        "meaning": "XYZ \u2014 XYZ Y-band Filled",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "YYY": {
+                        "meaning": "XYZ \u2014 XYZ Y-band",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "ZZF": {
+                        "meaning": "XYZ \u2014 XYZ Z-band Filled",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "ZZO": {
+                        "meaning": "XYZ \u2014 XYZ Z-band with Overlay",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "ZZZ": {
+                        "meaning": "XYZ \u2014 XYZ Z-band",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4."
+                    },
+                    "RZS": {
+                        "meaning": "Radiometric \u2014 Zenith-scaled radiance, 12-bit integer static scale",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. This code postdates SIS v4.1; the wording is the OPGS product-type table shared with M2020."
+                    },
+                    "RZF": {
+                        "meaning": "Radiometric \u2014 Zenith-scaled radiance, float",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. This code postdates SIS v4.1; the wording is the OPGS product-type table shared with M2020."
+                    },
+                    "RZD": {
+                        "meaning": "Radiometric \u2014 Zenith-scaled radiance, decompanded",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. This code postdates SIS v4.1; the wording is the OPGS product-type table shared with M2020."
+                    },
+                    "XRZ": {
+                        "meaning": "XYZ \u2014 XYZ from raw disparity, expressed in Site frame",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4. This code postdates SIS v4.1; the wording is the OPGS product-type table shared with M2020."
+                    },
+                    "XRR": {
+                        "meaning": "XYZ \u2014 XYZ from raw disparity, expressed in Rover Nav frame",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an MSL coordinate frame, so the scene can be measured. SIS \u00a75.2.1.4. This code postdates SIS v4.1; the wording is the OPGS product-type table shared with M2020."
+                    }
+                }
+            },
+            {
+                "start": 16,
+                "length": 3,
+                "label": "Site",
+                "color": "red",
+                "description": "Site index from the Rover Motion Counter.",
+                "patterns": [
+                    {
+                        "match": "^___$",
+                        "meaning": "Out of range"
+                    },
+                    {
+                        "match": "^[0-9]{3}$",
+                        "meaning": "Site {number}"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{3}$",
+                        "meaning": "Site {value} (letter-coded range)"
+                    }
+                ]
+            },
+            {
+                "start": 19,
+                "length": 3,
+                "label": "Projection",
+                "color": "teal",
+                "description": "Projection the mosaic is rendered in.",
+                "values": {
+                    "CYL": "Cylindrical",
+                    "PER": "Perspective",
+                    "CYP": "Cylindrical-perspective",
+                    "POL": "Polar",
+                    "ORT": "Orthographic",
+                    "ORR": "Orthorectified",
+                    "VRT": "Vertical (a special case of orthographic)"
+                }
+            },
+            {
+                "start": 22,
+                "length": 1,
+                "label": "Geometric correction",
+                "color": "green",
+                "description": "Pointing correction applied to most of the content.",
+                "values": {
+                    "_": "No correction (raw pointing)",
+                    "A": "Auto-correction via tiepointing",
+                    "F": "Auto-correction via tiepointing and auto-registration with fiducials",
+                    "G": "Auto-correction via tiepointing and manual registration with fiducials",
+                    "T": "Manual tiepointing",
+                    "R": "Manual tiepointing and auto-registration with fiducials",
+                    "M": "Manual tiepointing and manual registration with fiducials",
+                    "O": "Other correction"
+                }
+            },
+            {
+                "start": 23,
+                "length": 1,
+                "label": "Frame",
+                "color": "blue",
+                "description": "Coordinate frame of the mosaic.",
+                "values": {
+                    "S": "Site frame",
+                    "L": "Local Level frame",
+                    "R": "Rover frame",
+                    "U": "Untilt (rover frame with rotation, cylindrical-perspective only)",
+                    "O": "Other"
+                }
+            },
+            {
+                "start": 24,
+                "length": 1,
+                "label": "Brightness correction",
+                "color": "pink",
+                "description": "Brightness correction applied to most of the content.",
+                "values": {
+                    "_": "No correction",
+                    "B": "Automatic brightness adjustment per frame",
+                    "M": "Manual brightness adjustment",
+                    "V": "Anti-vignetting adjustment",
+                    "G": "General manual brightness correction",
+                    "A": "General automatic brightness correction, may vary across the frame",
+                    "O": "Other correction"
+                }
+            },
+            {
+                "start": 25,
+                "length": 4,
+                "label": "Drive",
+                "color": "indigo",
+                "description": "Drive index from the Rover Motion Counter.",
+                "patterns": [
+                    {
+                        "match": "^____$",
+                        "meaning": "Out of range"
+                    },
+                    {
+                        "match": "^[0-9]{4}$",
+                        "meaning": "Drive {number}"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{4}$",
+                        "meaning": "Drive {value} (letter-coded range)"
+                    }
+                ]
+            },
+            {
+                "start": 29,
+                "length": 1,
+                "label": "Multiple drives",
+                "color": "blue",
+                "description": "Whether content came from more than one drive.",
+                "values": {
+                    "_": "Single drive",
+                    "X": "Last of multiple drives"
+                }
+            },
+            {
+                "start": 30,
+                "length": 5,
+                "label": "Mosaic ID",
+                "color": "amber",
+                "description": "Free-form mosaic identifier \u2014 target, panorama or theme name \u2014 padded with underscores."
+            },
+            {
+                "start": 35,
+                "length": 1,
+                "label": "Venue / producer",
+                "color": "green",
+                "description": "Flight versus engineering rover, and which institution produced the product.",
+                "values": {
+                    "M": "Flight rover, product by MIPL (OPGS at JPL)",
+                    "Z": "Engineering rover, product by MIPL (OPGS at JPL)",
+                    "P": "Flight rover, product by the instrument's Principal Investigator",
+                    "Y": "Engineering rover, product by the instrument's Principal Investigator"
+                },
+                "patterns": [
+                    {
+                        "match": "^[A-L]$",
+                        "meaning": "Flight rover, product by a Co-Investigator (\"{value}\", assigned per instrument)"
+                    },
+                    {
+                        "match": "^[Q-X]$",
+                        "meaning": "Engineering rover, product by a Co-Investigator (\"{value}\", assigned per instrument)"
+                    }
+                ]
+            },
+            {
+                "start": 36,
+                "length": 1,
+                "label": "Version",
+                "color": "slate",
+                "description": "Increments whenever an otherwise identical filename would be produced.",
+                "patterns": [
+                    {
+                        "match": "^_$",
+                        "meaning": "Version 36 or higher"
+                    },
+                    {
+                        "match": "^[1-9]$",
+                        "meaning": "Version {number}"
+                    },
+                    {
+                        "match": "^[A-Z]$",
+                        "meaning": "Version {value} (10 through 35)"
+                    }
+                ]
+            },
+            {
+                "start": 38,
+                "length": 3,
+                "label": "Extension",
+                "color": "teal",
+                "description": "Product format.",
+                "values": {
+                    "IMG": "Image EDR / RDR with an ODL label",
+                    "VIC": "Image EDR / RDR with only a VICAR label",
+                    "LBL": "Detached PDS or ODL label",
+                    "JPG": "JPEG compressed image",
+                    "TIF": "TIFF image",
+                    "PNG": "PNG image",
+                    "TXT": "Text file for specially processed products",
+                    "QUB": "Multi-layer spectral cube",
+                    "CSV": "Comma-separated values, used for LIBS RDRs",
+                    "DAT": "Non-imaging instrument data, including LIBS and state of health",
+                    "TAB": "Table data",
+                    "iv": "Per-XYZ terrain mesh in Inventor binary format",
+                    "ht": "Per-XYZ height map with a VICAR label",
+                    "rgb": "Per-XYZ terrain mesh texture in RGB format",
+                    "tar": "Tar file of per-XYZ terrain mesh vertex tiles",
+                    "obj": "Terrain mesh in Wavefront OBJ format",
+                    "LIS": "ASCII list of the EDR / RDR files a mosaic was built from",
+                    "NAV": "Mosaic navigation (geometric correction) file",
+                    "BRT": "Mosaic brightness correction file",
+                    "TIE": "Mosaic tiepoint file",
+                    "OVR": "Mosaic overlap file",
+                    "mod": "ASCII index of the mesh height map and vertex tile files"
+                }
+            }
+        ]
+    },
+    {
+        "title": "MSL Mastcam / MAHLI / MARDI (MMM) filename",
+        "sis": "msl_mmm",
+        "reference": "MSL Mast Camera, Mars Hand Lens Imager and Mars Descent Imager EDR/RDR Data Products SIS (JPL D-75179), \u00a73.4",
+        "match": "^(?:[0-9]{4}|[A-Z]{3}_)(?:ML|MR|MH|MD)[0-9]{16}[A-Z][0-9A-F][0-9A-Z]_[A-Z]{4}\\.[A-Z]{3}$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 4,
+                "label": "Sol",
+                "color": "orange",
+                "description": "Sol on Mars, or the name of the ground testing phase the data came from.",
+                "values": {
+                    "DEV_": "Development (instrument assembly)",
+                    "TVC_": "Thermal / vacuum testing (instrument stand-alone)",
+                    "CAL_": "Calibration (instrument stand-alone)",
+                    "DEL_": "Delivery of the instrument to JPL-Caltech",
+                    "ATL_": "ATLO (JPL and KSC venues)",
+                    "CRU_": "Cruise"
+                },
+                "patterns": [
+                    {
+                        "match": "^[0-9]{4}$",
+                        "meaning": "Sol {number}"
+                    }
+                ]
+            },
+            {
+                "start": 5,
+                "length": 2,
+                "label": "Instrument",
+                "color": "blue",
+                "description": "Which MMM camera acquired the data.",
+                "values": {
+                    "ML": "Mastcam Left (34 mm)",
+                    "MR": "Mastcam Right (100 mm)",
+                    "MH": "MAHLI",
+                    "MD": "MARDI"
+                }
+            },
+            {
+                "start": 7,
+                "length": 6,
+                "label": "Sequence ID",
+                "color": "amber",
+                "description": "Sequence the image was commanded from, taken from the tracking ID; with the sequence line it forms the product identifier that groups a panorama, video or multi-spectral observation.",
+                "patterns": [
+                    {
+                        "match": "^[0-9]{6}$",
+                        "meaning": "Sequence {number}"
+                    }
+                ]
+            },
+            {
+                "start": 13,
+                "length": 3,
+                "label": "Sequence line",
+                "color": "brown",
+                "description": "Command number within the sequence.",
+                "patterns": [
+                    {
+                        "match": "^[0-9]{3}$",
+                        "meaning": "Command {number} in the sequence"
+                    }
+                ]
+            },
+            {
+                "start": 16,
+                "length": 2,
+                "label": "CDPID counter",
+                "color": "slate",
+                "description": "How many times this camera data product identifier has been used over the mission; erasing a product in non-volatile memory frees its identifier for reuse.",
+                "patterns": [
+                    {
+                        "match": "^[0-9]{2}$",
+                        "meaning": "Use {number} of this identifier"
+                    }
+                ]
+            },
+            {
+                "start": 18,
+                "length": 5,
+                "label": "CDPID",
+                "color": "teal",
+                "description": "Camera data product identifier the camera assigned to the image; compression variants and thumbnails share it.",
+                "patterns": [
+                    {
+                        "match": "^[0-9]{5}$",
+                        "meaning": "Product {number}"
+                    }
+                ]
+            },
+            {
+                "start": 23,
+                "length": 1,
+                "label": "Product type",
+                "color": "violet",
+                "description": "The form the camera produced the product in: bit depth, compression, and whether it is a thumbnail or a video frame.",
+                "values": {
+                    "A": "Raster 16-bit image",
+                    "B": "Raster 8-bit image",
+                    "C": "Losslessly compressed raster 8-bit image",
+                    "D": "JPEG grayscale image",
+                    "E": "JPEG 4:2:2 image",
+                    "F": "JPEG 4:4:4 image",
+                    "G": "Raster 8-bit thumbnail",
+                    "H": "JPEG grayscale thumbnail",
+                    "I": "JPEG 4:4:4 thumbnail",
+                    "J": "Raster 8-bit video",
+                    "K": "Losslessly compressed raster 8-bit video",
+                    "L": "JPEG grayscale video",
+                    "M": "JPEG 4:2:2 video",
+                    "N": "JPEG 4:4:4 video",
+                    "O": "Raster 8-bit video thumbnail",
+                    "P": "JPEG grayscale video thumbnail",
+                    "Q": "JPEG 4:4:4 video thumbnail",
+                    "R": "JPEG 4:4:4 focus merge image",
+                    "S": "JPEG grayscale range map image",
+                    "T": "JPEG 4:4:4 focus merge thumbnail",
+                    "U": "JPEG grayscale range map thumbnail"
+                }
+            },
+            {
+                "start": 24,
+                "length": 1,
+                "label": "GOP counter",
+                "color": "pink",
+                "description": "Index of the frame within a group of pictures; \"0\" on non-GOP products.",
+                "patterns": [
+                    {
+                        "match": "^0$",
+                        "meaning": "Not part of a group of pictures"
+                    },
+                    {
+                        "match": "^[0-9A-F]$",
+                        "meaning": "Frame \"{value}\" of the group of pictures"
+                    }
+                ]
+            },
+            {
+                "start": 25,
+                "length": 1,
+                "label": "Version",
+                "color": "green",
+                "description": "Starts at 0 for the image as stored onboard and increments for each copy received, which may differ in compression.",
+                "patterns": [
+                    {
+                        "match": "^[0-9]$",
+                        "meaning": "Version {number}"
+                    },
+                    {
+                        "match": "^[A-Z]$",
+                        "meaning": "Version \"{value}\" (10 and up)"
+                    }
+                ]
+            },
+            {
+                "start": 27,
+                "length": 4,
+                "label": "Processing",
+                "color": "indigo",
+                "description": "Ground processing applied to the camera product, one letter per step: \"D\" decompressed, \"R\" radiometrically calibrated, \"C\" colour corrected or contrast stretched, \"L\" linearized, \"X\" fill. All fill means no processing, i.e. an EDR.",
+                "values": {
+                    "XXXX": "No ground processing \u2014 this is an EDR",
+                    "DRXX": "Decompressed and radiometrically calibrated",
+                    "DRCX": "Decompressed, radiometrically calibrated, colour corrected or contrast stretched",
+                    "DRLX": "Decompressed, radiometrically calibrated and linearized",
+                    "DRCL": "Decompressed, radiometrically calibrated, colour corrected and linearized"
+                }
+            },
+            {
+                "start": 32,
+                "length": 3,
+                "label": "Extension",
+                "color": "teal",
+                "description": "Product format.",
+                "values": {
+                    "DAT": "Original camera data product",
+                    "IMG": "Binary image data",
+                    "LBL": "Detached label for the .DAT or .IMG file"
+                }
+            }
+        ]
+    }
+]

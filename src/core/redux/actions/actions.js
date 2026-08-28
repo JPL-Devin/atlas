@@ -67,6 +67,7 @@ let flatActions = [
     'SET_RECORD_DATA',
     'SET_LABEL_DATA',
     'SET_RECORD_VIEW_TAB',
+    'SET_RECORD_FILENAME_PART',
 
     // ================= FILE-EXPLORER RELATED =================
     'ADD_FILEX_COLUMN',
@@ -1102,7 +1103,8 @@ export const searchRecordByURI = (uri) => {
             size: 1,
         }
 
-        axios
+        // Returned so callers can tell a pending record from an unresolvable one.
+        return axios
             .post(`${domain}${endpoints.search}`, dsl, getHeader())
             .then((response) => {
                 const newRecordData = getIn(response, ['data', 'hits', 'hits', 0, '_source'], {})
@@ -1496,6 +1498,23 @@ export const setRecordViewTab = (newRecordViewTab) => {
     }
 }
 
+/**
+ * sets which filename segment the record page explains
+ *
+ * @param {number|null} selected - segment index, or null for none
+ * @param {boolean} showAll - explain every segment at once
+ * @return {Object} redux action
+ */
+export const setRecordFilenamePart = (selected, showAll) => {
+    return {
+        type: ACTIONS.SET_RECORD_FILENAME_PART,
+        payload: {
+            selected,
+            showAll,
+        },
+    }
+}
+
 // ================= FILE-EXPLORER RELATED =================
 const FILEX_PAGE_SIZE = 1000
 /**
@@ -1715,11 +1734,7 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
                                 )
                                 if (lastMatch == -1) lastMatch = rawPath.lastIndexOf(`/${key}`)
                                 const uri =
-                                    uriPrefix +
-                                    rawPath.substring(
-                                        0,
-                                        lastMatch + key.length + 1
-                                    )
+                                    uriPrefix + rawPath.substring(0, lastMatch + key.length + 1)
                                 // || rawPathFinal === key
 
                                 dispatch(
@@ -1975,7 +1990,9 @@ export const queryFilexColumn = (columnId, isLast, cb) => {
                         results.buckets = results.buckets.concat(bundleBuckets)
                     }
                     results.buckets = results.buckets.sort((a, b) =>
-                        String(a.key).localeCompare(String(b.key), undefined, { sensitivity: 'base' })
+                        String(a.key).localeCompare(String(b.key), undefined, {
+                            sensitivity: 'base',
+                        })
                     )
                 }
                 if (column.type === 'filter') {

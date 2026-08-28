@@ -87,7 +87,6 @@ export const ES_PATHS = {
         data_set_id: ['gather', 'pds_archive', 'data_set_id'],
     },
     pds3_label: ['pds3_label'],
-    pds4_label: ['pds4_label'],
     archive: {
         name: ['archive', 'name'],
         mission: ['archive', 'mission'],
@@ -102,6 +101,7 @@ export const ES_PATHS = {
         release_id: ['archive', 'release_id_num'],
     },
     pds4_label: {
+        _self: ['pds4_label'],
         lidvid: ['pds4_label', 'lidvid'],
     },
 }

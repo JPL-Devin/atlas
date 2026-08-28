@@ -1,0 +1,27 @@
+{
+  "title": "Other metadata",
+  "includeRoots": ["gather", "archive"],
+  "excludeRoots": ["pds4_label", "pds3_label"],
+  "excludeSegments": ["geo_shape", "geo_footprint", "classifications", "explanations"],
+  "excludePaths": [],
+  "acronyms": [
+    "id",
+    "md5",
+    "uri",
+    "ids",
+    "rmc",
+    "hga",
+    "rsm",
+    "pds",
+    "sclk",
+    "lmst",
+    "ltst",
+    "utc",
+    "cahvor",
+    "url",
+    "ml",
+    "sha1",
+    "sha256"
+  ],
+  "maxRows": 400
+}

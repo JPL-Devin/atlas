@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
         'height': theme.headHeights[1],
         'borderRadius': 0,
         'fontSize': 24,
-        'color': theme.palette.text.muted,
+        'color': theme.palette.swatches.grey.grey700,
         'transition': 'color 0.2s ease-out',
         '&:hover': {
             color: theme.palette.text.primary,

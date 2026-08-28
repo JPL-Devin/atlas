@@ -52,7 +52,12 @@ export default defineConfig({
             // The cross-browser folder targets the firefox project. Don't
             // double-run those specs on chromium — the canonical chromium
             // suite already covers per-route SPA-shell smoke.
-            testIgnore: /cross-browser/,
+            testIgnore: /cross-browser|unit/,
+        },
+        {
+            // Pure config/resolver assertions — no browser, no server.
+            name: 'unit',
+            testMatch: /unit\//,
         },
         {
             name: 'firefox',

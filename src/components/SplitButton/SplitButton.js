@@ -85,6 +85,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SplitButton(props) {
     const {
+        ariaLabel,
         className,
         forceName,
         items,
@@ -172,7 +173,7 @@ export default function SplitButton(props) {
                 size="small"
                 aria-label="split button"
             >
-                <Button startIcon={startIcon} onClick={handleClick}>
+                <Button aria-label={ariaLabel} startIcon={startIcon} onClick={handleClick}>
                     {name}
                 </Button>
                 <Button
