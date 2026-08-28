@@ -273,7 +273,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
                 cancelled = true
             }
         }
-    }, [image.src, viewer])
+    }, [image.src, image.previewSrc, viewer])
 
     useEffect(() => {
         if (viewer && svgOverlay) {

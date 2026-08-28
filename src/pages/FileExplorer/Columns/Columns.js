@@ -842,7 +842,8 @@ const Column = (props) => {
     }
 
     const directoryRows = useMemo(() => {
-        if (params.type !== 'directory' || content == null) return content
+        if (params.type === 'filter' || params.type === 'volume' || content == null)
+            return content
         if (!filterSearchValue || filterSearchValue.length === 0) return content
         return content.filter((r) => {
             const name = getIn(r, '_source.archive.name')
@@ -851,7 +852,8 @@ const Column = (props) => {
     }, [params.type, content, filterSearchValue])
 
     const directoryVirtualized =
-        params.type === 'directory' &&
+        params.type !== 'filter' &&
+        params.type !== 'volume' &&
         !isMobile &&
         directoryRows != null &&
         directoryRows.length > DIRECTORY_VIRTUALIZE_THRESHOLD
