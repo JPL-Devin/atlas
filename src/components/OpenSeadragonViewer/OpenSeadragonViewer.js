@@ -156,6 +156,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
 
     const openHandlerRef = useRef(null)
     const openFailedHandlerRef = useRef(null)
+    const restoreHandlerRef = useRef(null)
 
     const c = useStyles()
 
@@ -214,6 +215,10 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
             if (openFailedHandlerRef.current) {
                 viewer.removeHandler('open-failed', openFailedHandlerRef.current)
             }
+            if (restoreHandlerRef.current) {
+                viewer.removeHandler('open', restoreHandlerRef.current)
+                restoreHandlerRef.current = null
+            }
             const fullSrc = image.src
             // A smaller render opens first, then swaps once full-res downloads.
             const previewSrc =
@@ -259,11 +264,14 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
                     const zoom = viewer.viewport ? viewer.viewport.getZoom() : null
                     const restore = () => {
                         viewer.removeHandler('open', restore)
+                        if (restoreHandlerRef.current === restore)
+                            restoreHandlerRef.current = null
                         if (center != null && zoom != null) {
                             viewer.viewport.zoomTo(zoom, null, true)
                             viewer.viewport.panTo(center, true)
                         }
                     }
+                    restoreHandlerRef.current = restore
                     viewer.addHandler('open', restore)
                     openUrl(fullSrc)
                 }
@@ -271,6 +279,10 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
             } else openUrl(fullSrc)
             return () => {
                 cancelled = true
+                if (restoreHandlerRef.current) {
+                    viewer.removeHandler('open', restoreHandlerRef.current)
+                    restoreHandlerRef.current = null
+                }
             }
         }
     }, [image.src, image.previewSrc, viewer])
