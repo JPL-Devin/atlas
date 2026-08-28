@@ -1,0 +1,354 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="base.css" />
+        <script src="shell.js"></script>
+        <style>
+            /* The hard case: an old record with no browse image and few fields. The
+               template degrades to the sentence it can actually support. */
+            .content {
+                background: #0b0b0e;
+                overflow: hidden;
+            }
+            .viewer {
+                flex: 1;
+                min-width: 0;
+                background: #0a0a0e;
+            }
+            .noimg {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                flex-flow: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                text-align: center;
+            }
+            .noimg .ic {
+                color: #3a3a44;
+            }
+            .noimg .t {
+                font-size: 15px;
+                font-weight: 700;
+                color: #b9b9c2;
+            }
+            .noimg .x {
+                font-size: 12.5px;
+                line-height: 19px;
+                color: var(--grey500);
+                max-width: 440px;
+            }
+            .noimg .bs {
+                display: flex;
+                gap: 8px;
+                margin-top: 4px;
+            }
+            .noimg .b {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                height: 30px;
+                padding: 0 11px;
+                border-radius: 3px;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--grey150);
+                border: 1px solid var(--grey700);
+                background: #16161b;
+            }
+            .noimg .b.primary {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #fff;
+            }
+            .strip {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 9px 14px;
+                background: #0f0f13;
+                border-top: 1px solid var(--grey700);
+                font-size: 12px;
+                line-height: 18px;
+                color: #c9c9d2;
+            }
+            .panel {
+                width: 480px;
+            }
+            .desc {
+                margin: 0 12px;
+                padding: 10px 12px;
+                border: 1px solid var(--grey700);
+                border-left: 2px solid var(--orange);
+                border-radius: 3px;
+                background: #101015;
+                font-size: 13px;
+                line-height: 20px;
+                color: #dcdce3;
+            }
+            .desc b {
+                color: #fff;
+            }
+            .why {
+                margin: 8px 12px 0 12px;
+                border: 1px solid var(--grey700);
+                border-radius: 4px;
+                overflow: hidden;
+            }
+            .why .wh {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                height: 28px;
+                padding: 0 10px;
+                background: #16161c;
+                border-bottom: 1px solid var(--grey700);
+                font-size: 10.5px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--grey400);
+            }
+            .cl {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 6px 10px;
+                border-bottom: 1px solid #17171c;
+                font-size: 11.8px;
+                color: #c9c9d2;
+            }
+            .cl:last-child {
+                border-bottom: none;
+            }
+            .cl .st {
+                flex: none;
+                width: 62px;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.6px;
+                text-transform: uppercase;
+            }
+            .cl .st.ok {
+                color: var(--green);
+            }
+            .cl .st.skip {
+                color: var(--orange);
+            }
+            .cl code {
+                font-family: 'DejaVu Sans Mono', monospace;
+                font-size: 11px;
+                color: #9fd0ff;
+            }
+            .cl .rz {
+                margin-left: auto;
+                font-size: 10.5px;
+                color: var(--grey500);
+            }
+            .miss {
+                margin: 8px 12px 0 12px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            .miss .m {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                height: 22px;
+                padding: 0 8px;
+                border-radius: 11px;
+                font-size: 11px;
+                color: #ffcc80;
+                border: 1px dashed rgba(255, 152, 0, 0.5);
+                background: rgba(255, 152, 0, 0.07);
+                font-family: 'DejaVu Sans Mono', monospace;
+            }
+            .cnote {
+                margin: 10px 12px 0 12px;
+                padding: 9px 11px;
+                border-radius: 3px;
+                background: rgba(28, 103, 227, 0.1);
+                border: 1px solid rgba(40, 139, 255, 0.35);
+                font-size: 12px;
+                line-height: 18px;
+                color: #cfe0ff;
+            }
+            .empty {
+                margin: 8px 12px 0 12px;
+                padding: 14px;
+                border: 1px dashed var(--grey700);
+                border-radius: 4px;
+                text-align: center;
+                font-size: 12px;
+                line-height: 18px;
+                color: var(--grey500);
+            }
+            a {
+                color: #8ebbff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div data-shell="rail"></div>
+            <div class="main">
+                <div data-shell="topbar"></div>
+                <div data-shell="titlebar" data-name="M0400821.IMG"></div>
+                <div class="tabs">
+                    <div class="tab active">Overview</div>
+                    <div class="tab">Product Label</div>
+                    <div class="tab">
+                        Related Products<span style="opacity: 0.6">&nbsp;&nbsp;0</span>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="tab-right">
+                        <span class="chip gold"
+                            ><span data-icon="warning" data-size="13"></span>Sparse record</span
+                        >
+                        <span class="chip">mgs / moc &middot; 1999</span>
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="viewer">
+                        <div class="noimg">
+                            <span class="ic" data-icon="imageSearch" data-size="64"></span>
+                            <div class="t">No browse image for this product</div>
+                            <div class="x">
+                                The bundle ships the raw <b>.IMG</b> and its label only. Atlas can
+                                render a preview on demand, or you can open the file in the viewer
+                                with a stretch applied.
+                            </div>
+                            <div class="bs">
+                                <div class="b primary">
+                                    <span data-icon="imageSearch" data-size="15"></span>Generate
+                                    preview
+                                </div>
+                                <div class="b">
+                                    <span data-icon="download" data-size="15"></span>Download .IMG
+                                    &middot; 4.1 MB
+                                </div>
+                                <div class="b">
+                                    <span data-icon="code" data-size="15"></span>View PDS3 label
+                                </div>
+                            </div>
+                        </div>
+                        <div class="strip">
+                            Mars Global Surveyor MOC narrow&#8209;angle image
+                            <b>M04-00821</b> &middot; 1999&#8209;03&#8209;07 &middot; no browse
+                            product &middot; 22 label fields
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="sec-head">
+                            Templated description
+                            <span class="hint">mgs / moc &middot; fallback</span>
+                        </div>
+                        <div class="desc">
+                            Mars Global Surveyor&rsquo;s <b>Mars Orbiter Camera</b> acquired this
+                            narrow&#8209;angle image on <b>1999&#8209;03&#8209;07</b> during mapping
+                            orbit <b>400</b>. Bundle <a>mgs-m-moc-na_wa-2-sdp-l0-v1.0</a>, release
+                            4.
+                        </div>
+                        <div class="tmpl-note" style="margin: 7px 12px 0 12px">
+                            <span data-icon="warning" data-size="14"></span>4 of 9 clauses skipped
+                            &mdash; the sentence stays grammatical without them
+                        </div>
+
+                        <div class="sec-head" style="margin-top: 12px">
+                            Why the description is short
+                            <span class="hint"><a>Edit fallback template</a></span>
+                        </div>
+                        <div class="why">
+                            <div class="wh">
+                                <span data-icon="template" data-size="14"></span>Clause resolution
+                            </div>
+                            <div class="cl">
+                                <span class="st ok">rendered</span>
+                                <code>{{spacecraft.display}} {{instrument.display}}</code>
+                                <span class="rz">MGS &middot; MOC&#8209;NA</span>
+                            </div>
+                            <div class="cl">
+                                <span class="st ok">rendered</span>
+                                <code>{{start_time|date}}</code>
+                                <span class="rz">1999&#8209;03&#8209;07</span>
+                            </div>
+                            <div class="cl">
+                                <span class="st ok">rendered</span>
+                                <code>{{orbit_number}}</code>
+                                <span class="rz">400</span>
+                            </div>
+                            <div class="cl">
+                                <span class="st skip">skipped</span>
+                                <code>{{#if sol}} on Sol {{sol}} {{/if}}</code>
+                                <span class="rz">orbiter &mdash; no sol</span>
+                            </div>
+                            <div class="cl">
+                                <span class="st skip">skipped</span>
+                                <code>{{#if site}} from Site {{site}} {{/if}}</code>
+                                <span class="rz">no field</span>
+                            </div>
+                            <div class="cl">
+                                <span class="st skip">skipped</span>
+                                <code>{{#if sun_elevation}} the Sun stood &hellip; {{/if}}</code>
+                                <span class="rz">no field</span>
+                            </div>
+                            <div class="cl">
+                                <span class="st skip">skipped</span>
+                                <code>{{#if sequence_id}} frame {{n}} of {{total}} {{/if}}</code>
+                                <span class="rz">no field</span>
+                            </div>
+                        </div>
+
+                        <div class="sec-head" style="margin-top: 12px">
+                            Fields absent from this label
+                            <span class="hint">never shown as blank rows</span>
+                        </div>
+                        <div class="miss">
+                            <span class="m">sol</span><span class="m">site</span
+                            ><span class="m">drive</span><span class="m">local_true_solar_time</span
+                            ><span class="m">sun_elevation</span><span class="m">sequence_id</span
+                            ><span class="m">filter_bandpass</span
+                            ><span class="m">browse_file</span>
+                        </div>
+
+                        <div class="cnote">
+                            Missing values collapse instead of rendering &ldquo;Sol
+                            <i>undefined</i>&rdquo;. Only the 22 fields this product actually has
+                            appear in the panel, so the record does not look broken next to a Mars
+                            2020 one.
+                        </div>
+
+                        <div class="sec-head" style="margin-top: 12px">
+                            Related products <span class="hint">0 matches</span>
+                        </div>
+                        <div class="empty">
+                            No sequence, sol or site to relate on.<br />
+                            <a>Browse orbit 400</a> &middot; <a>Browse this bundle</a>
+                        </div>
+
+                        <div style="flex: 1"></div>
+                        <div class="actions">
+                            <div class="btn primary">
+                                <span data-icon="download" data-size="16"></span>Download
+                            </div>
+                            <div class="btn">
+                                <span data-icon="cart" data-size="16"></span>Add to cart
+                            </div>
+                            <div class="btn">
+                                <span data-icon="quote" data-size="16"></span>Copy caption
+                            </div>
+                            <div class="btn">
+                                <span data-icon="link" data-size="16"></span>Share
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

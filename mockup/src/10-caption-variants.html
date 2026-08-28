@@ -1,0 +1,392 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="base.css" />
+        <script src="shell.js"></script>
+        <style>
+            /* Every rendered variant of the one template shown on the record page,
+               each with its own copy action and length budget. */
+            .content {
+                background: #0b0b0e;
+                overflow: hidden;
+            }
+            .viewer {
+                flex: none;
+                width: 560px;
+                border-right: 1px solid var(--grey700);
+            }
+            .viewer img.frame {
+                width: 100%;
+                height: 100%;
+                max-width: none;
+                max-height: none;
+                object-fit: cover;
+            }
+            .vcap {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 30px 12px 10px 12px;
+                background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0));
+                font-size: 12px;
+                line-height: 17px;
+                color: #e2e2e8;
+            }
+            .vcap b {
+                display: block;
+                font-size: 13px;
+                color: #fff;
+                margin-bottom: 2px;
+            }
+            .rside {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                flex-flow: column;
+            }
+            .bar {
+                flex: none;
+                height: 42px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 0 14px;
+                background: #131318;
+                border-bottom: 1px solid var(--grey700);
+            }
+            .bar .grow {
+                flex: 1;
+            }
+            .sel {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                height: 27px;
+                padding: 0 10px;
+                background: #0a0a0d;
+                border: 1px solid var(--grey700);
+                border-radius: 3px;
+                font-size: 12px;
+                color: #dededf;
+            }
+            .list {
+                flex: 1;
+                min-height: 0;
+                padding: 12px 14px;
+                display: flex;
+                flex-flow: column;
+                gap: 10px;
+                overflow: hidden;
+            }
+            .vr {
+                border: 1px solid var(--grey700);
+                border-radius: 4px;
+                background: #101015;
+                overflow: hidden;
+            }
+            .vr .vh {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 6px 10px;
+                background: #16161c;
+                border-bottom: 1px solid var(--grey700);
+                font-size: 10.5px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--grey300);
+            }
+            .vr .vh .where {
+                font-weight: 500;
+                letter-spacing: 0.2px;
+                text-transform: none;
+                color: var(--grey500);
+            }
+            .vr .vh .grow {
+                flex: 1;
+            }
+            .vr .vb {
+                padding: 9px 11px;
+                font-size: 12.7px;
+                line-height: 19px;
+                color: #dddde4;
+            }
+            .vr .vb.mono {
+                font-family: 'DejaVu Sans Mono', monospace;
+                font-size: 11.5px;
+                line-height: 18px;
+                color: #cfe0ff;
+                background: #0a0a0e;
+            }
+            .vr .vb.mono.src {
+                margin: 0;
+                white-space: pre-wrap;
+                font-size: 10.8px;
+                line-height: 17px;
+            }
+            .len {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 10.5px;
+                color: var(--grey500);
+            }
+            .meter {
+                width: 74px;
+                height: 4px;
+                border-radius: 2px;
+                background: #26262d;
+                overflow: hidden;
+            }
+            .meter i {
+                display: block;
+                height: 100%;
+                background: var(--accent2);
+            }
+            .meter i.warn {
+                background: var(--orange);
+            }
+            .cp {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 10.5px;
+                color: #9dc6ff;
+            }
+            .filled {
+                color: #fff;
+                border-bottom: 1px solid rgba(142, 187, 255, 0.5);
+            }
+            .foot {
+                flex: none;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 0 14px;
+                background: #08080b;
+                border-top: 1px solid var(--grey700);
+                font-size: 11px;
+                color: var(--grey400);
+            }
+            .foot .grow {
+                flex: 1;
+            }
+            a {
+                color: #8ebbff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div data-shell="rail"></div>
+            <div class="main">
+                <div data-shell="topbar"></div>
+                <div
+                    data-shell="titlebar"
+                    data-name="ZRF_1221_0775339022_769RZS_N0561010ZCAM09271_0630LMJ01.IMG"
+                ></div>
+                <div class="tabs">
+                    <div class="tab active">Overview</div>
+                    <div class="tab">Product Label</div>
+                    <div class="tab">
+                        Related Products<span style="opacity: 0.6">&nbsp;&nbsp;18</span>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="tab-right">
+                        <span class="chip blue"
+                            ><span data-icon="quote" data-size="13"></span>Caption variants</span
+                        >
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="viewer">
+                        <img class="frame" src="../assets/zcam-sol1221.jpg" />
+                        <div data-shell="osd"></div>
+                        <div class="vcap">
+                            <b>Mastcam&#8209;Z Right &mdash; Sol 1221, 13:08 LTST</b>
+                            The overlay uses the <i>short</i> variant so it stays on one line at any
+                            window width.
+                        </div>
+                    </div>
+
+                    <div class="rside">
+                        <div class="bar">
+                            <span class="sel"
+                                ><span data-icon="template" data-size="15"></span>mars_2020 / zcam /
+                                calibrated &middot; v4<span
+                                    data-icon="chevronDown"
+                                    data-size="15"
+                                ></span
+                            ></span>
+                            <span class="tmpl-note"
+                                ><span data-icon="check" data-size="14"></span>11 of 12 tokens
+                                resolved</span
+                            >
+                            <span class="tmpl-note"
+                                ><span data-icon="warning" data-size="14"></span>filter_bandpass
+                                clause skipped</span
+                            >
+                            <div class="grow"></div>
+                            <span class="tmpl-note"><a>Edit template</a></span>
+                            <span class="tmpl-note"><a>Copy all variants</a></span>
+                        </div>
+
+                        <div class="list">
+                            <div class="vr">
+                                <div class="vh">
+                                    <span data-icon="file" data-size="14"></span>Description
+                                    <span class="where">&middot; panel, search result hover</span>
+                                    <div class="grow"></div>
+                                    <span class="len"
+                                        >412 / 600<span class="meter"
+                                            ><i style="width: 69%"></i></span
+                                    ></span>
+                                    <span class="cp"
+                                        ><span data-icon="copy" data-size="13"></span>Copy</span
+                                    >
+                                </div>
+                                <div class="vb">
+                                    <span class="filled">Perseverance</span> acquired this
+                                    <span class="filled">radiometrically calibrated</span>
+                                    <span class="filled">Mastcam&#8209;Z Right</span> frame on
+                                    <span class="filled">Sol 1221</span>
+                                    (<span class="filled">2024&#8209;07&#8209;27 08:13:07 UTC</span
+                                    >, <span class="filled">13:08:26</span> local true solar time)
+                                    from <span class="filled">Site 56, Drive 1010</span>. The Sun
+                                    stood <span class="filled">46.5&deg;</span> above the horizon at
+                                    Ls <span class="filled">300.8&deg;</span>.
+                                </div>
+                            </div>
+
+                            <div class="vr">
+                                <div class="vh">
+                                    <span data-icon="quote" data-size="14"></span>Short caption
+                                    <span class="where"
+                                        >&middot; viewer overlay, cards, filmstrip</span
+                                    >
+                                    <div class="grow"></div>
+                                    <span class="len"
+                                        >88 / 90<span class="meter"
+                                            ><i class="warn" style="width: 97%"></i></span
+                                    ></span>
+                                    <span class="cp"
+                                        ><span data-icon="copy" data-size="13"></span>Copy</span
+                                    >
+                                </div>
+                                <div class="vb">
+                                    Mastcam&#8209;Z Right, Sol 1221, 13:08 LTST &middot; Site 56,
+                                    Drive 1010 &middot; calibrated RZS
+                                </div>
+                            </div>
+
+                            <div class="vr">
+                                <div class="vh">
+                                    <span data-icon="info" data-size="14"></span>Alt text
+                                    <span class="where"
+                                        >&middot; screen readers, alt attribute</span
+                                    >
+                                    <div class="grow"></div>
+                                    <span class="len"
+                                        >104 / 125<span class="meter"
+                                            ><i style="width: 83%"></i></span
+                                    ></span>
+                                    <span class="cp"
+                                        ><span data-icon="copy" data-size="13"></span>Copy</span
+                                    >
+                                </div>
+                                <div class="vb">
+                                    Rocky Martian ground with wind-blown sand, imaged by
+                                    Perseverance Mastcam&#8209;Z Right on Sol 1221 from Site 56.
+                                </div>
+                            </div>
+
+                            <div class="vr">
+                                <div class="vh">
+                                    <span data-icon="star" data-size="14"></span>Social / press
+                                    <span class="where">&middot; share sheet, og:description</span>
+                                    <div class="grow"></div>
+                                    <span class="len"
+                                        >176 / 280<span class="meter"
+                                            ><i style="width: 63%"></i></span
+                                    ></span>
+                                    <span class="cp"
+                                        ><span data-icon="copy" data-size="13"></span>Copy</span
+                                    >
+                                </div>
+                                <div class="vb">
+                                    Sol 1221 on Mars: Perseverance&rsquo;s Mastcam&#8209;Z looked
+                                    east across a rocky bench just after local noon, with the Sun
+                                    46&deg; up. Calibrated frame 4 of 18 in sequence ZCAM09271.
+                                </div>
+                            </div>
+
+                            <div class="vr">
+                                <div class="vh">
+                                    <span data-icon="code" data-size="14"></span>Citation
+                                    <span class="where">&middot; copy citation, BibTeX export</span>
+                                    <div class="grow"></div>
+                                    <span class="len">DOI resolved</span>
+                                    <span class="cp"
+                                        ><span data-icon="copy" data-size="13"></span>Copy</span
+                                    >
+                                </div>
+                                <div class="vb mono">
+                                    Mars 2020 Mastcam-Z Team (2024). ZRF_1221_0775339022_769RZS
+                                    (Sol&nbsp;1221), mars2020_mastcamz_ops_calibrated, release 11.
+                                    NASA PDS Cartography and Imaging Sciences Node.
+                                    doi:10.17189/1522643
+                                </div>
+                            </div>
+
+                            <div class="vr">
+                                <div class="vh">
+                                    <span data-icon="code" data-size="14"></span>Template source
+                                    <span class="where"
+                                        >&middot; one source renders all five variants</span
+                                    >
+                                    <div class="grow"></div>
+                                    <span class="len"
+                                        >v4 &middot; edited 2025&#8209;03&#8209;18</span
+                                    >
+                                    <span class="cp"
+                                        ><span data-icon="template" data-size="13"></span>Open in
+                                        studio</span
+                                    >
+                                </div>
+                                <pre class="vb mono src">
+short: {{instrument.display}}, Sol {{sol}}, {{ltst|time}} &middot; Site {{site}},
+       Drive {{drive}} &middot; {{processing.level|lower}} {{product_type}}
+
+body:  {{spacecraft.display}} acquired this {{processing.level|lower}} {{instrument.display}}
+       frame on Sol {{sol}} ({{start_time|date}}, {{ltst}} local true solar time)
+       from Site {{site}}, Drive {{drive}}.{{#if sun_elevation}} The Sun stood
+       {{sun_elevation|round(1)}}&deg; above the horizon at Ls {{solar_longitude|round(1)}}&deg;.{{/if}}
+       {{#if filter_bandpass}} Filter {{filter_name}} passes {{filter_bandpass}}.{{/if}}
+
+alt:   {{scene.labels|list(2)}}, imaged by {{spacecraft.short}} {{instrument.display}}
+       on Sol {{sol}}
+</pre>
+                            </div>
+                        </div>
+
+                        <div class="foot">
+                            <span
+                                >Variants render from one source &mdash; editing the template
+                                updates all five</span
+                            >
+                            <div class="grow"></div>
+                            <span
+                                >Maintained by <b>PDS Imaging Node</b> &middot; last saved
+                                2025&#8209;03&#8209;18</span
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

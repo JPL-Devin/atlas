@@ -1,0 +1,311 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="base.css" />
+        <script src="shell.js"></script>
+        <style>
+            /* Read-first layout: the record becomes a document instead of two
+               fixed panes. Description leads, image is inline, fields follow. */
+            .content {
+                background: #0c0c10;
+                display: block;
+                overflow: hidden;
+            }
+            .doc {
+                width: 1180px;
+                margin: 0 auto;
+                padding: 22px 0 0 0;
+            }
+            .kicker {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 11px;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--grey400);
+            }
+            h1 {
+                margin: 8px 0 0 0;
+                font-size: 27px;
+                line-height: 33px;
+                font-weight: 700;
+                color: #fff;
+                letter-spacing: -0.2px;
+            }
+            .standfirst {
+                margin-top: 9px;
+                font-size: 15px;
+                line-height: 24px;
+                color: #c9c9d2;
+                max-width: 940px;
+            }
+            .standfirst .filled {
+                color: #fff;
+                border-bottom: 1px solid rgba(142, 187, 255, 0.55);
+            }
+            .byline {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                margin-top: 12px;
+                padding: 8px 0;
+                border-top: 1px solid #212127;
+                border-bottom: 1px solid #212127;
+                font-size: 11.5px;
+                color: var(--grey400);
+            }
+            .byline b {
+                color: var(--grey200);
+                font-weight: 600;
+            }
+            .byline .grow {
+                flex: 1;
+            }
+            .figure {
+                margin-top: 16px;
+                position: relative;
+                height: 424px;
+                background: #06060a;
+                border: 1px solid var(--grey700);
+                border-radius: 4px;
+                overflow: hidden;
+            }
+            .figure img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .figure .tools {
+                position: absolute;
+                right: 10px;
+                top: 10px;
+                display: flex;
+                gap: 6px;
+            }
+            .vbtn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                height: 27px;
+                padding: 0 9px;
+                font-size: 11px;
+                font-weight: 600;
+                color: var(--grey150);
+                background: rgba(18, 18, 22, 0.82);
+                border: 1px solid var(--grey700);
+                border-radius: 3px;
+            }
+            .figcap {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 9px 2px 0 2px;
+                font-size: 12.5px;
+                line-height: 18px;
+                color: var(--grey300);
+            }
+            .figcap .num {
+                flex: none;
+                font-weight: 700;
+                color: var(--grey150);
+            }
+            .figcap .src {
+                flex: none;
+                color: var(--grey500);
+                font-size: 11px;
+            }
+            .cols {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 18px;
+                margin-top: 16px;
+            }
+            .col h2 {
+                margin: 0 0 6px 0;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--grey400);
+            }
+            .col .rows {
+                border-top: 1px solid #212127;
+            }
+            .col .rows .row {
+                padding: 5px 0;
+                border-bottom: 1px solid #17171c;
+            }
+            .col .rows .row:nth-child(odd) {
+                background: none;
+            }
+            .more {
+                margin-top: 8px;
+                font-size: 11.5px;
+                color: #8ebbff;
+            }
+            a {
+                color: #8ebbff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div data-shell="rail"></div>
+            <div class="main">
+                <div data-shell="topbar"></div>
+                <div
+                    data-shell="titlebar"
+                    data-name="ZRF_1221_0775339022_769RZS_N0561010ZCAM09271_0630LMJ01.IMG"
+                ></div>
+                <div class="tabs">
+                    <div class="tab active">Overview</div>
+                    <div class="tab">Product Label</div>
+                    <div class="tab">
+                        Related Products<span style="opacity: 0.6">&nbsp;&nbsp;18</span>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="tab-right">
+                        <span class="chip blue"
+                            ><span data-icon="template" data-size="13"></span>Document layout</span
+                        >
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="doc">
+                        <div class="kicker">
+                            <span data-icon="template" data-size="14"></span>
+                            Templated title &middot; mars_2020 / zcam / calibrated
+                        </div>
+                        <h1>Mastcam&#8209;Z Right &mdash; Sol 1221, 13:08 LTST, Site 56</h1>
+                        <div class="standfirst">
+                            <span class="filled">Perseverance</span> acquired this
+                            <span class="filled">radiometrically calibrated</span>
+                            <span class="filled">Mastcam&#8209;Z Right</span> frame on
+                            <span class="filled">Sol 1221</span>
+                            (<span class="filled">2024&#8209;07&#8209;27 08:13:07 UTC</span>,
+                            <span class="filled">13:08:26</span> local true solar time) from
+                            <span class="filled">Site 56, Drive 1010</span>, the fourth of eighteen
+                            frames in sequence <span class="filled">ZCAM09271</span>.
+                        </div>
+                        <div class="byline">
+                            <span
+                                >Bundle <b>mars2020_mastcamz_ops_calibrated</b> &middot; release
+                                <b>11</b></span
+                            >
+                            <span>Version <b>1.0</b> &middot; 3 versions</span>
+                            <span class="grow"></span>
+                            <span class="tmpl-note"
+                                ><span data-icon="check" data-size="14"></span>11 of 12 tokens
+                                resolved</span
+                            >
+                            <span class="tmpl-note"
+                                ><span data-icon="warning" data-size="14"></span>filter_bandpass
+                                absent &mdash; clause skipped</span
+                            >
+                            <span class="tmpl-note"><a>Edit template</a></span>
+                        </div>
+
+                        <div class="figure">
+                            <img src="../assets/zcam-sol1221.jpg" />
+                            <div class="tools">
+                                <div class="vbtn">
+                                    <span data-icon="fullscreen" data-size="14"></span>Open viewer
+                                </div>
+                                <div class="vbtn">
+                                    <span data-icon="layers" data-size="14"></span>Overlays
+                                </div>
+                                <div class="vbtn">
+                                    <span data-icon="download" data-size="14"></span>Download
+                                </div>
+                            </div>
+                        </div>
+                        <div class="figcap">
+                            <span class="num">Fig 1.</span>
+                            <span
+                                >Rocky ground east of the rover, imaged 88.5&deg; azimuth and
+                                &minus;13.6&deg; elevation with the Sun 46.5&deg; above the horizon
+                                at Ls 300.8&deg;. Caption rendered from
+                                <a>caption.mars_2020.zcam</a>.</span
+                            >
+                            <span class="grow" style="flex: 1"></span>
+                            <span class="src">NASA / JPL&#8209;Caltech / ASU / MSSS</span>
+                        </div>
+
+                        <div class="cols">
+                            <div class="col">
+                                <h2>Observation</h2>
+                                <div class="rows">
+                                    <div class="row">
+                                        <div class="k">Sol</div>
+                                        <div class="v">1221</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="k">Start (UTC)</div>
+                                        <div class="v">2024-07-27 08:13:07.872</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="k">LTST</div>
+                                        <div class="v">13:08:26</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="k">Sequence</div>
+                                        <div class="v">ZCAM09271</div>
+                                    </div>
+                                </div>
+                                <div class="more">All 9 observation fields</div>
+                            </div>
+                            <div class="col">
+                                <h2>Instrument &amp; product</h2>
+                                <div class="rows">
+                                    <div class="row">
+                                        <div class="k">Instrument</div>
+                                        <div class="v">MCZ_RIGHT</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="k">Product type</div>
+                                        <div class="v">RZS &middot; calibrated</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="k">Filter</div>
+                                        <div class="v" style="color: var(--grey500)">
+                                            not in label
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="k">Files</div>
+                                        <div class="v">IMG &middot; XML &middot; PNG</div>
+                                    </div>
+                                </div>
+                                <div class="more">All 12 instrument fields</div>
+                            </div>
+                            <div class="col">
+                                <h2>Geometry &amp; lighting</h2>
+                                <div class="rows">
+                                    <div class="row">
+                                        <div class="k">Site / drive</div>
+                                        <div class="v">56 / 1010</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="k">Azimuth</div>
+                                        <div class="v">88.4651&deg;</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="k">Elevation</div>
+                                        <div class="v">&minus;13.6295&deg;</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="k">Sun elev / Ls</div>
+                                        <div class="v">46.5478&deg; / 300.815&deg;</div>
+                                    </div>
+                                </div>
+                                <div class="more">All 11 geometry fields</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
