@@ -157,6 +157,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
     const openHandlerRef = useRef(null)
     const openFailedHandlerRef = useRef(null)
     const restoreHandlerRef = useRef(null)
+    const showingPreviewRef = useRef(false)
 
     const c = useStyles()
 
@@ -225,6 +226,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
                 image.previewSrc && image.previewSrc !== fullSrc ? image.previewSrc : null
             let cancelled = false
             let showingPreview = false
+            showingPreviewRef.current = false
             const openUrl = (url) =>
                 viewer.open({
                     type: 'image',
@@ -235,12 +237,14 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
                 setImageLoading(false)
                 const so = viewer.svgOverlay()
                 setSvgOverlay(so)
-                drawFeatures(so, features)
+                // Features are scaled to full-res, so skip drawing over the preview.
+                if (!showingPreviewRef.current) drawFeatures(so, features)
             }
             const handleOpenFailed = function () {
                 // A missing preview size falls straight through to full-res.
                 if (showingPreview) {
                     showingPreview = false
+                    showingPreviewRef.current = false
                     openUrl(fullSrc)
                     return
                 }
@@ -254,11 +258,13 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
             viewer.addHandler('open-failed', handleOpenFailed)
             if (previewSrc) {
                 showingPreview = true
+                showingPreviewRef.current = true
                 openUrl(previewSrc)
                 const fullImg = new Image()
                 fullImg.onload = () => {
                     if (cancelled || !showingPreview) return
                     showingPreview = false
+                    showingPreviewRef.current = false
                     // Keep the user's viewport across the preview → full swap.
                     const center = viewer.viewport ? viewer.viewport.getCenter() : null
                     const zoom = viewer.viewport ? viewer.viewport.getZoom() : null
@@ -275,6 +281,14 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
                     viewer.addHandler('open', restore)
                     openUrl(fullSrc)
                 }
+                // A failed preload still attempts a viewer open so the normal
+                // open-failed path reports the error.
+                fullImg.onerror = () => {
+                    if (cancelled || !showingPreview) return
+                    showingPreview = false
+                    showingPreviewRef.current = false
+                    openUrl(fullSrc)
+                }
                 fullImg.src = fullSrc
             } else openUrl(fullSrc)
             return () => {
@@ -288,7 +302,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
     }, [image.src, image.previewSrc, viewer])
 
     useEffect(() => {
-        if (viewer && svgOverlay) {
+        if (viewer && svgOverlay && !showingPreviewRef.current) {
             drawFeatures(viewer.svgOverlay(), features)
         }
     }, [features, viewer, svgOverlay])
