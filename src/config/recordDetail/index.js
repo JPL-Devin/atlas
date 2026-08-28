@@ -1,10 +1,7 @@
 import emptyStates from './emptyStates.json'
-import fields from './fields.json'
-import icons from './icons.json'
 import otherFields from './otherFields.json'
 import sections from './sections.json'
 import validity from './validity.json'
-import mappingSnapshot from './mappingSnapshot.json'
 
 import _default from './profiles/_default.json'
 import cas from './profiles/cas.json'
@@ -19,25 +16,6 @@ import msl_pds4 from './profiles/msl.pds4.json'
 import ody from './profiles/ody.json'
 
 import raws from './instances/raws.json'
-
-import mars_2020_filename from './filenames/mars_2020.json'
-import cas_filename from './filenames/cas.json'
-import ch1_filename from './filenames/ch1.json'
-import clem_filename from './filenames/clem.json'
-import go_filename from './filenames/go.json'
-import juno_filename from './filenames/juno.json'
-import lcro_filename from './filenames/lcro.json'
-import lo_filename from './filenames/lo.json'
-import lro_filename from './filenames/lro.json'
-import mer_filename from './filenames/mer.json'
-import mess_filename from './filenames/mess.json'
-import mgs_filename from './filenames/mgs.json'
-import mpf_filename from './filenames/mpf.json'
-import mro_filename from './filenames/mro.json'
-import ody_filename from './filenames/ody.json'
-import msl_filename from './filenames/msl.json'
-import nsyt_filename from './filenames/nsyt.json'
-import phx_filename from './filenames/phx.json'
 
 // Keyed by `<mission>` or `<mission>.<pds_standard>`; the standard-specific
 // profile is merged over the mission one when both exist.
@@ -62,27 +40,4 @@ export const instanceProfiles = {
 
 export const defaultProfile = _default
 
-// Filename naming conventions, keyed by `<mission>` or `<mission>.<pds_standard>`.
-// A mission with no spec renders its filename as plain text.
-export const filenameSpecs = {
-    cas: cas_filename,
-    ch1: ch1_filename,
-    clem: clem_filename,
-    go: go_filename,
-    juno: juno_filename,
-    lcro: lcro_filename,
-    lo: lo_filename,
-    lro: lro_filename,
-    mars_2020: mars_2020_filename,
-    mer: mer_filename,
-    mess: mess_filename,
-    mgs: mgs_filename,
-    mpf: mpf_filename,
-    mro: mro_filename,
-    msl: msl_filename,
-    nsyt: nsyt_filename,
-    ody: ody_filename,
-    phx: phx_filename,
-}
-
-export { emptyStates, fields, icons, otherFields, sections, validity, mappingSnapshot }
+export { emptyStates, otherFields, sections, validity }

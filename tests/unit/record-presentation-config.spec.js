@@ -3,13 +3,12 @@ import { test, expect } from '@playwright/test'
 import {
     defaultProfile,
     emptyStates,
-    fields,
-    icons,
     instanceProfiles,
-    mappingSnapshot,
     profiles,
     sections,
 } from '../../src/config/recordDetail'
+import fields from '../../src/config/fields.json'
+import mappingSnapshot from '../fixtures/es-mapping-snapshot.json'
 import { FORMATTER_NAMES } from '../../src/core/recordPresentation'
 import { TOKEN } from '../../src/core/recordPresentation/resolve'
 import tileIcons from '../../src/pages/Record/Content/Views/Overview/tileIcons.js'
@@ -94,8 +93,7 @@ test.describe('record detail config', () => {
 
     test('every catalogued field has an icon the UI can render', () => {
         Object.entries(fields).forEach(([path, field]) => {
-            expect(icons, `${path} has an unknown icon`).toContain(field.icon)
-            expect(tileIcons[field.icon], `${field.icon} has no component`).toBeTruthy()
+            expect(tileIcons[field.icon], `${path} has an unknown icon`).toBeTruthy()
         })
     })
 

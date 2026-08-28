@@ -1,5 +1,5 @@
 import { getIn } from '../utils'
-import { filenameSpecs } from '../../config/recordDetail'
+import { filenameLoaders } from '../../config/filenames'
 
 const CAPTURE = /\{(number|value|[1-9])\}/g
 
@@ -35,14 +35,38 @@ const describeValue = (segment, value) => {
     return {}
 }
 
+// Grammars loaded so far, filled by loadFilenameSpec.
+const loaded = {}
+
+const keysFor = (mission, pds_standard) =>
+    [`${mission}.${pds_standard}`, `${mission}`].filter((key) => filenameLoaders[key] != null)
+
 /**
  * The mission's spec, or the PDS-standard-specific one when both exist. A
  * mission whose products follow several conventions registers them as a list.
+ * Null until the grammar has been loaded, so callers must await loadFilenameSpec.
  */
 export const resolveFilenameSpec = ({ mission, pds_standard } = {}) => {
     if (!mission) return null
-    const specific = filenameSpecs[`${mission}.${pds_standard}`]
-    return specific != null ? specific : filenameSpecs[mission] || null
+    const specific = loaded[`${mission}.${pds_standard}`]
+    return specific != null ? specific : loaded[mission] || null
+}
+
+// Registers grammars without fetching their chunks, for tests and tooling.
+export const primeFilenameSpecs = (specs) => Object.assign(loaded, specs)
+
+// Fetches the record's grammar chunk, then resolves its spec.
+export const loadFilenameSpec = async ({ mission, pds_standard } = {}) => {
+    if (!mission) return null
+    await Promise.all(
+        keysFor(mission, pds_standard)
+            .filter((key) => loaded[key] === undefined)
+            .map(async (key) => {
+                const spec = await filenameLoaders[key]()
+                loaded[key] = spec.default || spec
+            })
+    )
+    return resolveFilenameSpec({ mission, pds_standard })
 }
 
 const parseOne = (filename, spec) => {
@@ -100,8 +124,6 @@ export const parseFilename = (filename, spec) => {
     return null
 }
 
-const first = (value) => (Array.isArray(value) ? value[0] : value)
-
 const PRODUCT_TYPE = 'product type'
 
 // The product type code the filename carries, with the mission's own wording
@@ -115,13 +137,15 @@ export const readProductType = (parsed) => {
     return { code: piece.text, color: piece.color, meaning }
 }
 
+const first = (value) => (Array.isArray(value) ? value[0] : value)
+
+// The mission and standard that pick a record's grammar.
+export const readFilenameKey = (recordData) => ({
+    mission: first(getIn(recordData, 'gather.common.mission')),
+    pds_standard: first(getIn(recordData, 'gather.pds_archive.pds_standard')),
+})
+
 // Resolves the spec from the record itself, so callers share one gate on
 // whether a filename has a breakdown at all.
 export const parseRecordFilename = (filename, recordData) =>
-    parseFilename(
-        filename,
-        resolveFilenameSpec({
-            mission: first(getIn(recordData, 'gather.common.mission')),
-            pds_standard: first(getIn(recordData, 'gather.pds_archive.pds_standard')),
-        })
-    )
+    parseFilename(filename, resolveFilenameSpec(readFilenameKey(recordData)))

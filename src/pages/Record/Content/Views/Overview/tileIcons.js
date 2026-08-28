@@ -13,7 +13,7 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunchOutlined'
 import TrackChangesIcon from '@mui/icons-material/TrackChanges'
 import WbSunnyIcon from '@mui/icons-material/WbSunnyOutlined'
 
-/** Field-catalog icon names (`src/config/recordDetail/icons.json`) → components. */
+/** Field-catalog icon names (`src/config/fields.json`) → components. */
 const tileIcons = {
     angle: ArchitectureIcon,
     archive: InventoryIcon,

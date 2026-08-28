@@ -1,4 +1,4 @@
-import sisConfig from '../config/recordDetail/sis.json'
+import sisConfig from '../config/sis.json'
 
 const documents = sisConfig.documents || {}
 const gaps = sisConfig.gaps || []

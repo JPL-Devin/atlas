@@ -1,4 +1,5 @@
-import { fields, otherFields as config } from '../../config/recordDetail'
+import fields from '../../config/fields.json'
+import { otherFields as config } from '../../config/recordDetail'
 import { formatValue } from './formatters'
 import { isValidValue } from './validity'
 

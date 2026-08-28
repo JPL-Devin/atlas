@@ -1,11 +1,18 @@
 import { test, expect } from '@playwright/test'
 
-import { parseFilename, resolveFilenameSpec } from '../../src/core/recordPresentation'
-import { filenameSpecs } from '../../src/config/recordDetail'
+import {
+    parseFilename,
+    primeFilenameSpecs,
+    resolveFilenameSpec,
+} from '../../src/core/recordPresentation'
+import { filenameSpecs } from '../../src/config/filenames/all'
 
 import mars2020Navcam from '../fixtures/records/mars2020-navcam.json'
 import mslPds3 from '../fixtures/records/msl-pds3-mastcam.json'
 import mgsMoc from '../fixtures/records/mgs-moc.json'
+
+// The app loads a grammar per mission on demand; tests want them all up front.
+primeFilenameSpecs(filenameSpecs)
 
 const m20 = filenameSpecs.mars_2020
 const variantsOf = (spec) => (Array.isArray(spec) ? spec : [spec])

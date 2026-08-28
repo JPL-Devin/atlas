@@ -1394,10 +1394,10 @@ differences, all driven by review feedback after the assessment was written.
 
 | Path | Purpose |
 |---|---|
-| `src/config/recordDetail/fields.json` | Field catalog (§4.4): label, shortLabel, format, unit, precision, numeric domain, per normalized path |
+| `src/config/fields.json` | Field catalog (§4.4): label, shortLabel, format, unit, precision, numeric domain, per normalized path |
 | `src/config/recordDetail/validity.json` | Global sentinel / null-ish rejection (§5) |
 | `src/config/recordDetail/emptyStates.json` | No-browse copy variants (§6.1) |
-| `src/config/recordDetail/mappingSnapshot.json` | 171 `gather.*` / `archive.*` leaf paths from the live `_mapping`, so validation can fail on a path the index doesn't have |
+| `tests/fixtures/es-mapping-snapshot.json` | 171 `gather.*` / `archive.*` leaf paths from the live `_mapping`, so validation can fail on a path the index doesn't have |
 | `src/config/recordDetail/profiles/*.json` | `_default` plus mission and mission.`pds_standard` profiles |
 | `src/config/recordDetail/instances/raws.json` | RAWS app-instance override (§12.3) |
 | `src/core/recordPresentation/` | Resolver, formatters, validity gate |
@@ -1427,7 +1427,7 @@ smaller secondary line (`Sol 1279 / Ls 334.8°`, `11:45 / LMST 12:36`). Shipped
 tiles reproduce all three without breaking the normalized-paths-only rule:
 
 - Every catalogued field carries an `icon` name from
-  `src/config/recordDetail/icons.json`, mapped to a MUI component in
+  `src/config/fields.json`, mapped to a MUI component in
   `src/pages/Record/Content/Views/Overview/tileIcons.js`. Names are an
   allowlist, not a dynamic import, and validation fails on an unknown one.
 - A profile tile entry is either a path string or `{ path, sub }`, where `sub`
@@ -1638,7 +1638,7 @@ The top of the metadata panel renders the source product filename as labelled,
 colour-coded segments from a per-mission naming convention config. Mars 2020
 ships first.
 
-- **Config**: `src/config/recordDetail/filenames/<mission>.json`, keyed in
+- **Config**: `src/config/filenames/<mission>.json`, keyed in
   `filenameSpecs` by `<mission>` or `<mission>.<pds_standard>`, so a mission can
   ship one spec per PDS standard when the conventions diverge. Missions with no
   spec render the plain filename — nothing else changes for them.

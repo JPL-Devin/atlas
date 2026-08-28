@@ -1,6 +1,6 @@
+import fields from '../../config/fields.json'
 import {
     defaultProfile,
-    fields,
     instanceProfiles,
     profiles,
     sections as sectionGroups,
