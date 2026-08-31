@@ -780,6 +780,7 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
             ES_PATHS.product_type.join('.'),
             ES_PATHS.start_time.join('.'),
             ES_PATHS.ml_classifications.join('.'),
+            ES_PATHS.ml_novelty_score.join('.'),
         ]
 
         if (resultsTable?.columns?.length > 0) {
@@ -792,7 +793,11 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
             size: resultsPerPage,
             sort: [
                 {
-                    [resultSorting.field]: resultSorting.direction,
+                    [resultSorting.field]: {
+                        order: resultSorting.direction,
+                        missing: '_last',
+                        unmapped_type: 'keyword',
+                    },
                     [ES_PATHS.uri.join('.')]: 'asc',
                     [ES_PATHS.release_id.join('.')]: 'desc',
                 },

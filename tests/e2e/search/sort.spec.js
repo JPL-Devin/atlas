@@ -41,6 +41,34 @@ test.describe('Search - sort control', () => {
         expect(filterCriticalJsErrors(errors)).toEqual([])
     })
 
+    test('the default search sorts by novelty score, highest first', async ({ page }) => {
+        const sorts = []
+
+        await page.route(/_search/, async (route) => {
+            const body = route.request().postDataJSON()
+            if (body?.sort) sorts.push(body.sort)
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ hits: { total: { value: 0 }, hits: [] } }),
+            })
+        })
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        await expect.poll(() => sorts.length, { timeout: 20_000 }).toBeGreaterThan(0)
+
+        const novelty = sorts.find(
+            (sort) => sort[0]?.['gather.machine_learning.novelty.score'] != null
+        )
+        expect(novelty).toBeDefined()
+        expect(novelty[0]['gather.machine_learning.novelty.score']).toMatchObject({
+            order: 'desc',
+            missing: '_last',
+        })
+    })
+
     test('the chevron next to Sort opens a menu of options', async ({ page }) => {
         const errors = []
         page.on('pageerror', (e) => errors.push(e.message))

@@ -740,6 +740,13 @@
         "icon": "layers",
         "format": "text"
     },
+    "gather.machine_learning.novelty.score": {
+        "label": "Novelty score",
+        "shortLabel": "Novelty",
+        "description": "Machine-learned novelty ranking; higher scores indicate more unusual imagery.",
+        "icon": "layers",
+        "format": "number"
+    },
     "gather.cassini_content.image_class": {
         "label": "Image class",
         "icon": "layers",
