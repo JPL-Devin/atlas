@@ -11,8 +11,6 @@ import Popper from '@mui/material/Popper'
 import MenuItem from '@mui/material/MenuItem'
 import MenuList from '@mui/material/MenuList'
 import Checkbox from '@mui/material/Checkbox'
-import Divider from '@mui/material/Divider'
-import ListSubheader from '@mui/material/ListSubheader'
 
 import { makeStyles } from '@mui/styles'
 
@@ -82,13 +80,20 @@ const useStyles = makeStyles((theme) => ({
         marginRight: '4px',
     },
     groupLabel: {
-        background: 'transparent',
+        padding: '6px 16px 2px 20px',
         color: theme.palette.text.secondary,
-        opacity: 0.7,
-        lineHeight: '24px',
+        opacity: 0.6,
         fontSize: '10px',
+        letterSpacing: '0.08em',
+        lineHeight: '14px',
         textTransform: 'uppercase',
-        fontWeight: 'bold',
+        listStyle: 'none',
+        pointerEvents: 'none',
+    },
+    groupDivider: {
+        margin: '6px 0px 0px',
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        listStyle: 'none',
     },
 }))
 
@@ -236,13 +241,15 @@ export default function SplitButton(props) {
                                             <React.Fragment key={index}>
                                                 {item.groupLabel != null && (
                                                     <>
-                                                        {index > 0 && <Divider />}
-                                                        <ListSubheader
-                                                            className={c.groupLabel}
-                                                            disableSticky
-                                                        >
+                                                        {index > 0 && (
+                                                            <li
+                                                                className={c.groupDivider}
+                                                                role="separator"
+                                                            />
+                                                        )}
+                                                        <li className={c.groupLabel}>
                                                             {item.groupLabel}
-                                                        </ListSubheader>
+                                                        </li>
                                                     </>
                                                 )}
                                                 <MenuItem
