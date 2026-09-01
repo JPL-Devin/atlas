@@ -81,7 +81,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-// items is [{ name: 'My Items' }, { ... }]
+// items is [{ name: 'My Items', label: 'Optional display name' }, { ... }]
 
 export default function SplitButton(props) {
     const {
@@ -154,8 +154,9 @@ export default function SplitButton(props) {
         setOpen(false)
     }
 
-    let name = items[forceIndex != null ? forceIndex : selectedIndex].name
-    if (truncateDelimiter) {
+    const activeItem = items[forceIndex != null ? forceIndex : selectedIndex]
+    let name = activeItem.label || activeItem.name
+    if (truncateDelimiter && activeItem.label == null) {
         name = name.split(truncateDelimiter)
         name = name[name.length - 1]
     }
@@ -212,7 +213,7 @@ export default function SplitButton(props) {
                                     {items.map((item, index) => {
                                         let delimitedName
                                         let delimitedPath
-                                        if (truncateDelimiter) {
+                                        if (truncateDelimiter && item.label == null) {
                                             let lastIndex = item.name.lastIndexOf('.')
                                             if (lastIndex != -1) {
                                                 delimitedName = item.name.substr(lastIndex + 1)
@@ -260,7 +261,7 @@ export default function SplitButton(props) {
                                                                     checkedIndices.includes(index),
                                                             })}
                                                         >
-                                                            {item.name}
+                                                            {item.label || item.name}
                                                         </div>
                                                     )}
                                                 </div>

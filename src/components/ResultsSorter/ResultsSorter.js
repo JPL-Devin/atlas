@@ -7,6 +7,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 
 import { setResultSorting } from '../../core/redux/actions/actions.js'
+import { getFieldLabel } from '../../core/recordPresentation'
 
 import { makeStyles } from '@mui/styles'
 import { Typography } from '@mui/material'
@@ -54,7 +55,9 @@ export default function ResultsSorter(props) {
 
     const flatFields = [resultSorting.defaultField]
 
-    const items = [{ name: resultSorting.defaultField }]
+    const items = [
+        { name: resultSorting.defaultField, label: getFieldLabel(resultSorting.defaultField) },
+    ]
     let selectedIndex = null
 
     //Add all active filters as potential sorts
@@ -62,7 +65,7 @@ export default function ResultsSorter(props) {
         activeFilters[filter].facets.forEach((f) => {
             if (f.type != 'text' && f.field !== '*') {
                 if (resultSorting.field === f.field) selectedIndex = items.length
-                items.push({ name: f.field })
+                items.push({ name: f.field, label: getFieldLabel(f.field) })
                 flatFields.push(f.field)
             }
         })
@@ -71,7 +74,7 @@ export default function ResultsSorter(props) {
     //Add all table columns as potential sorts
     resultsTable.columns.forEach((field) => {
         if (!flatFields.includes(field)) {
-            items.push({ name: field })
+            items.push({ name: field, label: getFieldLabel(field) })
             flatFields.push(field)
         }
     })
@@ -81,7 +84,7 @@ export default function ResultsSorter(props) {
         resultSorting.field != null &&
         resultSorting.field != resultSorting.defaultField
     ) {
-        items.push({ name: resultSorting.field })
+        items.push({ name: resultSorting.field, label: getFieldLabel(resultSorting.field) })
         selectedIndex = items.length - 1
     }
 
@@ -101,7 +104,6 @@ export default function ResultsSorter(props) {
                     </div>
                 )
             }
-            truncateDelimiter="."
             items={items}
             variant="outlined"
             forceIndex={selectedIndex}

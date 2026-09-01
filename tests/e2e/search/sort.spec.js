@@ -69,6 +69,21 @@ test.describe('Search - sort control', () => {
         })
     })
 
+    test('sort options show friendly field labels, not raw paths', async ({ page }) => {
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        const chevron = page.getByRole('button', { name: 'button options' })
+        await expect(chevron).toBeVisible({ timeout: 20_000 })
+        await chevron.click()
+
+        const novelty = page.getByRole('menuitem', { name: /novelty/i }).first()
+        await expect(novelty).toBeVisible({ timeout: 5_000 })
+        await expect(novelty).not.toContainText('gather.machine_learning')
+
+        await page.keyboard.press('Escape')
+    })
+
     test('the chevron next to Sort opens a menu of options', async ({ page }) => {
         const errors = []
         page.on('pageerror', (e) => errors.push(e.message))
