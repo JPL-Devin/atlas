@@ -12,6 +12,7 @@ import MenuItem from '@mui/material/MenuItem'
 import MenuList from '@mui/material/MenuList'
 import Checkbox from '@mui/material/Checkbox'
 import Divider from '@mui/material/Divider'
+import ListSubheader from '@mui/material/ListSubheader'
 
 import { makeStyles } from '@mui/styles'
 
@@ -80,9 +81,19 @@ const useStyles = makeStyles((theme) => ({
     checkbox: {
         marginRight: '4px',
     },
+    groupLabel: {
+        background: 'transparent',
+        color: theme.palette.text.secondary,
+        opacity: 0.7,
+        lineHeight: '24px',
+        fontSize: '10px',
+        textTransform: 'uppercase',
+        fontWeight: 'bold',
+    },
 }))
 
-// items is [{ name: 'My Items', label: 'Optional display name' }, { ... }]
+// items is [{ name: 'My Items', label: 'Optional display name',
+//            groupLabel: 'Optional header rendered above this item' }, { ... }]
 
 export default function SplitButton(props) {
     const {
@@ -223,6 +234,17 @@ export default function SplitButton(props) {
                                         }
                                         return (
                                             <React.Fragment key={index}>
+                                                {item.groupLabel != null && (
+                                                    <>
+                                                        {index > 0 && <Divider />}
+                                                        <ListSubheader
+                                                            className={c.groupLabel}
+                                                            disableSticky
+                                                        >
+                                                            {item.groupLabel}
+                                                        </ListSubheader>
+                                                    </>
+                                                )}
                                                 <MenuItem
                                                     className={clsx(c.menuli, {
                                                         [c.menuliActive]:
@@ -277,7 +299,6 @@ export default function SplitButton(props) {
                                                         </div>
                                                     )}
                                                 </MenuItem>
-                                                {item.dividerAfter === true && <Divider />}
                                             </React.Fragment>
                                         )
                                     })}

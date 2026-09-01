@@ -96,6 +96,7 @@ test.describe('Search - sort control', () => {
         await expect(options.first()).toBeVisible({ timeout: 5_000 })
         await expect(options.nth(0)).toHaveText(/novelty/i)
         await expect(options.nth(1)).toHaveText(/start time/i)
+        await expect(page.getByText('Primary', { exact: true })).toBeVisible()
 
         await page.keyboard.press('Escape')
     })

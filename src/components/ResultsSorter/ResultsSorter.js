@@ -64,29 +64,34 @@ export default function ResultsSorter(props) {
     })
 
     const items = flatFields.map((field) => ({ name: field, label: getFieldLabel(field) }))
-    items[items.length - 1].dividerAfter = true
+    items[0].groupLabel = 'Primary'
+
+    let groupLabelled = false
+    const pushGrouped = (field) => {
+        const item = { name: field, label: getFieldLabel(field) }
+        if (!groupLabelled) {
+            item.groupLabel = 'Filters & Columns'
+            groupLabelled = true
+        }
+        items.push(item)
+        flatFields.push(field)
+    }
 
     //Add all active filters as potential sorts
     Object.keys(activeFilters).forEach((filter) => {
         activeFilters[filter].facets.forEach((f) => {
-            if (f.type != 'text' && f.field !== '*' && !flatFields.includes(f.field)) {
-                items.push({ name: f.field, label: getFieldLabel(f.field) })
-                flatFields.push(f.field)
-            }
+            if (f.type != 'text' && f.field !== '*' && !flatFields.includes(f.field))
+                pushGrouped(f.field)
         })
     })
 
     //Add all table columns as potential sorts
     resultsTable.columns.forEach((field) => {
-        if (!flatFields.includes(field)) {
-            items.push({ name: field, label: getFieldLabel(field) })
-            flatFields.push(field)
-        }
+        if (!flatFields.includes(field)) pushGrouped(field)
     })
 
-    if (resultSorting.field != null && !flatFields.includes(resultSorting.field)) {
-        items.push({ name: resultSorting.field, label: getFieldLabel(resultSorting.field) })
-    }
+    if (resultSorting.field != null && !flatFields.includes(resultSorting.field))
+        pushGrouped(resultSorting.field)
 
     let selectedIndex = items.findIndex((item) => item.name === resultSorting.field)
     if (selectedIndex === -1) selectedIndex = null
