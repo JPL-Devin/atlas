@@ -22,7 +22,7 @@ import { getAppConfig } from '../../../../core/appConfig'
 import SplitButton from '../../../../components/SplitButton/SplitButton'
 import ViewTabs from '../ViewTabs/ViewTabs'
 import { getVisibleViewTabs } from '../../viewTabs'
-import { useRecordFilename } from '../../../../core/recordPresentation'
+import { parseRecordFilename } from '../../../../core/recordPresentation'
 import { useFilenameSelection, FilenameName, FilenameDetails } from './FilenameLegend'
 
 const useStyles = makeStyles((theme) => ({
@@ -144,7 +144,7 @@ const PanelHeader = (props) => {
     const recordViewTab = useSelector((state) => state.get('recordViewTab'))
 
     // Missions with no filename spec have nothing to explain.
-    const parsedFilename = useRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
+    const parsedFilename = parseRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
     const filenameSelection = useFilenameSelection(parsedFilename)
 
     // Hidden Feature: Ctrl-Z to quickly go back to search.

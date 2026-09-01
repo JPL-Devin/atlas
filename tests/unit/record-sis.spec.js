@@ -8,7 +8,7 @@ import {
     getSisForInstrument,
     getSisGap,
 } from '../../src/core/sis'
-import { filenameSpecs } from '../../src/config/filenames/all'
+import { filenameSpecs } from '../../src/config/filenames'
 import sisConfig from '../../src/config/sis.json'
 
 const variantsOf = (spec) => (Array.isArray(spec) ? spec : [spec])
