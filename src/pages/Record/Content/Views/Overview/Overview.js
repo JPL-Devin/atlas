@@ -45,9 +45,9 @@ import { streamDownloadFile } from '../../../../../core/downloaders/ZipStream.js
 import { HASH_PATHS, ES_PATHS } from '../../../../../core/constants.js'
 import { getAppConfig, getAppInstanceKey } from '../../../../../core/appConfig.js'
 import {
+    parseRecordFilename,
     readProductType,
     resolvePresentation,
-    useRecordFilename,
 } from '../../../../../core/recordPresentation'
 import { LIGHT_COLORS } from '../../../filenameColors'
 import { setRecordViewTab, setSnackBarText } from '../../../../../core/redux/actions/actions.js'
@@ -728,7 +728,7 @@ const Overview = (props) => {
     const [collapsed, setCollapsed] = useState({})
 
     const pds_standard = getIn(recordData, ES_PATHS.pds_standard)
-    const parsedFilename = useRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
+    const parsedFilename = parseRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
 
     // A pending record isn't a product without a browse image, so it shows the
     // loading state rather than the empty state.
