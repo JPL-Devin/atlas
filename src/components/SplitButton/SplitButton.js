@@ -80,7 +80,7 @@ const useStyles = makeStyles((theme) => ({
         marginRight: '4px',
     },
     groupLabel: {
-        padding: '6px 16px 2px 20px',
+        padding: '6px 16px 2px 16px',
         color: theme.palette.text.secondary,
         opacity: 0.6,
         fontSize: '10px',
@@ -92,7 +92,7 @@ const useStyles = makeStyles((theme) => ({
     },
     groupDivider: {
         margin: '6px 0px 0px',
-        borderTop: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey600}`,
         listStyle: 'none',
     },
 }))
