@@ -7,10 +7,14 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 
 import { setResultSorting } from '../../core/redux/actions/actions.js'
+import { ES_PATHS } from '../../core/constants'
 import { getFieldLabel } from '../../core/recordPresentation'
 
 import { makeStyles } from '@mui/styles'
 import { Typography } from '@mui/material'
+
+// Always offered, above the filter and column driven sorts
+const PINNED_SORT_FIELDS = [ES_PATHS.ml_novelty_score.join('.'), ES_PATHS.start_time.join('.')]
 
 const useStyles = makeStyles((theme) => ({
     ResultsSorter: {
@@ -53,18 +57,19 @@ export default function ResultsSorter(props) {
         return state.getIn(['resultSorting'])
     }).toJS()
 
+    //Primary sorts, always offered first regardless of filters and columns
     const flatFields = [resultSorting.defaultField]
+    PINNED_SORT_FIELDS.forEach((field) => {
+        if (!flatFields.includes(field)) flatFields.push(field)
+    })
 
-    const items = [
-        { name: resultSorting.defaultField, label: getFieldLabel(resultSorting.defaultField) },
-    ]
-    let selectedIndex = null
+    const items = flatFields.map((field) => ({ name: field, label: getFieldLabel(field) }))
+    items[items.length - 1].dividerAfter = true
 
     //Add all active filters as potential sorts
     Object.keys(activeFilters).forEach((filter) => {
         activeFilters[filter].facets.forEach((f) => {
-            if (f.type != 'text' && f.field !== '*') {
-                if (resultSorting.field === f.field) selectedIndex = items.length
+            if (f.type != 'text' && f.field !== '*' && !flatFields.includes(f.field)) {
                 items.push({ name: f.field, label: getFieldLabel(f.field) })
                 flatFields.push(f.field)
             }
@@ -79,14 +84,12 @@ export default function ResultsSorter(props) {
         }
     })
 
-    if (
-        selectedIndex == null &&
-        resultSorting.field != null &&
-        resultSorting.field != resultSorting.defaultField
-    ) {
+    if (resultSorting.field != null && !flatFields.includes(resultSorting.field)) {
         items.push({ name: resultSorting.field, label: getFieldLabel(resultSorting.field) })
-        selectedIndex = items.length - 1
     }
+
+    let selectedIndex = items.findIndex((item) => item.name === resultSorting.field)
+    if (selectedIndex === -1) selectedIndex = null
 
     return (
         <SplitButton

@@ -11,6 +11,7 @@ import Popper from '@mui/material/Popper'
 import MenuItem from '@mui/material/MenuItem'
 import MenuList from '@mui/material/MenuList'
 import Checkbox from '@mui/material/Checkbox'
+import Divider from '@mui/material/Divider'
 
 import { makeStyles } from '@mui/styles'
 
@@ -221,56 +222,63 @@ export default function SplitButton(props) {
                                             }
                                         }
                                         return (
-                                            <MenuItem
-                                                key={index}
-                                                className={clsx(c.menuli, {
-                                                    [c.menuliActive]:
+                                            <React.Fragment key={index}>
+                                                <MenuItem
+                                                    className={clsx(c.menuli, {
+                                                        [c.menuliActive]:
+                                                            index === selectedIndex &&
+                                                            type !== 'checklist',
+                                                    })}
+                                                    selected={
                                                         index === selectedIndex &&
-                                                        type !== 'checklist',
-                                                })}
-                                                selected={
-                                                    index === selectedIndex && type !== 'checklist'
-                                                }
-                                                onClick={(event) =>
-                                                    handleMenuItemClick(event, index)
-                                                }
-                                            >
-                                                <div className={c.menuliLeft}>
-                                                    {type === 'checklist' && (
-                                                        <Checkbox
-                                                            className={c.checkbox}
-                                                            color="default"
-                                                            checked={checkedIndices.includes(index)}
-                                                            size="medium"
-                                                        />
-                                                    )}
-                                                    {delimitedPath && delimitedName ? (
-                                                        <>
-                                                            <div className={c.delimitedPath}>
-                                                                {delimitedPath}
+                                                        type !== 'checklist'
+                                                    }
+                                                    onClick={(event) =>
+                                                        handleMenuItemClick(event, index)
+                                                    }
+                                                >
+                                                    <div className={c.menuliLeft}>
+                                                        {type === 'checklist' && (
+                                                            <Checkbox
+                                                                className={c.checkbox}
+                                                                color="default"
+                                                                checked={checkedIndices.includes(
+                                                                    index
+                                                                )}
+                                                                size="medium"
+                                                            />
+                                                        )}
+                                                        {delimitedPath && delimitedName ? (
+                                                            <>
+                                                                <div className={c.delimitedPath}>
+                                                                    {delimitedPath}
+                                                                </div>
+                                                                <div className={c.menuName}>
+                                                                    {delimitedName}
+                                                                </div>
+                                                            </>
+                                                        ) : (
+                                                            <div
+                                                                className={clsx(c.menuName, {
+                                                                    [c.menuNameBold]:
+                                                                        type !== 'checklist' ||
+                                                                        checkedIndices.includes(
+                                                                            index
+                                                                        ),
+                                                                })}
+                                                            >
+                                                                {item.label || item.name}
                                                             </div>
-                                                            <div className={c.menuName}>
-                                                                {delimitedName}
-                                                            </div>
-                                                        </>
-                                                    ) : (
-                                                        <div
-                                                            className={clsx(c.menuName, {
-                                                                [c.menuNameBold]:
-                                                                    type !== 'checklist' ||
-                                                                    checkedIndices.includes(index),
-                                                            })}
-                                                        >
-                                                            {item.label || item.name}
+                                                        )}
+                                                    </div>
+                                                    {item.subname != null && (
+                                                        <div className={c.menuliSubname}>
+                                                            {item.subname}
                                                         </div>
                                                     )}
-                                                </div>
-                                                {item.subname != null && (
-                                                    <div className={c.menuliSubname}>
-                                                        {item.subname}
-                                                    </div>
-                                                )}
-                                            </MenuItem>
+                                                </MenuItem>
+                                                {item.dividerAfter === true && <Divider />}
+                                            </React.Fragment>
                                         )
                                     })}
                                 </MenuList>

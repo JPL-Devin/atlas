@@ -84,6 +84,22 @@ test.describe('Search - sort control', () => {
         await page.keyboard.press('Escape')
     })
 
+    test('Novelty and Start time lead the sort menu', async ({ page }) => {
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        const chevron = page.getByRole('button', { name: 'button options' })
+        await expect(chevron).toBeVisible({ timeout: 20_000 })
+        await chevron.click()
+
+        const options = page.getByRole('menuitem')
+        await expect(options.first()).toBeVisible({ timeout: 5_000 })
+        await expect(options.nth(0)).toHaveText(/novelty/i)
+        await expect(options.nth(1)).toHaveText(/start time/i)
+
+        await page.keyboard.press('Escape')
+    })
+
     test('the chevron next to Sort opens a menu of options', async ({ page }) => {
         const errors = []
         page.on('pageerror', (e) => errors.push(e.message))
