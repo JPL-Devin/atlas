@@ -41,6 +41,66 @@ test.describe('Search - sort control', () => {
         expect(filterCriticalJsErrors(errors)).toEqual([])
     })
 
+    test('the default search sorts by novelty score, highest first', async ({ page }) => {
+        const sorts = []
+
+        await page.route(/_search/, async (route) => {
+            const body = route.request().postDataJSON()
+            if (body?.sort) sorts.push(body.sort)
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ hits: { total: { value: 0 }, hits: [] } }),
+            })
+        })
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        await expect.poll(() => sorts.length, { timeout: 20_000 }).toBeGreaterThan(0)
+
+        const novelty = sorts.find(
+            (sort) => sort[0]?.['gather.machine_learning.novelty.score'] != null
+        )
+        expect(novelty).toBeDefined()
+        expect(novelty[0]['gather.machine_learning.novelty.score']).toMatchObject({
+            order: 'desc',
+            missing: '_last',
+        })
+    })
+
+    test('sort options show friendly field labels, not raw paths', async ({ page }) => {
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        const chevron = page.getByRole('button', { name: 'button options' })
+        await expect(chevron).toBeVisible({ timeout: 20_000 })
+        await chevron.click()
+
+        const novelty = page.getByRole('menuitem', { name: /novelty/i }).first()
+        await expect(novelty).toBeVisible({ timeout: 5_000 })
+        await expect(novelty).not.toContainText('gather.machine_learning')
+
+        await page.keyboard.press('Escape')
+    })
+
+    test('Novelty and Start time lead the sort menu', async ({ page }) => {
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        const chevron = page.getByRole('button', { name: 'button options' })
+        await expect(chevron).toBeVisible({ timeout: 20_000 })
+        await chevron.click()
+
+        const options = page.getByRole('menuitem')
+        await expect(options.first()).toBeVisible({ timeout: 5_000 })
+        await expect(options.nth(0)).toHaveText(/novelty/i)
+        await expect(options.nth(1)).toHaveText(/start time/i)
+        await expect(page.getByText('Primary', { exact: true })).toBeVisible()
+
+        await page.keyboard.press('Escape')
+    })
+
     test('the chevron next to Sort opens a menu of options', async ({ page }) => {
         const errors = []
         page.on('pageerror', (e) => errors.push(e.message))

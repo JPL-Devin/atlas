@@ -55,6 +55,7 @@ export const ES_PATHS = {
     ml_classification_related: ['gather', 'machine_learning', 'classification', 'related'],
     ml_classifications: ['gather', 'machine_learning', 'classification', 'classifications'],
     ml_class: ['gather', 'machine_learning', 'classification', 'classifications', 'class'],
+    ml_novelty_score: ['gather', 'machine_learning', 'novelty', 'score'],
     ml_confidence: [
         'gather',
         'machine_learning',

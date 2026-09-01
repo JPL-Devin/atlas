@@ -57,6 +57,18 @@ export const resolveProfile = ({ mission, pds_standard, instrument, instance } =
     return profile
 }
 
+/**
+ * Display name for a field path — its catalogued label, else the last path
+ * segment humanized.
+ */
+export const getFieldLabel = (path) => {
+    if (path == null) return ''
+    const catalogued = fields[path]
+    if (catalogued != null && catalogued.label) return catalogued.label
+    const segment = String(path).split('.').pop().replace(/_/g, ' ')
+    return segment.charAt(0).toUpperCase() + segment.slice(1)
+}
+
 const readTile = (recordData, path, format) => {
     const catalogued = fields[path]
     if (catalogued == null) return null

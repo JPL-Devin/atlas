@@ -7,7 +7,7 @@ const instances = {
         enableAddFilters: true,
         enableRecordCitation: true,
         defaultDownloadProduct: 'src',
-        defaultSortField: 'gather.time.start_time',
+        defaultSortField: 'gather.machine_learning.novelty.score',
         defaultSortDirection: 'desc',
         aboutTitle: 'Atlas',
         aboutDescription:

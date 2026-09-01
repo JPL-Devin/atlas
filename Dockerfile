@@ -29,8 +29,8 @@ RUN npm run build
 
 WORKDIR /usr/src/app/Documentation
 
-# Bundle entire app source
-COPY . .
+# Source already bundled by the root COPY — copying again here would
+# overwrite Documentation/package.json with the root one.
 
 RUN npm ci NODE_ENV=production
 

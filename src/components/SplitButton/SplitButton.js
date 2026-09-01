@@ -79,9 +79,26 @@ const useStyles = makeStyles((theme) => ({
     checkbox: {
         marginRight: '4px',
     },
+    groupLabel: {
+        padding: '6px 16px 2px 16px',
+        color: theme.palette.text.secondary,
+        opacity: 0.6,
+        fontSize: '10px',
+        letterSpacing: '0.08em',
+        lineHeight: '14px',
+        textTransform: 'uppercase',
+        listStyle: 'none',
+        pointerEvents: 'none',
+    },
+    groupDivider: {
+        margin: '6px 0px 0px',
+        borderTop: `1px solid ${theme.palette.swatches.grey.grey600}`,
+        listStyle: 'none',
+    },
 }))
 
-// items is [{ name: 'My Items' }, { ... }]
+// items is [{ name: 'My Items', label: 'Optional display name',
+//            groupLabel: 'Optional header rendered above this item' }, { ... }]
 
 export default function SplitButton(props) {
     const {
@@ -154,8 +171,9 @@ export default function SplitButton(props) {
         setOpen(false)
     }
 
-    let name = items[forceIndex != null ? forceIndex : selectedIndex].name
-    if (truncateDelimiter) {
+    const activeItem = items[forceIndex != null ? forceIndex : selectedIndex]
+    let name = activeItem.label || activeItem.name
+    if (truncateDelimiter && activeItem.label == null) {
         name = name.split(truncateDelimiter)
         name = name[name.length - 1]
     }
@@ -212,7 +230,7 @@ export default function SplitButton(props) {
                                     {items.map((item, index) => {
                                         let delimitedName
                                         let delimitedPath
-                                        if (truncateDelimiter) {
+                                        if (truncateDelimiter && item.label == null) {
                                             let lastIndex = item.name.lastIndexOf('.')
                                             if (lastIndex != -1) {
                                                 delimitedName = item.name.substr(lastIndex + 1)
@@ -220,56 +238,75 @@ export default function SplitButton(props) {
                                             }
                                         }
                                         return (
-                                            <MenuItem
-                                                key={index}
-                                                className={clsx(c.menuli, {
-                                                    [c.menuliActive]:
+                                            <React.Fragment key={index}>
+                                                {item.groupLabel != null && (
+                                                    <>
+                                                        {index > 0 && (
+                                                            <li
+                                                                className={c.groupDivider}
+                                                                role="separator"
+                                                            />
+                                                        )}
+                                                        <li className={c.groupLabel}>
+                                                            {item.groupLabel}
+                                                        </li>
+                                                    </>
+                                                )}
+                                                <MenuItem
+                                                    className={clsx(c.menuli, {
+                                                        [c.menuliActive]:
+                                                            index === selectedIndex &&
+                                                            type !== 'checklist',
+                                                    })}
+                                                    selected={
                                                         index === selectedIndex &&
-                                                        type !== 'checklist',
-                                                })}
-                                                selected={
-                                                    index === selectedIndex && type !== 'checklist'
-                                                }
-                                                onClick={(event) =>
-                                                    handleMenuItemClick(event, index)
-                                                }
-                                            >
-                                                <div className={c.menuliLeft}>
-                                                    {type === 'checklist' && (
-                                                        <Checkbox
-                                                            className={c.checkbox}
-                                                            color="default"
-                                                            checked={checkedIndices.includes(index)}
-                                                            size="medium"
-                                                        />
-                                                    )}
-                                                    {delimitedPath && delimitedName ? (
-                                                        <>
-                                                            <div className={c.delimitedPath}>
-                                                                {delimitedPath}
+                                                        type !== 'checklist'
+                                                    }
+                                                    onClick={(event) =>
+                                                        handleMenuItemClick(event, index)
+                                                    }
+                                                >
+                                                    <div className={c.menuliLeft}>
+                                                        {type === 'checklist' && (
+                                                            <Checkbox
+                                                                className={c.checkbox}
+                                                                color="default"
+                                                                checked={checkedIndices.includes(
+                                                                    index
+                                                                )}
+                                                                size="medium"
+                                                            />
+                                                        )}
+                                                        {delimitedPath && delimitedName ? (
+                                                            <>
+                                                                <div className={c.delimitedPath}>
+                                                                    {delimitedPath}
+                                                                </div>
+                                                                <div className={c.menuName}>
+                                                                    {delimitedName}
+                                                                </div>
+                                                            </>
+                                                        ) : (
+                                                            <div
+                                                                className={clsx(c.menuName, {
+                                                                    [c.menuNameBold]:
+                                                                        type !== 'checklist' ||
+                                                                        checkedIndices.includes(
+                                                                            index
+                                                                        ),
+                                                                })}
+                                                            >
+                                                                {item.label || item.name}
                                                             </div>
-                                                            <div className={c.menuName}>
-                                                                {delimitedName}
-                                                            </div>
-                                                        </>
-                                                    ) : (
-                                                        <div
-                                                            className={clsx(c.menuName, {
-                                                                [c.menuNameBold]:
-                                                                    type !== 'checklist' ||
-                                                                    checkedIndices.includes(index),
-                                                            })}
-                                                        >
-                                                            {item.name}
+                                                        )}
+                                                    </div>
+                                                    {item.subname != null && (
+                                                        <div className={c.menuliSubname}>
+                                                            {item.subname}
                                                         </div>
                                                     )}
-                                                </div>
-                                                {item.subname != null && (
-                                                    <div className={c.menuliSubname}>
-                                                        {item.subname}
-                                                    </div>
-                                                )}
-                                            </MenuItem>
+                                                </MenuItem>
+                                            </React.Fragment>
                                         )
                                     })}
                                 </MenuList>

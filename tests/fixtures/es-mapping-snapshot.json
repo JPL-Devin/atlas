@@ -102,6 +102,7 @@
         "gather.machine_learning.classification.related.label.uri",
         "gather.machine_learning.classification.related.overlay.size",
         "gather.machine_learning.classification.related.overlay.uri",
+        "gather.machine_learning.novelty.score",
         "gather.mro_landmarks.bright_dunes_count",
         "gather.mro_landmarks.craters_count",
         "gather.mro_landmarks.dark_dunes_count",
