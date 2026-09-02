@@ -189,7 +189,26 @@ const readChips = (recordData, chips) =>
  * Resolves a record into display-ready strings and label/value tiles. Field
  * paths, profiles and caption templates never leave this module.
  */
+// Memoized per record object so co-mounted views share one resolution.
+const presentationCache = new WeakMap()
+
 export const resolvePresentation = (recordData, { instance } = {}) => {
+    if (recordData != null && typeof recordData === 'object') {
+        let byInstance = presentationCache.get(recordData)
+        if (byInstance == null) {
+            byInstance = new Map()
+            presentationCache.set(recordData, byInstance)
+        }
+        const key = instance == null ? '' : String(instance)
+        if (byInstance.has(key)) return byInstance.get(key)
+        const presentation = resolvePresentationUncached(recordData, { instance })
+        byInstance.set(key, presentation)
+        return presentation
+    }
+    return resolvePresentationUncached(recordData, { instance })
+}
+
+const resolvePresentationUncached = (recordData, { instance } = {}) => {
     const mission = first(getIn(recordData, PATHS.mission))
     const pds_standard = first(getIn(recordData, PATHS.pds_standard))
     const instrument = first(getIn(recordData, PATHS.instrument))

@@ -156,6 +156,8 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
 
     const openHandlerRef = useRef(null)
     const openFailedHandlerRef = useRef(null)
+    const restoreHandlerRef = useRef(null)
+    const showingPreviewRef = useRef(false)
 
     const c = useStyles()
 
@@ -214,13 +216,38 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
             if (openFailedHandlerRef.current) {
                 viewer.removeHandler('open-failed', openFailedHandlerRef.current)
             }
+            if (restoreHandlerRef.current) {
+                viewer.removeHandler('open', restoreHandlerRef.current)
+                restoreHandlerRef.current = null
+            }
+            const fullSrc = image.src
+            // A smaller render opens first, then swaps once full-res downloads.
+            const previewSrc =
+                image.previewSrc && image.previewSrc !== fullSrc ? image.previewSrc : null
+            let cancelled = false
+            let showingPreview = false
+            showingPreviewRef.current = false
+            const openUrl = (url) =>
+                viewer.open({
+                    type: 'image',
+                    url,
+                    buildPyramid: false,
+                })
             const onOpen = function (e) {
                 setImageLoading(false)
                 const so = viewer.svgOverlay()
                 setSvgOverlay(so)
-                drawFeatures(so, features)
+                // Features are scaled to full-res, so skip drawing over the preview.
+                if (!showingPreviewRef.current) drawFeatures(so, features)
             }
             const handleOpenFailed = function () {
+                // A missing preview size falls straight through to full-res.
+                if (showingPreview) {
+                    showingPreview = false
+                    showingPreviewRef.current = false
+                    openUrl(fullSrc)
+                    return
+                }
                 setImageLoading(false)
                 setOpenFailed(true)
                 if (typeof onOpenFailed === 'function') onOpenFailed()
@@ -229,16 +256,53 @@ const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
             openFailedHandlerRef.current = handleOpenFailed
             viewer.addHandler('open', onOpen)
             viewer.addHandler('open-failed', handleOpenFailed)
-            viewer.open({
-                type: 'image',
-                url: image.src,
-                buildPyramid: false,
-            })
+            if (previewSrc) {
+                showingPreview = true
+                showingPreviewRef.current = true
+                openUrl(previewSrc)
+                const fullImg = new Image()
+                fullImg.onload = () => {
+                    if (cancelled || !showingPreview) return
+                    showingPreview = false
+                    showingPreviewRef.current = false
+                    // Keep the user's viewport across the preview → full swap.
+                    const center = viewer.viewport ? viewer.viewport.getCenter() : null
+                    const zoom = viewer.viewport ? viewer.viewport.getZoom() : null
+                    const restore = () => {
+                        viewer.removeHandler('open', restore)
+                        if (restoreHandlerRef.current === restore)
+                            restoreHandlerRef.current = null
+                        if (center != null && zoom != null) {
+                            viewer.viewport.zoomTo(zoom, null, true)
+                            viewer.viewport.panTo(center, true)
+                        }
+                    }
+                    restoreHandlerRef.current = restore
+                    viewer.addHandler('open', restore)
+                    openUrl(fullSrc)
+                }
+                // A failed preload still attempts a viewer open so the normal
+                // open-failed path reports the error.
+                fullImg.onerror = () => {
+                    if (cancelled || !showingPreview) return
+                    showingPreview = false
+                    showingPreviewRef.current = false
+                    openUrl(fullSrc)
+                }
+                fullImg.src = fullSrc
+            } else openUrl(fullSrc)
+            return () => {
+                cancelled = true
+                if (restoreHandlerRef.current) {
+                    viewer.removeHandler('open', restoreHandlerRef.current)
+                    restoreHandlerRef.current = null
+                }
+            }
         }
-    }, [image.src, viewer])
+    }, [image.src, image.previewSrc, viewer])
 
     useEffect(() => {
-        if (viewer && svgOverlay) {
+        if (viewer && svgOverlay && !showingPreviewRef.current) {
             drawFeatures(viewer.svgOverlay(), features)
         }
     }, [features, viewer, svgOverlay])
@@ -456,6 +520,10 @@ function scaleFeatureLabels(overlay) {
 
 OpenSeadragonViewer.propTypes = {
     onOpenFailed: PropTypes.func,
+    image: PropTypes.shape({
+        src: PropTypes.string,
+        previewSrc: PropTypes.string,
+    }),
 }
 
 export default OpenSeadragonViewer

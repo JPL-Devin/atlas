@@ -121,11 +121,15 @@ export const getViewableAsset = (recordData) => {
 
     let url = getPDSUrl(browse_uri, release_id)
     let type = getExtension(url, true)
-    if (!IMAGE_EXTENSIONS.includes(type)) {
+    let previewUrl = null
+    if (IMAGE_EXTENSIONS.includes(type))
+        // A medium-size render shows quickly while the full-res image loads.
+        previewUrl = getPDSUrl(browse_uri, release_id, 'md')
+    else {
         url = getPDSUrl(uri, release_id)
         type = getExtension(url, true)
     }
-    return { url, type }
+    return { url, type, previewUrl }
 }
 
 const RecordViewer = (props) => {
@@ -145,7 +149,7 @@ const RecordViewer = (props) => {
     const presentation = resolvePresentation(recordData, { instance: getAppInstanceKey() })
     const emptyState = emptyStates[presentation.emptyState] || emptyStates.no_browse_generic
 
-    const { url: imgURL, type } = getViewableAsset(recordData)
+    const { url: imgURL, type, previewUrl } = getViewableAsset(recordData)
 
     // A product whose only asset is a source image the archive can't render
     // falls back to the configured empty state once the viewer reports failure.
@@ -179,7 +183,7 @@ const RecordViewer = (props) => {
                             />
                         ) : (
                             <OpenSeadragonViewer
-                                image={{ src: imgURL }}
+                                image={{ src: imgURL, previewSrc: previewUrl }}
                                 // 0 opens at the home zoom, so the image fills the
                                 // viewer's constraining dimension.
                                 settings={{ defaultZoomLevel: 0 }}

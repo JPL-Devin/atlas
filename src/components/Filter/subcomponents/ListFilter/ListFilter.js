@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { makeStyles } from '@mui/styles'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
 
 import Checkbox from '@mui/material/Checkbox'
+import { List as VirtualizedList, AutoSizer } from 'react-virtualized'
 
 import { setFieldState } from '../../../../core/redux/actions/actions.js'
 import { DISPLAY_NAME_MAPPINGS } from '../../../../core/constants.js'
@@ -66,52 +66,79 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
+const ROW_HEIGHT = 24
+// Long facet lists render through a virtualized window instead of all at once.
+const VIRTUALIZE_THRESHOLD = 100
+const MAX_LIST_HEIGHT = ROW_HEIGHT * 16
+
 const ListFilter = (props) => {
     const { filterKey, facetId } = props
     const c = useStyles()
 
     const dispatch = useDispatch()
-    let facet = useSelector((state) => {
+    const facetImm = useSelector((state) => {
         return state.getIn(['activeFilters', filterKey, 'facets', facetId])
     })
-    facet = facet ? facet.toJS() : {}
+    const facet = useMemo(() => (facetImm ? facetImm.toJS() : {}), [facetImm])
+
+    const fields = useMemo(
+        () => (facet.fields ? facet.fields.filter((field) => field.doc_count > 0) : null),
+        [facet]
+    )
+
+    const renderRow = (field, idx, style) => (
+        <li
+            className={c.listItem}
+            key={idx}
+            style={style}
+            onClick={() => {
+                dispatch(
+                    setFieldState(filterKey, facetId, {
+                        [field.key]: !getIn(facet, ['state', field.key], false),
+                    })
+                )
+            }}
+        >
+            <Checkbox
+                className={c.checkbox}
+                color="default"
+                checked={getIn(facet, ['state', field.key], false)}
+                size="small"
+                title="Select"
+                aria-label="select"
+            />
+            <span className={c.label}>
+                <div className={c.name}>
+                    {DISPLAY_NAME_MAPPINGS[field.key]
+                        ? DISPLAY_NAME_MAPPINGS[field.key]
+                        : field.key}
+                </div>
+                <div className={c.count}>({field.doc_count})</div>
+            </span>
+        </li>
+    )
 
     return (
         <div className={c.ListFilter}>
             <ul className={c.list}>
-                {facet.fields ? (
-                    facet.fields
-                        .filter((field) => field.doc_count > 0)
-                        .map((field, idx) => (
-                            <li className={c.listItem} key={idx}
-                            onClick={() => {
-                                dispatch(
-                                    setFieldState(filterKey, facetId, {
-                                        [field.key]: !getIn(facet, ['state', field.key], false),
-                                    })
-                                )
-                            }}
-                        >
-                            <Checkbox
-                                className={c.checkbox}
-                                color="default"
-                                checked={getIn(facet, ['state', field.key], false)}
-                                size="small"
-                                title="Select"
-                                aria-label="select"
-                            />
-                            <span className={c.label}>
-                                <div className={c.name}>
-                                    {DISPLAY_NAME_MAPPINGS[field.key]
-                                        ? DISPLAY_NAME_MAPPINGS[field.key]
-                                        : field.key}
-                                </div>
-                                <div className={c.count}>({field.doc_count})</div>
-                            </span>
-                        </li>
-                    ))
-                ) : (
+                {fields == null ? (
                     <div className={c.noData}>No aggregation data</div>
+                ) : fields.length > VIRTUALIZE_THRESHOLD ? (
+                    <AutoSizer disableHeight>
+                        {({ width }) => (
+                            <VirtualizedList
+                                width={width}
+                                height={Math.min(fields.length * ROW_HEIGHT, MAX_LIST_HEIGHT)}
+                                rowCount={fields.length}
+                                rowHeight={ROW_HEIGHT}
+                                rowRenderer={({ index, style }) =>
+                                    renderRow(fields[index], index, style)
+                                }
+                            />
+                        )}
+                    </AutoSizer>
+                ) : (
+                    fields.map((field, idx) => renderRow(field, idx))
                 )}
                 {facet?.fields?.length >= 500 && (
                     <li className={c.moreResults}>Only showing the first 500 results.</li>

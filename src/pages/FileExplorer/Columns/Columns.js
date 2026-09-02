@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
@@ -522,6 +522,160 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
+// Rows above this count render through a virtualized list.
+const DIRECTORY_VIRTUALIZE_THRESHOLD = 100
+
+const DirectoryRow = React.memo((props) => {
+    const { r, idx, style, activeKey, isMobile, columnId, filterSearchValue, prevNames, firstItemRef } =
+        props
+    const c = useStyles()
+    const dispatch = useDispatch()
+
+    const s = r._source || {}
+    const result = s.archive || {}
+    const pds4_label = s.pds4_label || {}
+    const isDeprecated = (result.uri || result.name || '').toLowerCase().includes('deprecated')
+    const isActive = activeKey != null && activeKey === result.name
+    const displayName = String(
+        prevNames ? prevNames.map((n) => n.name).join('/') : result.name
+    )
+
+    return (
+        <li
+            style={style ? { ...style, marginLeft: 0, paddingLeft: 12 } : undefined}
+            ref={idx === 0 ? firstItemRef : null}
+            className={clsx(c.listItem, c.listItemLessPadding, {
+                [c.listItemActive]: isActive,
+                [c.listItemMobile]: isMobile,
+            })}
+            onClick={() => {
+                dispatch(
+                    updateFilexColumn(columnId, {
+                        active: {
+                            ...result,
+                            ...pds4_label,
+                            key: result.name,
+                        },
+                    })
+                )
+            }}
+        >
+            <div
+                className={clsx(c.liType, {
+                    [c.liTypeDeprecated]: isDeprecated,
+                    [c.deprecatedColor]: isDeprecated && !isActive,
+                })}
+            >
+                {getIn(r._source, ES_PATHS.archive.fs_type) === 'file' ? (
+                    <>
+                        {IMAGE_EXTENSIONS.includes(getExtension(result.uri, true)) ? (
+                            <ImageIcon size="small" />
+                        ) : (
+                            <InsertDriveFileOutlinedIcon size="small" />
+                        )}{' '}
+                    </>
+                ) : isDeprecated ? (
+                    <FolderOffIcon size="small" />
+                ) : (
+                    <FolderIcon size="small" />
+                )}
+            </div>
+            <div className={c.flexBetween}>
+                <div
+                    className={clsx(c.liName, {
+                        [c.liNameMobile]: isMobile,
+                        [c.deprecatedColor]: isDeprecated && !isActive,
+                    })}
+                    title={result.name}
+                >
+                    {filterSearchValue && filterSearchValue.length > 0 ? (
+                        <Highlighter
+                            highlightClassName={c.highlight}
+                            searchWords={[filterSearchValue]}
+                            autoEscape={true}
+                            textToHighlight={displayName}
+                        />
+                    ) : (
+                        displayName
+                    )}
+                </div>
+                <div
+                    className={clsx(c.listItemButtons, 'listItemButtons', {
+                        [c.listItemButtonsActive]: isActive,
+                    })}
+                >
+                    {getIn(s, ES_PATHS.archive.fs_type) === 'file' ? (
+                        <Tooltip title="Download" arrow>
+                            <IconButton
+                                className={clsx(c.button, {
+                                    [c.buttonMobile]: isMobile,
+                                })}
+                                aria-label="quick download"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (s.uri != null) {
+                                        streamDownloadFile(
+                                            getPDSUrl(
+                                                s.uri,
+                                                getIn(s, ES_PATHS.archive.release_id)
+                                            ),
+                                            getFilename(s.uri)
+                                        )
+                                    }
+                                }}
+                                size="large"
+                            >
+                                <GetAppIcon size="small" />
+                            </IconButton>
+                        </Tooltip>
+                    ) : null}
+                    <Tooltip title="Add to Cart" arrow>
+                        <IconButton
+                            className={clsx(c.button, {
+                                [c.buttonMobile]: isMobile,
+                            })}
+                            aria-label="add to cart"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                dispatch(
+                                    addToCart(
+                                        getIn(s, ES_PATHS.archive.fs_type) === 'directory'
+                                            ? 'directory'
+                                            : 'file',
+                                        {
+                                            uri: getIn(s, ES_PATHS.source),
+                                            related: getIn(s, ES_PATHS.related),
+                                            release_id: getIn(s, ES_PATHS.archive.release_id),
+                                            size: getIn(s, ES_PATHS.archive.size),
+                                        }
+                                    )
+                                )
+
+                                dispatch(setSnackBarText('Added to Cart!', 'success'))
+                            }}
+                            size="large"
+                        >
+                            <AddShoppingCartIcon size="small" />
+                        </IconButton>
+                    </Tooltip>
+                </div>
+            </div>
+        </li>
+    )
+})
+DirectoryRow.displayName = 'DirectoryRow'
+DirectoryRow.propTypes = {
+    r: PropTypes.object,
+    idx: PropTypes.number,
+    style: PropTypes.object,
+    activeKey: PropTypes.string,
+    isMobile: PropTypes.bool,
+    columnId: PropTypes.number,
+    filterSearchValue: PropTypes.string,
+    prevNames: PropTypes.array,
+    firstItemRef: PropTypes.object,
+}
+
 const Column = (props) => {
     const {
         params,
@@ -672,6 +826,37 @@ const Column = (props) => {
             dispatch(queryFilexColumn(columnId, null, null))
         }
     }
+    // Virtualized lists scroll internally, so load-more hooks in here instead.
+    const handleVirtualScroll = ({ clientHeight, scrollHeight, scrollTop }) => {
+        const distanceFromBottom = scrollHeight - (scrollTop + clientHeight - 1)
+        if (
+            !scrollLoading &&
+            distanceFromBottom < 10 &&
+            params &&
+            params.results &&
+            params.total > params.results.length
+        ) {
+            setScrollLoading(true)
+            dispatch(queryFilexColumn(columnId, null, null))
+        }
+    }
+
+    const directoryRows = useMemo(() => {
+        if (params.type === 'filter' || params.type === 'volume' || content == null)
+            return content
+        if (!filterSearchValue || filterSearchValue.length === 0) return content
+        return content.filter((r) => {
+            const name = getIn(r, '_source.archive.name')
+            return !(name && name.toLowerCase().indexOf(filterSearchValue) == -1)
+        })
+    }, [params.type, content, filterSearchValue])
+
+    const directoryVirtualized =
+        params.type !== 'filter' &&
+        params.type !== 'volume' &&
+        !isMobile &&
+        directoryRows != null &&
+        directoryRows.length > DIRECTORY_VIRTUALIZE_THRESHOLD
 
     const isFinalColumn = !isMobile && columnId === numCols - 1
 
@@ -1049,7 +1234,9 @@ const Column = (props) => {
                 >
                     {content != null ? (
                         <ul className={clsx(
-                            params.type === 'volume' ? c.listVirtualized : c.list,
+                            params.type === 'volume' || directoryVirtualized
+                                ? c.listVirtualized
+                                : c.list,
                             { 'fade-in': !prevNames }
                         )}>
                             {content.length == 0 ? (
@@ -1350,190 +1537,49 @@ const Column = (props) => {
                                           </AutoSizer>
                                       )
                                   })()
-                                : content.map((r, idx) => {
-                                      const s = r._source || {}
-                                      const result = s.archive || {}
-                                      const pds4_label = s.pds4_label || {}
-                                      const isDeprecated = (result.uri || result.name || '')
-                                          .toLowerCase()
-                                          .includes('deprecated')
-                                      const isActive =
-                                          params.active && params.active.key === result.name
-
-                                      // Exit if not match filter
-                                      if (
-                                          result.name &&
-                                          filterSearchValue &&
-                                          filterSearchValue.length > 0 &&
-                                          result.name.toLowerCase().indexOf(filterSearchValue) == -1
-                                      )
-                                          return null
-
-                                      return (
-                                          <li
-                                              key={idx}
-                                              ref={idx === 0 ? firstItemRef : null}
-                                              className={clsx(c.listItem, c.listItemLessPadding, {
-                                                  [c.listItemActive]: isActive,
-                                                  [c.listItemMobile]: isMobile,
-                                              })}
-                                              onClick={() => {
-                                                  dispatch(
-                                                      updateFilexColumn(columnId, {
-                                                          active: {
-                                                              ...result,
-                                                              ...pds4_label,
-                                                              key: result.name,
-                                                          },
-                                                      })
-                                                  )
-                                              }}
-                                          >
-                                              <div
-                                                  className={clsx(c.liType, {
-                                                      [c.liTypeDeprecated]: isDeprecated,
-                                                      [c.deprecatedColor]:
-                                                          isDeprecated && !isActive,
-                                                  })}
-                                              >
-                                                  {getIn(r._source, ES_PATHS.archive.fs_type) ===
-                                                  'file' ? (
-                                                      <>
-                                                          {IMAGE_EXTENSIONS.includes(
-                                                              getExtension(result.uri, true)
-                                                          ) ? (
-                                                              <ImageIcon size="small" />
-                                                          ) : (
-                                                              <InsertDriveFileOutlinedIcon size="small" />
-                                                          )}{' '}
-                                                      </>
-                                                  ) : isDeprecated ? (
-                                                      <FolderOffIcon size="small" />
-                                                  ) : (
-                                                      <FolderIcon size="small" />
-                                                  )}
-                                              </div>
-                                              <div className={c.flexBetween}>
-                                                  <div
-                                                      className={clsx(c.liName, {
-                                                          [c.liNameMobile]: isMobile,
-                                                          [c.deprecatedColor]:
-                                                              isDeprecated && !isActive,
-                                                      })}
-                                                      title={result.name}
-                                                  >
-                                                      <Highlighter
-                                                          highlightClassName={c.highlight}
-                                                          searchWords={[filterSearchValue]}
-                                                          autoEscape={true}
-                                                          textToHighlight={String(
-                                                              prevNames
-                                                                  ? prevNames
-                                                                        .map((n) => n.name)
-                                                                        .join('/')
-                                                                  : result.name
-                                                          )}
+                                : directoryVirtualized ? (
+                                      <AutoSizer>
+                                          {({ width, height }) => (
+                                              <VirtualizedList
+                                                  width={width}
+                                                  height={height}
+                                                  rowCount={directoryRows.length}
+                                                  rowHeight={29}
+                                                  overscanRowCount={10}
+                                                  onScroll={handleVirtualScroll}
+                                                  style={{ outline: 'none' }}
+                                                  rowRenderer={({ index, key, style }) => (
+                                                      <DirectoryRow
+                                                          key={key}
+                                                          r={directoryRows[index]}
+                                                          idx={index}
+                                                          style={style}
+                                                          activeKey={params.active?.key}
+                                                          isMobile={isMobile}
+                                                          columnId={columnId}
+                                                          filterSearchValue={filterSearchValue}
+                                                          prevNames={prevNames}
+                                                          firstItemRef={firstItemRef}
                                                       />
-                                                  </div>
-                                                  <div
-                                                      className={clsx(
-                                                          c.listItemButtons,
-                                                          'listItemButtons',
-                                                          {
-                                                              [c.listItemButtonsActive]:
-                                                                  params.active &&
-                                                                  params.active.key === result.name,
-                                                          }
-                                                      )}
-                                                  >
-                                                      {getIn(s, ES_PATHS.archive.fs_type) ===
-                                                      'file' ? (
-                                                          <Tooltip title="Download" arrow>
-                                                              <IconButton
-                                                                  className={clsx(c.button, {
-                                                                      [c.buttonMobile]: isMobile,
-                                                                  })}
-                                                                  aria-label="quick download"
-                                                                  onClick={(e) => {
-                                                                      e.stopPropagation()
-                                                                      if (s.uri != null) {
-                                                                          streamDownloadFile(
-                                                                              getPDSUrl(
-                                                                                  s.uri,
-                                                                                  getIn(
-                                                                                      s,
-                                                                                      ES_PATHS
-                                                                                          .archive
-                                                                                          .release_id
-                                                                                  )
-                                                                              ),
-                                                                              getFilename(s.uri)
-                                                                          )
-                                                                      }
-                                                                  }}
-                                                                  size="large"
-                                                              >
-                                                                  <GetAppIcon size="small" />
-                                                              </IconButton>
-                                                          </Tooltip>
-                                                      ) : null}
-                                                      <Tooltip title="Add to Cart" arrow>
-                                                          <IconButton
-                                                              className={clsx(c.button, {
-                                                                  [c.buttonMobile]: isMobile,
-                                                              })}
-                                                              aria-label="add to cart"
-                                                              onClick={(e) => {
-                                                                  e.stopPropagation()
-                                                                  dispatch(
-                                                                      addToCart(
-                                                                          getIn(
-                                                                              s,
-                                                                              ES_PATHS.archive
-                                                                                  .fs_type
-                                                                          ) === 'directory'
-                                                                              ? 'directory'
-                                                                              : 'file',
-                                                                          {
-                                                                              uri: getIn(
-                                                                                  s,
-                                                                                  ES_PATHS.source
-                                                                              ),
-                                                                              related: getIn(
-                                                                                  s,
-                                                                                  ES_PATHS.related
-                                                                              ),
-                                                                              release_id: getIn(
-                                                                                  s,
-                                                                                  ES_PATHS.archive
-                                                                                      .release_id
-                                                                              ),
-                                                                              size: getIn(
-                                                                                  s,
-                                                                                  ES_PATHS.archive
-                                                                                      .size
-                                                                              ),
-                                                                          }
-                                                                      )
-                                                                  )
-
-                                                                  dispatch(
-                                                                      setSnackBarText(
-                                                                          'Added to Cart!',
-                                                                          'success'
-                                                                      )
-                                                                  )
-                                                              }}
-                                                              size="large"
-                                                          >
-                                                              <AddShoppingCartIcon size="small" />
-                                                          </IconButton>
-                                                      </Tooltip>
-                                                  </div>
-                                              </div>
-                                          </li>
-                                      )
-                                  })}
+                                                  )}
+                                              />
+                                          )}
+                                      </AutoSizer>
+                                  ) : (
+                                      directoryRows.map((r, idx) => (
+                                          <DirectoryRow
+                                              key={idx}
+                                              r={r}
+                                              idx={idx}
+                                              activeKey={params.active?.key}
+                                              isMobile={isMobile}
+                                              columnId={columnId}
+                                              filterSearchValue={filterSearchValue}
+                                              prevNames={prevNames}
+                                              firstItemRef={firstItemRef}
+                                          />
+                                      ))
+                                  )}
                         </ul>
                     ) : null}
                 </div>
