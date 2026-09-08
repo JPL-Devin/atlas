@@ -1,0 +1,352 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="base.css" />
+        <script src="shell.js"></script>
+        <style>
+            /* Public-facing feel: full-bleed hero with the templated title and
+               caption, key facts as a strip, deeper metadata on scroll. */
+            .content {
+                display: block;
+                background: #08080b;
+                overflow: hidden;
+                position: relative;
+            }
+            .hero {
+                position: relative;
+                height: 560px;
+            }
+            .hero img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .hero .shade {
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    to top,
+                    rgba(6, 6, 10, 0.97) 0%,
+                    rgba(6, 6, 10, 0.55) 34%,
+                    rgba(6, 6, 10, 0.05) 68%
+                );
+            }
+            .hero .inner {
+                position: absolute;
+                left: 46px;
+                right: 46px;
+                bottom: 26px;
+            }
+            .kicker {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 1.4px;
+                text-transform: uppercase;
+                color: #ffcc80;
+            }
+            h1 {
+                margin: 10px 0 0 0;
+                font-size: 40px;
+                line-height: 46px;
+                letter-spacing: -0.6px;
+                color: #fff;
+                max-width: 1000px;
+            }
+            .lede {
+                margin-top: 12px;
+                font-size: 15.5px;
+                line-height: 25px;
+                color: #d6d6de;
+                max-width: 900px;
+            }
+            .lede .filled {
+                color: #fff;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+            }
+            .cta {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                margin-top: 16px;
+            }
+            .b {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                height: 34px;
+                padding: 0 13px;
+                border-radius: 3px;
+                font-size: 12.5px;
+                font-weight: 600;
+                color: #e8e8ee;
+                border: 1px solid rgba(255, 255, 255, 0.22);
+                background: rgba(255, 255, 255, 0.06);
+            }
+            .b.primary {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #fff;
+            }
+            .b .sub {
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.6);
+            }
+            .credit {
+                position: absolute;
+                right: 46px;
+                bottom: 30px;
+                font-size: 10.5px;
+                color: var(--grey500);
+            }
+            .strip {
+                display: grid;
+                grid-template-columns: repeat(6, 1fr);
+                gap: 1px;
+                background: #1c1c22;
+                border-top: 1px solid #1c1c22;
+                border-bottom: 1px solid #1c1c22;
+            }
+            .s {
+                background: #0d0d11;
+                padding: 11px 16px 12px 16px;
+            }
+            .s .k {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 9.5px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--grey500);
+            }
+            .s .v {
+                margin-top: 3px;
+                font-size: 20px;
+                font-weight: 700;
+                color: #fff;
+            }
+            .s .x {
+                font-size: 10.5px;
+                color: var(--grey400);
+            }
+            .below {
+                display: grid;
+                grid-template-columns: 1.35fr 1fr 1fr;
+                gap: 26px;
+                padding: 18px 46px 0 46px;
+            }
+            .below h2 {
+                margin: 0 0 8px 0;
+                font-size: 11px /* section labels match the rest of the redesign */;
+                font-weight: 700;
+                letter-spacing: 1.1px;
+                text-transform: uppercase;
+                color: var(--grey400);
+            }
+            .below p {
+                margin: 0;
+                font-size: 13px;
+                line-height: 20px;
+                color: #cbcbd3;
+            }
+            .films {
+                display: flex;
+                gap: 7px;
+                margin-top: 10px;
+            }
+            .films img {
+                width: 92px;
+                height: 62px;
+                object-fit: cover;
+                border-radius: 3px;
+                border: 1px solid #26262d;
+                opacity: 0.8;
+            }
+            .films img.cur {
+                opacity: 1;
+                border-color: var(--accent2);
+            }
+            .rows {
+                border-top: 1px solid #1c1c22;
+            }
+            .rows .row {
+                border-bottom: 1px solid #16161b;
+            }
+            .rows .row:nth-child(odd) {
+                background: none;
+            }
+            .scrollcue {
+                position: absolute;
+                left: 50%;
+                bottom: 6px;
+                transform: translateX(-50%);
+                font-size: 10.5px;
+                color: var(--grey500);
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            a {
+                color: #8ebbff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div data-shell="rail"></div>
+            <div class="main">
+                <div data-shell="topbar"></div>
+                <div
+                    data-shell="titlebar"
+                    data-name="NRF_1279_0780483423_145CWG_N0600000NCAM13279_0A0195J02.IMG"
+                ></div>
+                <div class="tabs">
+                    <div class="tab active">Overview</div>
+                    <div class="tab">Product Label</div>
+                    <div class="tab">
+                        Related Products<span style="opacity: 0.6">&nbsp;&nbsp;12</span>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="tab-right">
+                        <span class="chip blue"
+                            ><span data-icon="star" data-size="13"></span>Cinematic layout</span
+                        >
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="hero">
+                        <img src="../assets/navcam-sol1279.jpg" />
+                        <div class="shade"></div>
+                        <div class="inner">
+                            <div class="kicker">
+                                <span data-icon="template" data-size="14"></span>
+                                Sol 1279 &middot; Jezero Crater &middot; Navcam Right
+                            </div>
+                            <h1>A hazy noon horizon, seen from Site 60</h1>
+                            <div class="lede">
+                                <span class="filled">Perseverance</span> looked north-northwest
+                                across <span class="filled">Jezero Crater</span> on
+                                <span class="filled">Sol 1279</span> at
+                                <span class="filled">11:45 local true solar time</span>, pointing
+                                <span class="filled">327.6&deg;</span> azimuth with the Sun
+                                <span class="filled">57.1&deg;</span> above the horizon.
+                            </div>
+                            <div class="cta">
+                                <div class="b primary">
+                                    <span data-icon="download" data-size="16"></span>Download
+                                    <span class="sub">IMG &middot; 12.4 MB</span>
+                                </div>
+                                <div class="b">
+                                    <span data-icon="cart" data-size="16"></span>Add to cart
+                                </div>
+                                <div class="b">
+                                    <span data-icon="quote" data-size="16"></span>Copy caption
+                                </div>
+                                <div class="b">
+                                    <span data-icon="fullscreen" data-size="16"></span>Open in
+                                    viewer
+                                </div>
+                                <div class="b">
+                                    <span data-icon="code" data-size="16"></span>PDS4 label
+                                </div>
+                            </div>
+                        </div>
+                        <div class="credit">
+                            NASA / JPL&#8209;Caltech &middot; caption.mars_2020.ncam v4
+                        </div>
+                    </div>
+
+                    <div class="strip">
+                        <div class="s">
+                            <div class="k"><span data-icon="sun" data-size="12"></span>Sol</div>
+                            <div class="v">1279</div>
+                            <div class="x">Ls 334.8&deg;</div>
+                        </div>
+                        <div class="s">
+                            <div class="k">
+                                <span data-icon="clock" data-size="12"></span>Local time
+                            </div>
+                            <div class="v">11:45</div>
+                            <div class="x">LMST 12:36</div>
+                        </div>
+                        <div class="s">
+                            <div class="k">
+                                <span data-icon="place" data-size="12"></span>Site / drive
+                            </div>
+                            <div class="v">60 / 0</div>
+                            <div class="x">Jezero Crater</div>
+                        </div>
+                        <div class="s">
+                            <div class="k">
+                                <span data-icon="imageSearch" data-size="12"></span>Instrument
+                            </div>
+                            <div class="v">NAVCAM_R</div>
+                            <div class="x">calibrated color</div>
+                        </div>
+                        <div class="s">
+                            <div class="k">
+                                <span data-icon="sun" data-size="12"></span>Sun elevation
+                            </div>
+                            <div class="v">57.1&deg;</div>
+                            <div class="x">az 5.7&deg;</div>
+                        </div>
+                        <div class="s">
+                            <div class="k">
+                                <span data-icon="layers" data-size="12"></span>Release
+                            </div>
+                            <div class="v">12</div>
+                            <div class="x">3 versions</div>
+                        </div>
+                    </div>
+
+                    <div class="below">
+                        <div>
+                            <h2>About this product</h2>
+                            <p>
+                                <b>Calibrated color</b> product (CWG, 2&times; downsampled) from
+                                bundle <a>mars2020_navcam_ops_calibrated</a>, release 12, generated
+                                2024&#8209;09&#8209;30. Two optional clauses were skipped because
+                                their fields are absent from the label.
+                            </p>
+                        </div>
+                        <div>
+                            <h2>Sequence NCAM13279 &middot; frame 2 of 12</h2>
+                            <div class="films">
+                                <img src="../assets/thumb-navcam.jpg" />
+                                <img class="cur" src="../assets/thumb-navcam2.jpg" />
+                                <img src="../assets/thumb-hazcam.jpg" />
+                                <img src="../assets/thumb-hazcam2.jpg" />
+                            </div>
+                        </div>
+                        <div>
+                            <h2>Key label fields</h2>
+                            <div class="rows">
+                                <div class="row">
+                                    <div class="k">Start (UTC)</div>
+                                    <div class="v">2024-09-24 21:13:32.909</div>
+                                </div>
+                                <div class="row">
+                                    <div class="k">SCLK</div>
+                                    <div class="v">780483423.145</div>
+                                </div>
+                                <div class="row">
+                                    <div class="k">All fields</div>
+                                    <div class="v"><a>143 fields</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="scrollcue">
+                        <span data-icon="chevronDown" data-size="14"></span>Scroll for the full
+                        field list, files and related products
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

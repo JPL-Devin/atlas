@@ -1,0 +1,415 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="base.css" />
+        <script src="shell.js"></script>
+        <style>
+            /* Compare mode: two products in synced viewers, each with its own
+               templated caption, plus a diff of the fields that disagree. */
+            .content {
+                background: #0b0b0e;
+                display: flex;
+                flex-flow: column;
+                overflow: hidden;
+            }
+            .cmpbar {
+                flex: none;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 0 14px;
+                background: #131318;
+                border-bottom: 1px solid var(--grey700);
+            }
+            .cmpbar .grow {
+                flex: 1;
+            }
+            .seg {
+                display: flex;
+                border: 1px solid var(--grey700);
+                border-radius: 3px;
+                overflow: hidden;
+            }
+            .seg div {
+                height: 26px;
+                padding: 0 10px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 11px;
+                font-weight: 600;
+                color: var(--grey400);
+                border-right: 1px solid var(--grey700);
+            }
+            .seg div:last-child {
+                border-right: none;
+            }
+            .seg div.on {
+                background: rgba(28, 103, 227, 0.28);
+                color: #bcd7ff;
+            }
+            .pair {
+                flex: 1;
+                min-height: 0;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1px;
+                background: #26262d;
+            }
+            .side {
+                position: relative;
+                background: #06060a;
+                overflow: hidden;
+            }
+            .side img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .tag {
+                position: absolute;
+                left: 10px;
+                top: 10px;
+                display: flex;
+                align-items: center;
+                gap: 7px;
+            }
+            .tag .n {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                height: 24px;
+                padding: 0 9px;
+                border-radius: 3px;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.4px;
+                background: rgba(0, 0, 0, 0.7);
+                border: 1px solid var(--grey700);
+                color: #e6e6ec;
+            }
+            .tag .n.a {
+                border-color: rgba(40, 139, 255, 0.7);
+                color: #bcd7ff;
+            }
+            .tag .n.b {
+                border-color: rgba(255, 152, 0, 0.7);
+                color: #ffcc80;
+            }
+            .sidecap {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 30px 12px 10px 12px;
+                background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0));
+            }
+            .sidecap .t {
+                font-size: 13.5px;
+                font-weight: 700;
+                color: #fff;
+            }
+            .sidecap .x {
+                margin-top: 3px;
+                font-size: 12px;
+                line-height: 17px;
+                color: #d0d0d8;
+            }
+            .sidecap .f {
+                margin-top: 7px;
+            }
+            .lockline {
+                position: absolute;
+                left: 50%;
+                top: 0;
+                bottom: 0;
+                width: 1px;
+                background: rgba(255, 255, 255, 0.35);
+            }
+            .diff {
+                flex: none;
+                height: 296px;
+                display: grid;
+                grid-template-columns: 1fr 420px;
+                gap: 1px;
+                background: #26262d;
+                border-top: 1px solid var(--grey700);
+            }
+            .dpane {
+                background: #0d0d11;
+                padding: 10px 14px;
+                overflow: hidden;
+            }
+            .h {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 10.5px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--grey400);
+                margin-bottom: 7px;
+            }
+            .h .hint {
+                font-weight: 500;
+                letter-spacing: 0.2px;
+                text-transform: none;
+                color: var(--grey500);
+            }
+            .dr {
+                display: grid;
+                grid-template-columns: 210px 1fr 1fr;
+                gap: 10px;
+                height: 24px;
+                align-items: center;
+                padding: 0 8px;
+                font-size: 11.7px;
+                border-bottom: 1px solid #17171c;
+            }
+            .dr.head {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.8px;
+                text-transform: uppercase;
+                color: var(--grey500);
+                border-bottom: 1px solid #26262d;
+            }
+            .dr .f {
+                font-family: 'DejaVu Sans Mono', monospace;
+                font-size: 11px;
+                color: var(--grey400);
+            }
+            .dr .a {
+                color: #bcd7ff;
+            }
+            .dr .b {
+                color: #ffcc80;
+            }
+            .dr.same .a,
+            .dr.same .b {
+                color: var(--grey400);
+            }
+            .dr.changed {
+                background: rgba(255, 152, 0, 0.07);
+            }
+            .capdiff {
+                font-size: 12.3px;
+                line-height: 19px;
+                color: #d5d5dd;
+            }
+            .capdiff .del {
+                color: #ff9c94;
+                background: rgba(255, 92, 82, 0.12);
+                text-decoration: line-through;
+            }
+            .capdiff .ins {
+                color: #9cf0c2;
+                background: rgba(71, 218, 132, 0.12);
+            }
+            .pbtn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                height: 28px;
+                padding: 0 10px;
+                border-radius: 3px;
+                font-size: 11.5px;
+                font-weight: 600;
+                color: var(--grey150);
+                border: 1px solid var(--grey700);
+                background: #16161b;
+            }
+            .pbtn.primary {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #fff;
+            }
+            a {
+                color: #8ebbff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div data-shell="rail"></div>
+            <div class="main">
+                <div data-shell="topbar"></div>
+                <div
+                    data-shell="titlebar"
+                    data-name="ZRF_1221_0775339022_769RZS_N0561010ZCAM09271_0630LMJ01.IMG"
+                ></div>
+                <div class="tabs">
+                    <div class="tab active">Overview</div>
+                    <div class="tab">Product Label</div>
+                    <div class="tab">
+                        Related Products<span style="opacity: 0.6">&nbsp;&nbsp;18</span>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="tab-right">
+                        <span class="chip blue"
+                            ><span data-icon="layers" data-size="13"></span>Compare mode</span
+                        >
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="cmpbar">
+                        <div class="seg">
+                            <div class="on">
+                                <span data-icon="layers" data-size="14"></span>SIDE BY SIDE
+                            </div>
+                            <div>SWIPE</div>
+                            <div>BLINK</div>
+                        </div>
+                        <div class="seg">
+                            <div class="on">
+                                <span data-icon="link" data-size="14"></span>ZOOM &amp; PAN LOCKED
+                            </div>
+                        </div>
+                        <span class="tmpl-note"
+                            >Comparing <b>calibrated RZS</b> against its
+                            <b>raw ECM counterpart</b></span
+                        >
+                        <div class="grow"></div>
+                        <span class="tmpl-note"
+                            ><span data-icon="template" data-size="14"></span>Each side renders its
+                            own template &middot; <a>diff templates</a></span
+                        >
+                    </div>
+
+                    <div class="pair">
+                        <div class="side">
+                            <img src="../assets/zcam-sol1221.jpg" />
+                            <div class="tag">
+                                <span class="n a">A &middot; open record</span>
+                                <span class="n" style="color: #9cf0c2"
+                                    >Calibrated &middot; RZS</span
+                                >
+                            </div>
+                            <div class="sidecap">
+                                <div class="t">
+                                    Mastcam&#8209;Z Right &mdash; Sol 1221, 13:08 LTST
+                                </div>
+                                <div class="x">
+                                    <b>Radiometrically calibrated</b> frame from Site 56, Drive
+                                    1010. IOF reflectance, debayered colour, release 11.
+                                </div>
+                                <div class="f tmpl-note">
+                                    <span data-icon="template" data-size="14"></span
+                                    >caption.mars_2020.zcam.calibrated &middot; 11 of 12 tokens
+                                </div>
+                            </div>
+                        </div>
+                        <div class="side">
+                            <img src="../assets/zcam-raw-sol772.jpg" />
+                            <div class="tag">
+                                <span class="n b">B &middot; raw counterpart</span>
+                                <span class="n" style="color: #ffcc80">Raw &middot; ECM</span>
+                            </div>
+                            <div class="sidecap">
+                                <div class="t">
+                                    Mastcam&#8209;Z Right &mdash; Sol 1221, 13:08 LTST (raw)
+                                </div>
+                                <div class="x">
+                                    <b>Raw</b> EDR frame, same observation, no radiometric
+                                    correction and no debayering. Release 11.
+                                </div>
+                                <div class="f tmpl-note">
+                                    <span data-icon="template" data-size="14"></span
+                                    >caption.mars_2020.zcam.raw &middot; 9 of 12 tokens
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="diff">
+                        <div class="dpane">
+                            <div class="h">
+                                <span>Field differences</span>
+                                <span class="hint"
+                                    >7 of 143 fields differ &middot; identical fields hidden</span
+                                >
+                            </div>
+                            <div class="dr head">
+                                <span>field</span><span>A &middot; calibrated</span
+                                ><span>B &middot; raw</span>
+                            </div>
+                            <div class="dr changed">
+                                <span class="f">product_type</span><span class="a">RZS</span
+                                ><span class="b">ECM</span>
+                            </div>
+                            <div class="dr changed">
+                                <span class="f">processing_level</span
+                                ><span class="a">Calibrated</span><span class="b">Raw</span>
+                            </div>
+                            <div class="dr changed">
+                                <span class="f">radiometric_correction</span
+                                ><span class="a">IOF</span><span class="b">none</span>
+                            </div>
+                            <div class="dr changed">
+                                <span class="f">bundle_id</span
+                                ><span class="a">mars2020_mastcamz_ops_calibrated</span
+                                ><span class="b">mars2020_mastcamz_ops_raw</span>
+                            </div>
+                            <div class="dr changed">
+                                <span class="f">file_size</span><span class="a">5.6 MB</span
+                                ><span class="b">2.1 MB</span>
+                            </div>
+                            <div class="dr changed">
+                                <span class="f">creation_date_time</span
+                                ><span class="a">2024-08-02T17:44:10Z</span
+                                ><span class="b">2024-07-28T02:09:55Z</span>
+                            </div>
+                            <div class="dr changed">
+                                <span class="f">color_representation</span><span class="a">RGB</span
+                                ><span class="b">Bayer</span>
+                            </div>
+                            <div class="dr same">
+                                <span class="f">sol &middot; ltst &middot; site &middot; drive</span
+                                ><span class="a"
+                                    >1221 &middot; 13:08:26 &middot; 56 &middot; 1010</span
+                                ><span class="b">identical</span>
+                            </div>
+                            <div class="dr same">
+                                <span class="f">site_instrument_azimuth</span
+                                ><span class="a">88.4651&deg;</span><span class="b">identical</span>
+                            </div>
+                        </div>
+                        <div class="dpane">
+                            <div class="h">
+                                <span>Caption diff</span><span class="hint">A &rarr; B</span>
+                            </div>
+                            <div class="capdiff">
+                                Perseverance acquired this
+                                <span class="del">radiometrically calibrated</span>
+                                <span class="ins">raw</span> Mastcam&#8209;Z Right frame on Sol 1221
+                                (2024&#8209;07&#8209;27, 13:08:26 LTST) from Site 56, Drive 1010.
+                                <span class="del"
+                                    >Pixel values are IOF reflectance and colour is debayered.</span
+                                >
+                                <span class="ins"
+                                    >Pixel values are raw DN in a Bayer pattern; use the calibrated
+                                    counterpart for science.</span
+                                >
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 12px">
+                                <div class="pbtn primary">
+                                    <span data-icon="download" data-size="15"></span>Download both
+                                </div>
+                                <div class="pbtn">
+                                    <span data-icon="cart" data-size="15"></span>Add pair to cart
+                                </div>
+                            </div>
+                            <div class="tmpl-note" style="margin-top: 10px">
+                                <span data-icon="warning" data-size="14"></span>Raw template skips 3
+                                clauses that need calibration fields
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
