@@ -11,7 +11,7 @@ import {
     setAdvancedFiltersExpression,
     search,
 } from '../../../../../../core/redux/actions/actions.js'
-import { removeComments } from '../../../../../../core/utils.js'
+import { removeComments, getSortURLParams } from '../../../../../../core/utils.js'
 import {
     getAtlasMappingOptions,
     getAutocompleteValues,
@@ -213,6 +213,9 @@ const AdvancedFilter = (props) => {
     const allMappings = useSelector((state) => {
         return state.getIn(['mappings', 'all']) || {}
     })
+    const resultSorting = useSelector((state) => {
+        return state.getIn(['resultSorting'])
+    }).toJS()
 
     const options = getAtlasMappingOptions(allMappings)
 
@@ -221,12 +224,15 @@ const AdvancedFilter = (props) => {
     const [firstPass, setFirstPass] = useState(true)
 
     useEffect(() => {
-        const desiredSearchUrl = `?_adv=${encodeURI(removeComments(advancedFilters))}`
+        const params = [`_adv=${encodeURI(removeComments(advancedFilters))}`].concat(
+            getSortURLParams(resultSorting)
+        )
+        const desiredSearchUrl = `?${params.join('&')}`
         const currentURL = new Url(window.location)
         if (currentURL.pathname + currentURL.query !== desiredSearchUrl) {
             navigate(desiredSearchUrl, { replace: true })
         }
-    }, [advancedFilters])
+    }, [advancedFilters, resultSorting.field, resultSorting.direction])
 
     useEffect(() => {
         // On Mount
