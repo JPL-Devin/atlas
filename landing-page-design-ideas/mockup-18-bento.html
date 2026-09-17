@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!--
+  Atlas — Splash (Bento)
+  DESIGN MOCKUP ONLY. Standalone HTML/CSS reusing the real Atlas chrome
+  (light Topbar + dark left Toolbar) via _atlas-chrome.css. Not wired into the app.
+  Mission/theme shortcuts link to /search?view=<id>; "Everything" links to /search.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Atlas — Splash (Bento)</title>
+<link rel="stylesheet" href="_atlas-chrome.css" />
+<style>
+
+  .sbar { display: flex; align-items: center; gap: 10px; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 26px; padding: 10px 16px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.07); }
+  .sbar.big { padding: 14px 20px; border-radius: 30px; box-shadow: 0 6px 22px rgba(0,0,0,.10); }
+  .sbar svg { width: 22px; height: 22px; fill: var(--muted); flex: none; }
+  .sbar.big svg { width: 24px; height: 24px; }
+  .sbar input { border: none; outline: none; flex: 1; font-size: 15px; color: var(--text); background: none; font-family: inherit; }
+  .sbar.big input { font-size: 17px; }
+  .sbar .go { background: var(--blue); color: #fff; border: none; border-radius: 20px; padding: 8px 20px; font-weight: 700; font-size: 13px; cursor: pointer; }
+.viewid{font-family:"Public Sans",monospace;font-size:11px;color:var(--blue);background:#eef4fe;border:1px solid #cfe0fb;border-radius:4px;padding:3px 7px;white-space:nowrap;}
+  .m20 { background: radial-gradient(circle at 66% 42%, #c1553a, #7a2e1c 60%, #3a1a10); }
+  .msl { background: radial-gradient(circle at 34% 46%, #d08a4a, #8a4a1f 60%, #3a1e0c); }
+  .insight { background: radial-gradient(circle at 55% 55%, #b76a44, #5f2f1c 60%, #2a160d); }
+  .mro { background: radial-gradient(circle at 50% 38%, #9a5638, #5a2c1a 60%, #22110a); }
+  .cassini { background: radial-gradient(circle at 60% 45%, #d9c48a, #9a7f45 55%, #3a3018); }
+  .lro { background: radial-gradient(circle at 46% 50%, #cfd2d6, #7c8085 60%, #34383c); }
+  .moon { background: radial-gradient(circle at 44% 48%, #d7d9dc, #8a8d92 60%, #3a3d42); }
+  .saturn { background: radial-gradient(circle at 55% 45%, #e6d5a6, #b9a05f 58%, #4a3f22); }
+  .jezero { background: radial-gradient(circle at 40% 60%, #cf7f4e, #8a3f22 60%, #2c150b); }
+  .ingenuity { background: radial-gradient(circle at 60% 40%, #7fb3e0, #38618f 60%, #16283f); }
+  .dust { background: radial-gradient(circle at 50% 50%, #e0a86a, #9a5a2a 55%, #35200f); }
+  .apollo { background: radial-gradient(circle at 45% 45%, #c9ccd0, #75787d 60%, #2c2f33); }
+  .europa { background: radial-gradient(circle at 52% 48%, #e8ddc7, #b7986a 55%, #4a3a24); }
+  .all { background: conic-gradient(from 210deg, #1c67e3, #c1553a, #d9c48a, #1c67e3); }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 30px 26px 60px; }
+  .bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 150px; gap: 14px; }
+  .b { border-radius: 10px; border: 1px solid var(--border); background: var(--panel); overflow: hidden; text-decoration: none; color: inherit; transition: transform .14s, border-color .14s, box-shadow .14s; position: relative; }
+  .b:hover { transform: translateY(-3px); border-color: var(--blue); box-shadow: 0 10px 24px rgba(0,0,0,.1); }
+  .w2 { grid-column: span 2; } .h2 { grid-row: span 2; }
+  .search-tile { grid-column: span 4; background: linear-gradient(135deg,#ffffff,#eef4fe); display: flex; flex-direction: column; justify-content: center; padding: 22px 26px; grid-row: span 1; }
+  .search-tile h1 { font-size: 22px; font-weight: 800; margin: 0 0 12px; }
+  .search-tile .sbar { max-width: 640px; }
+  .cover { position: absolute; inset: 0; }
+  .cover.grad::after { content:""; position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.72)); }
+  .cap { position: relative; padding: 14px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; color: #fff; }
+  .cap .kick { font-size: 10.5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; opacity: .85; }
+  .cap h3 { font-size: 17px; font-weight: 800; margin: 3px 0 3px; }
+  .cap p { font-size: 12px; opacity: .9; margin: 0; }
+  .lite { padding: 14px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+  .lite .top { display:flex; align-items:center; gap:10px; }
+  .lite .g { width: 34px; height: 34px; border-radius: 7px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+  .lite h3 { font-size: 14px; font-weight: 700; margin: 0; }
+  .stat { padding: 14px; display: flex; flex-direction: column; justify-content: center; }
+  .stat .n { font-size: 26px; font-weight: 800; }
+  .stat .l { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-top: 3px; }
+  .news { padding: 14px; }
+  .news .h { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+  .news .it { font-size: 12.5px; padding: 6px 0; border-bottom: 1px solid var(--border-soft); }
+  .news .it:last-child { border: none; }
+  .news .it b { color: var(--blue); font-size: 10.5px; }
+  .everything { background: linear-gradient(135deg,#0b3d91,#1c67e3); color:#fff; }
+  .everything .lite h3, .everything .viewid { color: #fff; }
+  .everything .viewid { background: rgba(255,255,255,.15); border-color: rgba(255,255,255,.3); }
+
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="rail"><div class="group"><button class="rbtn" title="Navigation" aria-label="navigation"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button><div class="rdiv"></div><button class="rbtn" title="Home" aria-label="home"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button><button class="rbtn active" title="Image Search" aria-label="image search"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button><button class="rbtn" title="Archive Explorer" aria-label="archive explorer"><svg viewBox="0 0 24 24"><path d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"/></svg></button></div><div class="group"><div class="rdiv"></div><button class="rbtn" title="Help" aria-label="help"><svg viewBox="0 0 24 24"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg></button><button class="rbtn" title="Info" aria-label="info"><svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></button></div></nav>
+<div class="main">
+<header class="topbar"><div class="tleft"><div class="logo"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="46" fill="#0B3D91"/><path d="M18 55 Q50 30 84 46" stroke="#fff" stroke-width="2" fill="none" opacity=".55"/><path d="M20 60 C45 48 60 52 82 40 C70 62 40 70 20 60 Z" fill="#FC3D21"/><text x="50" y="56" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="20" fill="#fff" letter-spacing="1">NASA</text></svg></div><div class="titles"><div class="node"><a class="pds">PDS</a><a class="cis">Cartography and Imaging Sciences</a></div><div class="appline"><h1 class="appname">ATLAS</h1></div></div></div><div class="tright" style="align-items:center"><button class="tbtn" title="API Documentation" aria-label="api docs"><svg viewBox="0 0 24 24"><path d="M7 7H5A2 2 0 0 0 3 9V17H5V13H7V17H9V9A2 2 0 0 0 7 7M7 11H5V9H7M14 7H10V17H12V13H14A2 2 0 0 0 16 11V9A2 2 0 0 0 14 7M14 11H12V9H14M20 9V15H21V17H17V15H18V9H17V7H21V9Z"/></svg></button><button class="tbtn" title="Image Search" aria-label="image search"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button><button class="tbtn" title="Archive Explorer" aria-label="archive explorer"><svg viewBox="0 0 24 24"><path d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"/></svg></button><button class="tbtn" title="Cart" aria-label="cart"><svg viewBox="0 0 24 24"><path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.45C3.52 15.37 4.48 17 6 17h12v-2H6l1.1-2h8.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6zM6 18c-1.1 0-1.99.9-1.99 2S4.9 22 6 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg><span class="badge">3</span></button></div></header>
+<main class="content">
+
+  <div class="wrap">
+    <div class="bento">
+      <div class="b search-tile"><h1>Search NASA planetary imagery</h1><div class="sbar big"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input placeholder="Search images, targets, missions, collections…" /><button class="go">Search</button></div></div>
+
+      <a class="b w2 h2" href="/search?view=cassini_grand_finale"><span class="cover saturn grad"></span><span class="cap"><span class="kick">Featured collection</span><h3>Cassini Grand Finale</h3><p>22 orbits between Saturn and its rings · 62K images</p></span></a>
+
+      <a class="b" href="/search?view=m20"><span class="lite"><span class="top"><span class="g m20"></span><h3>Mars 2020</h3></span><span class="viewid">view=m20</span></span></a>
+      <a class="b" href="/search?view=msl"><span class="lite"><span class="top"><span class="g msl"></span><h3>Curiosity</h3></span><span class="viewid">view=msl</span></span></a>
+
+      <a class="b" href="/search?view=ingenuity"><span class="lite"><span class="top"><span class="g ingenuity"></span><h3>Ingenuity</h3></span><span class="viewid">view=ingenuity</span></span></a>
+      <a class="b everything" href="/search"><span class="lite"><span class="top"><span class="g all"></span><h3>Everything</h3></span><span class="viewid">/search</span></span></a>
+
+      <a class="b" href="/search"><span class="stat"><span class="n">140M+</span><span class="l">Products indexed</span></span></a>
+      <a class="b w2" href="/search?atlas=raws"><span class="news"><span class="h">Latest raws · live</span><span class="it"><b>2H AGO</b> — Perseverance Mastcam-Z, Sol 1487</span><span class="it"><b>YESTERDAY</b> — Europa Clipper first light</span></span></a>
+      <a class="b" href="/search?view=apollo_pans"><span class="lite"><span class="top"><span class="g apollo"></span><h3>Apollo pans</h3></span><span class="viewid">view=apollo_pans</span></span></a>
+    </div>
+  </div>
+
+</main>
+</div>
+</div>
+</body>
+</html>

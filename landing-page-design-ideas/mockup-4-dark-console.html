@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!--
+  Atlas Landing Page — Design Idea 4: Dark "mission console" data-tool aesthetic
+  DESIGN MOCKUP ONLY. Standalone HTML/CSS. Not wired into the app.
+  Mission cards link to /search?view=<view_id>; "Everything" links to /search.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Atlas — Splash (Console)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Public+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0d1216; --panel: #12181e; --panel-2: #192028; --border: #232b33;
+    --blue: #62c6f5; --blue-600: #1390f3; --yellow: #fee24a; --green: #8af4d4;
+    --text: #fdfdfd; --text-2: #c8ccd0; --muted: #6f767c;
+    --mono: 'JetBrains Mono','Public Sans',monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background:
+      linear-gradient(transparent 96%, rgba(98,198,245,.04) 96%) 0 0 / 100% 26px,
+      linear-gradient(90deg, transparent 96%, rgba(98,198,245,.04) 96%) 0 0 / 26px 100%,
+      var(--bg);
+    color: var(--text); font-family: 'Inter','Helvetica','Arial',sans-serif; -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .topbar { height: 52px; display: flex; align-items: center; gap: 14px; padding: 0 20px;
+    background: rgba(13,18,22,.9); border-bottom: 1px solid var(--border); backdrop-filter: blur(4px); }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .mark { width: 26px; height: 26px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--blue), var(--blue-600)); display: grid; place-items: center;
+    color: #06090c; font-weight: 800; font-size: 14px; }
+  .brand .name { font-weight: 800; letter-spacing: 1px; font-size: 16px; }
+  .brand .sub { color: var(--muted); font-size: 11px; font-family: var(--mono); }
+  .spacer { flex: 1; }
+  .status { font-family: var(--mono); font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 30px 22px 60px; }
+
+  .head { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 18px; margin-bottom: 22px; }
+  .head h1 { font-size: 24px; font-weight: 800; margin: 0 0 6px; }
+  .head .path { font-family: var(--mono); font-size: 12px; color: var(--blue); }
+  .head .path .k { color: var(--muted); }
+  .metrics { display: flex; gap: 26px; }
+  .metric .n { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--text); }
+  .metric .l { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .card {
+    position: relative; background: var(--panel); border: 1px solid var(--border);
+    text-decoration: none; color: inherit; padding: 0; overflow: hidden;
+    transition: border-color .12s, background .12s;
+  }
+  .card:hover { border-color: var(--blue); background: var(--panel-2); }
+  .card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+    background: linear-gradient(90deg, var(--blue), transparent); opacity: .6; }
+  .card .top { display: flex; gap: 12px; padding: 16px 16px 12px; }
+  .card .glyph { width: 46px; height: 46px; flex: none; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+  .card .id { font-family: var(--mono); font-size: 11px; color: var(--blue); }
+  .card h3 { font-size: 15px; font-weight: 700; margin: 3px 0 2px; }
+  .card .mission { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .card .readout { display: flex; gap: 0; border-top: 1px solid var(--border); }
+  .card .readout div { flex: 1; padding: 9px 16px; border-right: 1px solid var(--border); }
+  .card .readout div:last-child { border-right: none; }
+  .card .readout .n { font-family: var(--mono); font-size: 13px; font-weight: 700; }
+  .card .readout .l { font-size: 9.5px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+
+  .card.everything { border-color: rgba(254,226,74,.5); }
+  .card.everything::before { background: linear-gradient(90deg, var(--yellow), transparent); }
+  .card.everything .id { color: var(--yellow); }
+  .card.everything .glyph { background: conic-gradient(from 210deg, var(--yellow), #c1553a, var(--blue), var(--yellow)); }
+
+  .m20 { background: radial-gradient(circle at 60% 40%, #c1553a, #7a2e1c 65%, #2a130b); }
+  .msl { background: radial-gradient(circle at 40% 45%, #d08a4a, #8a4a1f 65%, #2a1608); }
+  .insight { background: radial-gradient(circle at 55% 55%, #b76a44, #5f2f1c 65%, #1c0f09); }
+  .mro { background: radial-gradient(circle at 50% 40%, #9a5638, #5a2c1a 65%, #150b06); }
+  .cassini { background: radial-gradient(circle at 60% 45%, #d9c48a, #9a7f45 60%, #2a2312); }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark">A</div>
+      <div><span class="name">ATLAS</span> <span class="sub">// pds-img</span></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="status"><span class="dot"></span> archive online · 140,382,119 products indexed</div>
+  </div>
+
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <h1>Select a mission</h1>
+        <div class="path"><span class="k">GET</span> /search?view=<span style="color:var(--yellow)">&lt;id&gt;</span> <span class="k">→ default filter set</span></div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="n">6</div><div class="l">Missions</div></div>
+        <div class="metric"><div class="n">140M+</div><div class="l">Products</div></div>
+        <div class="metric"><div class="n">99.9%</div><div class="l">Uptime</div></div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <a class="card" href="/search?view=m20">
+        <div class="top"><span class="glyph m20"></span><div><div class="id">view=m20</div><h3>Mars 2020 / Perseverance</h3><div class="mission">mission=mars_2020</div></div></div>
+        <div class="readout"><div><div class="n">4.2M</div><div class="l">Products</div></div><div><div class="n">7</div><div class="l">Instr.</div></div><div><div class="n">2021–</div><div class="l">Span</div></div></div>
+      </a>
+      <a class="card" href="/search?view=msl">
+        <div class="top"><span class="glyph msl"></span><div><div class="id">view=msl</div><h3>MSL / Curiosity</h3><div class="mission">mission=mars_science_laboratory</div></div></div>
+        <div class="readout"><div><div class="n">3.6M</div><div class="l">Products</div></div><div><div class="n">10</div><div class="l">Instr.</div></div><div><div class="n">2012–</div><div class="l">Span</div></div></div>
+      </a>
+      <a class="card" href="/search?view=insight">
+        <div class="top"><span class="glyph insight"></span><div><div class="id">view=insight</div><h3>InSight Lander</h3><div class="mission">mission=insight</div></div></div>
+        <div class="readout"><div><div class="n">210K</div><div class="l">Products</div></div><div><div class="n">3</div><div class="l">Instr.</div></div><div><div class="n">2018–22</div><div class="l">Span</div></div></div>
+      </a>
+      <a class="card" href="/search?view=mro">
+        <div class="top"><span class="glyph mro"></span><div><div class="id">view=mro</div><h3>Mars Recon. Orbiter</h3><div class="mission">mission=mro</div></div></div>
+        <div class="readout"><div><div class="n">5.9M</div><div class="l">Products</div></div><div><div class="n">6</div><div class="l">Instr.</div></div><div><div class="n">2006–</div><div class="l">Span</div></div></div>
+      </a>
+      <a class="card" href="/search?view=cassini">
+        <div class="top"><span class="glyph cassini"></span><div><div class="id">view=cassini</div><h3>Cassini / Saturn</h3><div class="mission">mission=cassini</div></div></div>
+        <div class="readout"><div><div class="n">3.9M</div><div class="l">Products</div></div><div><div class="n">12</div><div class="l">Instr.</div></div><div><div class="n">2004–17</div><div class="l">Span</div></div></div>
+      </a>
+      <a class="card everything" href="/search">
+        <div class="top"><span class="glyph"></span><div><div class="id">/search</div><h3>Everything · All data</h3><div class="mission">no default filters</div></div></div>
+        <div class="readout"><div><div class="n">140M+</div><div class="l">Products</div></div><div><div class="n">All</div><div class="l">Instr.</div></div><div><div class="n">1970s–</div><div class="l">Span</div></div></div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
