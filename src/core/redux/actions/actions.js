@@ -787,21 +787,30 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
             source = source.concat(resultsTable.columns)
         }
 
+        const noveltyField = ES_PATHS.ml_novelty_score.join('.')
+        const startTimeField = ES_PATHS.start_time.join('.')
+        const sortSpec = {
+            [resultSorting.field]: {
+                order: resultSorting.direction,
+                missing: '_last',
+                unmapped_type: 'keyword',
+            },
+        }
+        // Records without a novelty score tie at null; order those by start time
+        if (resultSorting.field === noveltyField)
+            sortSpec[startTimeField] = {
+                order: resultSorting.direction,
+                missing: '_last',
+                unmapped_type: 'date',
+            }
+        sortSpec[ES_PATHS.uri.join('.')] = 'asc'
+        sortSpec[ES_PATHS.release_id.join('.')] = 'desc'
+
         const dsl = {
             query,
             from,
             size: resultsPerPage,
-            sort: [
-                {
-                    [resultSorting.field]: {
-                        order: resultSorting.direction,
-                        missing: '_last',
-                        unmapped_type: 'keyword',
-                    },
-                    [ES_PATHS.uri.join('.')]: 'asc',
-                    [ES_PATHS.release_id.join('.')]: 'desc',
-                },
-            ],
+            sort: [sortSpec],
             aggs,
             collapse: {
                 field: 'uri',
