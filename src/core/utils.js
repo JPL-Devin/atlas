@@ -1,6 +1,31 @@
 import axios from 'axios'
 
-import { domain, endpoints, RELATED_MAPPINGS, AVAILABLE_URI_SIZES } from './constants'
+import {
+    domain,
+    endpoints,
+    RELATED_MAPPINGS,
+    AVAILABLE_URI_SIZES,
+    URL_SORT_PARAMS,
+} from './constants'
+import { getAppConfig } from './appConfig'
+
+/**
+ * Url params for a non-default result sort, e.g. ['_sort=a.b', '_order=asc']
+ *
+ * @param {Object} resultSorting - { field, direction, defaultField }
+ * @return {string[]}
+ */
+export function getSortURLParams(resultSorting) {
+    if (resultSorting == null) return []
+    const isDefault =
+        resultSorting.field === resultSorting.defaultField &&
+        resultSorting.direction === getAppConfig().defaultSortDirection
+    if (isDefault) return []
+    return [
+        `${URL_SORT_PARAMS.field}=${encodeURIComponent(resultSorting.field)}`,
+        `${URL_SORT_PARAMS.direction}=${resultSorting.direction}`,
+    ]
+}
 /**
  * Creating simple json object as header
  *

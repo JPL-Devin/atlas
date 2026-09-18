@@ -44,6 +44,12 @@ export const HASH_PATHS = {
 
 export const localStorageCart = 'ATLAS_CART'
 
+// /search url params that carry the result sort (not filters)
+export const URL_SORT_PARAMS = {
+    field: '_sort',
+    direction: '_order',
+}
+
 export const ES_PATHS = {
     source: ['uri'],
     uri: ['uri'],

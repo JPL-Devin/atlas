@@ -3,7 +3,7 @@ import axios from 'axios'
 import Url from 'url-parse'
 import geohash from 'ngeohash'
 
-import { domain, endpoints, resultsStatuses, ES_PATHS } from '../../constants'
+import { domain, endpoints, resultsStatuses, ES_PATHS, URL_SORT_PARAMS } from '../../constants'
 import { getAppConfig } from '../../appConfig'
 import {
     getHeader,
@@ -364,6 +364,15 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
         const activeFilters = forceActiveFilters || state.get('activeFilters').toJS()
         const resultsPerPage = state.getIn(['resultsPaging', 'resultsPerPage'])
         const resultSorting = state.getIn(['resultSorting']).toJS()
+        // Deep-linked sort (?_sort=<field>&_order=asc|desc)
+        const urlSortField = url?.query?.[URL_SORT_PARAMS.field]
+        const urlSortDirection = url?.query?.[URL_SORT_PARAMS.direction]
+        if (urlSortField) {
+            resultSorting.field = urlSortField
+            if (urlSortDirection === 'asc' || urlSortDirection === 'desc')
+                resultSorting.direction = urlSortDirection
+            dispatch({ type: ACTIONS.SET_RESULT_SORTING, payload: resultSorting })
+        }
         const filterType = state.getIn(['filterType'])
         const atlasMapping = state.getIn(['mappings', 'atlas'])
 
@@ -787,21 +796,32 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
             source = source.concat(resultsTable.columns)
         }
 
+        const noveltyField = ES_PATHS.ml_novelty_score.join('.')
+        const startTimeField = ES_PATHS.start_time.join('.')
+        const sortSpec = {
+            [resultSorting.field]: {
+                order: resultSorting.direction,
+                missing: '_last',
+                unmapped_type: 'keyword',
+            },
+        }
+        // Records without a novelty score tie at null; order those by start time
+        if (resultSorting.field === noveltyField)
+            sortSpec[startTimeField] = {
+                order: resultSorting.direction,
+                missing: '_last',
+                unmapped_type: 'date',
+            }
+        if (resultSorting.field !== ES_PATHS.uri.join('.'))
+            sortSpec[ES_PATHS.uri.join('.')] = 'asc'
+        if (resultSorting.field !== ES_PATHS.release_id.join('.'))
+            sortSpec[ES_PATHS.release_id.join('.')] = 'desc'
+
         const dsl = {
             query,
             from,
             size: resultsPerPage,
-            sort: [
-                {
-                    [resultSorting.field]: {
-                        order: resultSorting.direction,
-                        missing: '_last',
-                        unmapped_type: 'keyword',
-                    },
-                    [ES_PATHS.uri.join('.')]: 'asc',
-                    [ES_PATHS.release_id.join('.')]: 'desc',
-                },
-            ],
+            sort: [sortSpec],
             aggs,
             collapse: {
                 field: 'uri',
@@ -1005,6 +1025,7 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                     Object.keys(url.query).forEach((q) => {
                         // In case coming from record page
                         if (q === 'id') return
+                        if (q === URL_SORT_PARAMS.field || q === URL_SORT_PARAMS.direction) return
                         // skip the rest if the url is advanced
                         if (isAdvancedFilter) return
                         if (q === '_adv') {

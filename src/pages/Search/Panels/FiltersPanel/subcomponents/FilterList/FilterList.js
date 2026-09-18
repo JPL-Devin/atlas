@@ -6,6 +6,7 @@ import Url from 'url-parse'
 
 import Filter from '../../../../../../components/Filter/Filter'
 import { HASH_PATHS } from '../../../../../../core/constants'
+import { getSortURLParams } from '../../../../../../core/utils'
 import { makeStyles } from '@mui/styles'
 
 const useStyles = makeStyles((theme) => ({
@@ -55,7 +56,7 @@ const GROUP_ORDER = [
     'pds3_label',
 ]
 
-const getSearchURL = (activeFilters) => {
+const getSearchURL = (activeFilters, resultSorting) => {
     let params = []
     Object.keys(activeFilters).forEach((filter) => {
         let values = []
@@ -105,6 +106,7 @@ const getSearchURL = (activeFilters) => {
         }
         if (values.length > 0) params.push(`${filter}=${values.join(',')}`)
     })
+    params = params.concat(getSortURLParams(resultSorting))
     let paramString = ''
     if (params.length > 0) {
         paramString = `?${params.join('&')}`
@@ -121,13 +123,16 @@ const FilterList = (props) => {
     const activeFilters = useSelector((state) => {
         return state.getIn(['activeFilters'])
     }).toJS()
+    const resultSorting = useSelector((state) => {
+        return state.getIn(['resultSorting'])
+    }).toJS()
     useEffect(() => {
         const currentURL = new Url(window.location)
-        const desiredSearchUrl = getSearchURL(activeFilters)
+        const desiredSearchUrl = getSearchURL(activeFilters, resultSorting)
         if (currentURL.pathname + currentURL.query !== desiredSearchUrl) {
             navigate(desiredSearchUrl, { replace: true })
         }
-    }, [JSON.stringify(activeFilters)])
+    }, [JSON.stringify(activeFilters), resultSorting.field, resultSorting.direction])
 
     const sortedActiveFilterKeys = Object.keys(activeFilters).sort((a, b) => {
         return activeFilters[a].order - activeFilters[b].order
