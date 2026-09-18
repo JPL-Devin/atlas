@@ -812,8 +812,10 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                 missing: '_last',
                 unmapped_type: 'date',
             }
-        sortSpec[ES_PATHS.uri.join('.')] = 'asc'
-        sortSpec[ES_PATHS.release_id.join('.')] = 'desc'
+        if (resultSorting.field !== ES_PATHS.uri.join('.'))
+            sortSpec[ES_PATHS.uri.join('.')] = 'asc'
+        if (resultSorting.field !== ES_PATHS.release_id.join('.'))
+            sortSpec[ES_PATHS.release_id.join('.')] = 'desc'
 
         const dsl = {
             query,
