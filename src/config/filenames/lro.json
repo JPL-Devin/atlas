@@ -1,0 +1,68 @@
+{
+    "title": "LRO LAMP filename",
+    "sis": "lro_lamp_edr",
+    "reference": "LRO LAMP EDR Data Product SIS, \u00a74.3.4 (Labeling and Identification)",
+    "ignoreCase": true,
+    "match": "^(LAMP)_(ENG|SCI)_([0-9]{10})_([0-9]{2})\\.(FIT|LBL)$",
+    "segments": [
+        {
+            "group": 1,
+            "label": "Instrument",
+            "color": "blue",
+            "description": "Lyman Alpha Mapping Project ultraviolet spectrograph.",
+            "values": {
+                "LAMP": "LAMP"
+            }
+        },
+        {
+            "group": 2,
+            "label": "Product class",
+            "color": "violet",
+            "description": "Data class recorded in the file name.",
+            "values": {
+                "ENG": {
+                    "meaning": "Engineering (EDR)",
+                    "description": "LAMP EDR data file, dataset LRO-L-LAMP-2-EDR-V1.0, in FITS format with a detached PDS label."
+                },
+                "SCI": {
+                    "meaning": "Science (RDR)",
+                    "description": "LAMP RDR data file derived from the engineering EDR."
+                }
+            }
+        },
+        {
+            "group": 3,
+            "label": "Time stamp",
+            "color": "teal",
+            "description": "Spacecraft UT (SCUT) of the start of the file.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "SCUT {1}"
+                }
+            ]
+        },
+        {
+            "group": 4,
+            "label": "Version",
+            "color": "amber",
+            "description": "Version number, so reprocessed files stay uniquely identified.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Version {1}"
+                }
+            ]
+        },
+        {
+            "group": 5,
+            "label": "Extension",
+            "color": "slate",
+            "description": "Product format.",
+            "values": {
+                "FIT": "FITS-format data file",
+                "LBL": "Detached PDS label"
+            }
+        }
+    ]
+}

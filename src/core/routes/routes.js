@@ -3,7 +3,6 @@ import { useDispatch } from 'react-redux'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 import Topbar from '../../components/Topbar'
-import Toolbar from '../../components/Toolbar/Toolbar'
 import SnackBar from '../../components/SnackBar/SnackBar'
 
 import Search from '../../pages/Search/Search'
@@ -15,6 +14,7 @@ import InformationModal from '../../pages/Search/Modals/InformationModal/Informa
 import FeedbackModal from '../../pages/Search/Modals/FeedbackModal/FeedbackModal'
 
 import { getPublicUrl } from '../runtimeConfig'
+import { getAppConfig } from '../appConfig'
 import { loadMappings } from '../redux/actions/actions.js'
 
 import './routes.css'
@@ -34,15 +34,18 @@ export const AppRoutes = () => {
                 basename={publicUrl}
                 future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
             >
-                <Toolbar />
                 <div className="routeMain">
                     <Topbar />
                     <div className="routeContent">
                         <Routes>
                             <Route path="/search" element={<Search />} />
                             <Route path="/record" element={<Record />} />
-                            <Route path="/cart" element={<Cart />} />
-                            <Route path="/archive-explorer" element={<FileExplorer />} />
+                            {getAppConfig().enableCart && (
+                                <Route path="/cart" element={<Cart />} />
+                            )}
+                            {getAppConfig().enableArchiveExplorer && (
+                                <Route path="/archive-explorer" element={<FileExplorer />} />
+                            )}
                         </Routes>
                     </div>
                 </div>

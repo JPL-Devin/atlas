@@ -2,56 +2,71 @@ import React from 'react'
 import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import clsx from 'clsx'
 
 import { makeStyles } from '@mui/styles'
-import { useTheme } from '@mui/material/styles'
-import useMediaQuery from '@mui/material/useMediaQuery'
+import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
 
-import { getIn, getPDSUrl, getRedirectedUrl, prettify } from '../../../../../core/utils.js'
-import { getDataByURI, setData } from '../../../../../core/redux/actions/actions'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+
+import {
+    getIn,
+    getPDSUrl,
+    getRedirectedUrl,
+    copyToClipboard,
+    prettify,
+} from '../../../../../core/utils.js'
+import { getDataByURI, setData, setSnackBarText } from '../../../../../core/redux/actions/actions'
 import { ES_PATHS } from '../../../../../core/constants.js'
 
-import OpenSeadragonViewer from '../../../../../components/OpenSeadragonViewer/OpenSeadragonViewer'
+import { useViewerOverlay } from '../../Viewer/RecordViewer'
 import MLLayers from './subcomponents/MLLayers/MLLayers'
+import PanelHeader from '../../PanelHeader/PanelHeader'
 
 const useStyles = makeStyles((theme) => ({
-    MLClassification: {
-        width: '100%',
-        height: '100%',
-        color: '#666',
-        display: 'flex',
-        background: theme.palette.swatches.grey.grey800,
-        [theme.breakpoints.down('md')]: {
-            flexFlow: 'column',
-        },
-    },
-    viewer: {
-        height: '100%',
-        flex: 1,
-        [theme.breakpoints.down('md')]: {
-            minHeight: '60%',
-            flex: 'unset',
-            height: 'unset',
-        },
-    },
-    layers: {
-        width: 0,
+    panel: {
+        width: 'var(--record-panel-width, 770px)',
         height: '100%',
         boxSizing: 'border-box',
-        overflowY: 'auto',
+        display: 'flex',
+        flexFlow: 'column',
         background: theme.palette.swatches.grey.grey100,
-        [theme.breakpoints.down('md')]: {
-            width: '100%',
-            borderLeft: 'none',
-            borderTop: `2px solid ${theme.palette.swatches.grey.grey200}`,
+        color: theme.palette.text.primary,
+        borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        // Stacked, the panel's rows join the page column directly (see Overview).
+        [theme.breakpoints.down('lg')]: {
+            display: 'contents',
         },
-        transition: 'width 0.2s ease-in-out',
     },
-    layersOpen: {
-        width: '300px',
-        [theme.breakpoints.down('md')]: {
-            width: '100%',
+    // A slim scrollbar keeps the gutter from cutting into the heading rules.
+    body: {
+        'flex': 1,
+        'minHeight': 0,
+        'overflowY': 'auto',
+        'padding': '16px 20px 20px 20px',
+        'scrollbarWidth': 'thin',
+        'scrollbarColor': `${theme.palette.swatches.grey.grey300} transparent`,
+        '&::-webkit-scrollbar': {
+            width: '8px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+            background: theme.palette.swatches.grey.grey300,
+            borderRadius: '4px',
+        },
+        [theme.breakpoints.down('lg')]: {
+            flex: 'unset',
+            overflowY: 'unset',
+        },
+    },
+    // Matches the header's other outlined controls.
+    copyAction: {
+        'flexShrink': 0,
+        'color': theme.palette.swatches.grey.grey700,
+        'background': theme.palette.swatches.grey.grey0,
+        'borderColor': theme.palette.swatches.grey.grey300,
+        '&:hover': {
+            borderColor: theme.palette.swatches.grey.grey500,
+            background: theme.palette.swatches.grey.grey150,
         },
     },
 }))
@@ -62,10 +77,6 @@ const MLClassification = (props) => {
 
     const dispatch = useDispatch()
 
-    const theme = useTheme()
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-
-    const [layersOpen, setLayersOpen] = useState(true)
     const [checkedClasses, setCheckedClasses] = useState({})
     const [confidence, setConfidence] = useState([0, 1])
 
@@ -120,10 +131,6 @@ const MLClassification = (props) => {
         }
     }, [JSON.stringify(mlClassificationData)])
 
-    const browse_uri = getIn(recordData, ES_PATHS.browse)
-
-    const imgURL = getPDSUrl(browse_uri, release_id)
-
     let features = mlClassificationData.features
     let featuresOn = []
     if (features) {
@@ -144,35 +151,61 @@ const MLClassification = (props) => {
                 featureConfidence <= confidence[1]
             ) {
                 f._color = checkedClasses[featureClass].color
+                // The viewer draws this beside the box.
+                f._label = `${prettify(featureClass)} (${Number(featureConfidence).toFixed(2)})`
                 return f
             }
         })
     }
 
+    // The viewer is shared with the other tabs, so hand it the overlay.
+    useViewerOverlay({ features: featuresOn }, [
+        featuresOn.length,
+        JSON.stringify(checkedClasses),
+        confidence[0],
+        confidence[1],
+    ])
+
+    const model = {
+        name: getIn(recordData, 'gather.machine_learning.classification.ml_model_name'),
+        version: getIn(recordData, 'gather.machine_learning.classification.ml_model_version_id'),
+    }
+
     return (
-        <div className={c.MLClassification}>
-            <div className={c.viewer}>
-                {features != null ? (
-                    <OpenSeadragonViewer
-                        image={{
-                            src: imgURL,
-                        }}
-                        settings={{ defaultZoomLevel: 0.5 }}
-                        onLayers={() => {
-                            setLayersOpen(!layersOpen)
-                        }}
-                        features={featuresOn}
-                    />
-                ) : null}
-            </div>
-            <div
-                className={clsx(c.layers, {
-                    [c.layersOpen]: layersOpen,
-                })}
-            >
+        <div className={c.panel}>
+            <PanelHeader
+                recordData={recordData}
+                extraActions={
+                    <Tooltip title="Copy the classifier features as JSON" arrow>
+                        <Button
+                            className={c.copyAction}
+                            variant="outlined"
+                            size="small"
+                            aria-label="copy ML features"
+                            startIcon={<ContentCopyIcon fontSize="small" />}
+                            onClick={() => {
+                                copyToClipboard(
+                                    JSON.stringify({ ml_features: features }, null, 2)
+                                )
+                                dispatch(
+                                    setSnackBarText(
+                                        'Copied ML Features JSON to Clipboard!',
+                                        'success'
+                                    )
+                                )
+                            }}
+                        >
+                            Copy Features
+                        </Button>
+                    </Tooltip>
+                }
+            />
+            <div className={c.body}>
                 <MLLayers
                     features={features}
+                    featuresOn={featuresOn}
                     classes={checkedClasses}
+                    model={model}
                     onChange={(type, state) => {
                         switch (type) {
                             case 'classes':

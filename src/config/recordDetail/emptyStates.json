@@ -1,0 +1,18 @@
+{
+    "no_browse_generic": {
+        "title": "No preview available",
+        "body": "This product has no browse image. The source product and its label are still available to download."
+    },
+    "no_browse_surface": {
+        "title": "No preview available",
+        "body": "This surface product has no browse image. The source product and its label are still available to download."
+    },
+    "no_browse_spectrometer": {
+        "title": "Not an image product",
+        "body": "Spectrometer products in this collection are not rendered as images. The source product and its label are available to download."
+    },
+    "no_browse_radar": {
+        "title": "Not an image product",
+        "body": "Radar products in this collection are not rendered as images. The source product and its label are available to download."
+    }
+}

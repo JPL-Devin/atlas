@@ -1,0 +1,1045 @@
+[
+    {
+        "title": "InSight EDR / single-frame RDR filename",
+        "sis": "nsyt_camera",
+        "reference": "InSight Camera EDR / RDR Data Products SIS (JPL D-33231, v3.4), \u00a74.3.1",
+        "match": "^[CD][A-Z0-9]{3}[ACLMRSX][A-Z0-9]{4}[_TC][0-9]{9}[A-Z]{3}[L_][A-Z_][A-Z0-9]{4}[A-Z0-9_][A-Z0-9]{4}[M_][A-Z0-9_]\\.[A-Za-z]{2,3}$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 1,
+                "label": "Instrument",
+                "color": "blue",
+                "description": "Camera that acquired the image.",
+                "values": {
+                    "C": "Instrument Context Camera (ICC), body-mounted",
+                    "D": "Instrument Deployment Camera (IDC), arm-mounted"
+                }
+            },
+            {
+                "start": 2,
+                "length": 3,
+                "label": "Stereo ID",
+                "color": "cyan",
+                "description": "Which stereo pair the image belongs to, so partners can be matched.",
+                "patterns": [
+                    {
+                        "match": "^000$",
+                        "meaning": "Mono image, not part of a stereo pair"
+                    },
+                    {
+                        "match": "^[0-9]{3}$",
+                        "meaning": "Commanded stereo pair {number}; the partner carries the same ID"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{3}$",
+                        "meaning": "Ground-matched stereo pair \"{value}\" (the letter marks a pairing made on the ground, not when commanded)"
+                    }
+                ]
+            },
+            {
+                "start": 5,
+                "length": 1,
+                "label": "Eye",
+                "color": "green",
+                "description": "Which eye the image serves as in stereo processing \u2014 an assigned role, since InSight has a single IDC.",
+                "values": {
+                    "L": "Left eye",
+                    "R": "Right eye",
+                    "M": "Mono",
+                    "S": "Stereo, 2-band",
+                    "A": "Anaglyph",
+                    "C": "Colorglyph",
+                    "X": "Mixed \u2014 several mono images composited, since InSight has no true stereo camera"
+                }
+            },
+            {
+                "start": 6,
+                "length": 4,
+                "label": "Sol",
+                "color": "orange",
+                "description": "Solar day since landing, or day of year for testbed and cruise data.",
+                "patterns": [
+                    {
+                        "match": "^[0-9]{4}$",
+                        "meaning": "Sol {number} (landing day is sol 0)"
+                    },
+                    {
+                        "match": "^([5-9A-Z])([0-9]{3})$",
+                        "meaning": "Day of year {2}, year digit \"{1}\" \u2014 testbed or cruise data, which always carries epoch \"T\""
+                    }
+                ]
+            },
+            {
+                "start": 10,
+                "length": 1,
+                "label": "Epoch",
+                "color": "brown",
+                "description": "Mission phase the data came from.",
+                "values": {
+                    "_": "Surface operations, or an operational readiness test",
+                    "T": "Testbed or ATLO data",
+                    "C": "Flight model, cruise"
+                }
+            },
+            {
+                "start": 11,
+                "length": 9,
+                "label": "Spacecraft clock",
+                "color": "teal",
+                "description": "Spacecraft clock count at the time the image was acquired.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{9})$",
+                        "meaning": "SCLK {number} seconds"
+                    }
+                ]
+            },
+            {
+                "start": 20,
+                "length": 3,
+                "label": "Product type",
+                "color": "violet",
+                "description": "What the image holds. \"EDR\" is the first-order product; every other code is an RDR derived from it.",
+                "values": {
+                    "ARK": {
+                        "meaning": "Arm reachability \u2014 Arm Reachability, Masked",
+                        "description": "Arm Reachability RDRs mark which terrain the instrument deployment arm can reach. SIS \u00a75.2.1.9. PDS processing level: derived."
+                    },
+                    "ARM": {
+                        "meaning": "Arm reachability \u2014 Arm Reachability",
+                        "description": "Arm Reachability RDRs mark which terrain the instrument deployment arm can reach. SIS \u00a75.2.1.9. PDS processing level: derived."
+                    },
+                    "ARO": {
+                        "meaning": "Arm reachability \u2014 Arm Reachability with overlay",
+                        "description": "Arm Reachability RDRs mark which terrain the instrument deployment arm can reach. SIS \u00a75.2.1.9. PDS processing level: derived."
+                    },
+                    "BAY": {
+                        "meaning": "EDR-like \u2014 Bayer pattern (identical to \u201cEDR\u201d except Bayer pattern extract)",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization. SIS \u00a75.2.1.1. PDS processing level: partially processed."
+                    },
+                    "CNB": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 No Illuminant, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CNF": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 No Illuminant, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CNG": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 No Illuminant, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CNR": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 No Illuminant, 15-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CNS": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 No Illuminant, 12-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CPB": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 White Balanced, Mars Illuminant, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CPD": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 White Bal, Mars Illuminant, 15-bit scaled int, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CPF": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 White Balanced, Mars Illuminant, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CPG": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 White Balanced, MarsIlluminant, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CPS": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 White Bal, Mars Illuminant, 12-bit scaled int, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CSB": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 Standard Illuminant, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CSD": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 Standard Illuminant, 15-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CSF": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 Standard Illuminant, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CSG": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 Standard Illuminant, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CSS": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 Standard Illuminant, 12-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CWB": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 White Balanced, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CWD": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 White Balanced, 15-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CWF": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 White Balanced, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CWG": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 White Balanced, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "CWS": {
+                        "meaning": "Colour (exposure-time compensated) \u2014 White Balanced, 12-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DDD": {
+                        "meaning": "Disparity \u2014 Stereo Delta Disparity (2-band, true disparity offset)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3. PDS processing level: derived."
+                    },
+                    "DDL": {
+                        "meaning": "Disparity \u2014 Stereo Delta Disparity Line (single-band)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3. PDS processing level: derived."
+                    },
+                    "DDS": {
+                        "meaning": "Disparity \u2014 Stereo Delta Disparity Sample (single-band)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3. PDS processing level: derived."
+                    },
+                    "DFF": {
+                        "meaning": "Disparity \u2014 Stereo First-stage Disparity Final",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3. PDS processing level: derived."
+                    },
+                    "DFL": {
+                        "meaning": "Disparity \u2014 Stereo First-stage Disparity Line",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3. PDS processing level: derived."
+                    },
+                    "DFS": {
+                        "meaning": "Disparity \u2014 Stereo First-stage Disparity Sample",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3. PDS processing level: derived."
+                    },
+                    "DNB": {
+                        "meaning": "Colour (raw DN) \u2014 No Illuminant, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DNF": {
+                        "meaning": "Colour (raw DN) \u2014 No Illuminant, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DNG": {
+                        "meaning": "Colour (raw DN) \u2014 No Illuminant, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DNR": {
+                        "meaning": "Colour (raw DN) \u2014 No Illuminant, 15-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DNS": {
+                        "meaning": "Colour (raw DN) \u2014 No Illuminant, 12-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DPB": {
+                        "meaning": "Colour (raw DN) \u2014 White Balanced, Mars Illuminant, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DPD": {
+                        "meaning": "Colour (raw DN) \u2014 White Bal, Mars Illuminant, 15-bit scaled int, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DPF": {
+                        "meaning": "Colour (raw DN) \u2014 White Balanced, Mars Illuminant, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DPG": {
+                        "meaning": "Colour (raw DN) \u2014 White Balanced, MarsIlluminant, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DPS": {
+                        "meaning": "Colour (raw DN) \u2014 White Bal, Mars Illuminant, 12-bit scaled int, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DSB": {
+                        "meaning": "Colour (raw DN) \u2014 Standard Illuminant, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DSD": {
+                        "meaning": "Colour (raw DN) \u2014 Standard Illuminant, 15-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DSE": {
+                        "meaning": "Disparity \u2014 Stereo Disparity Error Metric",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3. PDS processing level: derived."
+                    },
+                    "DSF": {
+                        "meaning": "Colour (raw DN) \u2014 Standard Illuminant, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DSG": {
+                        "meaning": "Colour (raw DN) \u2014 Standard Illuminant, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DSL": {
+                        "meaning": "Disparity \u2014 Stereo Disparity of Lines (single-band)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3. PDS processing level: derived."
+                    },
+                    "DSP": {
+                        "meaning": "Disparity \u2014 Stereo Disparity Final",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3. PDS processing level: derived."
+                    },
+                    "DSR": {
+                        "meaning": "Disparity \u2014 Stereo Disparity Raw",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3. PDS processing level: derived."
+                    },
+                    "DSS": {
+                        "meaning": "Disparity \u2014 Stereo Disparity of Samples (single-band), or Colour (raw DN) \u2014 Standard Illuminant, 12-bit scaled integer, linear space",
+                        "description": "The SIS gives this code two readings; which one applies follows from the filter field and the label. Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a75.2.1.3. Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DWB": {
+                        "meaning": "Colour (raw DN) \u2014 White Balanced, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DWD": {
+                        "meaning": "Colour (raw DN) \u2014 White Balanced, 15-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DWF": {
+                        "meaning": "Colour (raw DN) \u2014 White Balanced, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DWG": {
+                        "meaning": "Colour (raw DN) \u2014 White Balanced, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "DWS": {
+                        "meaning": "Colour (raw DN) \u2014 White Balanced, 12-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "EDR": {
+                        "meaning": "Raw \u2014 First order product",
+                        "description": "Raw products are the image as received from the lander, with no geometric or radiometric correction. SIS \u00a75.1. PDS processing level: raw."
+                    },
+                    "EJP": {
+                        "meaning": "Raw \u2014 Original JPEG as received from the lander",
+                        "description": "Raw products are the image as received from the lander, with no geometric or radiometric correction. SIS \u00a75.1. PDS processing level: raw."
+                    },
+                    "ERP": {
+                        "meaning": "Raw \u2014 Reference Pixel",
+                        "description": "Raw products are the image as received from the lander, with no geometric or radiometric correction. SIS \u00a75.1. PDS processing level: raw."
+                    },
+                    "GUH": {
+                        "meaning": "Instrument placement \u2014 Overall goodness map for HP3",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "GUS": {
+                        "meaning": "Instrument placement \u2014 Overall goodness map for SEIS/WTS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "ICM": {
+                        "meaning": "Coregistration \u2014 Mosaic Input Coregistration Map",
+                        "description": "Coregistration products relate a mosaic back to the individual images that built it. SIS \u00a75.2.1.14. PDS processing level: derived."
+                    },
+                    "IDX": {
+                        "meaning": "Coregistration \u2014 Mosaic Input Index File",
+                        "description": "Coregistration products relate a mosaic back to the individual images that built it. SIS \u00a75.2.1.14. PDS processing level: derived."
+                    },
+                    "IEF": {
+                        "meaning": "Photometry \u2014 Incidence, Emission, Phase angles Filled",
+                        "description": "Photometry RDRs give the incidence, emission and phase angles at each pixel. SIS \u00a75.2.1.11. PDS processing level: derived."
+                    },
+                    "IEP": {
+                        "meaning": "Photometry \u2014 Incidence, Emission, Phase angles",
+                        "description": "Photometry RDRs give the incidence, emission and phase angles at each pixel. SIS \u00a75.2.1.11. PDS processing level: derived."
+                    },
+                    "ILC": {
+                        "meaning": "EDR-like \u2014 Inverse lookup table (ILUT) with corrections such as de-spike",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization. SIS \u00a75.2.1.1. PDS processing level: partially processed."
+                    },
+                    "ILM": {
+                        "meaning": "EDR-like \u2014 Inverse lookup table (ILUT), Masked",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization. SIS \u00a75.2.1.1. PDS processing level: partially processed."
+                    },
+                    "ILP": {
+                        "meaning": "EDR-like \u2014 Inverse lookup table (ILUT) with pointing correction applied",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization. SIS \u00a75.2.1.1. PDS processing level: partially processed."
+                    },
+                    "ILT": {
+                        "meaning": "EDR-like \u2014 Inverse lookup table (ILUT)",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization. SIS \u00a75.2.1.1. PDS processing level: partially processed."
+                    },
+                    "IOF": {
+                        "meaning": "Radiometric \u2014 Rad-corrected IOF radiance factor, float",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "IOI": {
+                        "meaning": "Radiometric \u2014 Rad-corrected IOF radiance factor, integer",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "LIN": {
+                        "meaning": "EDR-like \u2014 CAHV-linearized (identical to \u201cEDR\u201d except Geometry type)",
+                        "description": "EDR-like RDRs repeat the EDR pixels after one step of processing \u2014 inverse lookup table, Bayer extraction or CAHV linearization. SIS \u00a75.2.1.1. PDS processing level: derived."
+                    },
+                    "MAR": {
+                        "meaning": "Mask \u2014 Arm Reachability Mask File",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded (lander hardware in frame). SIS \u00a75.2.1.13. PDS processing level: derived."
+                    },
+                    "MDS": {
+                        "meaning": "Mask \u2014 Stereo Disparity Mask File",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded (lander hardware in frame). SIS \u00a75.2.1.13. PDS processing level: derived."
+                    },
+                    "MNB": {
+                        "meaning": "Colour (masked) \u2014 No Illuminant, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MNF": {
+                        "meaning": "Colour (masked) \u2014 No Illuminant, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MNG": {
+                        "meaning": "Colour (masked) \u2014 No Illuminant, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MNR": {
+                        "meaning": "Colour (masked) \u2014 No Illuminant, 15-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MNS": {
+                        "meaning": "Colour (masked) \u2014 No Illuminant, 12-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MPB": {
+                        "meaning": "Colour (masked) \u2014 White Balanced, Mars Illuminant, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MPD": {
+                        "meaning": "Colour (masked) \u2014 White Bal, Mars Illuminant, 15-bit scaled int, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MPF": {
+                        "meaning": "Colour (masked) \u2014 White Balanced, Mars Illuminant, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MPG": {
+                        "meaning": "Colour (masked) \u2014 White Balanced, MarsIlluminant, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MPS": {
+                        "meaning": "Colour (masked) \u2014 White Bal, Mars Illuminant, 12-bit scaled int, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MSB": {
+                        "meaning": "Colour (masked) \u2014 Standard Illuminant, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MSD": {
+                        "meaning": "Colour (masked) \u2014 Standard Illuminant, 15-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MSF": {
+                        "meaning": "Colour (masked) \u2014 Standard Illuminant, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MSG": {
+                        "meaning": "Colour (masked) \u2014 Standard Illuminant, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MSK": {
+                        "meaning": "Mask \u2014 Image Mask File",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded (lander hardware in frame). SIS \u00a75.2.1.13. PDS processing level: derived."
+                    },
+                    "MSS": {
+                        "meaning": "Colour (masked) \u2014 Standard Illuminant, 12-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MWB": {
+                        "meaning": "Colour (masked) \u2014 White Balanced, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MWD": {
+                        "meaning": "Colour (masked) \u2014 White Balanced, 15-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MWF": {
+                        "meaning": "Colour (masked) \u2014 White Balanced, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MWG": {
+                        "meaning": "Colour (masked) \u2014 White Balanced, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MWS": {
+                        "meaning": "Colour (masked) \u2014 White Balanced, 12-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "MXY": {
+                        "meaning": "Mask \u2014 XYZ Mask File",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded (lander hardware in frame). SIS \u00a75.2.1.13. PDS processing level: calibrated."
+                    },
+                    "RAD": {
+                        "meaning": "Radiometric \u2014 Rad-corrected absolute radiance units, 15-bit integer static scale",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "RAF": {
+                        "meaning": "Radiometric \u2014 Rad-corrected absolute radiance units, float",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "RAS": {
+                        "meaning": "Radiometric \u2014 Rad-corrected absolute radiance units, 12-bit integer static scale",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "RAY": {
+                        "meaning": "Radiometric \u2014 Rad-corrected absolute radiance units, 15-bit int dynamic scale",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "RDM": {
+                        "meaning": "Radiometric \u2014 Rad-corrected radiance (RAD), masked",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "RIE": {
+                        "meaning": "Radiometric \u2014 Rad-corrected for Instrument Effects only, integer DN",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "RIF": {
+                        "meaning": "Radiometric \u2014 Rad-corrected for Instrument Effects only, float",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "RNE": {
+                        "meaning": "Range \u2014 Range Error Metric",
+                        "description": "Range RDRs give the distance from the camera (or from the lander frame origin) to the surface at each pixel. SIS \u00a75.2.1.5. PDS processing level: calibrated."
+                    },
+                    "RNF": {
+                        "meaning": "Range \u2014 Range Filled",
+                        "description": "Range RDRs give the distance from the camera (or from the lander frame origin) to the surface at each pixel. SIS \u00a75.2.1.5. PDS processing level: derived."
+                    },
+                    "RNG": {
+                        "meaning": "Range \u2014 Range from Camera",
+                        "description": "Range RDRs give the distance from the camera (or from the lander frame origin) to the surface at each pixel. SIS \u00a75.2.1.5. PDS processing level: calibrated."
+                    },
+                    "RNM": {
+                        "meaning": "Range \u2014 Range from Camera, Masked",
+                        "description": "Range RDRs give the distance from the camera (or from the lander frame origin) to the surface at each pixel. SIS \u00a75.2.1.5. PDS processing level: calibrated."
+                    },
+                    "RNO": {
+                        "meaning": "Range \u2014 Range with Overlay",
+                        "description": "Range RDRs give the distance from the camera (or from the lander frame origin) to the surface at each pixel. SIS \u00a75.2.1.5. PDS processing level: derived."
+                    },
+                    "RNR": {
+                        "meaning": "Range \u2014 Range from Rover Nav frame origin (Lander for InSight)",
+                        "description": "Range RDRs give the distance from the camera (or from the lander frame origin) to the surface at each pixel. SIS \u00a75.2.1.5. PDS processing level: calibrated."
+                    },
+                    "RSM": {
+                        "meaning": "Radiometric \u2014 Rad-corrected scaled radiance (RAS), masked",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "RUF": {
+                        "meaning": "Roughness \u2014 Surface Roughness (general, not instrument-specific)",
+                        "description": "Roughness RDRs measure how far the terrain departs from a plane, sized for the instrument being placed. SIS \u00a75.2.1.7. PDS processing level: derived."
+                    },
+                    "RUH": {
+                        "meaning": "Roughness \u2014 Surface Roughness map for HP3",
+                        "description": "Roughness RDRs measure how far the terrain departs from a plane, sized for the instrument being placed. SIS \u00a75.2.1.7. PDS processing level: derived."
+                    },
+                    "RUK": {
+                        "meaning": "Roughness \u2014 Surface Roughness map for WTS Skirt",
+                        "description": "Roughness RDRs measure how far the terrain departs from a plane, sized for the instrument being placed. SIS \u00a75.2.1.7. PDS processing level: derived."
+                    },
+                    "RUS": {
+                        "meaning": "Roughness \u2014 Surface Roughness map for SEIS",
+                        "description": "Roughness RDRs measure how far the terrain departs from a plane, sized for the instrument being placed. SIS \u00a75.2.1.7. PDS processing level: derived."
+                    },
+                    "RUW": {
+                        "meaning": "Roughness \u2014 Surface Roughness map for WTS",
+                        "description": "Roughness RDRs measure how far the terrain departs from a plane, sized for the instrument being placed. SIS \u00a75.2.1.7. PDS processing level: derived."
+                    },
+                    "RZD": {
+                        "meaning": "Radiometric \u2014 Zenith-scaled radiance, 15-bit integer static scale",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "RZF": {
+                        "meaning": "Radiometric \u2014 Zenith-scaled radiance, float",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "RZS": {
+                        "meaning": "Radiometric \u2014 Zenith-scaled radiance, 12-bit integer static scale",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "RZY": {
+                        "meaning": "Radiometric \u2014 Zenith-scaled radiance, 15-bit integer dynamic scale",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a75.2.1.2. PDS processing level: calibrated."
+                    },
+                    "SEN": {
+                        "meaning": "Solar energy \u2014 Solar Energy",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain, which matters for a solar-powered lander. SIS \u00a75.2.1.8. PDS processing level: derived."
+                    },
+                    "SHD": {
+                        "meaning": "Slope \u2014 Slope Heading",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8. PDS processing level: derived."
+                    },
+                    "SHO": {
+                        "meaning": "Slope \u2014 Slope Heading with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8. PDS processing level: derived."
+                    },
+                    "SLO": {
+                        "meaning": "Slope \u2014 Slope with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8. PDS processing level: derived."
+                    },
+                    "SLP": {
+                        "meaning": "Slope \u2014 Slope",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8. PDS processing level: derived."
+                    },
+                    "SMG": {
+                        "meaning": "Slope \u2014 Slope Magnitude",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8. PDS processing level: derived."
+                    },
+                    "SMO": {
+                        "meaning": "Slope \u2014 Slope Magnitude with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8. PDS processing level: derived."
+                    },
+                    "SNO": {
+                        "meaning": "Slope \u2014 Slope Northerly Tilt with Overlay",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8. PDS processing level: derived."
+                    },
+                    "SNT": {
+                        "meaning": "Slope \u2014 Slope Northerly Tilt",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8. PDS processing level: derived."
+                    },
+                    "SRD": {
+                        "meaning": "Slope \u2014 Slope Radial Direction",
+                        "description": "Slope RDRs derive terrain steepness, heading and tilt in degrees from the surface normals. SIS \u00a75.2.1.8. PDS processing level: derived."
+                    },
+                    "TAU": {
+                        "meaning": "Tau report",
+                        "description": "See the product-type table in SIS \u00a74.3.2 for this code. PDS processing level: derived."
+                    },
+                    "TDS": {
+                        "meaning": "Instrument placement \u2014 Instrument Delta Tilt map for SEIS/WTS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "TEN": {
+                        "meaning": "Terrain \u2014 Terrain Class Confidence",
+                        "description": "Terrain Classifier RDRs label the terrain by type, either as a per-class confidence map or a single classification. SIS \u00a75.2.1.12. PDS processing level: derived."
+                    },
+                    "TER": {
+                        "meaning": "Terrain \u2014 Terrain Class",
+                        "description": "Terrain Classifier RDRs label the terrain by type, either as a per-class confidence map or a single classification. SIS \u00a75.2.1.12. PDS processing level: derived."
+                    },
+                    "TFH": {
+                        "meaning": "Instrument placement \u2014 Instrument Tilt map for HP3",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "TFS": {
+                        "meaning": "Instrument placement \u2014 Instrument Tilt map for SEIS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "TFW": {
+                        "meaning": "Instrument placement \u2014 Instrument Tilt map for WTS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "UIH": {
+                        "meaning": "Instrument placement \u2014 Instrument Normal in Site frame for HP3",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "UIS": {
+                        "meaning": "Instrument placement \u2014 Instrument Normal in Site frame for SEIS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "UIW": {
+                        "meaning": "Instrument placement \u2014 Instrument Normal in Site frame for WTS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "UPH": {
+                        "meaning": "Instrument placement \u2014 Instrument Tilt map in Lander frame for HP3",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "UPS": {
+                        "meaning": "Instrument placement \u2014 Instrument Tilt map in Lander frame for SEIS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "UPW": {
+                        "meaning": "Instrument placement \u2014 Instrument Tilt map in Lander frame for WTS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "UUF": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) U-band Filled",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness products. SIS \u00a75.2.1.6. PDS processing level: derived."
+                    },
+                    "UUU": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) U-band",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness products. SIS \u00a75.2.1.6. PDS processing level: calibrated."
+                    },
+                    "UVF": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) Filled",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness products. SIS \u00a75.2.1.6. PDS processing level: derived."
+                    },
+                    "UVO": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) with Overlay",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness products. SIS \u00a75.2.1.6. PDS processing level: derived."
+                    },
+                    "UVP": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) Projected onto Plane",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness products. SIS \u00a75.2.1.6. PDS processing level: derived."
+                    },
+                    "UVS": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) for Slope computations",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness products. SIS \u00a75.2.1.6. PDS processing level: calibrated."
+                    },
+                    "UVW": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness products. SIS \u00a75.2.1.6. PDS processing level: calibrated."
+                    },
+                    "VVF": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) V-band Filled",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness products. SIS \u00a75.2.1.6. PDS processing level: derived."
+                    },
+                    "VVV": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) V-band",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness products. SIS \u00a75.2.1.6. PDS processing level: calibrated."
+                    },
+                    "WSH": {
+                        "meaning": "Instrument placement \u2014 Instrument Workspace boundary for HP3",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "WSS": {
+                        "meaning": "Instrument placement \u2014 Instrument Workspace boundary for SEIS and WTS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "WWF": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) W-band Filled",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness products. SIS \u00a75.2.1.6. PDS processing level: derived."
+                    },
+                    "WWW": {
+                        "meaning": "Surface normal \u2014 Surface Normal (UVW) W-band",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for slope and roughness products. SIS \u00a75.2.1.6. PDS processing level: calibrated."
+                    },
+                    "XPH": {
+                        "meaning": "Instrument placement \u2014 Instrument XYZ Coordinate in Lander frame for HP3",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "XPS": {
+                        "meaning": "Instrument placement \u2014 Instrument XYZ Coordinate in Lander frame for SEIS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "XPW": {
+                        "meaning": "Instrument placement \u2014 Instrument XYZ Coordinate in Lander frame for WTS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "XXF": {
+                        "meaning": "XYZ \u2014 XYZ X-band Filled",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an InSight coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. PDS processing level: derived."
+                    },
+                    "XXX": {
+                        "meaning": "XYZ \u2014 XYZ X-band",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an InSight coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. PDS processing level: calibrated."
+                    },
+                    "XYE": {
+                        "meaning": "XYZ \u2014 XYZ Error Metric",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an InSight coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. PDS processing level: calibrated."
+                    },
+                    "XYF": {
+                        "meaning": "XYZ \u2014 XYZ Filled",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an InSight coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. PDS processing level: derived."
+                    },
+                    "XYM": {
+                        "meaning": "XYZ \u2014 XYZ expressed in Site frame, Masked",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an InSight coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. PDS processing level: calibrated."
+                    },
+                    "XYO": {
+                        "meaning": "XYZ \u2014 XYZ with Overlay",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an InSight coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. PDS processing level: derived."
+                    },
+                    "XYR": {
+                        "meaning": "XYZ \u2014 XYZ expressed in Rover Nav frame (Lander frame for InSight)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an InSight coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. PDS processing level: calibrated."
+                    },
+                    "XYZ": {
+                        "meaning": "XYZ \u2014 XYZ expressed in Site frame",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an InSight coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. PDS processing level: calibrated."
+                    },
+                    "YYF": {
+                        "meaning": "XYZ \u2014 XYZ Y-band Filled",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an InSight coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. PDS processing level: derived."
+                    },
+                    "YYY": {
+                        "meaning": "XYZ \u2014 XYZ Y-band",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an InSight coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. PDS processing level: calibrated."
+                    },
+                    "ZIH": {
+                        "meaning": "Instrument placement \u2014 Instrument Z Coordinate in Site frame for HP3",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "ZIS": {
+                        "meaning": "Instrument placement \u2014 Instrument Z Coordinate in Site frame for SEIS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "ZIW": {
+                        "meaning": "Instrument placement \u2014 Instrument Z Coordinate in Site frame for WTS",
+                        "description": "Instrument placement RDRs answer whether SEIS, its wind and thermal shield, or HP3 can be set down at each pixel: tilt, workspace boundary, goodness and instrument-frame coordinates. SIS \u00a75.2.1.10. PDS processing level: derived."
+                    },
+                    "ZNB": {
+                        "meaning": "Colour (zenith scaled) \u2014 No Illuminant, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZNF": {
+                        "meaning": "Colour (zenith scaled) \u2014 No Illuminant, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZNG": {
+                        "meaning": "Colour (zenith scaled) \u2014 No Illuminant, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZNR": {
+                        "meaning": "Colour (zenith scaled) \u2014 No Illuminant, 15-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZNS": {
+                        "meaning": "Colour (zenith scaled) \u2014 No Illuminant, 12-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZPB": {
+                        "meaning": "Colour (zenith scaled) \u2014 White Balanced, Mars Illuminant, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZPD": {
+                        "meaning": "Colour (zenith scaled) \u2014 White Bal, Mars Illuminant, 15-bit scaled int, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZPF": {
+                        "meaning": "Colour (zenith scaled) \u2014 White Balanced, Mars Illuminant, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZPG": {
+                        "meaning": "Colour (zenith scaled) \u2014 White Balanced, MarsIlluminant, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZPS": {
+                        "meaning": "Colour (zenith scaled) \u2014 White Bal, Mars Illuminant, 12-bit scaled int, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZSB": {
+                        "meaning": "Colour (zenith scaled) \u2014 Standard Illuminant, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZSD": {
+                        "meaning": "Colour (zenith scaled) \u2014 Standard Illuminant, 15-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZSF": {
+                        "meaning": "Colour (zenith scaled) \u2014 Standard Illuminant, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZSG": {
+                        "meaning": "Colour (zenith scaled) \u2014 Standard Illuminant, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZSS": {
+                        "meaning": "Colour (zenith scaled) \u2014 Standard Illuminant, 12-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZWB": {
+                        "meaning": "Colour (zenith scaled) \u2014 White Balanced, Byte, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZWD": {
+                        "meaning": "Colour (zenith scaled) \u2014 White Balanced, 15-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZWF": {
+                        "meaning": "Colour (zenith scaled) \u2014 White Balanced, Float, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZWG": {
+                        "meaning": "Colour (zenith scaled) \u2014 White Balanced, Byte, Gamma-corrected",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZWS": {
+                        "meaning": "Colour (zenith scaled) \u2014 White Balanced, 12-bit scaled integer, linear space",
+                        "description": "Colour RDRs de-Bayer and white-balance the image; the first letter says which radiometric source it came from and the last two the illuminant and data type. SIS \u00a75.2.2.2. PDS processing level: derived."
+                    },
+                    "ZZF": {
+                        "meaning": "XYZ \u2014 XYZ Z-band Filled",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an InSight coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. PDS processing level: derived."
+                    },
+                    "ZZZ": {
+                        "meaning": "XYZ \u2014 XYZ Z-band (Lander/IDA frame for InSight)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in an InSight coordinate frame, so the workspace can be measured. SIS \u00a75.2.1.4. PDS processing level: calibrated."
+                    }
+                }
+            },
+            {
+                "start": 23,
+                "length": 1,
+                "label": "Linearization",
+                "color": "green",
+                "description": "Whether camera distortion was removed against the stereo partner.",
+                "values": {
+                    "L": "Linearized against its stereo partner",
+                    "_": "Non-linearized (raw geometry) \u2014 the case for all EDRs and almost all InSight RDRs"
+                }
+            },
+            {
+                "start": 24,
+                "length": 1,
+                "label": "Filter / colour",
+                "color": "amber",
+                "description": "Colour space of the product, and which band of it this file holds.",
+                "values": {
+                    "_": "Raw Bayer pattern, or grayscale if the colour was removed",
+                    "F": "RGB, all three bands",
+                    "R": "RGB red band",
+                    "G": "RGB green band",
+                    "B": "RGB blue band",
+                    "T": "XYZ colour space, all three bands",
+                    "X": "XYZ colour space X band",
+                    "Y": "XYZ colour space Y band",
+                    "Z": "XYZ colour space Z band",
+                    "C": "xyY colour space, all three bands",
+                    "J": "xyY colour space x band",
+                    "K": "xyY colour space y band",
+                    "L": "xyY colour space Y band",
+                    "P": "HSI colour space, all three bands",
+                    "H": "HSI hue band",
+                    "S": "HSI saturation band",
+                    "I": "HSI intensity band"
+                }
+            },
+            {
+                "start": 25,
+                "length": 2,
+                "label": "Mesh ID",
+                "color": "red",
+                "description": "Which terrain mesh or DEM the image contributes to; images are gathered into a mesh by matching this.",
+                "patterns": [
+                    {
+                        "match": "^00$",
+                        "meaning": "Not part of any mesh or DEM"
+                    },
+                    {
+                        "match": "^0[1-9]$",
+                        "meaning": "Mesh {number}, an ID reused across sols so it only matches within one sol"
+                    },
+                    {
+                        "match": "^[1-9][0-9]$",
+                        "meaning": "Mesh {number}, unique mission-wide"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{2}$",
+                        "meaning": "Ground-assigned mesh \"{value}\""
+                    }
+                ]
+            },
+            {
+                "start": 27,
+                "length": 2,
+                "label": "Mosaic ID",
+                "color": "indigo",
+                "description": "Which mosaic the image contributes to.",
+                "patterns": [
+                    {
+                        "match": "^00$",
+                        "meaning": "Not part of any mosaic"
+                    },
+                    {
+                        "match": "^0[1-9]$",
+                        "meaning": "Mosaic {number}, an ID reused across sols so it only matches within one sol"
+                    },
+                    {
+                        "match": "^[1-9][0-9]$",
+                        "meaning": "Mosaic {number}, unique mission-wide"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{2}$",
+                        "meaning": "Ground-assigned mosaic \"{value}\""
+                    }
+                ]
+            },
+            {
+                "start": 29,
+                "length": 1,
+                "label": "Special processing",
+                "color": "slate",
+                "description": "Marks off-nominal or special processing of an RDR; always \"_\" on EDRs.",
+                "values": {
+                    "_": "Nominal processing"
+                },
+                "patterns": [
+                    {
+                        "match": "^[A-Z0-9]$",
+                        "meaning": "Special processing \"{value}\" \u2014 an off-nominal treatment defined for the sols it was used on and listed in the archive's special-processing text file"
+                    }
+                ]
+            },
+            {
+                "start": 30,
+                "length": 4,
+                "label": "Sequence ID",
+                "color": "amber",
+                "description": "Command sequence the image was acquired from; must match for stereo pairs and for auto-generated meshes and mosaics.",
+                "patterns": [
+                    {
+                        "match": "^[0-9]{4}$",
+                        "meaning": "Commanded sequence {number} (EDRs use 0000-4095)"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{4}$",
+                        "meaning": "Ground-assigned sequence \"{value}\", which allows pairings the uplink team did not anticipate"
+                    }
+                ]
+            },
+            {
+                "start": 34,
+                "length": 1,
+                "label": "Creator",
+                "color": "green",
+                "description": "Team that produced the product.",
+                "values": {
+                    "M": "MIPL (OPGS at JPL)",
+                    "_": "Undefined or other"
+                }
+            },
+            {
+                "start": 35,
+                "length": 1,
+                "label": "Version",
+                "color": "slate",
+                "description": "Increments whenever an otherwise identical filename would be produced.",
+                "patterns": [
+                    {
+                        "match": "^_$",
+                        "meaning": "Version numbers exhausted"
+                    },
+                    {
+                        "match": "^[1-9]$",
+                        "meaning": "Version {number}"
+                    },
+                    {
+                        "match": "^[A-Z]$",
+                        "meaning": "Version \"{value}\" (10 and up)"
+                    }
+                ]
+            },
+            {
+                "start": 37,
+                "length": 3,
+                "label": "Extension",
+                "color": "teal",
+                "description": "Product format.",
+                "values": {
+                    "VIC": "VICAR image",
+                    "IMG": "VICAR image (legacy extension)",
+                    "JPG": "JPEG compressed image",
+                    "PNG": "PNG image, typically a browse",
+                    "TXT": "ASCII file, such as a tau report",
+                    "xml": "PDS4 label",
+                    "iv": "Terrain mesh in Inventor format",
+                    "ht": "Terrain mesh height map",
+                    "rgb": "Terrain mesh skin in SGI RGB",
+                    "obj": "Terrain mesh in Wavefront OBJ format",
+                    "mtl": "Wavefront materials file for an OBJ mesh"
+                }
+            }
+        ]
+    }
+]

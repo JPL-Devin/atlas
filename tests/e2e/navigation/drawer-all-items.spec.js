@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { waitForAppReady } from '../../helpers/atlas-helpers.js'
 
 /**
- * Comprehensive Toolbar drawer item coverage.
+ * Comprehensive navigation drawer item coverage.
  *
  * `toolbar-drawer.spec.js` only verifies that the drawer opens and that
  * three of the items (Search Images, Browse Archive, Cart) are visible.
@@ -39,13 +39,13 @@ async function openDrawer(page) {
     await page.getByRole('button', { name: 'navigation' }).click()
 }
 
-test.describe('Toolbar drawer - external links', () => {
+test.describe('Navigation drawer - external links', () => {
     for (const item of EXTERNAL_DRAWER_ITEMS) {
         test(`drawer item "${item.name}" links to "${item.expectedHrefStart}"`, async ({
             page,
         }) => {
             await openDrawer(page)
-            const link = page.getByRole('link', { name: item.name, exact: true })
+            const link = page.getByRole('link', { name: item.name, exact: true }).first()
             await expect(link).toBeVisible()
             const href = await link.getAttribute('href')
             expect(href).not.toBeNull()
@@ -54,11 +54,11 @@ test.describe('Toolbar drawer - external links', () => {
     }
 })
 
-test.describe('Toolbar drawer - internal links', () => {
+test.describe('Navigation drawer - internal links', () => {
     for (const item of INTERNAL_DRAWER_ITEMS) {
         test(`drawer item "${item.name}" routes to "${item.expectedHref}"`, async ({ page }) => {
             await openDrawer(page)
-            const link = page.getByRole('link', { name: item.name, exact: true })
+            const link = page.getByRole('link', { name: item.name, exact: true }).first()
             await expect(link).toBeVisible()
             await expect(link).toHaveAttribute('href', item.expectedHref)
         })

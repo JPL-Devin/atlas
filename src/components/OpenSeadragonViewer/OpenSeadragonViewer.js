@@ -7,7 +7,6 @@ import clsx from 'clsx'
 
 import { makeStyles } from '@mui/styles'
 
-import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
@@ -15,7 +14,6 @@ import HomeIcon from '@mui/icons-material/Home'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import RotateLeftIcon from '@mui/icons-material/RotateLeft'
 import RotateRightIcon from '@mui/icons-material/RotateRight'
-import LayersIcon from '@mui/icons-material/Layers'
 
 import Paper from '@mui/material/Paper'
 import Tooltip from '@mui/material/Tooltip'
@@ -23,13 +21,20 @@ import Tooltip from '@mui/material/Tooltip'
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined'
 
 import './OpenSeadragon.css'
+import ViewerLoading from '../ViewerLoading/ViewerLoading'
 
 const useStyles = makeStyles((theme) => ({
     OpenSeadragonViewer: {
-        width: '100%',
-        height: '100%',
-        background: theme.palette.swatches.grey.grey800,
-        position: 'relative',
+        'width': '100%',
+        'height': '100%',
+        'background': theme.palette.swatches.grey.grey150,
+        'position': 'relative',
+        // The minimap is too cramped to be useful at phone width.
+        '& #openSeadragon .navigator': {
+            [theme.breakpoints.down('md')]: {
+                display: 'none !important',
+            },
+        },
     },
     OpenSeadragonContainer: {
         width: '100%',
@@ -48,72 +53,37 @@ const useStyles = makeStyles((theme) => ({
     topLeft: {
         paddingTop: theme.spacing(1),
     },
-    topRight: {
-        width: '37px',
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        padding: '4px',
-        paddingTop: theme.spacing(2),
-    },
     bottomRight: {
         paddingBottom: theme.spacing(2),
     },
+    // The controls sit over a light image surface, so they're light too.
     button: {
-        'display': 'block !important',
+        // Flex (still block-level, so the controls stack) keeps the box square.
+        'display': 'flex !important',
+        'alignItems': 'center',
+        'justifyContent': 'center',
+        'boxSizing': 'border-box',
+        'width': '34px',
+        'height': '34px',
+        'fontSize': '19px',
         'pointerEvents': 'all',
-        'background': theme.palette.swatches.grey.grey150,
-        'padding': theme.spacing(1),
+        'background': theme.palette.swatches.grey.grey100,
+        'color': theme.palette.swatches.grey.grey700,
+        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'padding': 0,
         'margin': theme.spacing(0, 1),
         'borderRadius': 0,
         '&:hover': {
-            background: theme.palette.swatches.grey.grey200,
+            background: theme.palette.swatches.grey.grey150,
+            color: theme.palette.swatches.grey.grey800,
         },
     },
     gap: {
         marginBottom: theme.spacing(2),
     },
+    // Stacked controls share one border between them.
     joiner: {
-        borderBottom: '1px solid rgba(0,0,0,0.17)',
-    },
-    loadingWrapper: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        pointerEvents: 'none',
-        opacity: 1,
-        transition: 'opacity 0.4s ease-out',
-    },
-    loadingHidden: {
-        opacity: 0,
-    },
-    loadingPaper: {
-        'background': theme.palette.accent.main,
-        'pointerEvents': 'none',
-        '& > div': {
-            padding: `${theme.spacing(4)} ${theme.spacing(6)}`,
-            display: 'flex',
-            alignItems: 'center',
-        },
-    },
-    loadingProgress: {
-        'marginTop': '1px',
-        'marginRight': theme.spacing(2),
-        '& .MuiCircularProgress-colorPrimary': {
-            color: theme.palette.text.secondary,
-        },
-    },
-    loadingText: {
-        color: theme.palette.text.secondary,
-        fontSize: '14px',
-        fontWeight: 'bold',
-        letterSpacing: '1px',
-        textAlign: 'center',
+        borderBottom: 'none',
     },
     openFailedWrapper: {
         opacity: 0,
@@ -178,7 +148,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
+const OpenSeadragonViewer = ({ image, settings, features, onOpenFailed }) => {
     const [viewer, setViewer] = useState(null)
     const [openFailed, setOpenFailed] = useState(false)
     const [imageLoading, setImageLoading] = useState(true)
@@ -205,15 +175,22 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                 animationTime: 0.5,
                 blendTime: 0.4,
                 constrainDuringPan: true,
-                maxZoomPixelRatio: 8,
+                // Pixel peeking goes well past 1:1, in gentler steps than the
+                // default doubling.
+                maxZoomPixelRatio: 40,
                 minZoomLevel: 0.35,
                 visibilityRatio: 0.95,
-                zoomPerScroll: 2,
+                zoomPerScroll: 1.6,
+                zoomPerClick: 1.6,
+                // Fill the viewer on load rather than letterboxing the image.
+                homeFillsViewer: true,
+                // Zoomed-in pixels stay square rather than being interpolated.
+                imageSmoothingEnabled: false,
                 showNavigator: true,
                 showRotationControl: true,
                 degrees: window.atlasGlobal.imageRotation || 0,
-                navigatorPosition: 'BOTTOM_LEFT',
-                navigatorSizeRatio: 0.14,
+                navigatorPosition: 'BOTTOM_RIGHT',
+                navigatorSizeRatio: 0.09,
                 ...settings,
             })
         )
@@ -243,14 +220,15 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                 setSvgOverlay(so)
                 drawFeatures(so, features)
             }
-            const onOpenFailed = function () {
+            const handleOpenFailed = function () {
                 setImageLoading(false)
                 setOpenFailed(true)
+                if (typeof onOpenFailed === 'function') onOpenFailed()
             }
             openHandlerRef.current = onOpen
-            openFailedHandlerRef.current = onOpenFailed
+            openFailedHandlerRef.current = handleOpenFailed
             viewer.addHandler('open', onOpen)
-            viewer.addHandler('open-failed', onOpenFailed)
+            viewer.addHandler('open-failed', handleOpenFailed)
             viewer.open({
                 type: 'image',
                 url: image.src,
@@ -263,18 +241,28 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
         if (viewer && svgOverlay) {
             drawFeatures(viewer.svgOverlay(), features)
         }
-    }, [features])
+    }, [features, viewer, svgOverlay])
+
+    // Labels counter-scale, so they follow every viewport change.
+    useEffect(() => {
+        if (!viewer || !svgOverlay) return
+        const onViewportChange = () => scaleFeatureLabels(svgOverlay)
+        viewer.addHandler('animation', onViewportChange)
+        viewer.addHandler('animation-finish', onViewportChange)
+        viewer.addHandler('resize', onViewportChange)
+        viewer.addHandler('rotate', onViewportChange)
+        return () => {
+            viewer.removeHandler('animation', onViewportChange)
+            viewer.removeHandler('animation-finish', onViewportChange)
+            viewer.removeHandler('resize', onViewportChange)
+            viewer.removeHandler('rotate', onViewportChange)
+        }
+    }, [viewer, svgOverlay])
 
     useEffect(() => {
-        // Make all the canvases pixelated
-        if (viewer && viewer.canvas && viewer.canvas.childNodes) {
-            viewer.canvas.childNodes.forEach((canvas) => {
-                if (typeof canvas.getContext === 'function') {
-                    const ctx = canvas.getContext('2d')
-                    ctx.imageSmoothingEnabled = false
-                }
-            })
-        }
+        // The drawer redraws on every pan/zoom, so smoothing is set on it rather
+        // than on the canvases it owns.
+        if (viewer && viewer.drawer) viewer.drawer.setImageSmoothingEnabled(false)
         // open-failed is handled in the image loading useEffect above
     }, [viewer])
 
@@ -323,19 +311,6 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                         <RotateRightIcon fontSize="inherit" />
                     </IconButton>
                 </div>
-                <div className={c.topRight}>
-                    {onLayers ? (
-                        <IconButton
-                            className={clsx(c.button, c.gap)}
-                            title="Layers"
-                            aria-label="image view layers"
-                            onClick={onLayers}
-                            size="large"
-                        >
-                            <LayersIcon fontSize="inherit" />
-                        </IconButton>
-                    ) : null}
-                </div>
                 <div className={c.bottomRight}>
                     <IconButton
                         id="osd-zoomin"
@@ -357,20 +332,7 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
                     </IconButton>
                 </div>
             </div>
-            <div
-                className={clsx(c.loadingWrapper, {
-                    [c.loadingHidden]: !imageLoading || openFailed,
-                })}
-            >
-                <Paper className={c.loadingPaper} elevation={2}>
-                    <div>
-                        <div className={c.loadingProgress}>
-                            <CircularProgress size={20} />
-                        </div>
-                        <div className={c.loadingText}>LOADING</div>
-                    </div>
-                </Paper>
-            </div>
+            <ViewerLoading hidden={!imageLoading || openFailed} />
             <div className={clsx(c.openFailedWrapper, { [c.openFailedShown]: openFailed })}>
                 <div className={clsx(c.status, { [c.statusHidden]: !openFailed })}>
                     <Paper className={c.statusPaper} elevation={2}>
@@ -393,56 +355,107 @@ const OpenSeadragonViewer = ({ image, settings, features, onLayers }) => {
     )
 }
 
+const SVG_NS = 'http://www.w3.org/2000/svg'
+const FEATURE_STROKE_WIDTH = 2
+const FEATURE_LABEL_SIZE = 11
+const LABEL_CLASS = 'osd-feature-label'
+// Labels only earn their space once their box is big enough on screen.
+const LABEL_MIN_BOX_PX = 44
+
+/**
+ * Draws GeoJSON features as vector outlines on the viewer's SVG overlay
+ *
+ * @param {Object} overlay - OpenSeadragon SVG overlay
+ * @param {Array} features - GeoJSON features, optionally with _color and _label
+ */
 function drawFeatures(overlay, features) {
-    if (overlay && features) {
-        overlay.node().innerHTML = ''
-        const imageSize = overlay._viewer.world._contentSize
-        features.forEach((feature) => {
-            const geom = feature.geometry
-            let points
-            let polygon
-            if (geom) {
-                switch (geom.type) {
-                    case 'Polygon':
-                        points = []
-                        geom.coordinates[0].forEach((coord) => {
-                            points.push(`${coord[0] / imageSize.x},${coord[1] / imageSize.x}`)
-                        })
-                        polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-                        polygon.setAttribute('points', points.join(' '))
-                        polygon.setAttribute(
-                            'style',
-                            `fill:transparent;stroke:${feature._color};stroke-width:${
-                                10 / ((imageSize.x + imageSize.y) / 2)
-                            }`
-                        )
-                        overlay.node().appendChild(polygon)
-                        break
-                    default:
-                        console.log(imageSize)
-                        // Full image
-                        points = [
-                            `0,0`,
-                            `1,0`,
-                            `1,${imageSize.y / imageSize.x}`,
-                            `0,${imageSize.y / imageSize.x}`,
-                            `0,0`,
-                        ]
-                        polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-                        polygon.setAttribute('points', points.join(' '))
-                        polygon.setAttribute(
-                            'style',
-                            `fill:transparent;stroke:${feature._color};stroke-width:${
-                                4 / ((imageSize.x + imageSize.y) / 2)
-                            }`
-                        )
-                        overlay.node().appendChild(polygon)
-                }
-            }
-        })
-    }
+    if (!overlay) return
+
+    const node = overlay.node()
+    node.innerHTML = ''
+    // No features means the overlay is cleared, e.g. leaving the ML tab.
+    if (!features) return
+
+    const imageSize = overlay._viewer.world._contentSize
+
+    features.forEach((feature) => {
+        const geom = feature.geometry
+        if (!geom) return
+
+        // Overlay coordinates are the image's width normalized to 1.
+        const points =
+            geom.type === 'Polygon'
+                ? geom.coordinates[0].map((coord) => [
+                      coord[0] / imageSize.x,
+                      coord[1] / imageSize.x,
+                  ])
+                : [
+                      [0, 0],
+                      [1, 0],
+                      [1, imageSize.y / imageSize.x],
+                      [0, imageSize.y / imageSize.x],
+                  ]
+
+        const polygon = document.createElementNS(SVG_NS, 'polygon')
+        polygon.setAttribute('points', points.map((p) => p.join(',')).join(' '))
+        polygon.setAttribute('fill', 'transparent')
+        polygon.setAttribute('stroke', feature._color)
+        // Strokes stay the same thickness on screen at every zoom level.
+        polygon.setAttribute('stroke-width', FEATURE_STROKE_WIDTH)
+        polygon.setAttribute('vector-effect', 'non-scaling-stroke')
+        node.appendChild(polygon)
+
+        if (feature._label == null) return
+
+        const anchorX = Math.min(...points.map((p) => p[0]))
+        const anchorY = Math.min(...points.map((p) => p[1]))
+        const label = document.createElementNS(SVG_NS, 'text')
+        label.setAttribute('class', LABEL_CLASS)
+        label.setAttribute('data-x', anchorX)
+        label.setAttribute('data-y', anchorY)
+        label.setAttribute('data-w', Math.max(...points.map((p) => p[0])) - anchorX)
+        label.setAttribute('font-size', FEATURE_LABEL_SIZE)
+        label.setAttribute('font-weight', 'bold')
+        label.setAttribute('fill', feature._color)
+        label.setAttribute('paint-order', 'stroke')
+        label.setAttribute('stroke', 'rgba(0,0,0,0.65)')
+        label.setAttribute('stroke-width', 3)
+        label.setAttribute('vector-effect', 'non-scaling-stroke')
+        label.textContent = feature._label
+        node.appendChild(label)
+    })
+
+    scaleFeatureLabels(overlay)
 }
 
-OpenSeadragonViewer.propTypes = {}
+/**
+ * Keeps feature labels at a fixed screen size, since the overlay itself scales
+ *
+ * @param {Object} overlay - OpenSeadragon SVG overlay
+ */
+function scaleFeatureLabels(overlay) {
+    if (!overlay) return
+    const node = overlay.node()
+    // The overlay's transform carries both zoom and the viewer's rotation.
+    const consolidated = node.transform.baseVal.consolidate()
+    const m = consolidated ? consolidated.matrix : null
+    const scale = m ? Math.sqrt(m.a * m.a + m.b * m.b) : 1
+    if (!scale) return
+
+    node.querySelectorAll(`.${LABEL_CLASS}`).forEach((label) => {
+        const x = Number(label.getAttribute('data-x'))
+        const y = Number(label.getAttribute('data-y'))
+        const boxPx = Number(label.getAttribute('data-w')) * scale
+        label.setAttribute('display', boxPx < LABEL_MIN_BOX_PX ? 'none' : 'inline')
+        label.setAttribute(
+            'transform',
+            `translate(${x} ${y}) scale(${1 / scale}) translate(0 -4)`
+        )
+    })
+}
+
+OpenSeadragonViewer.propTypes = {
+    onOpenFailed: PropTypes.func,
+}
 
 export default OpenSeadragonViewer

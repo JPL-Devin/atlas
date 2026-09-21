@@ -4,6 +4,7 @@ import Url from 'url-parse'
 import geohash from 'ngeohash'
 
 import { domain, endpoints, resultsStatuses, ES_PATHS } from '../../constants'
+import { getAppConfig } from '../../appConfig'
 import {
     getHeader,
     getIn,
@@ -66,6 +67,7 @@ let flatActions = [
     'SET_RECORD_DATA',
     'SET_LABEL_DATA',
     'SET_RECORD_VIEW_TAB',
+    'SET_RECORD_FILENAME_PART',
 
     // ================= FILE-EXPLORER RELATED =================
     'ADD_FILEX_COLUMN',
@@ -168,6 +170,14 @@ export const setMappings = (indexName, mapping) => {
         if (!hasSetInitialActiveFilters && indexName === 'atlas') {
             dispatch(setInitialActiveFilters(initialActiveFilters))
             dispatch(addActiveFilters(initialActiveFilters))
+
+            const defaultFilterValues = getAppConfig().defaultFilterValues
+            if (defaultFilterValues)
+                Object.keys(defaultFilterValues).forEach((filterKey) => {
+                    if (initialActiveFilters[filterKey])
+                        dispatch(setFieldState(filterKey, 0, defaultFilterValues[filterKey], true))
+                })
+
             hasSetInitialActiveFilters = true
         }
         dispatch({
@@ -295,6 +305,15 @@ export const clearActiveFilters = () => {
 export const resetFilters = () => {
     return (dispatch, getState) => {
         dispatch(clearActiveFilters())
+
+        const defaultFilterValues = getAppConfig().defaultFilterValues
+        if (defaultFilterValues)
+            Object.keys(defaultFilterValues).forEach((filterKey) => {
+                const activeFilters = getState().get('activeFilters')
+                if (activeFilters && activeFilters.get(filterKey))
+                    dispatch(setFieldState(filterKey, 0, defaultFilterValues[filterKey], true))
+            })
+
         dispatch(setAdvancedFilters(null, true))
         dispatch(clearResults())
         dispatch(search(0, true))
@@ -629,7 +648,15 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                                 break
                             default:
                                 Object.keys(facet.state).forEach((value) => {
-                                    if (
+                                    if (value === 'exclude' && Array.isArray(facet.state[value])) {
+                                        query.bool = query.bool || { must: [] }
+                                        query.bool.must_not = query.bool.must_not || []
+                                        facet.state[value].forEach((excludeVal) => {
+                                            query.bool.must_not.push({
+                                                match: { [field]: excludeVal },
+                                            })
+                                        })
+                                    } else if (
                                         value === '__filter' &&
                                         facet.state[value] != null &&
                                         facet.state[value] != ''
@@ -753,6 +780,7 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
             ES_PATHS.product_type.join('.'),
             ES_PATHS.start_time.join('.'),
             ES_PATHS.ml_classifications.join('.'),
+            ES_PATHS.ml_novelty_score.join('.'),
         ]
 
         if (resultsTable?.columns?.length > 0) {
@@ -765,7 +793,11 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
             size: resultsPerPage,
             sort: [
                 {
-                    [resultSorting.field]: resultSorting.direction,
+                    [resultSorting.field]: {
+                        order: resultSorting.direction,
+                        missing: '_last',
+                        unmapped_type: 'keyword',
+                    },
                     [ES_PATHS.uri.join('.')]: 'asc',
                     [ES_PATHS.release_id.join('.')]: 'desc',
                 },
@@ -1076,7 +1108,8 @@ export const searchRecordByURI = (uri) => {
             size: 1,
         }
 
-        axios
+        // Returned so callers can tell a pending record from an unresolvable one.
+        return axios
             .post(`${domain}${endpoints.search}`, dsl, getHeader())
             .then((response) => {
                 const newRecordData = getIn(response, ['data', 'hits', 'hits', 0, '_source'], {})
@@ -1470,6 +1503,23 @@ export const setRecordViewTab = (newRecordViewTab) => {
     }
 }
 
+/**
+ * sets which filename segment the record page explains
+ *
+ * @param {number|null} selected - segment index, or null for none
+ * @param {boolean} showAll - explain every segment at once
+ * @return {Object} redux action
+ */
+export const setRecordFilenamePart = (selected, showAll) => {
+    return {
+        type: ACTIONS.SET_RECORD_FILENAME_PART,
+        payload: {
+            selected,
+            showAll,
+        },
+    }
+}
+
 // ================= FILE-EXPLORER RELATED =================
 const FILEX_PAGE_SIZE = 1000
 /**
@@ -1689,11 +1739,7 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
                                 )
                                 if (lastMatch == -1) lastMatch = rawPath.lastIndexOf(`/${key}`)
                                 const uri =
-                                    uriPrefix +
-                                    rawPath.substring(
-                                        0,
-                                        lastMatch + key.length + 1
-                                    )
+                                    uriPrefix + rawPath.substring(0, lastMatch + key.length + 1)
                                 // || rawPathFinal === key
 
                                 dispatch(
@@ -1949,7 +1995,9 @@ export const queryFilexColumn = (columnId, isLast, cb) => {
                         results.buckets = results.buckets.concat(bundleBuckets)
                     }
                     results.buckets = results.buckets.sort((a, b) =>
-                        String(a.key).localeCompare(String(b.key), undefined, { sensitivity: 'base' })
+                        String(a.key).localeCompare(String(b.key), undefined, {
+                            sensitivity: 'base',
+                        })
                     )
                 }
                 if (column.type === 'filter') {

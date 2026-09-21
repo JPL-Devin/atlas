@@ -1,0 +1,127 @@
+{
+    "title": "JunoCam filename",
+    "sis": "juno_jnc",
+    "reference": "JunoCam EDR/RDR Data Product SIS, \u00a74.2 (File Naming Convention) and Appendix B (Filter Combinations)",
+    "ignoreCase": true,
+    "match": "^(JNC)([ERM])_([0-9]{4})([0-9]{3})_([0-9]{2})([ABCGMRT])([0-9]{5})_V([0-9]{2})\\.(IMG|LBL)$",
+    "segments": [
+        {
+            "group": 1,
+            "label": "Instrument",
+            "color": "blue",
+            "description": "JunoCam.",
+            "values": {
+                "JNC": "JunoCam (JNC)"
+            }
+        },
+        {
+            "group": 2,
+            "label": "Product type",
+            "color": "violet",
+            "description": "Processing level of the product.",
+            "values": {
+                "E": {
+                    "meaning": "EDR \u2014 experiment data record",
+                    "description": "The reconstructed image with decompression applied, not radiometrically corrected."
+                },
+                "R": {
+                    "meaning": "RDR \u2014 reduced data record",
+                    "description": "A calibrated rendition of the EDR."
+                },
+                "M": {
+                    "meaning": "Map product",
+                    "description": "A map projection built from JunoCam imaging; the global maps have their own SIS."
+                }
+            }
+        },
+        {
+            "group": 3,
+            "label": "Year",
+            "color": "teal",
+            "description": "Year at the start of image acquisition.",
+            "patterns": [
+                {
+                    "match": "^([0-9]{4})$",
+                    "meaning": "Year {number}"
+                }
+            ]
+        },
+        {
+            "group": 4,
+            "label": "Day of year",
+            "color": "green",
+            "description": "Day of year at the start of image acquisition.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Day of year {1}"
+                }
+            ]
+        },
+        {
+            "group": 5,
+            "label": "Orbit",
+            "color": "orange",
+            "description": "Orbit number, or 00 for all cruise products.",
+            "patterns": [
+                {
+                    "match": "^00$",
+                    "meaning": "Cruise product"
+                },
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Orbit {1}"
+                }
+            ]
+        },
+        {
+            "group": 6,
+            "label": "Filter combination",
+            "color": "indigo",
+            "description": "Which of JunoCam's filters contributed to the image.",
+            "values": {
+                "A": "All four filters (red, green, blue, methane)",
+                "B": "Blue filter only",
+                "C": "Three-colour filters (red, green, blue)",
+                "G": "Green filter only",
+                "M": "Methane filter only",
+                "R": "Red filter only",
+                "T": "Two-colour filter (red, blue)"
+            }
+        },
+        {
+            "group": 7,
+            "label": "Image index",
+            "color": "brown",
+            "description": "Image index within that mission phase.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Image {1}"
+                }
+            ]
+        },
+        {
+            "group": 8,
+            "label": "Version",
+            "color": "amber",
+            "description": "Product version, starting at 01.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Version {1}"
+                }
+            ]
+        },
+        {
+            "group": 9,
+            "label": "Extension",
+            "color": "slate",
+            "description": "Product format.",
+            "values": {
+                "IMG": "PDS image file",
+                "LBL": "Detached PDS label"
+            }
+        }
+    ]
+}

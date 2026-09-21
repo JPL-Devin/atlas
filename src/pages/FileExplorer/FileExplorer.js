@@ -19,6 +19,8 @@ import SortIcon from '@mui/icons-material/Sort'
 import clsx from 'clsx'
 import Draggable from 'react-draggable'
 
+import { getAppConfig } from '../../core/appConfig'
+
 const initialPreviewWidth = 512
 
 const useStyles = makeStyles((theme) => ({
@@ -92,7 +94,7 @@ let slidingRight = false
 
 const FileExplorer = (props) => {
     useEffect(() => {
-        document.title = 'Atlas - Archive Explorer | PDS-IMG'
+        document.title = `${getAppConfig().appTitle} - Archive Explorer | PDS-IMG`
     }, [])
 
     const c = useStyles()
@@ -102,10 +104,6 @@ const FileExplorer = (props) => {
     const slideRef = useRef(null)
     const rightRef = useRef(null)
     const dragRef = useRef(null)
-
-    const mobileWorkspace = useSelector((state) => {
-        return state.getIn(['workspace', 'mobile'])
-    })
 
     let [sort, setSort] = useState('Folders')
 

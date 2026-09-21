@@ -9,7 +9,6 @@ import { useTheme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 
 import Button from '@mui/material/Button'
-import ButtonGroup from '@mui/material/ButtonGroup'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
@@ -32,6 +31,7 @@ import {
     setModal,
     setSnackBarText,
 } from '../../../../../../core/redux/actions/actions.js'
+import { getAppConfig } from '../../../../../../core/appConfig'
 
 const useStyles = makeStyles((theme) => ({
     Heading: {
@@ -40,6 +40,8 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         justifyContent: 'space-between',
         boxSizing: 'border-box',
+        minWidth: 0,
+        overflow: 'hidden',
         background: theme.palette.swatches.grey.grey100,
     },
     title: {
@@ -52,14 +54,21 @@ const useStyles = makeStyles((theme) => ({
     },
     left: {
         display: 'flex',
+        alignItems: 'center',
+        flexShrink: 0,
+        minWidth: 0,
     },
     middle: {
         flex: 1,
+        minWidth: 0,
+        overflow: 'hidden',
         padding: '4px 12px',
     },
     right: {
         display: 'flex',
         justifyContent: 'space-between',
+        flexShrink: 0,
+        minWidth: 0,
     },
     rotateButton: {
         'width': theme.headHeights[1],
@@ -121,7 +130,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const Heading = (props) => {
-    const { activeView } = props
+    const { activeView, mobile } = props
 
     const c = useStyles()
     const dispatch = useDispatch()
@@ -162,7 +171,7 @@ const Heading = (props) => {
             <div className={c.middle}>{filterType === 'basic' && <ChippedFilters />}</div>
             <div className={c.right}>
                 <ResultsSorter />
-                {activeView === 'grid' && !isMobile && (
+                {activeView === 'Grid' && !isMobile && (
                     <div className={c.gridSize}>
                         <Tooltip title="Small Grid Images" arrow>
                             <IconButton
@@ -208,7 +217,7 @@ const Heading = (props) => {
                         </Tooltip>
                     </div>
                 )}
-                {activeView === 'grid' && !isMobile && (
+                {activeView === 'Grid' && !isMobile && (
                     <Tooltip title="Rotate Images 90°" arrow>
                         <IconButton
                             className={c.rotateButton}
@@ -221,7 +230,7 @@ const Heading = (props) => {
                         </IconButton>
                     </Tooltip>
                 )}
-                {activeView === 'table' && !isMobile && (
+                {activeView === 'Table' && !isMobile && (
                     <Button
                         className={c.button1}
                         variant="contained"
@@ -232,6 +241,7 @@ const Heading = (props) => {
                         Edit Columns
                     </Button>
                 )}
+                {getAppConfig().enableCart && !mobile && (
                 <Tooltip
                     title={
                         resultKeysChecked.length > 0
@@ -271,39 +281,34 @@ const Heading = (props) => {
                             : 'Add All to Cart'}
                     </Button>
                 </Tooltip>
-                <MenuButton
-                    options={
-                        !isMobile
-                            ? [
-                                  'Add All Query Results to Cart',
-                                  'Add Selected Results to Cart',
-                                  '-',
-                                  'Deselect All',
-                              ]
-                            : activeView === 'table'
-                            ? [
-                                  'Add All Query Results to Cart',
-                                  'Add Selected Results to Cart',
-                                  '-',
-                                  'Deselect All',
-                                  '-',
-                                  'Edit Columns',
-                              ]
-                            : [
-                                  'Add All Query Results to Cart',
-                                  'Add Selected Results to Cart',
-                                  '-',
-                                  'Deselect All',
-                                  '-',
-                                  'Small Grid Images',
-                                  'Medium Grid Images',
-                                  'Large Grid Images',
-                                  '-',
-                                  'Rotate Images 90°',
-                              ]
-                    }
+                )}
+                {(() => {
+                    const cartOptions = getAppConfig().enableCart ? [
+                        'Add All Query Results to Cart',
+                        'Add Selected Results to Cart',
+                        '-',
+                        'Deselect All',
+                    ] : []
+                    const menuOptions = !isMobile
+                        ? cartOptions
+                        : activeView === 'Table'
+                        ? [
+                              ...(cartOptions.length > 0 ? [...cartOptions, '-'] : []),
+                              'Edit Columns',
+                          ]
+                        : [
+                              ...(cartOptions.length > 0 ? [...cartOptions, '-'] : []),
+                              'Small Grid Images',
+                              'Medium Grid Images',
+                              'Large Grid Images',
+                              '-',
+                              'Rotate Images 90°',
+                          ]
+                    if (menuOptions.length === 0) return null
+                    return (<MenuButton
+                    options={menuOptions}
                     buttonComponent={<MoreVertIcon className={c.menuButton} />}
-                    onChange={(option, idx) => {
+                    onChange={(option) => {
                         switch (option) {
                             case 'Add Selected Results to Cart':
                                 dispatch(addToCart('image', 'checkedResults'))
@@ -338,12 +343,16 @@ const Heading = (props) => {
                                 break
                         }
                     }}
-                />
+                />)
+                })()}
             </div>
         </div>
     )
 }
 
-Heading.propTypes = {}
+Heading.propTypes = {
+    activeView: PropTypes.string,
+    mobile: PropTypes.bool,
+}
 
 export default Heading

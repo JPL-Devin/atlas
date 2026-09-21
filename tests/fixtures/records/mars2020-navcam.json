@@ -1,0 +1,99 @@
+{
+    "gather": {
+        "common": {
+            "target": [
+                "mars"
+            ],
+            "product_type": "IDM",
+            "spacecraft": "perseverance",
+            "mission": "mars_2020",
+            "instrument": [
+                "NAVCAM_RIGHT"
+            ],
+            "kind": "regular"
+        },
+        "uri": "atlas:pds4:mars_2020:perseverance:/mars2020_navcam_ops_calibrated/data/sol/00818/ids/rdr/ncam/NRM_0818_0739564747_023IDM_N0391469VCE_16000_0A02LLJ02.IMG",
+        "time": {
+            "stop_time": "2023-06-09T06:50:11.222Z",
+            "start_time": "2023-06-09T06:50:09.686Z",
+            "product_creation_time": "2023-08-30T17:46:41.274Z",
+            "spacecraft_clock_start_count": "739564747.023"
+        },
+        "pds_archive": {
+            "pds_standard": "pds4",
+            "bundle_id": "mars2020_navcam_ops_calibrated",
+            "related": {
+                "browse": {
+                    "uri": "atlas:pds4:mars_2020:perseverance:/mars2020_navcam_ops_calibrated/browse/sol/00818/ids/rdr/ncam/NRM_0818_0739564747_023IDM_N0391469VCE_16000_0A02LLJ02.png"
+                },
+                "label": {
+                    "size": 80439,
+                    "uri": "atlas:pds4:mars_2020:perseverance:/mars2020_navcam_ops_calibrated/data/sol/00818/ids/rdr/ncam/NRM_0818_0739564747_023IDM_N0391469VCE_16000_0A02LLJ02.xml"
+                },
+                "supplemental": []
+            },
+            "product_id": "urn:nasa:pds:mars2020_navcam_ops_calibrated:data:nrm_0818_0739564747_023idm_n0391469vce_16000_0a02llj",
+            "file_name": "NRM_0818_0739564747_023IDM_N0391469VCE_16000_0A02LLJ02.IMG",
+            "collection_id": "data",
+            "release_id": "8",
+            "release_id_num": 8.0
+        },
+        "landed_missions": {
+            "start_local_true_solar_time": "14:28:56",
+            "rmc_arm": 0,
+            "site_instrument_elevation": -32.8938,
+            "rmc_pose": 9,
+            "rmc_drive": 1469,
+            "frame_type": "stereo",
+            "rmc_hga": 0,
+            "rmc_drill": 0,
+            "rmc_rsm": 0,
+            "rmc_site": 39,
+            "land_msn_eye": "right",
+            "site_instrument_azimuth": 0.173539221,
+            "site_solar_elevation": 55.34938354,
+            "site_solar_azimuth": 68.809915285,
+            "planet_day_number": 818,
+            "start_local_mean_solar_time": "14:19:46",
+            "image_type": "regular"
+        },
+        "ancillary": {
+            "flight": null,
+            "image_kind": null,
+            "instrument_category": "ncam",
+            "special_processing_flag": "_",
+            "overlayable": true,
+            "reconstruction_type": "A",
+            "overlay_id": "818_0739564747_023_39_1469_ncam__0_2__0___2__A0",
+            "downsample": 2,
+            "group_id": "818_0739564747_023_39_1469_ncam_",
+            "secondary_instrument": null,
+            "color_filter": "M",
+            "producer": "J",
+            "eye_type": "right",
+            "image_type": "index_downsample",
+            "tile_flag": false
+        }
+    },
+    "archive": {
+        "size": 1272320,
+        "bundle_id": "mars2020_navcam_ops_calibrated",
+        "mission": "mars_2020",
+        "parent_uri": "atlas:pds4:mars_2020:perseverance:/mars2020_navcam_ops_calibrated/data/sol/00818/ids/rdr/ncam",
+        "fs_type": "file",
+        "release_id": 8,
+        "instrument": [
+            "navcam"
+        ],
+        "collection_id": "data",
+        "pds_standard": "pds4",
+        "updated_at": "2023-11-17T05:59:32Z",
+        "target": "mars",
+        "file_extension": "img",
+        "spacecraft": "perseverance",
+        "md5_updated_at": "2023-11-25T17:56:04Z",
+        "name": "NRM_0818_0739564747_023IDM_N0391469VCE_16000_0A02LLJ02.IMG",
+        "uri": "atlas:pds4:mars_2020:perseverance:/mars2020_navcam_ops_calibrated/data/sol/00818/ids/rdr/ncam/NRM_0818_0739564747_023IDM_N0391469VCE_16000_0A02LLJ02.IMG",
+        "release_id_num": 8.0
+    }
+}
