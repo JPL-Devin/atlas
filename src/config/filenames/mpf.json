@@ -1,0 +1,108 @@
+[
+    {
+        "title": "Mars Pathfinder IMP EDR filename",
+        "sis": "mpf_imp",
+        "reference": "Imager for Mars Pathfinder EDR Data Product SIS (v1.5), \u00a72.2.2",
+        "ignoreCase": true,
+        "match": "^I[0-9]{6}[LRSN]\\.[A-Za-z]{3}$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 1,
+                "label": "Instrument",
+                "color": "blue",
+                "description": "An \"I\" marks an EDR from the Imager for Mars Pathfinder (IMP), the lander's mast-mounted stereo camera.",
+                "values": {
+                    "I": "Imager for Mars Pathfinder (IMP)"
+                }
+            },
+            {
+                "start": 2,
+                "length": 6,
+                "label": "Spacecraft clock",
+                "color": "teal",
+                "description": "Spacecraft clock start count of the exposure. Left, right, dark and null frames of one observation share it.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{6})$",
+                        "meaning": "Least significant six digits of the spacecraft clock start count ({number}); the four leading digits are carried by the directory path instead"
+                    }
+                ]
+            },
+            {
+                "start": 8,
+                "length": 1,
+                "label": "Frame",
+                "color": "green",
+                "description": "Which of the four frames the camera produced this image from.",
+                "values": {
+                    "L": "Left IMP frame",
+                    "R": "Right IMP frame",
+                    "S": "Dark strip frame",
+                    "N": "Null strip frame"
+                }
+            },
+            {
+                "start": 10,
+                "length": 3,
+                "label": "Extension",
+                "color": "violet",
+                "description": "What the file holds. IMP returned calibration frames alongside the science image, each with its own extension.",
+                "values": {
+                    "IMG": "Image",
+                    "STR": "Dark strip",
+                    "NUL": "Null strip",
+                    "FLT": "Flat field",
+                    "DRK": "Dark current",
+                    "HST": "Histogram",
+                    "SUM": "Summed image",
+                    "LBL": "Detached PDS label"
+                }
+            }
+        ]
+    },
+    {
+        "title": "Mars Pathfinder Rover camera EDR filename",
+        "sis": "mpf_rover",
+        "reference": "Mars Pathfinder Rover Camera EDR Data Product SIS (v1.5), \u00a72.2.2",
+        "ignoreCase": true,
+        "match": "^R[0-9]{6}\\.[A-Za-z]{3}$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 1,
+                "label": "Instrument",
+                "color": "blue",
+                "description": "An \"R\" marks an EDR from a Sojourner rover camera.",
+                "values": {
+                    "R": "Sojourner rover camera"
+                }
+            },
+            {
+                "start": 2,
+                "length": 6,
+                "label": "Spacecraft clock",
+                "color": "teal",
+                "description": "Spacecraft clock start count of the exposure.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{6})$",
+                        "meaning": "Least significant six digits of the spacecraft clock start count ({number}); the four leading digits are carried by the directory path instead"
+                    }
+                ]
+            },
+            {
+                "start": 9,
+                "length": 3,
+                "label": "Extension",
+                "color": "violet",
+                "description": "What the file holds; the rear camera's colour frames are archived unpacked as .RGB.",
+                "values": {
+                    "IMG": "Monochrome or packed-colour rear camera image",
+                    "RGB": "Unpacked (colour) rear camera image",
+                    "LBL": "Detached PDS label"
+                }
+            }
+        ]
+    }
+]

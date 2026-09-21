@@ -30,12 +30,9 @@ async function addNthResultToCart(page, n) {
     await page.getByRole('button', { name: /add current image to cart/i }).click()
     // Snackbar fires; let it settle before navigating back.
     await page.waitForTimeout(500)
-    // Use the back button on the Record toolbar to keep the search
-    // results state in memory (rather than re-running the query).
-    const backBtn = page
-        .getByRole('button', { name: 'return to search' })
-        .or(page.getByRole('button', { name: 'go back a page' }))
-    await backBtn.first().click()
+    // Browser back keeps the search results state in memory (rather
+    // than re-running the query).
+    await page.goBack()
     await page.waitForURL(/\/search/, { timeout: SHORT_RESULT_WAIT_MS })
     await waitForAppReady(page)
 }

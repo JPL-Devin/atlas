@@ -12,8 +12,8 @@ import { makeStyles } from '@mui/styles'
 import { searchRecordByURI, setRecordData } from '../../core/redux/actions/actions'
 import { ES_PATHS, domain, endpoints } from '../../core/constants'
 import { getIn, getHeader } from '../../core/utils'
+import { getAppConfig } from '../../core/appConfig'
 
-import Title from './Title/Title'
 import Content from './Content/Content'
 import Footer from './Footer/Footer'
 
@@ -29,7 +29,7 @@ const Record = (props) => {
     const { width } = props
 
     useEffect(() => {
-        document.title = 'Atlas - Record | PDS-IMG'
+        document.title = `${getAppConfig().appTitle} - Record | PDS-IMG`
     }, [])
 
     const c = useStyles()
@@ -39,6 +39,7 @@ const Record = (props) => {
 
     const [versions, setVersions] = useState([])
     const [activeVersion, setActiveVersion] = useState(null)
+    const [loading, setLoading] = useState(true)
 
     const recordData = useSelector((state) => {
         return state.get('recordData')
@@ -52,9 +53,11 @@ const Record = (props) => {
         }
     }, [])
 
+    // `uri` lives in the query string, so the record refetches when it changes.
     useEffect(() => {
-        dispatch(searchRecordByURI())
-    }, [location.href])
+        setLoading(true)
+        Promise.resolve(dispatch(searchRecordByURI())).then(() => setLoading(false))
+    }, [location.search])
 
     // Query for different product versions
     useEffect(() => {
@@ -133,8 +136,12 @@ const Record = (props) => {
 
     return (
         <div className={c.Record}>
-            <Title recordData={recordData} versions={versions} activeVersion={activeVersion} />
-            <Content recordData={recordData} versions={versions} activeVersion={activeVersion} />
+            <Content
+                recordData={recordData}
+                versions={versions}
+                activeVersion={activeVersion}
+                loading={loading}
+            />
             {/*<Footer />*/}
         </div>
     )

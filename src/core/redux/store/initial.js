@@ -1,5 +1,6 @@
 import { fromJS } from 'immutable'
 import { localStorageCart } from '../../constants'
+import { getAppConfig } from '../../appConfig'
 
 /* Globals */
 /* These are general variables that DO NOT trigger component updates
@@ -31,14 +32,11 @@ export const INITIAL = (() => {
         workspace: {
             main: {
                 filters: true,
+                mobileFilters: false,
                 filtersSize: '360px',
                 advancedFiltersSize: '520px',
-                secondary: false,
-                secondarySize: '50%',
-                results: true,
-                resultsSize: 'fill',
+                mapSize: '50%',
             },
-            mobile: 'results',
         },
         // Which modal are on
         modals: {
@@ -98,9 +96,9 @@ export const INITIAL = (() => {
             total: null,
         },
         resultSorting: {
-            field: 'gather.time.start_time',
-            direction: 'desc',
-            defaultField: 'gather.time.start_time',
+            field: getAppConfig().defaultSortField,
+            direction: getAppConfig().defaultSortDirection,
+            defaultField: getAppConfig().defaultSortField,
         },
         resultsTable: {
             columns: [
@@ -130,6 +128,8 @@ export const INITIAL = (() => {
         labelData: {},
         // Which record view tab are we on
         recordViewTab: 'overview',
+        // Which filename segment the record page explains
+        recordFilenamePart: { selected: null, showAll: false },
 
         // ================= FILE-EXPLORER RELATED =================
         columns: [],

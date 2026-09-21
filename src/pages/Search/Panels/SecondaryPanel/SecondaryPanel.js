@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
-import { useSelector } from 'react-redux'
 
 import CartoCosmos from '../../../../CartoCosmos/CartoCosmos'
 
@@ -11,6 +10,8 @@ import { makeStyles } from '@mui/styles'
 const useStyles = makeStyles((theme) => ({
     SecondaryPanel: {
         height: '100%',
+        flexShrink: 0,
+        minWidth: 0,
         transition: 'width 0.4s ease-out',
         overflow: 'hidden',
         position: 'relative',
@@ -22,22 +23,6 @@ const useStyles = makeStyles((theme) => ({
         background: theme.palette.swatches.grey.grey800,
         display: 'flex',
         flexFlow: 'column',
-    },
-    heading: {
-        width: '100%',
-        height: theme.headHeights[1],
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '4px 12px',
-        boxSizing: 'border-box',
-        background: theme.palette.swatches.grey.grey700,
-    },
-    title: {
-        fontSize: '16px',
-        fontWeight: 500,
-        lineHeight: '34px',
-        color: theme.palette.text.secondary,
-        whiteSpace: 'nowrap',
     },
     map: {
         'width': '100%',
@@ -52,42 +37,27 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const SecondaryPanel = (props) => {
-    const { mobile } = props
+    const { width } = props
     const c = useStyles()
 
     const mainRef = useRef()
     const [firstOpen, setFirstOpen] = useState(false)
 
-    const w = useSelector((state) => {
-        return state.getIn(['workspace', 'main'])
-    }).toJS()
-
-    let width = 0
-    if (mobile) width = '100%'
-    else if (w.secondary) {
-        if (w.results) width = w.secondarySize
-        else width = '100%'
-    }
-
+    // A closed map keeps its controls out of the tab and accessibility trees
     const style = {
         width,
+        visibility: width === 0 ? 'hidden' : 'visible',
     }
 
     // This is so that the map never loads in the background on start up
-    if (width !== 0 && firstOpen === false) {
+    if (width !== 0 && firstOpen === false) 
         setFirstOpen(true)
-    }
+    
 
     return (
         <div className={c.SecondaryPanel} style={style} ref={mainRef}>
             <MapListener parentClass={c.map} firstOpen={firstOpen} />
             <div className={c.content}>
-                <div className={c.heading}>
-                    <div className={c.left}>
-                        <div className={c.title}>Map</div>
-                    </div>
-                    <div className={c.right}></div>
-                </div>
                 <div className={c.map}>
                     <CartoCosmos firstOpen={firstOpen} />
                 </div>
@@ -96,6 +66,8 @@ const SecondaryPanel = (props) => {
     )
 }
 
-SecondaryPanel.propTypes = {}
+SecondaryPanel.propTypes = {
+    width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+}
 
 export default SecondaryPanel

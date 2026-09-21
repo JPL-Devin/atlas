@@ -1,4 +1,5 @@
 import { prettify, setIn, getIn } from '../core/utils'
+import { getAppConfig } from '../core/appConfig'
 
 export const formatMappings = (schema) => {
     const facets = {
@@ -224,19 +225,8 @@ const flattenGather = (facets) => {
     }
 }
 
-// Define the intended order of filters
-const FILTER_ORDER_PRIORITY = [
-    '_text', // Text Search
-    'gather.common.mission', // Mission
-    'gather.common.spacecraft', // Spacecraft
-    'gather.common.instrument', // Instrument
-    'gather.common.target', // Target
-    'gather.common.product_type', // Product Type
-    'gather.common.kind', // Kind
-    'archive.bundle_id', // Bundle ID
-    'gather.machine_learning.classification.classifications.class', // ML Class
-    'gather.machine_learning.classification.classifications.confidence', // ML Confidence Score
-]
+// Define the intended order of filters from app config
+const FILTER_ORDER_PRIORITY = getAppConfig().defaultFilters
 
 /**
  * Gets the intended order value for a filter key
@@ -245,52 +235,56 @@ const FILTER_ORDER_PRIORITY = [
  */
 export const getFilterOrderValue = (filterKey) => {
     const priorityIndex = FILTER_ORDER_PRIORITY.indexOf(filterKey)
-    if (priorityIndex >= 0) {
+    if (priorityIndex >= 0)
         return priorityIndex
-    }
     // Non-default filters get appended to the end
     return FILTER_ORDER_PRIORITY.length + 1000
 }
 
 export const getInitialActiveFilters = (mapping) => {
-    const initialFilters = {
-        '_text': {
-            display_name: 'Text Search',
-            description:
-                "A textual search over product names. Regular expressions are supported using ElasticSearch's regexp syntax.",
-            facets: [
-                {
-                    field_name: 'Search Product Names (regex supported)',
-                    field: '*',
-                    component: 'text',
-                    type: 'query_string',
-                },
-            ],
-        },
-        'gather.common.mission': mapping.groups.common.groups.mission,
-        'gather.common.spacecraft': mapping.groups.common.groups.spacecraft,
-        'gather.common.instrument': mapping.groups.common.groups.instrument,
-        'gather.common.target': mapping.groups.common.groups.target,
-        'gather.common.product_type': mapping.groups.common.groups.product_type,
-        'gather.common.kind': mapping.groups.common.groups.kind,
-        'archive.bundle_id': mapping.groups.archive.groups.bundle_id,
-    }
+    const initialFilters = {}
+    const config = getAppConfig()
 
-    // Conditionally add ML filters if they exist in the mapping
-    const mlClass =
-        mapping.groups?.machine_learning?.groups?.classification?.groups
-            ?.classifications?.groups?.class
-    const mlConfidence =
-        mapping.groups?.machine_learning?.groups?.classification?.groups
-            ?.classifications?.groups?.confidence
+    config.defaultFilters.forEach((filterKey) => {
+        if (filterKey === '_text') {
+            initialFilters['_text'] = {
+                display_name: 'Text Search',
+                description:
+                    "A textual search over product names. Regular expressions are supported using ElasticSearch's regexp syntax.",
+                facets: [
+                    {
+                        field_name: 'Search Product Names (regex supported)',
+                        field: '*',
+                        component: 'text',
+                        type: 'query_string',
+                    },
+                ],
+            }
+            return
+        }
 
-    if (mlClass) {
-        initialFilters['gather.machine_learning.classification.classifications.class'] = mlClass
-    }
-    if (mlConfidence) {
-        initialFilters['gather.machine_learning.classification.classifications.confidence'] =
-            mlConfidence
-    }
+        const parts = filterKey.split('.')
+        let current = mapping.groups
+        let found = true
+
+        for (let i = 0; i < parts.length; i++) {
+            const part = parts[i]
+            if (i === 0 && part === 'gather') continue
+
+            if (current && current[part])
+                if (i < parts.length - 1 && current[part].groups)
+                    current = current[part].groups
+                else
+                    current = current[part]
+            else {
+                found = false
+                break
+            }
+        }
+
+        if (found && current && current.facets)
+            initialFilters[filterKey] = current
+    })
 
     return initialFilters
 }

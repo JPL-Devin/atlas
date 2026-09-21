@@ -1,0 +1,54 @@
+{
+    "match": {
+        "mission": "mgs"
+    },
+    "tiles": [
+        "gather.common.mission",
+        "gather.common.spacecraft",
+        "gather.orbital_missions.orbit",
+        "gather.common.instrument_name",
+        "gather.common.product_type",
+        "gather.common.geo_location",
+        "gather.common.filter",
+        "gather.common.mission_phase_name",
+        "gather.pds_archive.data_set_id",
+        "archive.size"
+    ],
+    "maxTiles": 9,
+    "priorityTiles": 6,
+    "sections": [
+        "identification",
+        "observation",
+        "geometry_orbital",
+        "content"
+    ],
+    "separator": ", ",
+    "description": [
+        "{{gather.common.product_type}} image from {{gather.common.instrument_name}} aboard {{gather.common.spacecraft}}.",
+        "It was acquired on orbit {{gather.orbital_missions.orbit}} over {{gather.common.target}} at {{gather.common.geo_location}}.",
+        "The observation was made during the {{gather.common.mission_phase_name}} mission phase through the {{gather.common.filter}} filter.",
+        "The product is archived in {{gather.pds_archive.data_set_id}}."
+    ],
+    "captionTitle": [
+        "{{gather.common.instrument_name}}",
+        "orbit {{gather.orbital_missions.orbit}}"
+    ],
+    "captionChips": [
+        "Orbit {{gather.orbital_missions.orbit}}",
+        "{{gather.common.target}}",
+        "{{gather.common.instrument_name}}",
+        "{{gather.common.product_type}}",
+        "{{gather.common.geo_location}}"
+    ],
+    "caption": [
+        "Imaged by {{gather.common.instrument_name}} aboard {{gather.common.spacecraft}}",
+        "on orbit {{gather.orbital_missions.orbit}}",
+        "over {{gather.common.target}} at {{gather.common.geo_location}}",
+        "during the {{gather.common.mission_phase_name}} mission phase"
+    ],
+    "shortCaption": [
+        "{{gather.common.instrument_name}}",
+        "orbit {{gather.orbital_missions.orbit}}"
+    ],
+    "emptyState": "no_browse_generic"
+}

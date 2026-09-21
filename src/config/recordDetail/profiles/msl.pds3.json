@@ -1,0 +1,78 @@
+{
+    "match": {
+        "mission": "msl",
+        "pds_standard": "pds3"
+    },
+    "tiles": [
+        "gather.common.mission",
+        "gather.common.spacecraft",
+        "gather.common.instrument_name",
+        "gather.landed_missions.planet_day_number",
+        "gather.landed_missions.rmc_site",
+        "gather.landed_missions.rmc_drive",
+        "gather.landed_missions.start_local_mean_solar_time",
+        {
+            "path": "gather.landed_missions.site_solar_elevation",
+            "pair": "gather.landed_missions.site_solar_azimuth"
+        },
+        {
+            "path": "gather.landed_missions.site_instrument_elevation",
+            "pair": "gather.landed_missions.site_instrument_azimuth"
+        },
+        {
+            "path": "gather.time.start_time",
+            "format": "datetime_short"
+        },
+        "gather.landed_missions.frame_type",
+        "gather.common.product_type_name",
+        "gather.time.spacecraft_clock_start_count",
+        "gather.common.mission_phase_name",
+        "gather.pds_archive.data_set_id"
+    ],
+    "maxTiles": 12,
+    "priorityTiles": 6,
+    "sections": [
+        "identification",
+        "observation",
+        "geometry_surface",
+        "content"
+    ],
+    "separator": ", ",
+    "description": [
+        "{{gather.common.product_type_name}} image from {{gather.common.instrument_name}} aboard {{gather.common.spacecraft}}.",
+        "It was taken on sol {{gather.landed_missions.planet_day_number}} during the {{gather.common.mission_phase_name}} mission phase.",
+        "The rover was at site {{gather.landed_missions.rmc_site}}, drive {{gather.landed_missions.rmc_drive}}.",
+        "The frame is {{gather.landed_missions.frame_type}}, pointed {{gather.landed_missions.site_instrument_azimuth}} azimuth, {{gather.landed_missions.site_instrument_elevation}} elevation.",
+        "The product is archived in {{gather.pds_archive.data_set_id}}."
+    ],
+    "captionTitle": [
+        "{{gather.common.instrument_name}}",
+        "Sol {{gather.landed_missions.planet_day_number}}"
+    ],
+    "captionChips": [
+        "Sol {{gather.landed_missions.planet_day_number}}",
+        "{{gather.landed_missions.start_local_mean_solar_time}} LMST",
+        "Site {{gather.landed_missions.rmc_site}}",
+        "Drive {{gather.landed_missions.rmc_drive}}",
+        "{{gather.common.instrument_name}}",
+        "{{gather.common.product_type_name}}"
+    ],
+    "caption": [
+        "Imaged by {{gather.common.instrument_name}} aboard {{gather.common.spacecraft}}",
+        "on sol {{gather.landed_missions.planet_day_number}}",
+        "at {{gather.landed_missions.start_local_mean_solar_time}} local mean solar time",
+        "from site {{gather.landed_missions.rmc_site}} drive {{gather.landed_missions.rmc_drive}}",
+        "pointing {{gather.landed_missions.site_instrument_azimuth}} azimuth and {{gather.landed_missions.site_instrument_elevation}} elevation",
+        "at Ls {{gather.lighting_geometry.solar_longitude}}"
+    ],
+    "shortCaption": [
+        "{{gather.common.instrument_name}}",
+        "Sol {{gather.landed_missions.planet_day_number}}"
+    ],
+    "altText": [
+        "{{gather.common.instrument_name}} image",
+        "of the Martian surface on sol {{gather.landed_missions.planet_day_number}}",
+        "at site {{gather.landed_missions.rmc_site}}"
+    ],
+    "emptyState": "no_browse_surface"
+}

@@ -1,0 +1,2789 @@
+[
+    {
+        "title": "MER EDR / single-frame RDR filename",
+        "sis": "mer_camsis",
+        "reference": "MER Camera EDR / RDR Ops & Science Data Products SIS (JPL D-22846, v4.4), \u00a74.4.1",
+        "ignoreCase": true,
+        "match": "^[1-4][A-Za-z][0-9]{9}[A-Za-z]{3}[A-Za-z0-9_#]{4}[A-Za-z][0-9]{4}[A-Za-z][A-Za-z0-9][A-Za-z][A-Za-z0-9]\\.[A-Za-z]{3}$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 1,
+                "label": "Rover",
+                "color": "blue",
+                "description": "Which MER rover, and whether the product came from the flight vehicle or a ground simulation.",
+                "values": {
+                    "1": "MER-B / MER-1 (Opportunity), flight",
+                    "2": "MER-A / MER-2 (Spirit), flight",
+                    "3": "MER-B / MER-1 (Opportunity), simulated (ground)",
+                    "4": "MER-A / MER-2 (Spirit), simulated (ground)"
+                }
+            },
+            {
+                "start": 2,
+                "length": 1,
+                "label": "Instrument",
+                "color": "cyan",
+                "description": "Camera or instrument that acquired the data.",
+                "values": {
+                    "P": "Pancam",
+                    "N": "Navcam",
+                    "F": "Front Hazcam",
+                    "R": "Rear Hazcam",
+                    "M": "Microscopic Imager",
+                    "E": "Descam",
+                    "A": "APXS (not covered by the camera SIS)",
+                    "B": "M\u00f6ssbauer (not covered by the camera SIS)",
+                    "T": "Mini-TES (not covered by the camera SIS)",
+                    "D": "RAT (not covered by the camera SIS)"
+                }
+            },
+            {
+                "start": 3,
+                "length": 9,
+                "label": "Spacecraft clock",
+                "color": "teal",
+                "description": "Spacecraft clock count at the start of the camera event.",
+                "patterns": [
+                    {
+                        "match": "^[0-9]{9}$",
+                        "meaning": "SCLK {number} seconds"
+                    }
+                ]
+            },
+            {
+                "start": 12,
+                "length": 3,
+                "label": "Product type",
+                "color": "violet",
+                "description": "What kind of product this is. A leading \"E\" marks an EDR; otherwise it is an RDR, where a trailing \"L\" means linearized, \"T\" a thumbnail and \"N\" a linearized thumbnail.",
+                "values": {
+                    "EFF": {
+                        "meaning": "Full frame EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ESF": {
+                        "meaning": "Sub-frame EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "EDN": {
+                        "meaning": "Downsampled EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ETH": {
+                        "meaning": "Thumbnail EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ERS": {
+                        "meaning": "Row summed EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ECS": {
+                        "meaning": "Column summed EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ERP": {
+                        "meaning": "Reference pixels EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "EHG": {
+                        "meaning": "Histogram EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ILF": {
+                        "meaning": "Inverse LUT RDR, non-linearized",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "FFL": {
+                        "meaning": "Inverse LUT RDR, linearized (camera distortion removed)",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "ISF": {
+                        "meaning": "Inverse LUT RDR (sub-frame), non-linearized",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "SFL": {
+                        "meaning": "Inverse LUT RDR (sub-frame), linearized (camera distortion removed)",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "INN": {
+                        "meaning": "Inverse LUT RDR (downsampled), non-linearized",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "DNL": {
+                        "meaning": "Inverse LUT RDR (downsampled), linearized (camera distortion removed)",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "ITH": {
+                        "meaning": "Inverse LUT RDR (thumbnail), non-linearized",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "THN": {
+                        "meaning": "Inverse LUT RDR (thumbnail), linearized (camera distortion removed)",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "RAD": {
+                        "meaning": "Rad-corrected to absolute radiance units, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RAL": {
+                        "meaning": "Rad-corrected to absolute radiance units, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RAT": {
+                        "meaning": "Rad-corrected to absolute radiance units (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RAN": {
+                        "meaning": "Rad-corrected to absolute radiance units (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "MRD": {
+                        "meaning": "MIPLRAD rad-corrected to absolute radiance units, archived datasets only, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "MRL": {
+                        "meaning": "MIPLRAD rad-corrected to absolute radiance units, archived datasets only, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "MRT": {
+                        "meaning": "MIPLRAD rad-corrected to absolute radiance units, archived datasets only (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "MRN": {
+                        "meaning": "MIPLRAD rad-corrected to absolute radiance units, archived datasets only (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RFD": {
+                        "meaning": "Rad-corrected float (32-bit), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RFL": {
+                        "meaning": "Rad-corrected float (32-bit), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RFT": {
+                        "meaning": "Rad-corrected float (32-bit) (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RFN": {
+                        "meaning": "Rad-corrected float (32-bit) (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IOF": {
+                        "meaning": "Rad-corrected to I/F radiance factor, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IOL": {
+                        "meaning": "Rad-corrected to I/F radiance factor, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IOT": {
+                        "meaning": "Rad-corrected to I/F radiance factor (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "ION": {
+                        "meaning": "Rad-corrected to I/F radiance factor (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFF": {
+                        "meaning": "Rad-corrected float (32-bit) to I/F radiance factor, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFL": {
+                        "meaning": "Rad-corrected float (32-bit) to I/F radiance factor, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFT": {
+                        "meaning": "Rad-corrected float (32-bit) to I/F radiance factor (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFN": {
+                        "meaning": "Rad-corrected float (32-bit) to I/F radiance factor (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFS": {
+                        "meaning": "Sum of rad-corrected float (32-bit) to I/F radiance factor, by the MI Athena team, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CCD": {
+                        "meaning": "Rad-corrected for instrument effects only, in DN, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CCL": {
+                        "meaning": "Rad-corrected for instrument effects only, in DN, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CCT": {
+                        "meaning": "Rad-corrected for instrument effects only, in DN (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CCN": {
+                        "meaning": "Rad-corrected for instrument effects only, in DN (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CFD": {
+                        "meaning": "Rad-corrected float (32-bit) for instrument effects only, in DN, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CFL": {
+                        "meaning": "Rad-corrected float (32-bit) for instrument effects only, in DN, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CFT": {
+                        "meaning": "Rad-corrected float (32-bit) for instrument effects only, in DN (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CFN": {
+                        "meaning": "Rad-corrected float (32-bit) for instrument effects only, in DN (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "DIS": {
+                        "meaning": "Disparity, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DIL": {
+                        "meaning": "Disparity, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DIT": {
+                        "meaning": "Disparity (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DIN": {
+                        "meaning": "Disparity (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DSS": {
+                        "meaning": "Disparity of samples, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DSL": {
+                        "meaning": "Disparity of samples, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DST": {
+                        "meaning": "Disparity of samples (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DSN": {
+                        "meaning": "Disparity of samples (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DLS": {
+                        "meaning": "Disparity of lines, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DLL": {
+                        "meaning": "Disparity of lines, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DLT": {
+                        "meaning": "Disparity of lines (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DLN": {
+                        "meaning": "Disparity of lines (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "XYZ": {
+                        "meaning": "XYZ, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XYL": {
+                        "meaning": "XYZ, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XYT": {
+                        "meaning": "XYZ (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XYN": {
+                        "meaning": "XYZ (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "MSK": {
+                        "meaning": "XYZ rover volume exclusion mask, non-linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MSL": {
+                        "meaning": "XYZ rover volume exclusion mask, linearized (camera distortion removed)",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MST": {
+                        "meaning": "XYZ rover volume exclusion mask (thumbnail), non-linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MSN": {
+                        "meaning": "XYZ rover volume exclusion mask (thumbnail), linearized (camera distortion removed)",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "XXX": {
+                        "meaning": "X component, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XXL": {
+                        "meaning": "X component, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XXT": {
+                        "meaning": "X component (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XXN": {
+                        "meaning": "X component (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "YYY": {
+                        "meaning": "Y component, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "YYL": {
+                        "meaning": "Y component, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "YYT": {
+                        "meaning": "Y component (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "YYN": {
+                        "meaning": "Y component (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "ZZZ": {
+                        "meaning": "Z component, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "ZZL": {
+                        "meaning": "Z component, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "ZZT": {
+                        "meaning": "Z component (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "ZZN": {
+                        "meaning": "Z component (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "DEM": {
+                        "meaning": "Z component as a digital elevation model, by the MI Athena team, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "RNG": {
+                        "meaning": "Range (distance), non-linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RNL": {
+                        "meaning": "Range (distance), linearized (camera distortion removed)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RNT": {
+                        "meaning": "Range (distance) (thumbnail), non-linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RNN": {
+                        "meaning": "Range (distance) (thumbnail), linearized (camera distortion removed)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "UVW": {
+                        "meaning": "UVW (XYZ) surface normal, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UVL": {
+                        "meaning": "UVW (XYZ) surface normal, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UVT": {
+                        "meaning": "UVW (XYZ) surface normal (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UVN": {
+                        "meaning": "UVW (XYZ) surface normal (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UUU": {
+                        "meaning": "U (X) surface normal, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UUL": {
+                        "meaning": "U (X) surface normal, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UUT": {
+                        "meaning": "U (X) surface normal (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UUN": {
+                        "meaning": "U (X) surface normal (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "VVV": {
+                        "meaning": "V (Y) surface normal, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "VVL": {
+                        "meaning": "V (Y) surface normal, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "VVT": {
+                        "meaning": "V (Y) surface normal (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "VVN": {
+                        "meaning": "V (Y) surface normal (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "WWW": {
+                        "meaning": "W (Z) surface normal, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "WWL": {
+                        "meaning": "W (Z) surface normal, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "WWT": {
+                        "meaning": "W (Z) surface normal (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "WWN": {
+                        "meaning": "W (Z) surface normal (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "RUF": {
+                        "meaning": "Surface roughness, non-linearized",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a74.3."
+                    },
+                    "RUL": {
+                        "meaning": "Surface roughness, linearized (camera distortion removed)",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a74.3."
+                    },
+                    "RUT": {
+                        "meaning": "Surface roughness (thumbnail), non-linearized",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a74.3."
+                    },
+                    "RUN": {
+                        "meaning": "Surface roughness (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a74.3."
+                    },
+                    "SLP": {
+                        "meaning": "Slope, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SLL": {
+                        "meaning": "Slope, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SLT": {
+                        "meaning": "Slope (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SLN": {
+                        "meaning": "Slope (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SRD": {
+                        "meaning": "Slope rover direction, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SRL": {
+                        "meaning": "Slope rover direction, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SRT": {
+                        "meaning": "Slope rover direction (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SRN": {
+                        "meaning": "Slope rover direction (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SHP": {
+                        "meaning": "Slope heading, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SHL": {
+                        "meaning": "Slope heading, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SHT": {
+                        "meaning": "Slope heading (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SHN": {
+                        "meaning": "Slope heading (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SMP": {
+                        "meaning": "Slope magnitude, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SML": {
+                        "meaning": "Slope magnitude, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SMT": {
+                        "meaning": "Slope magnitude (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SMN": {
+                        "meaning": "Slope magnitude (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SEP": {
+                        "meaning": "Solar energy, non-linearized",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a74.3."
+                    },
+                    "SEL": {
+                        "meaning": "Solar energy, linearized (camera distortion removed)",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a74.3."
+                    },
+                    "SET": {
+                        "meaning": "Solar energy (thumbnail), non-linearized",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a74.3."
+                    },
+                    "SEN": {
+                        "meaning": "Solar energy (thumbnail), linearized (camera distortion removed)",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a74.3."
+                    },
+                    "IDD": {
+                        "meaning": "IDD reachability, non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IDL": {
+                        "meaning": "IDD reachability, linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IDT": {
+                        "meaning": "IDD reachability (thumbnail), non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IDN": {
+                        "meaning": "IDD reachability (thumbnail), linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "VIS": {
+                        "meaning": "VISTA terrain, non-linearized",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "VIL": {
+                        "meaning": "VISTA terrain, linearized (camera distortion removed)",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "VIT": {
+                        "meaning": "VISTA terrain (thumbnail), non-linearized",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "VIN": {
+                        "meaning": "VISTA terrain (thumbnail), linearized (camera distortion removed)",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "ASD": {
+                        "meaning": "ASD terrain, non-linearized",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "ASL": {
+                        "meaning": "ASD terrain, linearized (camera distortion removed)",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "AST": {
+                        "meaning": "ASD terrain (thumbnail), non-linearized",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "ASN": {
+                        "meaning": "ASD terrain (thumbnail), linearized (camera distortion removed)",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "SND": {
+                        "meaning": "Slope northerly tilt, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SNL": {
+                        "meaning": "Slope northerly tilt, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SNT": {
+                        "meaning": "Slope northerly tilt (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SNN": {
+                        "meaning": "Slope northerly tilt (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "DRR": {
+                        "meaning": "Raw stereo disparity, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DRL": {
+                        "meaning": "Raw stereo disparity, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DRT": {
+                        "meaning": "Raw stereo disparity (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DRN": {
+                        "meaning": "Raw stereo disparity (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "MDS": {
+                        "meaning": "Stereo disparity mask, non-linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MDL": {
+                        "meaning": "Stereo disparity mask, linearized (camera distortion removed)",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MDT": {
+                        "meaning": "Stereo disparity mask (thumbnail), non-linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MDN": {
+                        "meaning": "Stereo disparity mask (thumbnail), linearized (camera distortion removed)",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "DFF": {
+                        "meaning": "First-stage final stereo disparity, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DFL": {
+                        "meaning": "First-stage final stereo disparity, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DFT": {
+                        "meaning": "First-stage final stereo disparity (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DFN": {
+                        "meaning": "First-stage final stereo disparity (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "XRZ": {
+                        "meaning": "XYZ in the rover frame, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XRL": {
+                        "meaning": "XYZ in the rover frame, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XRT": {
+                        "meaning": "XYZ in the rover frame (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XRN": {
+                        "meaning": "XYZ in the rover frame (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "RRG": {
+                        "meaning": "Range (distance) in the rover frame, non-linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RRL": {
+                        "meaning": "Range (distance) in the rover frame, linearized (camera distortion removed)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RRT": {
+                        "meaning": "Range (distance) in the rover frame (thumbnail), non-linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RRN": {
+                        "meaning": "Range (distance) in the rover frame (thumbnail), linearized (camera distortion removed)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "IRN": {
+                        "meaning": "Masked IDD reachability, non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IRL": {
+                        "meaning": "Masked IDD reachability, linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IRT": {
+                        "meaning": "Masked IDD reachability (thumbnail), non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "MID": {
+                        "meaning": "Masked IDD reachability mask, non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "MIL": {
+                        "meaning": "Masked IDD reachability mask, linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "MIT": {
+                        "meaning": "Masked IDD reachability mask (thumbnail), non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "MIN": {
+                        "meaning": "Masked IDD reachability mask (thumbnail), linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "USW": {
+                        "meaning": "Surface normal used for slope, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "USL": {
+                        "meaning": "Surface normal used for slope, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UST": {
+                        "meaning": "Surface normal used for slope (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "USN": {
+                        "meaning": "Surface normal used for slope (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "RSD": {
+                        "meaning": "Rad-corrected and scaled, non-linearized",
+                        "description": "A MIPL radiometrically corrected RDR of the \"RAD/RAL/RSD/RSL\" family (SIS \u00a74.3), all of which were reprocessed with the corrected MIPLRAD2 implementation. The SIS mentions the RSD/RSL codes but does not tabulate the family, so no more detail is available from it."
+                    },
+                    "RSL": {
+                        "meaning": "Rad-corrected and scaled, linearized (camera distortion removed)",
+                        "description": "A MIPL radiometrically corrected RDR of the \"RAD/RAL/RSD/RSL\" family (SIS \u00a74.3), all of which were reprocessed with the corrected MIPLRAD2 implementation. The SIS mentions the RSD/RSL codes but does not tabulate the family, so no more detail is available from it."
+                    },
+                    "RST": {
+                        "meaning": "Rad-corrected and scaled (thumbnail)",
+                        "description": "A MIPL radiometrically corrected RDR of the \"RAD/RAL/RSD/RSL\" family (SIS \u00a74.3), all of which were reprocessed with the corrected MIPLRAD2 implementation. The SIS mentions the RSD/RSL codes but does not tabulate the family, so no more detail is available from it."
+                    },
+                    "RSN": {
+                        "meaning": "Rad-corrected and scaled, linearized (thumbnail)",
+                        "description": "A MIPL radiometrically corrected RDR of the \"RAD/RAL/RSD/RSL\" family (SIS \u00a74.3), all of which were reprocessed with the corrected MIPLRAD2 implementation. The SIS mentions the RSD/RSL codes but does not tabulate the family, so no more detail is available from it."
+                    },
+                    "EDR": {
+                        "meaning": "Nominal non-camera instrument data product",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "SPE": {
+                        "meaning": "APXS / M\u00f6ssbauer spectra",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "EMS": {
+                        "meaning": "Mini-TES spectra emissivity image cube",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "TBL": {
+                        "meaning": "APXS / M\u00f6ssbauer table of concentrations and components",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "TTH": {
+                        "meaning": "Mini-TES temperature and thermal inertia map",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "QUB": {
+                        "meaning": "Mini-TES data cube",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    }
+                }
+            },
+            {
+                "start": 15,
+                "length": 2,
+                "label": "Site",
+                "color": "red",
+                "description": "Site location count.",
+                "patterns": [
+                    {
+                        "match": "^__$",
+                        "meaning": "Site above 1295 \u2014 read the value from the label"
+                    },
+                    {
+                        "match": "^##$",
+                        "meaning": "Site above 1295 \u2014 read the value from the label"
+                    },
+                    {
+                        "match": "^[0-9]{2}$",
+                        "meaning": "Site {number}"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{2}$",
+                        "meaning": "Site \"{value}\", a letter-coded count between 100 and 1295"
+                    }
+                ]
+            },
+            {
+                "start": 17,
+                "length": 2,
+                "label": "Position",
+                "color": "indigo",
+                "description": "Position-within-site count.",
+                "patterns": [
+                    {
+                        "match": "^__$",
+                        "meaning": "Position above 1295 \u2014 read the value from the label"
+                    },
+                    {
+                        "match": "^##$",
+                        "meaning": "Position above 1295 \u2014 read the value from the label"
+                    },
+                    {
+                        "match": "^[0-9]{2}$",
+                        "meaning": "Position {number}"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{2}$",
+                        "meaning": "Position \"{value}\", a letter-coded count between 100 and 1295"
+                    }
+                ]
+            },
+            {
+                "start": 19,
+                "length": 1,
+                "label": "Sequence category",
+                "color": "amber",
+                "description": "Category of the commanded sequence the data came from.",
+                "values": {
+                    "C": "Cruise",
+                    "D": "IDD & RAT",
+                    "E": "Engineering",
+                    "F": "Flight software (sequence rejected)",
+                    "M": "Master (surface only)",
+                    "N": "In-situ instruments (APXS, MB, MI)",
+                    "P": "PMA & remote sensing instruments (Pancam, Navcam, Hazcam, MI, Mini-TES)",
+                    "R": "Rover driving",
+                    "S": "Submaster",
+                    "T": "Test",
+                    "W": "Triggered by a communication window",
+                    "X": "Contingency",
+                    "Z": "SCM sequences",
+                    "G": "Spare",
+                    "K": "Spare",
+                    "Y": "Spare"
+                }
+            },
+            {
+                "start": 20,
+                "length": 4,
+                "label": "Sequence number",
+                "color": "brown",
+                "description": "Number within the category, 0000 through 4095; for Pancam, Navcam, Hazcam and MI the ranges are allocated per camera (SIS \u00a74.4).",
+                "patterns": [
+                    {
+                        "match": "^[0-9]{4}$",
+                        "meaning": "Sequence number {number}"
+                    }
+                ]
+            },
+            {
+                "start": 24,
+                "length": 1,
+                "label": "Camera eye",
+                "color": "green",
+                "description": "Which eye the image came from.",
+                "values": {
+                    "L": "Left camera eye",
+                    "R": "Right camera eye",
+                    "M": "Monoscopic (non-stereo camera)",
+                    "A": "Anaglyph of left, right, right eyes mapped to red, green, blue",
+                    "N": "Not applicable"
+                }
+            },
+            {
+                "start": 25,
+                "length": 1,
+                "label": "Filter",
+                "color": "orange",
+                "description": "Spectral filter position.",
+                "values": {
+                    "0": "No filter, or not applicable",
+                    "C": "3-band colour \u2014 the three filter positions are in the PDS label",
+                    "1": "Filter position 1",
+                    "2": "Filter position 2",
+                    "3": "Filter position 3",
+                    "4": "Filter position 4",
+                    "5": "Filter position 5",
+                    "6": "Filter position 6",
+                    "7": "Filter position 7",
+                    "8": "Filter position 8"
+                }
+            },
+            {
+                "start": 26,
+                "length": 1,
+                "label": "Producer",
+                "color": "pink",
+                "description": "Institution that produced the product; on an EDR, \"M\" marks an Operations EDR and \"C\" or \"F\" a Science EDR.",
+                "values": {
+                    "A": "Arizona State University",
+                    "C": "Cornell University",
+                    "F": "USGS at Flagstaff",
+                    "J": "Johannes Gutenberg University (Germany)",
+                    "M": "MIPL (OPGS) at JPL",
+                    "N": "NASA Ames Research",
+                    "P": "Max Planck Institute (Germany)",
+                    "S": "SOAS at JPL",
+                    "U": "University of Arizona",
+                    "V": "SSV team at JPL",
+                    "X": "Other"
+                }
+            },
+            {
+                "start": 27,
+                "length": 1,
+                "label": "Version",
+                "color": "slate",
+                "description": "Increments whenever an otherwise identical filename would be produced.",
+                "patterns": [
+                    {
+                        "match": "^[1-9]$",
+                        "meaning": "Version {number}"
+                    },
+                    {
+                        "match": "^[A-Z]$",
+                        "meaning": "Version {value} (10 through 35)"
+                    }
+                ]
+            },
+            {
+                "start": 29,
+                "length": 3,
+                "label": "Extension",
+                "color": "teal",
+                "description": "Product format.",
+                "values": {
+                    "IMG": "Camera image EDR / RDR with a PDS label",
+                    "VST": "VISTA terrain RDR (no PDS label)",
+                    "JPG": "JPEG compressed (no PDS label)",
+                    "QUB": "Mini-TES data cube",
+                    "DAT": "APXS, M\u00f6ssbauer or RAT data",
+                    "LBL": "Detached PDS label",
+                    "TAB": "APXS or M\u00f6ssbauer table data",
+                    "RGB": "Three-band colour raster (not listed in SIS v4.4)"
+                }
+            }
+        ]
+    },
+    {
+        "title": "MER mosaic RDR filename",
+        "sis": "mer_camsis",
+        "reference": "MER Camera EDR / RDR Ops & Science Data Products SIS (JPL D-22846, v4.4), \u00a74.4.2",
+        "ignoreCase": true,
+        "match": "^[1-4][A-Za-z]{2}[A-Za-z0-9_#]{3}[A-Za-z]{3}[A-Za-z0-9_#]{2}[A-Za-z]{3}[A-Za-z0-9_#]{2}[A-Za-z][0-9]{4}[A-Za-z][0-9]{3}[A-Za-z][A-Za-z0-9]\\.[A-Za-z]{3}$",
+        "segments": [
+            {
+                "start": 1,
+                "length": 1,
+                "label": "Rover",
+                "color": "blue",
+                "description": "Which MER rover, and whether the product came from the flight vehicle or a ground simulation.",
+                "values": {
+                    "1": "MER-B / MER-1 (Opportunity), flight",
+                    "2": "MER-A / MER-2 (Spirit), flight",
+                    "3": "MER-B / MER-1 (Opportunity), simulated (ground)",
+                    "4": "MER-A / MER-2 (Spirit), simulated (ground)"
+                }
+            },
+            {
+                "start": 2,
+                "length": 1,
+                "label": "Instrument",
+                "color": "cyan",
+                "description": "Primary instrument \u2014 the dominant data type in the mosaic.",
+                "values": {
+                    "P": "Pancam",
+                    "N": "Navcam",
+                    "F": "Front Hazcam",
+                    "R": "Rear Hazcam",
+                    "M": "Microscopic Imager",
+                    "E": "Descam",
+                    "A": "APXS (not covered by the camera SIS)",
+                    "B": "M\u00f6ssbauer (not covered by the camera SIS)",
+                    "T": "Mini-TES (not covered by the camera SIS)",
+                    "D": "RAT (not covered by the camera SIS)"
+                }
+            },
+            {
+                "start": 3,
+                "length": 1,
+                "label": "Second instrument",
+                "color": "green",
+                "description": "Second most dominant instrument; repeats the primary when the mosaic came from one instrument.",
+                "values": {
+                    "P": "Pancam",
+                    "N": "Navcam",
+                    "F": "Front Hazcam",
+                    "R": "Rear Hazcam",
+                    "M": "Microscopic Imager",
+                    "E": "Descam",
+                    "A": "APXS (not covered by the camera SIS)",
+                    "B": "M\u00f6ssbauer (not covered by the camera SIS)",
+                    "T": "Mini-TES (not covered by the camera SIS)",
+                    "D": "RAT (not covered by the camera SIS)"
+                }
+            },
+            {
+                "start": 4,
+                "length": 3,
+                "label": "Sol",
+                "color": "orange",
+                "description": "Sol of the first (lowest SCLK) frame in the mosaic.",
+                "patterns": [
+                    {
+                        "match": "^___$",
+                        "meaning": "Above sol 27935 \u2014 read the value from the label"
+                    },
+                    {
+                        "match": "^###$",
+                        "meaning": "Above sol 27935 \u2014 read the value from the label"
+                    },
+                    {
+                        "match": "^[0-9]{3}$",
+                        "meaning": "Sol {number}"
+                    },
+                    {
+                        "match": "^([A-Z])([0-9]{2})$",
+                        "meaning": "Letter-coded sol \"{value}\" (block \"{1}\", above sol 999)"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{3}$",
+                        "meaning": "Letter-coded sol \"{value}\" (above sol 3599)"
+                    }
+                ]
+            },
+            {
+                "start": 7,
+                "length": 3,
+                "label": "Product type",
+                "color": "violet",
+                "description": "Product type of the frames the mosaic was built from. What kind of product this is. A leading \"E\" marks an EDR; otherwise it is an RDR, where a trailing \"L\" means linearized, \"T\" a thumbnail and \"N\" a linearized thumbnail.",
+                "values": {
+                    "EFF": {
+                        "meaning": "Full frame EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ESF": {
+                        "meaning": "Sub-frame EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "EDN": {
+                        "meaning": "Downsampled EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ETH": {
+                        "meaning": "Thumbnail EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ERS": {
+                        "meaning": "Row summed EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ECS": {
+                        "meaning": "Column summed EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ERP": {
+                        "meaning": "Reference pixels EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "EHG": {
+                        "meaning": "Histogram EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ILF": {
+                        "meaning": "Inverse LUT RDR, non-linearized",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "FFL": {
+                        "meaning": "Inverse LUT RDR, linearized (camera distortion removed)",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "ISF": {
+                        "meaning": "Inverse LUT RDR (sub-frame), non-linearized",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "SFL": {
+                        "meaning": "Inverse LUT RDR (sub-frame), linearized (camera distortion removed)",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "INN": {
+                        "meaning": "Inverse LUT RDR (downsampled), non-linearized",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "DNL": {
+                        "meaning": "Inverse LUT RDR (downsampled), linearized (camera distortion removed)",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "ITH": {
+                        "meaning": "Inverse LUT RDR (thumbnail), non-linearized",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "THN": {
+                        "meaning": "Inverse LUT RDR (thumbnail), linearized (camera distortion removed)",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "RAD": {
+                        "meaning": "Rad-corrected to absolute radiance units, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RAL": {
+                        "meaning": "Rad-corrected to absolute radiance units, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RAT": {
+                        "meaning": "Rad-corrected to absolute radiance units (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RAN": {
+                        "meaning": "Rad-corrected to absolute radiance units (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "MRD": {
+                        "meaning": "MIPLRAD rad-corrected to absolute radiance units, archived datasets only, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "MRL": {
+                        "meaning": "MIPLRAD rad-corrected to absolute radiance units, archived datasets only, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "MRT": {
+                        "meaning": "MIPLRAD rad-corrected to absolute radiance units, archived datasets only (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "MRN": {
+                        "meaning": "MIPLRAD rad-corrected to absolute radiance units, archived datasets only (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RFD": {
+                        "meaning": "Rad-corrected float (32-bit), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RFL": {
+                        "meaning": "Rad-corrected float (32-bit), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RFT": {
+                        "meaning": "Rad-corrected float (32-bit) (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RFN": {
+                        "meaning": "Rad-corrected float (32-bit) (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IOF": {
+                        "meaning": "Rad-corrected to I/F radiance factor, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IOL": {
+                        "meaning": "Rad-corrected to I/F radiance factor, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IOT": {
+                        "meaning": "Rad-corrected to I/F radiance factor (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "ION": {
+                        "meaning": "Rad-corrected to I/F radiance factor (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFF": {
+                        "meaning": "Rad-corrected float (32-bit) to I/F radiance factor, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFL": {
+                        "meaning": "Rad-corrected float (32-bit) to I/F radiance factor, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFT": {
+                        "meaning": "Rad-corrected float (32-bit) to I/F radiance factor (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFN": {
+                        "meaning": "Rad-corrected float (32-bit) to I/F radiance factor (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFS": {
+                        "meaning": "Sum of rad-corrected float (32-bit) to I/F radiance factor, by the MI Athena team, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CCD": {
+                        "meaning": "Rad-corrected for instrument effects only, in DN, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CCL": {
+                        "meaning": "Rad-corrected for instrument effects only, in DN, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CCT": {
+                        "meaning": "Rad-corrected for instrument effects only, in DN (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CCN": {
+                        "meaning": "Rad-corrected for instrument effects only, in DN (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CFD": {
+                        "meaning": "Rad-corrected float (32-bit) for instrument effects only, in DN, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CFL": {
+                        "meaning": "Rad-corrected float (32-bit) for instrument effects only, in DN, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CFT": {
+                        "meaning": "Rad-corrected float (32-bit) for instrument effects only, in DN (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CFN": {
+                        "meaning": "Rad-corrected float (32-bit) for instrument effects only, in DN (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "DIS": {
+                        "meaning": "Disparity, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DIL": {
+                        "meaning": "Disparity, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DIT": {
+                        "meaning": "Disparity (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DIN": {
+                        "meaning": "Disparity (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DSS": {
+                        "meaning": "Disparity of samples, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DSL": {
+                        "meaning": "Disparity of samples, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DST": {
+                        "meaning": "Disparity of samples (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DSN": {
+                        "meaning": "Disparity of samples (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DLS": {
+                        "meaning": "Disparity of lines, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DLL": {
+                        "meaning": "Disparity of lines, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DLT": {
+                        "meaning": "Disparity of lines (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DLN": {
+                        "meaning": "Disparity of lines (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "XYZ": {
+                        "meaning": "XYZ, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XYL": {
+                        "meaning": "XYZ, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XYT": {
+                        "meaning": "XYZ (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XYN": {
+                        "meaning": "XYZ (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "MSK": {
+                        "meaning": "XYZ rover volume exclusion mask, non-linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MSL": {
+                        "meaning": "XYZ rover volume exclusion mask, linearized (camera distortion removed)",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MST": {
+                        "meaning": "XYZ rover volume exclusion mask (thumbnail), non-linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MSN": {
+                        "meaning": "XYZ rover volume exclusion mask (thumbnail), linearized (camera distortion removed)",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "XXX": {
+                        "meaning": "X component, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XXL": {
+                        "meaning": "X component, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XXT": {
+                        "meaning": "X component (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XXN": {
+                        "meaning": "X component (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "YYY": {
+                        "meaning": "Y component, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "YYL": {
+                        "meaning": "Y component, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "YYT": {
+                        "meaning": "Y component (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "YYN": {
+                        "meaning": "Y component (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "ZZZ": {
+                        "meaning": "Z component, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "ZZL": {
+                        "meaning": "Z component, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "ZZT": {
+                        "meaning": "Z component (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "ZZN": {
+                        "meaning": "Z component (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "DEM": {
+                        "meaning": "Z component as a digital elevation model, by the MI Athena team, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "RNG": {
+                        "meaning": "Range (distance), non-linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RNL": {
+                        "meaning": "Range (distance), linearized (camera distortion removed)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RNT": {
+                        "meaning": "Range (distance) (thumbnail), non-linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RNN": {
+                        "meaning": "Range (distance) (thumbnail), linearized (camera distortion removed)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "UVW": {
+                        "meaning": "UVW (XYZ) surface normal, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UVL": {
+                        "meaning": "UVW (XYZ) surface normal, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UVT": {
+                        "meaning": "UVW (XYZ) surface normal (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UVN": {
+                        "meaning": "UVW (XYZ) surface normal (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UUU": {
+                        "meaning": "U (X) surface normal, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UUL": {
+                        "meaning": "U (X) surface normal, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UUT": {
+                        "meaning": "U (X) surface normal (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UUN": {
+                        "meaning": "U (X) surface normal (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "VVV": {
+                        "meaning": "V (Y) surface normal, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "VVL": {
+                        "meaning": "V (Y) surface normal, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "VVT": {
+                        "meaning": "V (Y) surface normal (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "VVN": {
+                        "meaning": "V (Y) surface normal (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "WWW": {
+                        "meaning": "W (Z) surface normal, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "WWL": {
+                        "meaning": "W (Z) surface normal, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "WWT": {
+                        "meaning": "W (Z) surface normal (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "WWN": {
+                        "meaning": "W (Z) surface normal (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "RUF": {
+                        "meaning": "Surface roughness, non-linearized",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a74.3."
+                    },
+                    "RUL": {
+                        "meaning": "Surface roughness, linearized (camera distortion removed)",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a74.3."
+                    },
+                    "RUT": {
+                        "meaning": "Surface roughness (thumbnail), non-linearized",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a74.3."
+                    },
+                    "RUN": {
+                        "meaning": "Surface roughness (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a74.3."
+                    },
+                    "SLP": {
+                        "meaning": "Slope, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SLL": {
+                        "meaning": "Slope, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SLT": {
+                        "meaning": "Slope (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SLN": {
+                        "meaning": "Slope (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SRD": {
+                        "meaning": "Slope rover direction, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SRL": {
+                        "meaning": "Slope rover direction, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SRT": {
+                        "meaning": "Slope rover direction (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SRN": {
+                        "meaning": "Slope rover direction (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SHP": {
+                        "meaning": "Slope heading, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SHL": {
+                        "meaning": "Slope heading, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SHT": {
+                        "meaning": "Slope heading (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SHN": {
+                        "meaning": "Slope heading (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SMP": {
+                        "meaning": "Slope magnitude, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SML": {
+                        "meaning": "Slope magnitude, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SMT": {
+                        "meaning": "Slope magnitude (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SMN": {
+                        "meaning": "Slope magnitude (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SEP": {
+                        "meaning": "Solar energy, non-linearized",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a74.3."
+                    },
+                    "SEL": {
+                        "meaning": "Solar energy, linearized (camera distortion removed)",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a74.3."
+                    },
+                    "SET": {
+                        "meaning": "Solar energy (thumbnail), non-linearized",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a74.3."
+                    },
+                    "SEN": {
+                        "meaning": "Solar energy (thumbnail), linearized (camera distortion removed)",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a74.3."
+                    },
+                    "IDD": {
+                        "meaning": "IDD reachability, non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IDL": {
+                        "meaning": "IDD reachability, linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IDT": {
+                        "meaning": "IDD reachability (thumbnail), non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IDN": {
+                        "meaning": "IDD reachability (thumbnail), linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "VIS": {
+                        "meaning": "VISTA terrain, non-linearized",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "VIL": {
+                        "meaning": "VISTA terrain, linearized (camera distortion removed)",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "VIT": {
+                        "meaning": "VISTA terrain (thumbnail), non-linearized",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "VIN": {
+                        "meaning": "VISTA terrain (thumbnail), linearized (camera distortion removed)",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "ASD": {
+                        "meaning": "ASD terrain, non-linearized",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "ASL": {
+                        "meaning": "ASD terrain, linearized (camera distortion removed)",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "AST": {
+                        "meaning": "ASD terrain (thumbnail), non-linearized",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "ASN": {
+                        "meaning": "ASD terrain (thumbnail), linearized (camera distortion removed)",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "SND": {
+                        "meaning": "Slope northerly tilt, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SNL": {
+                        "meaning": "Slope northerly tilt, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SNT": {
+                        "meaning": "Slope northerly tilt (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SNN": {
+                        "meaning": "Slope northerly tilt (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "DRR": {
+                        "meaning": "Raw stereo disparity, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DRL": {
+                        "meaning": "Raw stereo disparity, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DRT": {
+                        "meaning": "Raw stereo disparity (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DRN": {
+                        "meaning": "Raw stereo disparity (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "MDS": {
+                        "meaning": "Stereo disparity mask, non-linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MDL": {
+                        "meaning": "Stereo disparity mask, linearized (camera distortion removed)",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MDT": {
+                        "meaning": "Stereo disparity mask (thumbnail), non-linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MDN": {
+                        "meaning": "Stereo disparity mask (thumbnail), linearized (camera distortion removed)",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "DFF": {
+                        "meaning": "First-stage final stereo disparity, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DFL": {
+                        "meaning": "First-stage final stereo disparity, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DFT": {
+                        "meaning": "First-stage final stereo disparity (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DFN": {
+                        "meaning": "First-stage final stereo disparity (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "XRZ": {
+                        "meaning": "XYZ in the rover frame, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XRL": {
+                        "meaning": "XYZ in the rover frame, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XRT": {
+                        "meaning": "XYZ in the rover frame (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XRN": {
+                        "meaning": "XYZ in the rover frame (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "RRG": {
+                        "meaning": "Range (distance) in the rover frame, non-linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RRL": {
+                        "meaning": "Range (distance) in the rover frame, linearized (camera distortion removed)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RRT": {
+                        "meaning": "Range (distance) in the rover frame (thumbnail), non-linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RRN": {
+                        "meaning": "Range (distance) in the rover frame (thumbnail), linearized (camera distortion removed)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "IRN": {
+                        "meaning": "Masked IDD reachability, non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IRL": {
+                        "meaning": "Masked IDD reachability, linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IRT": {
+                        "meaning": "Masked IDD reachability (thumbnail), non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "MID": {
+                        "meaning": "Masked IDD reachability mask, non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "MIL": {
+                        "meaning": "Masked IDD reachability mask, linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "MIT": {
+                        "meaning": "Masked IDD reachability mask (thumbnail), non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "MIN": {
+                        "meaning": "Masked IDD reachability mask (thumbnail), linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "USW": {
+                        "meaning": "Surface normal used for slope, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "USL": {
+                        "meaning": "Surface normal used for slope, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UST": {
+                        "meaning": "Surface normal used for slope (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "USN": {
+                        "meaning": "Surface normal used for slope (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "RSD": {
+                        "meaning": "Rad-corrected and scaled, non-linearized",
+                        "description": "A MIPL radiometrically corrected RDR of the \"RAD/RAL/RSD/RSL\" family (SIS \u00a74.3), all of which were reprocessed with the corrected MIPLRAD2 implementation. The SIS mentions the RSD/RSL codes but does not tabulate the family, so no more detail is available from it."
+                    },
+                    "RSL": {
+                        "meaning": "Rad-corrected and scaled, linearized (camera distortion removed)",
+                        "description": "A MIPL radiometrically corrected RDR of the \"RAD/RAL/RSD/RSL\" family (SIS \u00a74.3), all of which were reprocessed with the corrected MIPLRAD2 implementation. The SIS mentions the RSD/RSL codes but does not tabulate the family, so no more detail is available from it."
+                    },
+                    "RST": {
+                        "meaning": "Rad-corrected and scaled (thumbnail)",
+                        "description": "A MIPL radiometrically corrected RDR of the \"RAD/RAL/RSD/RSL\" family (SIS \u00a74.3), all of which were reprocessed with the corrected MIPLRAD2 implementation. The SIS mentions the RSD/RSL codes but does not tabulate the family, so no more detail is available from it."
+                    },
+                    "RSN": {
+                        "meaning": "Rad-corrected and scaled, linearized (thumbnail)",
+                        "description": "A MIPL radiometrically corrected RDR of the \"RAD/RAL/RSD/RSL\" family (SIS \u00a74.3), all of which were reprocessed with the corrected MIPLRAD2 implementation. The SIS mentions the RSD/RSL codes but does not tabulate the family, so no more detail is available from it."
+                    },
+                    "EDR": {
+                        "meaning": "Nominal non-camera instrument data product",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "SPE": {
+                        "meaning": "APXS / M\u00f6ssbauer spectra",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "EMS": {
+                        "meaning": "Mini-TES spectra emissivity image cube",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "TBL": {
+                        "meaning": "APXS / M\u00f6ssbauer table of concentrations and components",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "TTH": {
+                        "meaning": "Mini-TES temperature and thermal inertia map",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "QUB": {
+                        "meaning": "Mini-TES data cube",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    }
+                }
+            },
+            {
+                "start": 10,
+                "length": 2,
+                "label": "Site",
+                "color": "red",
+                "description": "Site location count of the first frame.",
+                "patterns": [
+                    {
+                        "match": "^__$",
+                        "meaning": "Site above 1295 \u2014 read the value from the label"
+                    },
+                    {
+                        "match": "^##$",
+                        "meaning": "Site above 1295 \u2014 read the value from the label"
+                    },
+                    {
+                        "match": "^[0-9]{2}$",
+                        "meaning": "Site {number}"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{2}$",
+                        "meaning": "Site \"{value}\", a letter-coded count between 100 and 1295"
+                    }
+                ]
+            },
+            {
+                "start": 12,
+                "length": 3,
+                "label": "Projection",
+                "color": "pink",
+                "description": "Projection or perspective the mosaic is rendered in.",
+                "values": {
+                    "CYL": "Cylindrical projection",
+                    "PER": "Camera point perspective",
+                    "CYP": "Cylindrical-perspective projection",
+                    "POL": "Polar projection",
+                    "VRT": "Vertical projection",
+                    "ORT": "Orthographic projection",
+                    "ORR": "Ortho-rectified projection"
+                }
+            },
+            {
+                "start": 15,
+                "length": 2,
+                "label": "Position",
+                "color": "indigo",
+                "description": "Position-within-site count of the first frame.",
+                "patterns": [
+                    {
+                        "match": "^__$",
+                        "meaning": "Position above 1295 \u2014 read the value from the label"
+                    },
+                    {
+                        "match": "^##$",
+                        "meaning": "Position above 1295 \u2014 read the value from the label"
+                    },
+                    {
+                        "match": "^[0-9]{2}$",
+                        "meaning": "Position {number}"
+                    },
+                    {
+                        "match": "^[A-Z0-9]{2}$",
+                        "meaning": "Position \"{value}\", a letter-coded count between 100 and 1295"
+                    }
+                ]
+            },
+            {
+                "start": 17,
+                "length": 1,
+                "label": "Sequence category",
+                "color": "amber",
+                "description": "Category of the commanded sequence the data came from.",
+                "values": {
+                    "C": "Cruise",
+                    "D": "IDD & RAT",
+                    "E": "Engineering",
+                    "F": "Flight software (sequence rejected)",
+                    "M": "Master (surface only)",
+                    "N": "In-situ instruments (APXS, MB, MI)",
+                    "P": "PMA & remote sensing instruments (Pancam, Navcam, Hazcam, MI, Mini-TES)",
+                    "R": "Rover driving",
+                    "S": "Submaster",
+                    "T": "Test",
+                    "W": "Triggered by a communication window",
+                    "X": "Contingency",
+                    "Z": "SCM sequences",
+                    "G": "Spare",
+                    "K": "Spare",
+                    "Y": "Spare"
+                }
+            },
+            {
+                "start": 18,
+                "length": 4,
+                "label": "Sequence number",
+                "color": "brown",
+                "description": "Number within the category, 0000 through 4095; for Pancam, Navcam, Hazcam and MI the ranges are allocated per camera (SIS \u00a74.4).",
+                "patterns": [
+                    {
+                        "match": "^[0-9]{4}$",
+                        "meaning": "Sequence number {number}"
+                    }
+                ]
+            },
+            {
+                "start": 22,
+                "length": 1,
+                "label": "Camera eye",
+                "color": "green",
+                "description": "Which eye the frames came from.",
+                "values": {
+                    "L": "Left camera eye",
+                    "R": "Right camera eye",
+                    "M": "Monoscopic (non-stereo camera)",
+                    "A": "Anaglyph of left, right, right eyes mapped to red, green, blue",
+                    "N": "Not applicable"
+                }
+            },
+            {
+                "start": 23,
+                "length": 3,
+                "label": "Filters",
+                "color": "orange",
+                "description": "Three filter positions, in red, green, blue order; repeated when the mosaic is single-banded.",
+                "patterns": [
+                    {
+                        "match": "^([0-8])\\1\\1$",
+                        "meaning": "Single-banded, filter position {1}"
+                    },
+                    {
+                        "match": "^([0-8])([0-8])([0-8])$",
+                        "meaning": "Filter positions {1}, {2}, {3} in red, green, blue order"
+                    }
+                ]
+            },
+            {
+                "start": 26,
+                "length": 1,
+                "label": "Producer",
+                "color": "violet",
+                "description": "Institution that produced the product.",
+                "values": {
+                    "A": "Arizona State University",
+                    "C": "Cornell University",
+                    "F": "USGS at Flagstaff",
+                    "J": "Johannes Gutenberg University (Germany)",
+                    "M": "MIPL (OPGS) at JPL",
+                    "N": "NASA Ames Research",
+                    "P": "Max Planck Institute (Germany)",
+                    "S": "SOAS at JPL",
+                    "U": "University of Arizona",
+                    "V": "SSV team at JPL",
+                    "X": "Other"
+                }
+            },
+            {
+                "start": 27,
+                "length": 1,
+                "label": "Version",
+                "color": "slate",
+                "description": "Increments whenever an otherwise identical filename would be produced.",
+                "patterns": [
+                    {
+                        "match": "^[1-9]$",
+                        "meaning": "Version {number}"
+                    },
+                    {
+                        "match": "^[A-Z]$",
+                        "meaning": "Version {value} (10 through 35)"
+                    }
+                ]
+            },
+            {
+                "start": 29,
+                "length": 3,
+                "label": "Extension",
+                "color": "teal",
+                "description": "Product format.",
+                "values": {
+                    "IMG": "Camera image EDR / RDR with a PDS label",
+                    "VST": "VISTA terrain RDR (no PDS label)",
+                    "JPG": "JPEG compressed (no PDS label)",
+                    "QUB": "Mini-TES data cube",
+                    "DAT": "APXS, M\u00f6ssbauer or RAT data",
+                    "LBL": "Detached PDS label",
+                    "TAB": "APXS or M\u00f6ssbauer table data",
+                    "RGB": "Three-band colour raster (not listed in SIS v4.4)"
+                }
+            }
+        ]
+    },
+    {
+        "title": "MER terrain mesh RDR filename",
+        "sis": "mer_camsis",
+        "reference": "MER Camera EDR / RDR Ops & Science Data Products SIS (JPL D-22846, v4.4), \u00a74.4.3",
+        "ignoreCase": true,
+        "match": "^([1-4])mesh_([0-9]{1,4}x?)_([A-Za-z]+)_([0-9]{1,4}x?)_([A-Za-z]{3}(?:-[A-Za-z]{3})*)_([0-9]{1,4}x?)_v([0-9]+)\\.([A-Za-z]{2,4})$",
+        "segments": [
+            {
+                "group": 1,
+                "label": "Rover",
+                "color": "blue",
+                "description": "Which MER rover, and whether the product came from the flight vehicle or a ground simulation.",
+                "values": {
+                    "1": "MER-B / MER-1 (Opportunity), flight",
+                    "2": "MER-A / MER-2 (Spirit), flight",
+                    "3": "MER-B / MER-1 (Opportunity), simulated (ground)",
+                    "4": "MER-A / MER-2 (Spirit), simulated (ground)"
+                }
+            },
+            {
+                "group": 2,
+                "label": "Ending sol",
+                "color": "orange",
+                "description": "Sol of the last (highest SCLK) frame built into the mesh; a trailing \"x\" means the mesh spans several sols.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]+)X$",
+                        "meaning": "Sol {1}, the last of several in the product"
+                    },
+                    {
+                        "match": "^[0-9]+$",
+                        "meaning": "Sol {number}"
+                    }
+                ]
+            },
+            {
+                "group": 3,
+                "label": "Instruments",
+                "color": "cyan",
+                "description": "Instruments whose data was built into the mesh.",
+                "values": {
+                    "P": "Pancam data",
+                    "N": "Navcam data",
+                    "F": "Front Hazcam data",
+                    "R": "Rear Hazcam data",
+                    "O": "Orbiter data"
+                },
+                "patterns": [
+                    {
+                        "match": "^[A-Z]{2,}$",
+                        "meaning": "Data from several instruments (P Pancam, N Navcam, F front Hazcam, R rear Hazcam, O orbiter)"
+                    }
+                ]
+            },
+            {
+                "group": 4,
+                "label": "Ending site",
+                "color": "red",
+                "description": "Site of the last frame built into the mesh; a trailing \"x\" means the mesh spans several sites.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]+)X$",
+                        "meaning": "Site {1}, the last of several in the product"
+                    },
+                    {
+                        "match": "^[0-9]+$",
+                        "meaning": "Site {number}"
+                    }
+                ]
+            },
+            {
+                "group": 5,
+                "label": "Input product type",
+                "color": "violet",
+                "description": "Product type of the single-frame RDRs the mesh was built from.",
+                "values": {
+                    "EFF": {
+                        "meaning": "Full frame EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ESF": {
+                        "meaning": "Sub-frame EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "EDN": {
+                        "meaning": "Downsampled EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ETH": {
+                        "meaning": "Thumbnail EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ERS": {
+                        "meaning": "Row summed EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ECS": {
+                        "meaning": "Column summed EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ERP": {
+                        "meaning": "Reference pixels EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "EHG": {
+                        "meaning": "Histogram EDR",
+                        "description": "EDRs are the raw product as received: no camera-model \"linearization\" and no radiometric correction. SIS \u00a73.3."
+                    },
+                    "ILF": {
+                        "meaning": "Inverse LUT RDR, non-linearized",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "FFL": "Built from full-frame, full-resolution linearized RDRs",
+                    "ISF": {
+                        "meaning": "Inverse LUT RDR (sub-frame), non-linearized",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "SFL": "Built from sub-frame, full-resolution linearized RDRs",
+                    "INN": {
+                        "meaning": "Inverse LUT RDR (downsampled), non-linearized",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "DNL": "Built from downsampled linearized RDRs",
+                    "ITH": {
+                        "meaning": "Inverse LUT RDR (thumbnail), non-linearized",
+                        "description": "Inverse LUT RDRs undo the onboard 12-to-8 bit companding lookup table, so the pixels are back in their original DN range. SIS \u00a74.3."
+                    },
+                    "THN": "Built from thumbnail (64\u00d764) linearized RDRs",
+                    "RAD": {
+                        "meaning": "Rad-corrected to absolute radiance units, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RAL": {
+                        "meaning": "Rad-corrected to absolute radiance units, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RAT": {
+                        "meaning": "Rad-corrected to absolute radiance units (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RAN": {
+                        "meaning": "Rad-corrected to absolute radiance units (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "MRD": {
+                        "meaning": "MIPLRAD rad-corrected to absolute radiance units, archived datasets only, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "MRL": {
+                        "meaning": "MIPLRAD rad-corrected to absolute radiance units, archived datasets only, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "MRT": {
+                        "meaning": "MIPLRAD rad-corrected to absolute radiance units, archived datasets only (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "MRN": {
+                        "meaning": "MIPLRAD rad-corrected to absolute radiance units, archived datasets only (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RFD": {
+                        "meaning": "Rad-corrected float (32-bit), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RFL": {
+                        "meaning": "Rad-corrected float (32-bit), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RFT": {
+                        "meaning": "Rad-corrected float (32-bit) (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "RFN": {
+                        "meaning": "Rad-corrected float (32-bit) (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IOF": {
+                        "meaning": "Rad-corrected to I/F radiance factor, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IOL": {
+                        "meaning": "Rad-corrected to I/F radiance factor, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IOT": {
+                        "meaning": "Rad-corrected to I/F radiance factor (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "ION": {
+                        "meaning": "Rad-corrected to I/F radiance factor (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFF": {
+                        "meaning": "Rad-corrected float (32-bit) to I/F radiance factor, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFL": {
+                        "meaning": "Rad-corrected float (32-bit) to I/F radiance factor, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFT": {
+                        "meaning": "Rad-corrected float (32-bit) to I/F radiance factor (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFN": {
+                        "meaning": "Rad-corrected float (32-bit) to I/F radiance factor (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "IFS": {
+                        "meaning": "Sum of rad-corrected float (32-bit) to I/F radiance factor, by the MI Athena team, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CCD": {
+                        "meaning": "Rad-corrected for instrument effects only, in DN, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CCL": {
+                        "meaning": "Rad-corrected for instrument effects only, in DN, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CCT": {
+                        "meaning": "Rad-corrected for instrument effects only, in DN (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CCN": {
+                        "meaning": "Rad-corrected for instrument effects only, in DN (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CFD": {
+                        "meaning": "Rad-corrected float (32-bit) for instrument effects only, in DN, non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CFL": {
+                        "meaning": "Rad-corrected float (32-bit) for instrument effects only, in DN, linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CFT": {
+                        "meaning": "Rad-corrected float (32-bit) for instrument effects only, in DN (thumbnail), non-linearized",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "CFN": {
+                        "meaning": "Rad-corrected float (32-bit) for instrument effects only, in DN (thumbnail), linearized (camera distortion removed)",
+                        "description": "Radiometrically corrected RDRs convert raw DN into physical units, correcting for instrument response, exposure and flat field. SIS \u00a74.3."
+                    },
+                    "DIS": {
+                        "meaning": "Disparity, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DIL": {
+                        "meaning": "Disparity, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DIT": {
+                        "meaning": "Disparity (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DIN": {
+                        "meaning": "Disparity (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DSS": {
+                        "meaning": "Disparity of samples, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DSL": {
+                        "meaning": "Disparity of samples, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DST": {
+                        "meaning": "Disparity of samples (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DSN": {
+                        "meaning": "Disparity of samples (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DLS": {
+                        "meaning": "Disparity of lines, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DLL": {
+                        "meaning": "Disparity of lines, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DLT": {
+                        "meaning": "Disparity of lines (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DLN": {
+                        "meaning": "Disparity of lines (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "XYZ": {
+                        "meaning": "XYZ, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XYL": {
+                        "meaning": "XYZ, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XYT": {
+                        "meaning": "XYZ (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XYN": {
+                        "meaning": "XYZ (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "MSK": {
+                        "meaning": "XYZ rover volume exclusion mask, non-linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MSL": {
+                        "meaning": "XYZ rover volume exclusion mask, linearized (camera distortion removed)",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MST": {
+                        "meaning": "XYZ rover volume exclusion mask (thumbnail), non-linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MSN": {
+                        "meaning": "XYZ rover volume exclusion mask (thumbnail), linearized (camera distortion removed)",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "XXX": {
+                        "meaning": "X component, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XXL": {
+                        "meaning": "X component, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XXT": {
+                        "meaning": "X component (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XXN": {
+                        "meaning": "X component (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "YYY": {
+                        "meaning": "Y component, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "YYL": {
+                        "meaning": "Y component, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "YYT": {
+                        "meaning": "Y component (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "YYN": {
+                        "meaning": "Y component (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "ZZZ": {
+                        "meaning": "Z component, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "ZZL": {
+                        "meaning": "Z component, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "ZZT": {
+                        "meaning": "Z component (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "ZZN": {
+                        "meaning": "Z component (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "DEM": {
+                        "meaning": "Z component as a digital elevation model, by the MI Athena team, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "RNG": {
+                        "meaning": "Range (distance), non-linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RNL": {
+                        "meaning": "Range (distance), linearized (camera distortion removed)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RNT": {
+                        "meaning": "Range (distance) (thumbnail), non-linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RNN": {
+                        "meaning": "Range (distance) (thumbnail), linearized (camera distortion removed)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "UVW": {
+                        "meaning": "UVW (XYZ) surface normal, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UVL": {
+                        "meaning": "UVW (XYZ) surface normal, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UVT": {
+                        "meaning": "UVW (XYZ) surface normal (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UVN": {
+                        "meaning": "UVW (XYZ) surface normal (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UUU": {
+                        "meaning": "U (X) surface normal, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UUL": {
+                        "meaning": "U (X) surface normal, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UUT": {
+                        "meaning": "U (X) surface normal (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UUN": {
+                        "meaning": "U (X) surface normal (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "VVV": {
+                        "meaning": "V (Y) surface normal, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "VVL": {
+                        "meaning": "V (Y) surface normal, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "VVT": {
+                        "meaning": "V (Y) surface normal (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "VVN": {
+                        "meaning": "V (Y) surface normal (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "WWW": {
+                        "meaning": "W (Z) surface normal, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "WWL": {
+                        "meaning": "W (Z) surface normal, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "WWT": {
+                        "meaning": "W (Z) surface normal (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "WWN": {
+                        "meaning": "W (Z) surface normal (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "RUF": {
+                        "meaning": "Surface roughness, non-linearized",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a74.3."
+                    },
+                    "RUL": {
+                        "meaning": "Surface roughness, linearized (camera distortion removed)",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a74.3."
+                    },
+                    "RUT": {
+                        "meaning": "Surface roughness (thumbnail), non-linearized",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a74.3."
+                    },
+                    "RUN": {
+                        "meaning": "Surface roughness (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Roughness RDRs measure how far the terrain departs from a plane. SIS \u00a74.3."
+                    },
+                    "SLP": {
+                        "meaning": "Slope, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SLL": {
+                        "meaning": "Slope, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SLT": {
+                        "meaning": "Slope (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SLN": {
+                        "meaning": "Slope (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SRD": {
+                        "meaning": "Slope rover direction, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SRL": {
+                        "meaning": "Slope rover direction, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SRT": {
+                        "meaning": "Slope rover direction (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SRN": {
+                        "meaning": "Slope rover direction (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SHP": {
+                        "meaning": "Slope heading, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SHL": {
+                        "meaning": "Slope heading, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SHT": {
+                        "meaning": "Slope heading (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SHN": {
+                        "meaning": "Slope heading (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SMP": {
+                        "meaning": "Slope magnitude, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SML": {
+                        "meaning": "Slope magnitude, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SMT": {
+                        "meaning": "Slope magnitude (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SMN": {
+                        "meaning": "Slope magnitude (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SEP": {
+                        "meaning": "Solar energy, non-linearized",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a74.3."
+                    },
+                    "SEL": {
+                        "meaning": "Solar energy, linearized (camera distortion removed)",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a74.3."
+                    },
+                    "SET": {
+                        "meaning": "Solar energy (thumbnail), non-linearized",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a74.3."
+                    },
+                    "SEN": {
+                        "meaning": "Solar energy (thumbnail), linearized (camera distortion removed)",
+                        "description": "Solar Energy RDRs estimate the insolation available at each pixel of the terrain. SIS \u00a74.3."
+                    },
+                    "IDD": {
+                        "meaning": "IDD reachability, non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IDL": {
+                        "meaning": "IDD reachability, linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IDT": {
+                        "meaning": "IDD reachability (thumbnail), non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IDN": {
+                        "meaning": "IDD reachability (thumbnail), linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "VIS": {
+                        "meaning": "VISTA terrain, non-linearized",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "VIL": {
+                        "meaning": "VISTA terrain, linearized (camera distortion removed)",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "VIT": {
+                        "meaning": "VISTA terrain (thumbnail), non-linearized",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "VIN": {
+                        "meaning": "VISTA terrain (thumbnail), linearized (camera distortion removed)",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "ASD": {
+                        "meaning": "ASD terrain, non-linearized",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "ASL": {
+                        "meaning": "ASD terrain, linearized (camera distortion removed)",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "AST": {
+                        "meaning": "ASD terrain (thumbnail), non-linearized",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "ASN": {
+                        "meaning": "ASD terrain (thumbnail), linearized (camera distortion removed)",
+                        "description": "Terrain RDRs are the mesh / terrain models the rover planners and VISTA or ASD tools consume. SIS \u00a74.3."
+                    },
+                    "SND": {
+                        "meaning": "Slope northerly tilt, non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SNL": {
+                        "meaning": "Slope northerly tilt, linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SNT": {
+                        "meaning": "Slope northerly tilt (thumbnail), non-linearized",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "SNN": {
+                        "meaning": "Slope northerly tilt (thumbnail), linearized (camera distortion removed)",
+                        "description": "Slope RDRs derive terrain steepness, heading and rover-direction tilt in degrees from the surface normals. SIS \u00a74.3."
+                    },
+                    "DRR": {
+                        "meaning": "Raw stereo disparity, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DRL": {
+                        "meaning": "Raw stereo disparity, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DRT": {
+                        "meaning": "Raw stereo disparity (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DRN": {
+                        "meaning": "Raw stereo disparity (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "MDS": {
+                        "meaning": "Stereo disparity mask, non-linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MDL": {
+                        "meaning": "Stereo disparity mask, linearized (camera distortion removed)",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MDT": {
+                        "meaning": "Stereo disparity mask (thumbnail), non-linearized",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "MDN": {
+                        "meaning": "Stereo disparity mask (thumbnail), linearized (camera distortion removed)",
+                        "description": "Mask files flag which pixels of a companion product are valid or excluded because rover hardware is in frame. SIS \u00a74.3."
+                    },
+                    "DFF": {
+                        "meaning": "First-stage final stereo disparity, non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DFL": {
+                        "meaning": "First-stage final stereo disparity, linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DFT": {
+                        "meaning": "First-stage final stereo disparity (thumbnail), non-linearized",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "DFN": {
+                        "meaning": "First-stage final stereo disparity (thumbnail), linearized (camera distortion removed)",
+                        "description": "Disparity RDRs hold the stereo parallax in pixels between a point in the reference image and its match in the partner image, the input to every XYZ product. SIS \u00a74.3."
+                    },
+                    "XRZ": {
+                        "meaning": "XYZ in the rover frame, non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XRL": {
+                        "meaning": "XYZ in the rover frame, linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XRT": {
+                        "meaning": "XYZ in the rover frame (thumbnail), non-linearized",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "XRN": {
+                        "meaning": "XYZ in the rover frame (thumbnail), linearized (camera distortion removed)",
+                        "description": "XYZ RDRs give each pixel a three-dimensional position in a MER coordinate frame, so the scene can be measured. SIS \u00a74.3."
+                    },
+                    "RRG": {
+                        "meaning": "Range (distance) in the rover frame, non-linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RRL": {
+                        "meaning": "Range (distance) in the rover frame, linearized (camera distortion removed)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RRT": {
+                        "meaning": "Range (distance) in the rover frame (thumbnail), non-linearized",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "RRN": {
+                        "meaning": "Range (distance) in the rover frame (thumbnail), linearized (camera distortion removed)",
+                        "description": "Range RDRs give the distance from the camera to the surface at each pixel. SIS \u00a74.3."
+                    },
+                    "IRN": {
+                        "meaning": "Masked IDD reachability, non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IRL": {
+                        "meaning": "Masked IDD reachability, linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "IRT": {
+                        "meaning": "Masked IDD reachability (thumbnail), non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "MID": {
+                        "meaning": "Masked IDD reachability mask, non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "MIL": {
+                        "meaning": "Masked IDD reachability mask, linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "MIT": {
+                        "meaning": "Masked IDD reachability mask (thumbnail), non-linearized",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "MIN": {
+                        "meaning": "Masked IDD reachability mask (thumbnail), linearized (camera distortion removed)",
+                        "description": "IDD Reachability RDRs mark which terrain the instrument deployment device can reach. SIS \u00a74.3."
+                    },
+                    "USW": {
+                        "meaning": "Surface normal used for slope, non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "USL": {
+                        "meaning": "Surface normal used for slope, linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "UST": {
+                        "meaning": "Surface normal used for slope (thumbnail), non-linearized",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "USN": {
+                        "meaning": "Surface normal used for slope (thumbnail), linearized (camera distortion removed)",
+                        "description": "Surface Normal (UVW) RDRs give the unit normal of the terrain at each pixel, the basis for the slope and roughness products. SIS \u00a74.3."
+                    },
+                    "RSD": {
+                        "meaning": "Rad-corrected and scaled, non-linearized",
+                        "description": "A MIPL radiometrically corrected RDR of the \"RAD/RAL/RSD/RSL\" family (SIS \u00a74.3), all of which were reprocessed with the corrected MIPLRAD2 implementation. The SIS mentions the RSD/RSL codes but does not tabulate the family, so no more detail is available from it."
+                    },
+                    "RSL": {
+                        "meaning": "Rad-corrected and scaled, linearized (camera distortion removed)",
+                        "description": "A MIPL radiometrically corrected RDR of the \"RAD/RAL/RSD/RSL\" family (SIS \u00a74.3), all of which were reprocessed with the corrected MIPLRAD2 implementation. The SIS mentions the RSD/RSL codes but does not tabulate the family, so no more detail is available from it."
+                    },
+                    "RST": {
+                        "meaning": "Rad-corrected and scaled (thumbnail)",
+                        "description": "A MIPL radiometrically corrected RDR of the \"RAD/RAL/RSD/RSL\" family (SIS \u00a74.3), all of which were reprocessed with the corrected MIPLRAD2 implementation. The SIS mentions the RSD/RSL codes but does not tabulate the family, so no more detail is available from it."
+                    },
+                    "RSN": {
+                        "meaning": "Rad-corrected and scaled, linearized (thumbnail)",
+                        "description": "A MIPL radiometrically corrected RDR of the \"RAD/RAL/RSD/RSL\" family (SIS \u00a74.3), all of which were reprocessed with the corrected MIPLRAD2 implementation. The SIS mentions the RSD/RSL codes but does not tabulate the family, so no more detail is available from it."
+                    },
+                    "EDR": {
+                        "meaning": "Nominal non-camera instrument data product",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "SPE": {
+                        "meaning": "APXS / M\u00f6ssbauer spectra",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "EMS": {
+                        "meaning": "Mini-TES spectra emissivity image cube",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "TBL": {
+                        "meaning": "APXS / M\u00f6ssbauer table of concentrations and components",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "TTH": {
+                        "meaning": "Mini-TES temperature and thermal inertia map",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    },
+                    "QUB": {
+                        "meaning": "Mini-TES data cube",
+                        "description": "A non-camera MER instrument product; the camera SIS does not describe it."
+                    }
+                },
+                "patterns": [
+                    {
+                        "match": "-",
+                        "meaning": "Built from RDRs of several product types, \"{value}\""
+                    }
+                ]
+            },
+            {
+                "group": 6,
+                "label": "Ending position",
+                "color": "indigo",
+                "description": "Position within the last site of the last frame built into the mesh; a trailing \"x\" means the mesh spans several positions.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]+)X$",
+                        "meaning": "Position {1}, the last of several in the product"
+                    },
+                    {
+                        "match": "^[0-9]+$",
+                        "meaning": "Position {number}"
+                    }
+                ]
+            },
+            {
+                "group": 7,
+                "label": "Version",
+                "color": "slate",
+                "description": "Version identifier, for book-keeping uniqueness.",
+                "patterns": [
+                    {
+                        "match": "^[0-9]+$",
+                        "meaning": "Version {number}"
+                    }
+                ]
+            },
+            {
+                "group": 8,
+                "label": "Extension",
+                "color": "teal",
+                "description": "Product format.",
+                "values": {
+                    "PFB": "Terrain mesh in Performer Binary format",
+                    "IV": "Terrain mesh in Inventor format (for MIPL use)",
+                    "HT": "Height map with a VICAR label",
+                    "RGB": "Three-band colour raster (not listed in SIS v4.4)"
+                }
+            }
+        ]
+    }
+]

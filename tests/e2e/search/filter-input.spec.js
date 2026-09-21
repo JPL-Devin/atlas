@@ -6,7 +6,7 @@ import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-hel
  *
  * Previously the FiltersPanel was only smoke-tested ("does it render?").
  * Real regressions in the filter wiring (Redux dispatch on input,
- * Search/Clear button enabled-state, "Restart search" reset) would not
+ * Search/Clear button enabled-state, "Reset filters" reset) would not
  * have been caught.
  *
  * The Text Search filter is the simplest filter to drive: it has a
@@ -94,9 +94,9 @@ test.describe('Filter input - Text Search', () => {
     })
 })
 
-test.describe('Filter input - Restart search', () => {
-    test('clicking "Restart search" survives without a critical JS error', async ({ page }) => {
-        // `Restart search` dispatches `resetFilters()`, which fans out
+test.describe('Filter input - Reset filters', () => {
+    test('clicking "Reset filters" survives without a critical JS error', async ({ page }) => {
+        // `Reset filters` dispatches `resetFilters()`, which fans out
         // into clearActiveFilters / clearResults / search(). We don't
         // assert on the resulting input/Redux state (that depends on
         // upstream API responses), only that the click survives the
@@ -111,7 +111,7 @@ test.describe('Filter input - Restart search', () => {
         const input = page.getByPlaceholder('Search Product Names (regex supported)')
         await input.fill('voyager')
 
-        await page.getByRole('button', { name: 'Restart search' }).click()
+        await page.getByRole('button', { name: 'reset filters', exact: true }).click()
         await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {})
 
         // Page shell still responds to a noop event — the topbar

@@ -40,6 +40,7 @@ const reducerFuncs = {
     SET_RECORD_DATA: setRecordData,
     SET_LABEL_DATA: setLabelData,
     SET_RECORD_VIEW_TAB: setRecordViewTab,
+    SET_RECORD_FILENAME_PART: setRecordFilenamePart,
 
     // ================= FILE-EXPLORER RELATED =================
     ADD_FILEX_COLUMN: addFilexColumn,
@@ -535,6 +536,22 @@ function setLabelData(state, payload) {
  */
 function setRecordViewTab(state, payload) {
     return state.setIn(['recordViewTab'], fromJS(payload.newRecordViewTab))
+}
+
+/**
+ * Sets which filename segment the record page explains
+ *
+ * @param {Object} state - Redux state
+ * @param {Object} payload - action payload
+ * @param {number|null} payload.selected
+ * @param {boolean} payload.showAll
+ * @return {Object} new state
+ */
+function setRecordFilenamePart(state, payload) {
+    return state.setIn(
+        ['recordFilenamePart'],
+        fromJS({ selected: payload.selected, showAll: payload.showAll })
+    )
 }
 
 // ================= FILE-EXPLORER RELATED =================

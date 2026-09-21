@@ -1,0 +1,182 @@
+{
+    "title": "Clementine EDR filename",
+    "sis": "clem_edr",
+    "reference": "Clementine EDR SIS, \u00a74.1 and the PRODUCT_ID definition in \u00a74.3.2",
+    "ignoreCase": true,
+    "match": "^([PLEAB])([ABUHNL])([A-F])([0-9]{4})([A-Z])\\.([0-9]{3})$",
+    "segments": [
+        {
+            "group": 1,
+            "label": "Mission phase",
+            "color": "violet",
+            "description": "Mission phase the image was taken in.",
+            "values": {
+                "P": "Prelaunch",
+                "L": "Lunar mapping",
+                "E": "Earth mapping (LEO and phasing loops)",
+                "A": "First Earth\u2013Moon orbital phasing loops",
+                "B": "Second Earth\u2013Moon orbital phasing loops"
+            }
+        },
+        {
+            "group": 2,
+            "label": "Sensor",
+            "color": "blue",
+            "description": "Which Clementine sensor took the frame.",
+            "values": {
+                "A": "Star tracker A",
+                "B": "Star tracker B",
+                "U": "UV/Vis camera",
+                "H": "High-resolution camera",
+                "N": "Near infrared camera",
+                "L": "Long wavelength infrared camera"
+            }
+        },
+        {
+            "group": 3,
+            "label": "Filter",
+            "color": "indigo",
+            "description": "Filter wheel position.",
+            "values": {
+                "A": "Filter wheel position A",
+                "B": "Filter wheel position B",
+                "C": "Filter wheel position C",
+                "D": "Filter wheel position D",
+                "E": "Filter wheel position E",
+                "F": "Filter wheel position F"
+            }
+        },
+        {
+            "group": 4,
+            "label": "Frame number",
+            "color": "teal",
+            "description": "Frame number within the revolution; outside lunar mapping it is the image sequence number within the download.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Frame {1}"
+                }
+            ]
+        },
+        {
+            "group": 5,
+            "label": "Latitude bin",
+            "color": "green",
+            "description": "Latitude bin of the image centre, or a non-mapping observation class.",
+            "values": {
+                "A": {
+                    "meaning": "Image centre latitude \u221290\u00b0 to \u221280\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "B": {
+                    "meaning": "Image centre latitude \u221280\u00b0 to \u221270\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "C": {
+                    "meaning": "Image centre latitude \u221270\u00b0 to \u221260\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "D": {
+                    "meaning": "Image centre latitude \u221260\u00b0 to \u221250\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "E": {
+                    "meaning": "Image centre latitude \u221250\u00b0 to \u221240\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "F": {
+                    "meaning": "Image centre latitude \u221240\u00b0 to \u221230\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "G": {
+                    "meaning": "Image centre latitude \u221230\u00b0 to \u221220\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "H": {
+                    "meaning": "Image centre latitude \u221220\u00b0 to \u221210\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "I": {
+                    "meaning": "Image centre latitude \u221210\u00b0 to 0\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "J": {
+                    "meaning": "Image centre latitude 0\u00b0 to 10\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "K": {
+                    "meaning": "Image centre latitude 10\u00b0 to 20\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "L": {
+                    "meaning": "Image centre latitude 20\u00b0 to 30\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "M": {
+                    "meaning": "Image centre latitude 30\u00b0 to 40\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "N": {
+                    "meaning": "Image centre latitude 40\u00b0 to 50\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "O": {
+                    "meaning": "Image centre latitude 50\u00b0 to 60\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "P": {
+                    "meaning": "Image centre latitude 60\u00b0 to 70\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "Q": {
+                    "meaning": "Image centre latitude 70\u00b0 to 80\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "R": {
+                    "meaning": "Image centre latitude 80\u00b0 to 90\u00b0",
+                    "description": "Latitude bin of the image centre for lunar mapping observations. Outside lunar mapping the same character instead steps one letter every 100 images of a download."
+                },
+                "S": {
+                    "meaning": "\"Unknown\" targets",
+                    "description": "One of the non-latitude values this field takes for observations outside systematic lunar mapping."
+                },
+                "T": {
+                    "meaning": "Earth observations prior to systematic mapping",
+                    "description": "One of the non-latitude values this field takes for observations outside systematic lunar mapping."
+                },
+                "U": {
+                    "meaning": "Sky observations prior to systematic mapping",
+                    "description": "One of the non-latitude values this field takes for observations outside systematic lunar mapping."
+                },
+                "V": {
+                    "meaning": "Lunar observations prior to systematic mapping",
+                    "description": "One of the non-latitude values this field takes for observations outside systematic lunar mapping."
+                },
+                "W": {
+                    "meaning": "Sky observations after systematic mapping",
+                    "description": "One of the non-latitude values this field takes for observations outside systematic lunar mapping."
+                },
+                "Y": {
+                    "meaning": "Earth observations after systematic mapping",
+                    "description": "One of the non-latitude values this field takes for observations outside systematic lunar mapping."
+                },
+                "Z": {
+                    "meaning": "Moon observations after systematic mapping",
+                    "description": "One of the non-latitude values this field takes for observations outside systematic lunar mapping."
+                }
+            }
+        },
+        {
+            "group": 6,
+            "label": "Revolution",
+            "color": "orange",
+            "description": "Revolution number during lunar mapping; outside lunar mapping it is the data download (dump) number within the phase.",
+            "patterns": [
+                {
+                    "match": "^0*([0-9]+)$",
+                    "meaning": "Revolution / download {1}"
+                }
+            ]
+        }
+    ]
+}
