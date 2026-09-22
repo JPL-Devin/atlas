@@ -192,8 +192,19 @@ const CopyLinks = (props) => {
         setOpen(false)
     }
 
+    const handleKeyDown = (event) => {
+        if (!open) {
+            return
+        }
+        if (event.key === 'Escape' || event.key === 'Tab') {
+            event.preventDefault()
+            setOpen(false)
+            anchorEl?.focus()
+        }
+    }
+
     return (
-        <div className={clsx(c.CopyLinks, className)}>
+        <div className={clsx(c.CopyLinks, className)} onKeyDown={handleKeyDown}>
             <ButtonGroup
                 className={c.group}
                 variant="outlined"
@@ -218,6 +229,12 @@ const CopyLinks = (props) => {
                         aria-label="copy links options"
                         aria-haspopup="menu"
                         onClick={() => setOpen((prev) => !prev)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'ArrowDown' && !open) {
+                                e.preventDefault()
+                                setOpen(true)
+                            }
+                        }}
                         ref={setAnchorEl}
                     >
                         <ArrowDropDownIcon />

@@ -77,7 +77,7 @@ const getFileExplorerPath = (preview, columns) => {
     if (preview.uri) {
         parts.push(splitUri(preview.uri).relativeUrl || '')
     }
-    return parts.map((v) => `${v[0] === '/' ? '' : '/'}${v}`).join('')
+    return parts.map((v) => `${v[0] === '/' ? '' : '/'}${v}`).join('') || '/'
 }
 
 export const getFileExplorerCopyItems = (preview, columns) => {
