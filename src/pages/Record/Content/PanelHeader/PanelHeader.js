@@ -20,6 +20,8 @@ import { addToCart, setSnackBarText } from '../../../../core/redux/actions/actio
 import { getDownloadProducts } from '../../../../core/recordDownloads'
 import { getAppConfig } from '../../../../core/appConfig'
 import SplitButton from '../../../../components/SplitButton/SplitButton'
+import CopyLinks from '../../../../components/CopyLinks/CopyLinks'
+import { getRecordCopyItems } from '../../../../core/copyLinks'
 import ViewTabs from '../ViewTabs/ViewTabs'
 import { getVisibleViewTabs } from '../../viewTabs'
 import { parseRecordFilename } from '../../../../core/recordPresentation'
@@ -194,6 +196,10 @@ const PanelHeader = (props) => {
                 )}
             </div>
             <div className={c.actions} aria-label="record actions">
+                <CopyLinks
+                    ariaLabel="record copy links"
+                    items={getRecordCopyItems(recordData)}
+                />
                 {extraActions}
                 {getAppConfig().enableCart && (
                     <Button

@@ -14,6 +14,7 @@ import Divider from '@mui/material/Divider'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 
 import { removeFromCart, setModal } from '../../../core/redux/actions/actions.js'
+import CopyLinks from '../../../components/CopyLinks/CopyLinks'
 
 const useStyles = makeStyles((theme) => ({
     Title: {
@@ -102,6 +103,7 @@ const Title = (props) => {
                 </div>
             </div>
             <div className={c.right}>
+                <CopyLinks ariaLabel="cart copy links" items={[]} />
                 <Button
                     className={c.button1}
                     variant="contained"
