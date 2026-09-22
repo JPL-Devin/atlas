@@ -21,14 +21,12 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 
 import ResultsSorter from '../../../../../../components/ResultsSorter/ResultsSorter'
 import MenuButton from '../../../../../../components/MenuButton/MenuButton'
-import CopyLinks from '../../../../../../components/CopyLinks/CopyLinks'
 
 import ChippedFilters from '../ChippedFilters/ChippedFilters'
 
 import {
     addToCart,
     checkItemInResults,
-    copyToClipboardAction,
     setGridSize,
     setModal,
     setSnackBarText,
@@ -147,18 +145,6 @@ const Heading = (props) => {
 
     const gridSizes = isMobile ? [92, 128, 256] : [128, 192, 256]
 
-    const copyItems = [
-        { key: 'dsl', label: 'Query (DSL)', onCopy: () => dispatch(copyToClipboardAction('DSL')) },
-        {
-            key: 'python',
-            groupLabel: 'Commands',
-            label: 'Python',
-            onCopy: () => dispatch(copyToClipboardAction('Python')),
-        },
-        { key: 'curl', label: 'CURL', onCopy: () => dispatch(copyToClipboardAction('CURL')) },
-        { key: 'fetch', label: 'Fetch', onCopy: () => dispatch(copyToClipboardAction('Fetch')) },
-    ]
-
     const rotate90 = () => {
         window.atlasGlobal.imageRotation = (window.atlasGlobal.imageRotation + 90) % 360
 
@@ -184,7 +170,6 @@ const Heading = (props) => {
             </div>
             <div className={c.middle}>{filterType === 'basic' && <ChippedFilters />}</div>
             <div className={c.right}>
-                {!mobile && <CopyLinks ariaLabel="search copy links" items={copyItems} />}
                 <ResultsSorter />
                 {activeView === 'Grid' && !isMobile && (
                     <div className={c.gridSize}>

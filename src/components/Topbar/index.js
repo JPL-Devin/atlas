@@ -20,6 +20,7 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 
 import NavigationDrawer from '../NavigationDrawer/NavigationDrawer'
+import TopbarCopyLinks from '../CopyLinks/TopbarCopyLinks'
 
 import { setModal } from '../../core/redux/actions/actions.js'
 import { HASH_PATHS, publicUrl } from '../../core/constants'
@@ -67,6 +68,7 @@ const useStyles = makeStyles((theme) => ({
     },
     right: {
         display: 'flex',
+        alignItems: 'center',
         flexShrink: 0,
     },
     logoDiv: {
@@ -276,6 +278,7 @@ const Topbar = () => {
                 </div>
             </div>
             <div className={c.right}>
+                {!isMobileXs && <TopbarCopyLinks />}
                 <Tooltip title="API Documentation" arrow placement="bottom">
                     <IconButton
                         className={clsx(c.button)}

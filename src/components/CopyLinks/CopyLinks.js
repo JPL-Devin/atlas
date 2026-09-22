@@ -28,14 +28,13 @@ import { streamDownloadFile } from '../../core/downloaders/ZipStream.js'
 import { setSnackBarText } from '../../core/redux/actions/actions'
 
 const useStyles = makeStyles((theme) => ({
-    // Leads every header's action cluster; the rule on its right separates
-    // sharing from the page's own actions.
+    // Leads the Topbar's right cluster; the faint rule separates it from nav.
     CopyLinks: {
         display: 'flex',
         alignItems: 'center',
         alignSelf: 'stretch',
         flexShrink: 0,
-        paddingRight: '8px',
+        padding: '0 12px',
         marginRight: '4px',
         borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },

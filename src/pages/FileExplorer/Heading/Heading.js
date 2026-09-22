@@ -17,8 +17,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import { makeStyles } from '@mui/styles'
 
 import { setFilexPreview, removeFilexColumn } from '../../../core/redux/actions/actions.js'
-import { copyToClipboard, splitUri, getPDSUrl, getIn, getFilename } from '../../../core/utils'
-import CopyLinks from '../../../components/CopyLinks/CopyLinks'
+import { copyToClipboard, splitUri } from '../../../core/utils'
 import { HASH_PATHS, ES_PATHS } from '../../../core/constants'
 
 const useStyles = makeStyles((theme) => ({
@@ -151,34 +150,6 @@ const Heading = (props) => {
         }
     }, [url])
 
-    const copyItems = [
-        {
-            key: 'path',
-            label: 'Path',
-            value: fullPath,
-            message: 'Copied path to clipboard!',
-        },
-    ]
-    if (preview.uri) {
-        const previewUrl = getPDSUrl(preview.uri, getIn(preview, ES_PATHS.release_id))
-        copyItems.push({
-            key: 'uri',
-            label: 'Atlas URI',
-            value: preview.uri,
-            message: 'Copied URI to clipboard!',
-        })
-        copyItems.push({
-            key: 'url',
-            groupLabel: preview.fs_type === 'file' ? 'File' : 'Directory',
-            label: preview.fs_type === 'file' ? 'File URL' : 'Directory URL',
-            subname: preview.fs_type === 'file' ? getFilename(preview.uri) : undefined,
-            value: previewUrl,
-            message: 'Copied URL to clipboard!',
-            url: preview.fs_type === 'file' ? previewUrl : undefined,
-            filename: getFilename(preview.uri),
-        })
-    }
-
     const [openSnackbar, setOpenSnackbar] = useState(false)
 
     const handleOpenSnackbar = () => {
@@ -204,7 +175,6 @@ const Heading = (props) => {
                     </Typography>
                 </div>
                 <div className={c.copyLink}>
-                    <CopyLinks ariaLabel="file explorer copy links" items={copyItems} />
                     <Tooltip title="Reset Path" arrow>
                         <IconButton
                             className={c.copyButton}

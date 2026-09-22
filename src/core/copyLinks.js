@@ -1,5 +1,5 @@
 import { ES_PATHS } from './constants'
-import { getIn, getPDSUrl, getFilename } from './utils'
+import { getIn, getPDSUrl, getFilename, splitUri } from './utils'
 import { getDownloadProducts, getSupplementalProducts } from './recordDownloads'
 import {
     getRawLabel,
@@ -62,3 +62,61 @@ export const getRecordCopyItems = (recordData) => {
 
     return items
 }
+
+// Mirrors the path shown in the FileExplorer heading.
+const getFileExplorerPath = (preview, columns) => {
+    const parts = []
+    columns.forEach((c) => {
+        if (!c.active) {
+            return
+        }
+        if (c.type === 'filter' || c.type === 'volume') {
+            parts.push(c.active.key)
+        }
+    })
+    if (preview.uri) {
+        parts.push(splitUri(preview.uri).relativeUrl || '')
+    }
+    return parts.map((v) => `${v[0] === '/' ? '' : '/'}${v}`).join('')
+}
+
+export const getFileExplorerCopyItems = (preview, columns) => {
+    const items = [
+        {
+            key: 'path',
+            label: 'Path',
+            value: getFileExplorerPath(preview, columns),
+            message: 'Copied path to clipboard!',
+        },
+    ]
+    if (!preview.uri) {
+        return items
+    }
+    const isFile = preview.fs_type === 'file'
+    const url = getPDSUrl(preview.uri, getIn(preview, ES_PATHS.release_id))
+    items.push({
+        key: 'uri',
+        label: 'Atlas URI',
+        value: preview.uri,
+        message: 'Copied URI to clipboard!',
+    })
+    items.push({
+        key: 'url',
+        groupLabel: isFile ? 'File' : 'Directory',
+        label: isFile ? 'File URL' : 'Directory URL',
+        subname: isFile ? getFilename(preview.uri) : undefined,
+        value: url,
+        message: 'Copied URL to clipboard!',
+        url: isFile ? url : undefined,
+        filename: getFilename(preview.uri),
+    })
+    return items
+}
+
+// `copy(type)` dispatches copyToClipboardAction for the current query.
+export const getSearchCopyItems = (copy) => [
+    { key: 'dsl', label: 'Query (DSL)', onCopy: () => copy('DSL') },
+    { key: 'python', groupLabel: 'Commands', label: 'Python', onCopy: () => copy('Python') },
+    { key: 'curl', label: 'CURL', onCopy: () => copy('CURL') },
+    { key: 'fetch', label: 'Fetch', onCopy: () => copy('Fetch') },
+]
