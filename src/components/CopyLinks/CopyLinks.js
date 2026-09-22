@@ -267,77 +267,83 @@ const CopyLinks = (props) => {
                                     onKeyDown={handleKeyDown}
                                     dense
                                 >
-                                    {items.map((item, index) => (
-                                        <React.Fragment key={item.key || index}>
-                                            {item.groupLabel != null && (
-                                                <>
-                                                    {index > 0 && (
-                                                        <li
-                                                            className={c.groupDivider}
-                                                            role="separator"
-                                                        />
-                                                    )}
-                                                    <li className={c.groupLabel}>
-                                                        {item.groupLabel}
-                                                    </li>
-                                                </>
-                                            )}
-                                            <MenuItem
-                                                className={c.menuli}
-                                                aria-label={`copy ${item.label}`}
-                                                onClick={() => {
-                                                    copyItem(item)
-                                                    setOpen(false)
-                                                }}
+                                    {items.flatMap((item, index) => [
+                                        // MenuList's autofocus/arrow-key logic only sees direct
+                                        // children, so headers are flat, non-focusable siblings.
+                                        item.groupLabel != null && index > 0 && (
+                                            <li
+                                                key={`${item.key || index}_divider`}
+                                                className={c.groupDivider}
+                                                role="separator"
+                                                disabled
+                                            />
+                                        ),
+                                        item.groupLabel != null && (
+                                            <li
+                                                key={`${item.key || index}_group`}
+                                                className={c.groupLabel}
+                                                role="presentation"
+                                                disabled
                                             >
-                                                <div className={c.menuliLeft}>
-                                                    <ContentCopyIcon className={c.menuliIcon} />
-                                                    <div className={c.menuName}>{item.label}</div>
-                                                    {item.subname != null && (
-                                                        <div className={c.menuSubname}>
-                                                            {item.subname}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                {item.url != null && (
-                                                    <div className={c.menuliActions}>
-                                                        <Tooltip title="Open in new tab" arrow>
-                                                            <IconButton
-                                                                className={c.menuliAction}
-                                                                aria-label={`open ${item.label}`}
-                                                                size="small"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation()
-                                                                    window.open(item.url, '_blank')
-                                                                    setOpen(false)
-                                                                }}
-                                                            >
-                                                                <OpenInNewIcon />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip title="Download" arrow>
-                                                            <IconButton
-                                                                className={c.menuliAction}
-                                                                aria-label={`download ${item.label}`}
-                                                                size="small"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation()
-                                                                    streamDownloadFile(
-                                                                        item.url,
-                                                                        item.filename ||
-                                                                            getFilename(item.url)
-                                                                    )
-                                                                    setOpen(false)
-                                                                }}
-                                                            >
-                                                                <GetAppIcon />
-                                                            </IconButton>
-                                                        </Tooltip>
+                                                {item.groupLabel}
+                                            </li>
+                                        ),
+                                        <MenuItem
+                                            key={item.key || index}
+                                            className={c.menuli}
+                                            aria-label={`copy ${item.label}`}
+                                            onClick={() => {
+                                                copyItem(item)
+                                                setOpen(false)
+                                            }}
+                                        >
+                                            <div className={c.menuliLeft}>
+                                                <ContentCopyIcon className={c.menuliIcon} />
+                                                <div className={c.menuName}>{item.label}</div>
+                                                {item.subname != null && (
+                                                    <div className={c.menuSubname}>
+                                                        {item.subname}
                                                     </div>
                                                 )}
-                                            </MenuItem>
-                                        </React.Fragment>
-                                    ))}
+                                            </div>
+                                            {item.url != null && (
+                                                <div className={c.menuliActions}>
+                                                    <Tooltip title="Open in new tab" arrow>
+                                                        <IconButton
+                                                            className={c.menuliAction}
+                                                            aria-label={`open ${item.label}`}
+                                                            size="small"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                window.open(item.url, '_blank')
+                                                                setOpen(false)
+                                                            }}
+                                                        >
+                                                            <OpenInNewIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Download" arrow>
+                                                        <IconButton
+                                                            className={c.menuliAction}
+                                                            aria-label={`download ${item.label}`}
+                                                            size="small"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                streamDownloadFile(
+                                                                    item.url,
+                                                                    item.filename ||
+                                                                        getFilename(item.url)
+                                                                )
+                                                                setOpen(false)
+                                                            }}
+                                                        >
+                                                            <GetAppIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </div>
+                                            )}
+                                        </MenuItem>,
+                                    ])}
                                 </MenuList>
                             </ClickAwayListener>
                         </Paper>
