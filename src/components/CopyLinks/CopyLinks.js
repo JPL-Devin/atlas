@@ -204,9 +204,10 @@ const CopyLinks = (props) => {
     }
 
     return (
-        <div className={clsx(c.CopyLinks, className)} onKeyDown={handleKeyDown}>
+        <div className={clsx(c.CopyLinks, className)}>
             <ButtonGroup
                 className={c.group}
+                onKeyDown={handleKeyDown}
                 variant="outlined"
                 color="secondary"
                 size="small"
@@ -263,6 +264,7 @@ const CopyLinks = (props) => {
                                     id="copy-links-menu"
                                     className={c.menu}
                                     autoFocusItem={open}
+                                    onKeyDown={handleKeyDown}
                                     dense
                                 >
                                     {items.map((item, index) => (
