@@ -1,0 +1,498 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="base.css" />
+        <script src="shell.js"></script>
+        <style>
+            /* Numbers-first: dense two-column field table, keyboard navigation,
+               templated description collapsed to one expandable line. */
+            .content {
+                background: #0b0b0e;
+                overflow: hidden;
+            }
+            .viewer {
+                flex: none;
+                width: 520px;
+                border-right: 1px solid var(--grey700);
+            }
+            .viewer img.frame {
+                width: 100%;
+                height: 100%;
+                max-width: none;
+                max-height: none;
+                object-fit: cover;
+            }
+            .fields {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                flex-flow: column;
+            }
+            .capline {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex: none;
+                height: 34px;
+                padding: 0 12px;
+                background: #131318;
+                border-bottom: 1px solid var(--grey700);
+                font-size: 12.3px;
+                color: #d3d3db;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+            .capline .grow {
+                flex: 1;
+            }
+            .toolrow {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex: none;
+                height: 38px;
+                padding: 0 12px;
+                border-bottom: 1px solid var(--grey700);
+            }
+            .qsearch {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex: 1;
+                height: 26px;
+                padding: 0 9px;
+                background: #08080b;
+                border: 1px solid var(--grey700);
+                border-radius: 3px;
+                font-size: 12px;
+                color: var(--grey400);
+                font-family: 'DejaVu Sans Mono', monospace;
+            }
+            .kbd {
+                display: inline-flex;
+                align-items: center;
+                height: 18px;
+                padding: 0 5px;
+                border-radius: 3px;
+                background: #1d1d23;
+                border: 1px solid #33333a;
+                font-size: 10px;
+                font-weight: 700;
+                color: var(--grey300);
+                font-family: 'DejaVu Sans Mono', monospace;
+            }
+            .seg {
+                display: flex;
+                border: 1px solid var(--grey700);
+                border-radius: 3px;
+                overflow: hidden;
+            }
+            .seg div {
+                padding: 0 9px;
+                height: 26px;
+                display: flex;
+                align-items: center;
+                font-size: 11px;
+                font-weight: 600;
+                color: var(--grey400);
+                border-right: 1px solid var(--grey700);
+            }
+            .seg div:last-child {
+                border-right: none;
+            }
+            .seg div.on {
+                background: rgba(28, 103, 227, 0.28);
+                color: #bcd7ff;
+            }
+            .tbl {
+                flex: 1;
+                min-height: 0;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                column-gap: 1px;
+                background: #202026;
+                overflow: hidden;
+            }
+            .tcol {
+                background: #0b0b0e;
+                overflow: hidden;
+            }
+            .grp {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 4px 10px;
+                background: #16161c;
+                border-bottom: 1px solid #202026;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--grey400);
+            }
+            .r {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                height: 22px;
+                padding: 0 10px;
+                font-size: 11.7px;
+                border-bottom: 1px solid #141419;
+            }
+            .r:nth-child(even) {
+                background: rgba(255, 255, 255, 0.022);
+            }
+            .r .n {
+                width: 46%;
+                color: var(--grey400);
+                font-family: 'DejaVu Sans Mono', monospace;
+                font-size: 11px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .r .v {
+                flex: 1;
+                text-align: right;
+                color: #ececf1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .r .v.num {
+                font-family: 'DejaVu Sans Mono', monospace;
+                color: #b9dcff;
+            }
+            .r.hit {
+                background: rgba(255, 152, 0, 0.1);
+                box-shadow: inset 2px 0 0 var(--orange);
+            }
+            .r.sel {
+                background: rgba(28, 103, 227, 0.18);
+                box-shadow: inset 2px 0 0 var(--accent2);
+            }
+            .foot {
+                flex: none;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 0 12px;
+                background: #08080b;
+                border-top: 1px solid var(--grey700);
+                font-size: 11px;
+                color: var(--grey400);
+            }
+            .foot .grow {
+                flex: 1;
+            }
+            .foot b {
+                color: var(--grey200);
+            }
+            a {
+                color: #8ebbff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div data-shell="rail"></div>
+            <div class="main">
+                <div data-shell="topbar"></div>
+                <div
+                    data-shell="titlebar"
+                    data-name="ZRF_1221_0775339022_769RZS_N0561010ZCAM09271_0630LMJ01.IMG"
+                ></div>
+                <div class="tabs">
+                    <div class="tab active">Overview</div>
+                    <div class="tab">Product Label</div>
+                    <div class="tab">
+                        Related Products<span style="opacity: 0.6">&nbsp;&nbsp;18</span>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="tab-right">
+                        <span class="chip blue"
+                            ><span data-icon="template" data-size="13"></span>Dense mode</span
+                        >
+                        <span>Caption collapsed</span>
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="viewer">
+                        <img class="frame" src="../assets/zcam-sol1221.jpg" />
+                        <div data-shell="osd"></div>
+                    </div>
+                    <div class="fields">
+                        <div class="capline">
+                            <span data-icon="quote" data-size="15"></span>
+                            <span
+                                >Mastcam&#8209;Z Right, Sol 1221, 13:08 LTST, Site 56 Drive 1010
+                                &mdash; radiometrically calibrated frame 4 of 18 in ZCAM09271</span
+                            >
+                            <span class="grow"></span>
+                            <span class="tmpl-note"
+                                ><span data-icon="expand" data-size="14"></span>Expand
+                                description</span
+                            >
+                            <span class="tmpl-note"
+                                ><span data-icon="copy" data-size="14"></span>Copy</span
+                            >
+                        </div>
+                        <div class="toolrow">
+                            <div class="qsearch">
+                                <span data-icon="search" data-size="14"></span>
+                                <span style="flex: 1; color: #ffcc80">sun_</span>
+                                <span style="color: var(--grey500)">6 of 143 fields</span>
+                            </div>
+                            <div class="seg">
+                                <div class="on">LABEL NAMES</div>
+                                <div>FRIENDLY</div>
+                            </div>
+                            <div class="seg">
+                                <div>GROUPED</div>
+                                <div class="on">FLAT</div>
+                            </div>
+                            <span class="tmpl-note"
+                                ><span class="kbd">J</span><span class="kbd">K</span>move
+                                <span class="kbd">C</span>copy value
+                                <span class="kbd">/</span>search</span
+                            >
+                        </div>
+                        <div class="tbl">
+                            <div class="tcol">
+                                <div class="grp"><span>identification</span><span>6</span></div>
+                                <div class="r">
+                                    <div class="n">lid</div>
+                                    <div class="v">urn:nasa:pds:mars2020_mastcamz&hellip;</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">vid</div>
+                                    <div class="v num">1.0</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">bundle_id</div>
+                                    <div class="v">mars2020_mastcamz_ops_calibrated</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">product_type</div>
+                                    <div class="v">RZS</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">release_id</div>
+                                    <div class="v num">11</div>
+                                </div>
+                                <div class="grp">
+                                    <span>observation &amp; time</span><span>9</span>
+                                </div>
+                                <div class="r">
+                                    <div class="n">sol</div>
+                                    <div class="v num">1221</div>
+                                </div>
+                                <div class="r sel">
+                                    <div class="n">start_date_time</div>
+                                    <div class="v num">2024-07-27T08:13:07.872Z</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">stop_date_time</div>
+                                    <div class="v num">2024-07-27T08:13:08.541Z</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">local_true_solar_time</div>
+                                    <div class="v num">13:08:26</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">local_mean_solar_time</div>
+                                    <div class="v num">13:15:02</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">sequence_id</div>
+                                    <div class="v">ZCAM09271</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">spacecraft_clock_start</div>
+                                    <div class="v num">775339022.769</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">exposure_duration</div>
+                                    <div class="v num">0.669 s</div>
+                                </div>
+                                <div class="grp"><span>instrument</span><span>12</span></div>
+                                <div class="r">
+                                    <div class="n">instrument_id</div>
+                                    <div class="v">MCZ_RIGHT</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">instrument_host_id</div>
+                                    <div class="v">PERSEVERANCE</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">detector_lines</div>
+                                    <div class="v num">1200</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">detector_samples</div>
+                                    <div class="v num">1648</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">detector_temperature</div>
+                                    <div class="v num">&minus;9.13 &deg;C</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">focal_length</div>
+                                    <div class="v num">110.0 mm</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">f_number</div>
+                                    <div class="v num">9.5</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">filter_bandpass</div>
+                                    <div class="v" style="color: var(--grey500)">not in label</div>
+                                </div>
+                                <div class="grp"><span>target</span><span>4</span></div>
+                                <div class="r">
+                                    <div class="n">target_name</div>
+                                    <div class="v">MARS</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">target_type</div>
+                                    <div class="v">Planet</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">mission_phase_name</div>
+                                    <div class="v">Extended Surface Mission</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">landing_site</div>
+                                    <div class="v">Jezero Crater</div>
+                                </div>
+                            </div>
+                            <div class="tcol">
+                                <div class="grp">
+                                    <span>geometry &amp; lighting</span><span>11</span>
+                                </div>
+                                <div class="r">
+                                    <div class="n">site</div>
+                                    <div class="v num">56</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">drive</div>
+                                    <div class="v num">1010</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">site_instrument_azimuth</div>
+                                    <div class="v num">88.4651&deg;</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">site_instrument_elevation</div>
+                                    <div class="v num">&minus;13.6295&deg;</div>
+                                </div>
+                                <div class="r hit">
+                                    <div class="n">site_solar_elevation</div>
+                                    <div class="v num">46.5478&deg;</div>
+                                </div>
+                                <div class="r hit">
+                                    <div class="n">site_solar_azimuth</div>
+                                    <div class="v num">203.467&deg;</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">solar_longitude</div>
+                                    <div class="v num">300.815&deg;</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">rover_motion_counter</div>
+                                    <div class="v num">56, 1010, 0, 0</div>
+                                </div>
+                                <div class="grp"><span>processing</span><span>7</span></div>
+                                <div class="r">
+                                    <div class="n">processing_level</div>
+                                    <div class="v">Calibrated</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">radiometric_correction</div>
+                                    <div class="v">IOF</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">creation_date_time</div>
+                                    <div class="v num">2024-08-02T17:44:10Z</div>
+                                </div>
+                                <div class="grp"><span>files</span><span>3</span></div>
+                                <div class="r">
+                                    <div class="n">data_file</div>
+                                    <div class="v">
+                                        ZRF_1221_&hellip;_0630LMJ01.IMG &middot; 5.6 MB
+                                    </div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">label_file</div>
+                                    <div class="v">
+                                        ZRF_1221_&hellip;_0630LMJ01.xml &middot; 41 kB
+                                    </div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">browse_file</div>
+                                    <div class="v">
+                                        ZRF_1221_&hellip;_0630LMJ01.png &middot; 1.1 MB
+                                    </div>
+                                </div>
+                                <div class="grp"><span>template tokens</span><span>12</span></div>
+                                <div class="r">
+                                    <div class="n">{{sol}} {{ltst}} {{site}} {{drive}}</div>
+                                    <div class="v">resolved</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">{{filter_bandpass}}</div>
+                                    <div class="v" style="color: var(--orange)">absent</div>
+                                </div>
+                                <div class="grp"><span>sequence</span><span>5</span></div>
+                                <div class="r">
+                                    <div class="n">sequence_id</div>
+                                    <div class="v">ZCAM09271</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">sequence_frame</div>
+                                    <div class="v num">4 of 18</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">stereo_partner</div>
+                                    <div class="v">ZLF_1221_&hellip;_769RZS&hellip;IMG</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">raw_counterpart</div>
+                                    <div class="v">ZRF_1221_&hellip;_769ECM&hellip;IMG</div>
+                                </div>
+                                <div class="grp"><span>ml classification</span><span>3</span></div>
+                                <div class="r">
+                                    <div class="n">ml_label</div>
+                                    <div class="v">ground, rocks, sand</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">ml_confidence</div>
+                                    <div class="v num">0.94</div>
+                                </div>
+                                <div class="r">
+                                    <div class="n">ml_model_version</div>
+                                    <div class="v">m20-scene-v3</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="foot">
+                            <span><b>143</b> fields &middot; 6 matching &ldquo;sun_&rdquo;</span>
+                            <span
+                                >Selected <b>start_date_time</b> &middot;
+                                <span class="kbd">C</span> copies value,
+                                <span class="kbd">&#8679;C</span> copies name=value</span
+                            >
+                            <span class="grow"></span>
+                            <span
+                                >Caption template <b>mars_2020 / zcam / calibrated</b> &middot;
+                                <a>edit</a></span
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
