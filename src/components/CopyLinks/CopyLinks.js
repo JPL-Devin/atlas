@@ -138,7 +138,7 @@ const useStyles = makeStyles((theme) => ({
     },
     groupLabel: {
         padding: '6px 16px 2px 16px',
-        color: 'darkgoldenrod',
+        color: theme.palette.swatches.yellow.yellow700,
         fontSize: '10px',
         letterSpacing: '0.08em',
         lineHeight: '14px',
