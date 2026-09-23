@@ -7,7 +7,6 @@ import clsx from 'clsx'
 import { makeStyles } from '@mui/styles'
 
 import Button from '@mui/material/Button'
-import ButtonGroup from '@mui/material/ButtonGroup'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
@@ -38,34 +37,31 @@ const useStyles = makeStyles((theme) => ({
         marginRight: '4px',
         borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
-    group: {
+    button: {
+        'fontSize': '12px',
+        'lineHeight': '16px',
+        'minWidth': 0,
+        'padding': '4px 4px 4px 8px',
         'borderRadius': '2px',
-        '& .MuiButton-root': {
-            fontSize: '12px',
-            lineHeight: '16px',
-            minWidth: 0,
-            padding: '4px 8px',
-            borderRadius: '2px',
-            textTransform: 'none',
-            whiteSpace: 'nowrap',
-            color: theme.palette.swatches.grey.grey700,
-            background: theme.palette.swatches.grey.grey0,
-            borderColor: theme.palette.swatches.grey.grey300,
-            transition: 'background 0.15s ease-out, border-color 0.15s ease-out',
-        },
-        '& .MuiButton-root:hover': {
+        'textTransform': 'none',
+        'whiteSpace': 'nowrap',
+        'color': theme.palette.swatches.grey.grey700,
+        'background': theme.palette.swatches.grey.grey0,
+        'borderColor': theme.palette.swatches.grey.grey300,
+        'transition': 'background 0.15s ease-out, border-color 0.15s ease-out',
+        '&:hover': {
             borderColor: theme.palette.swatches.grey.grey500,
             background: theme.palette.swatches.grey.grey150,
         },
         '& .MuiButton-startIcon': {
             marginRight: '4px',
         },
+        '& .MuiButton-endIcon': {
+            marginLeft: '2px',
+        },
         '& .MuiSvgIcon-root': {
             fontSize: '16px',
         },
-    },
-    arrow: {
-        padding: '4px 2px !important',
     },
     popper: {
         zIndex: 3000,
@@ -80,9 +76,11 @@ const useStyles = makeStyles((theme) => ({
     menuli: {
         'display': 'flex',
         'justifyContent': 'space-between',
-        'alignItems': 'center',
+        'alignItems': 'stretch',
         'gap': '16px',
         'fontSize': '14px',
+        'minHeight': '36px',
+        'padding': '0 0 0 12px',
         'borderLeft': '4px solid rgba(0,0,0,0)',
         'transition': 'background 0.2s ease-out',
         '&:hover': {
@@ -109,24 +107,29 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '12px',
         whiteSpace: 'nowrap',
     },
-    // Per-asset open and download, kept clear of the copy click.
+    // Per-asset open and download: full-height cells split off by vertical rules.
     menuliActions: {
         display: 'flex',
         flexShrink: 0,
-        marginRight: '-8px',
+        alignSelf: 'stretch',
     },
     menuliAction: {
         'color': theme.palette.text.secondary,
-        'opacity': 0.6,
-        'padding': '4px',
+        'opacity': 0.75,
+        'borderRadius': 0,
+        'padding': '0 10px',
+        'borderLeft': `1px solid ${theme.palette.swatches.grey.grey600}`,
         'transition': 'opacity 0.2s ease-out, background 0.2s ease-out',
         '&:hover': {
             opacity: 1,
             background: theme.palette.swatches.grey.grey600,
         },
         '& .MuiSvgIcon-root': {
-            fontSize: '16px',
+            fontSize: '20px',
         },
+    },
+    menuliSpacer: {
+        width: '12px',
     },
     groupDivider: {
         margin: '6px 0px 0px',
@@ -147,7 +150,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 /**
- * The page's copy menu. Clicking the button copies the page link; the caret
+ * The page's copy menu. The page link is always the first item; `items`
  * lists everything else copyable here.
  *
  * items: [{
@@ -180,10 +183,15 @@ const CopyLinks = (props) => {
         dispatch(setSnackBarText(item.message || `Copied ${item.label} to clipboard!`, 'success'))
     }
 
-    const copyPageLink = () => {
-        copyToClipboard(window.location.href)
-        dispatch(setSnackBarText('Copied URL to clipboard!', 'success'))
-    }
+    const menuItems = [
+        {
+            key: 'page',
+            label: 'Page Link',
+            value: () => window.location.href,
+            message: 'Copied URL to clipboard!',
+        },
+        ...items,
+    ]
 
     const handleClose = (event) => {
         if (anchorEl && anchorEl.contains(event.target)) {
@@ -196,66 +204,58 @@ const CopyLinks = (props) => {
         if (!open) {
             return
         }
-        if (event.key === 'Escape' || event.key === 'Tab') {
+        if (event.key === 'Escape') {
             event.preventDefault()
             setOpen(false)
             anchorEl?.focus()
         }
     }
 
+    // Tab moves natively (into an item's Open/Download); close once focus leaves the menu.
+    const handleMenuBlur = (event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+            setOpen(false)
+        }
+    }
+
     return (
         <div className={clsx(c.CopyLinks, className)}>
-            <ButtonGroup
-                className={c.group}
-                onKeyDown={handleKeyDown}
+            <Button
+                className={c.button}
                 variant="outlined"
                 color="secondary"
                 size="small"
+                aria-controls={open ? 'copy-links-menu' : undefined}
+                aria-expanded={open ? 'true' : undefined}
                 aria-label={ariaLabel || 'copy links'}
+                aria-haspopup="menu"
+                startIcon={<LinkIcon fontSize="small" />}
+                endIcon={<ArrowDropDownIcon />}
+                onClick={() => setOpen((prev) => !prev)}
+                onKeyDown={(e) => {
+                    handleKeyDown(e)
+                    if (e.key === 'ArrowDown' && !open) {
+                        e.preventDefault()
+                        setOpen(true)
+                    }
+                }}
+                ref={setAnchorEl}
             >
-                <Tooltip title="Copy link to this page" arrow>
-                    <Button
-                        aria-label="copy page link"
-                        startIcon={<LinkIcon fontSize="small" />}
-                        onClick={copyPageLink}
-                    >
-                        Copy
-                    </Button>
-                </Tooltip>
-                {items.length > 0 && (
-                    <Button
-                        className={c.arrow}
-                        aria-controls={open ? 'copy-links-menu' : undefined}
-                        aria-expanded={open ? 'true' : undefined}
-                        aria-label="copy links options"
-                        aria-haspopup="menu"
-                        onClick={() => setOpen((prev) => !prev)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'ArrowDown' && !open) {
-                                e.preventDefault()
-                                setOpen(true)
-                            }
-                        }}
-                        ref={setAnchorEl}
-                    >
-                        <ArrowDropDownIcon />
-                    </Button>
-                )}
-            </ButtonGroup>
+                Copy Links
+            </Button>
             <Popper
                 className={c.popper}
                 open={open}
                 anchorEl={anchorEl}
-                placement="bottom-start"
+                placement="bottom-end"
                 transition
-                disablePortal
             >
                 {({ TransitionProps, placement }) => (
                     <Grow
                         {...TransitionProps}
                         style={{
                             transformOrigin:
-                                placement === 'bottom-start' ? 'left top' : 'left bottom',
+                                placement === 'bottom-end' ? 'right top' : 'right bottom',
                         }}
                     >
                         <Paper>
@@ -265,9 +265,10 @@ const CopyLinks = (props) => {
                                     className={c.menu}
                                     autoFocusItem={open}
                                     onKeyDown={handleKeyDown}
+                                    onBlur={handleMenuBlur}
                                     dense
                                 >
-                                    {items.flatMap((item, index) => [
+                                    {menuItems.flatMap((item, index) => [
                                         // MenuList's autofocus/arrow-key logic only sees direct
                                         // children, so headers are flat, non-focusable siblings.
                                         item.groupLabel != null && index > 0 && (
@@ -306,7 +307,9 @@ const CopyLinks = (props) => {
                                                     </div>
                                                 )}
                                             </div>
-                                            {item.url != null && (
+                                            {item.url == null ? (
+                                                <div className={c.menuliSpacer} />
+                                            ) : (
                                                 <div className={c.menuliActions}>
                                                     <Tooltip title="Open in new tab" arrow>
                                                         <IconButton
