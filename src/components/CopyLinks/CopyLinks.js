@@ -138,8 +138,7 @@ const useStyles = makeStyles((theme) => ({
     },
     groupLabel: {
         padding: '6px 16px 2px 16px',
-        color: theme.palette.text.secondary,
-        opacity: 0.6,
+        color: 'darkgoldenrod',
         fontSize: '10px',
         letterSpacing: '0.08em',
         lineHeight: '14px',
@@ -186,6 +185,7 @@ const CopyLinks = (props) => {
     const menuItems = [
         {
             key: 'page',
+            groupLabel: 'Main',
             label: 'Page Link',
             value: () => window.location.href,
             message: 'Copied URL to clipboard!',
