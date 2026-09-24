@@ -34,7 +34,12 @@ export const getDownloadProducts = (recordData) => {
     if (ml_classification_related.label)
         related.ml_classifier_label = ml_classification_related.label
 
-    return sortRelatedKeys(Object.keys(related)).map((key) => {
+    // A related entry with no uri (e.g. a missing browse) has nothing to download.
+    const keys = sortRelatedKeys(Object.keys(related)).filter(
+        (key) => key === 'src' || related[key]?.uri
+    )
+
+    return keys.map((key) => {
         const uri = key === 'src' ? getIn(recordData, ES_PATHS.source) : related[key].uri
         // The source product carries its size on the archive entry, not in `related`.
         const bytes = key === 'src' ? getIn(recordData, ES_PATHS.archive.size) : related[key].size
