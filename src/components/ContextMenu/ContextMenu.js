@@ -290,6 +290,7 @@ const ContextMenu = (props) => {
             open={open}
             onClose={onClose}
             anchorReference="anchorPosition"
+            disableEnforceFocus
             anchorPosition={
                 open ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined
             }

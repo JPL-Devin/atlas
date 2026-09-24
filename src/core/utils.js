@@ -302,6 +302,14 @@ export const stringToRGB = function (str) {
  * @credit https://hackernoon.com/copying-text-to-clipboard-with-javascript-df4d4988697f
  */
 export const copyToClipboard = function (text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).catch(() => copyToClipboardLegacy(text))
+        return
+    }
+    copyToClipboardLegacy(text)
+}
+
+const copyToClipboardLegacy = function (text) {
     const el = document.createElement('textarea') // Create a <textarea> element
     el.value = text // Set its value to the string that you want copied
     el.setAttribute('readonly', '') // Make it readonly to be tamper-proof
