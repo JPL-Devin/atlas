@@ -156,6 +156,20 @@ export const IMAGE_EXTENSIONS = [
     'svg',
 ]
 export const MODEL_EXTENSIONS = ['obj', 'dae']
+export const TEXT_PREVIEW_EXTENSIONS = ['csv', 'tab', 'txt']
+export const DOCUMENT_PREVIEW_EXTENSIONS = ['pdf']
+export const VIDEO_PREVIEW_EXTENSIONS = ['mp4']
+export const AUDIO_PREVIEW_EXTENSIONS = ['wav']
+export const PREVIEWABLE_EXTENSIONS = [
+    ...IMAGE_EXTENSIONS,
+    'obj',
+    ...TEXT_PREVIEW_EXTENSIONS,
+    ...DOCUMENT_PREVIEW_EXTENSIONS,
+    ...VIDEO_PREVIEW_EXTENSIONS,
+    ...AUDIO_PREVIEW_EXTENSIONS,
+]
+// Text products larger than this show a size notice instead of being fetched
+export const MAX_TEXT_PREVIEW_BYTES = 4 * 1024 * 1024
 
 export const MISSIONS_TO_BODIES = {
     cassini: {
