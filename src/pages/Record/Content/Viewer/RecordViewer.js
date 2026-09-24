@@ -325,6 +325,7 @@ const useTextPreview = (url) => {
                 throw new Error(`HTTP ${res.status}`)
             }
             if (Number(res.headers.get('content-length')) > MAX_TEXT_PREVIEW_BYTES) {
+                await res.body?.cancel()
                 return null
             }
             const reader = res.body.getReader()
@@ -593,6 +594,7 @@ const RecordViewer = (props) => {
                             if (next != null) {
                                 setAsset(next)
                                 setViewerFailed(false)
+                                setPlaying(false)
                             }
                         }}
                     >
@@ -709,14 +711,14 @@ const RecordViewer = (props) => {
                         ) : isVideoPreview ? (
                             <div className={c.mediaBody}>
                                 {/* eslint-disable-next-line jsx-a11y/media-has-caption -- archive products ship no caption tracks */}
-                                <video className={c.video} {...mediaEvents}>
+                                <video key={sourceURL} className={c.video} {...mediaEvents}>
                                     <source src={sourceURL} type="video/mp4" />
                                 </video>
                             </div>
                         ) : isAudioPreview ? (
                             <div className={c.mediaBody}>
                                 {/* eslint-disable-next-line jsx-a11y/media-has-caption -- archive products ship no caption tracks */}
-                                <audio className={c.audio} {...mediaEvents}>
+                                <audio key={sourceURL} className={c.audio} {...mediaEvents}>
                                     <source src={sourceURL} type="audio/wav" />
                                 </audio>
                             </div>
