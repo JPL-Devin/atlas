@@ -212,7 +212,8 @@ const useTextPreview = (url) => {
                     throw new Error(`HTTP ${res.status}`)
                 }
                 const text = typeof res.data === 'string' ? res.data : String(res.data ?? '')
-                if (text.length > MAX_TEXT_PREVIEW_BYTES) {
+                // Browsers don't enforce maxContentLength, so measure bytes, not chars.
+                if (new Blob([text]).size > MAX_TEXT_PREVIEW_BYTES) {
                     settle('too_large', null)
                 } else {
                     settle('ready', text)
