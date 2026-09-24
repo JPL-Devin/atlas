@@ -120,6 +120,18 @@ const useStyles = makeStyles((theme) => ({
             fontSize: '18px',
         },
     },
+    // Theme tooltips are grey800, the same as the menu, so invert them here.
+    tooltipPopper: {
+        zIndex: 3100,
+    },
+    tooltip: {
+        background: theme.palette.swatches.grey.grey100,
+        color: theme.palette.swatches.grey.grey900,
+        fontSize: '12px',
+    },
+    tooltipArrow: {
+        color: theme.palette.swatches.grey.grey100,
+    },
     groupDivider: {
         margin: '6px 0px 0px',
         borderTop: `1px solid ${theme.palette.swatches.grey.grey600}`,
@@ -160,6 +172,8 @@ const CopyLinks = (props) => {
 
     const [open, setOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
+
+    const tooltipClasses = { popper: c.tooltipPopper, tooltip: c.tooltip, arrow: c.tooltipArrow }
 
     const copyItem = (item) => {
         if (typeof item.onCopy === 'function') {
@@ -296,7 +310,11 @@ const CopyLinks = (props) => {
                                                 )}
                                             </div>
                                             <div className={c.menuliActions}>
-                                                <Tooltip title="Copy" arrow>
+                                                <Tooltip
+                                                    title="Copy"
+                                                    arrow
+                                                    classes={tooltipClasses}
+                                                >
                                                     <IconButton
                                                         className={c.menuliAction}
                                                         aria-label={`copy ${item.label} button`}
@@ -312,7 +330,11 @@ const CopyLinks = (props) => {
                                                     </IconButton>
                                                 </Tooltip>
                                                 {item.url != null && (
-                                                    <Tooltip title="Open in new tab" arrow>
+                                                    <Tooltip
+                                                        title="Open in new tab"
+                                                        arrow
+                                                        classes={tooltipClasses}
+                                                    >
                                                         <IconButton
                                                             className={c.menuliAction}
                                                             aria-label={`open ${item.label}`}
@@ -328,7 +350,11 @@ const CopyLinks = (props) => {
                                                     </Tooltip>
                                                 )}
                                                 {item.url != null && (
-                                                    <Tooltip title="Download" arrow>
+                                                    <Tooltip
+                                                        title="Download"
+                                                        arrow
+                                                        classes={tooltipClasses}
+                                                    >
                                                         <IconButton
                                                             className={c.menuliAction}
                                                             aria-label={`download ${item.label}`}
