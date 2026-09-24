@@ -23,8 +23,8 @@ const useStyles = makeStyles((theme) => ({
     paper: {
         background: theme.palette.swatches.grey.grey800,
         color: theme.palette.text.secondary,
-        minWidth: '170px',
-        maxWidth: '370px',
+        minWidth: '120px',
+        maxWidth: '320px',
     },
     title: {
         'fontSize': '13px',
@@ -225,6 +225,23 @@ const ContextMenu = (props) => {
             onContextMenu={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
+                // Right-click outside the paper: close and forward to whatever is underneath
+                if (e.target.closest('.MuiPaper-root')) return
+                const root = e.currentTarget
+                root.style.pointerEvents = 'none'
+                const under = document.elementFromPoint(e.clientX, e.clientY)
+                root.style.pointerEvents = ''
+                onClose()
+                if (under)
+                    under.dispatchEvent(
+                        new MouseEvent('contextmenu', {
+                            bubbles: true,
+                            cancelable: true,
+                            clientX: e.clientX,
+                            clientY: e.clientY,
+                            button: 2,
+                        })
+                    )
             }}
         >
             {title != null ? (
