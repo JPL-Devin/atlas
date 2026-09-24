@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import axios from 'axios'
 
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
@@ -208,43 +207,49 @@ const useTextPreview = (url) => {
     const [state, setState] = useState({ url: null, status: 'loading', text: null })
 
     useEffect(() => {
-        if (url == null) return
-        let cancelled = false
+        if (url == null) {
+            return
+        }
+        const controller = new AbortController()
         const settle = (status, text) => {
-            if (!cancelled) setState({ url, status, text })
+            if (!controller.signal.aborted) {
+                setState({ url, status, text })
+            }
         }
 
-        axios
-            .get(url, {
-                ...getHeader(),
-                responseType: 'text',
-                transformResponse: [(data) => data],
-                // The index can lack a size, so cap the body itself as well.
-                maxContentLength: MAX_TEXT_PREVIEW_BYTES,
-            })
-            .then((res) => {
-                if (res.status < 200 || res.status >= 300) {
-                    throw new Error(`HTTP ${res.status}`)
+        // Streamed so an oversized body is aborted after the cap, not buffered whole.
+        const readCapped = async () => {
+            const res = await fetch(url, { ...getHeader(), signal: controller.signal })
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`)
+            }
+            if (Number(res.headers.get('content-length')) > MAX_TEXT_PREVIEW_BYTES) {
+                return null
+            }
+            const reader = res.body.getReader()
+            const decoder = new TextDecoder()
+            let bytes = 0
+            let text = ''
+            for (;;) {
+                const { done, value } = await reader.read()
+                if (done) {
+                    break
                 }
-                const text = typeof res.data === 'string' ? res.data : String(res.data ?? '')
-                // Browsers don't enforce maxContentLength, so measure bytes, not chars.
-                if (new Blob([text]).size > MAX_TEXT_PREVIEW_BYTES) {
-                    settle('too_large', null)
-                } else {
-                    settle('ready', text)
+                bytes += value.byteLength
+                if (bytes > MAX_TEXT_PREVIEW_BYTES) {
+                    await reader.cancel()
+                    return null
                 }
-            })
-            .catch((err) => {
-                const tooLarge =
-                    err != null &&
-                    (err.code === 'ERR_BAD_RESPONSE' ||
-                        /maxContentLength/i.test(String(err.message || '')))
-                settle(tooLarge ? 'too_large' : 'error', null)
-            })
-
-        return () => {
-            cancelled = true
+                text += decoder.decode(value, { stream: true })
+            }
+            return text + decoder.decode()
         }
+
+        readCapped()
+            .then((text) => settle(text == null ? 'too_large' : 'ready', text))
+            .catch(() => settle('error', null))
+
+        return () => controller.abort()
     }, [url])
 
     // A stale result for the previous url reads as loading for this one.
@@ -397,7 +402,9 @@ const RecordViewer = (props) => {
     const notice = textTooLarge ? TOO_LARGE_NOTICE : textNotice || emptyState
 
     // Stacked, an empty state would only push the panel down.
-    if (isNarrow && !hasViewable && !isLoading) return null
+    if (isNarrow && !hasViewable && !isLoading) {
+        return null
+    }
 
     return (
         <div className={c.RecordViewer}>
