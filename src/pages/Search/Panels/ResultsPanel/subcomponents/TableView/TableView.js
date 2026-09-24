@@ -40,6 +40,7 @@ import BrowseImage from '../../../../../../components/BrowseImage/BrowseImage.js
 import ContextMenu, {
     useContextMenu,
     buildRecordMenuItems,
+    recordCartItem,
     recordClickHandlers,
 } from '../../../../../../components/ContextMenu/ContextMenu'
 
@@ -332,6 +333,7 @@ const TableView = (props) => {
                         labelUri: getIn(s, ES_PATHS.label),
                         browseUri: getIn(s, ES_PATHS.browse),
                         releaseId: getIn(s, ES_PATHS.release_id),
+                        cartItem: recordCartItem(s),
                         dispatch,
                     })}
                 />

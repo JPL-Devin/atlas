@@ -885,6 +885,15 @@ const Preview = (props) => {
                             browseUri: browseUri,
                             releaseId: release_id != null ? release_id : getIn(preview, ES_PATHS.release_id),
                             dispatch,
+                            cartItem: {
+                                type: 'file',
+                                item: {
+                                    uri: preview.uri,
+                                    related: related,
+                                    size: preview.size,
+                                    release_id: getIn(preview, ES_PATHS.release_id),
+                                },
+                            },
                         })}
                     />
                     {imageUrl != 'null' && hasBrowse !== false ? (

@@ -13,11 +13,27 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import GetAppIcon from '@mui/icons-material/GetApp'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 
-import { HASH_PATHS } from '../../core/constants'
-import { getPDSUrl, getFilename, copyToClipboard } from '../../core/utils'
+import { HASH_PATHS, ES_PATHS } from '../../core/constants'
+import { getIn, getPDSUrl, getFilename, copyToClipboard } from '../../core/utils'
 import { getPublicUrl } from '../../core/runtimeConfig'
 import { streamDownloadFile } from '../../core/downloaders/ZipStream.js'
-import { setSnackBarText } from '../../core/redux/actions/actions'
+import { addToCart, setSnackBarText } from '../../core/redux/actions/actions'
+
+// Cart payload for a search record `_source`, mirroring ProductToolbar's add-to-cart
+export const recordCartItem = (s) => {
+    const related = { ...(getIn(s, ES_PATHS.related) || {}) }
+    related.src = { ...(related.src || {}) }
+    related.src.size = getIn(s, ES_PATHS.archive.size)
+    related.src.uri = getIn(s, ES_PATHS.uri)
+    return {
+        type: 'image',
+        item: {
+            uri: getIn(s, ES_PATHS.source),
+            related,
+            release_id: getIn(s, ES_PATHS.release_id),
+        },
+    }
+}
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -110,6 +126,7 @@ export const recordClickHandlers = (uri, navigate, extraParams) => {
  * @param {string|number} opts.releaseId
  * @param {Function} opts.dispatch redux dispatch
  * @param {boolean} opts.openInNewTab include "Open in new tab" (default true)
+ * @param {{type: string, item: Object}} opts.cartItem adds "Add to Cart" when provided
  */
 export const buildRecordMenuItems = ({
     filename,
@@ -121,6 +138,7 @@ export const buildRecordMenuItems = ({
     openInNewTab = true,
     recordUri = sourceUri,
     sourceReleaseId = releaseId,
+    cartItem,
 }) => {
     const name = filename || getFilename(sourceUri)
     const copy = (text, what) => () => {
@@ -176,8 +194,19 @@ export const buildRecordMenuItems = ({
             onClick: download(sourceUri, sourceReleaseId),
         })}
 
+    const cartItems = []
+    if (cartItem)
+        {cartItems.push({
+            label: 'Add to Cart',
+            icon: 'cart',
+            onClick: () => {
+                dispatch(addToCart(cartItem.type, cartItem.item))
+                dispatch(setSnackBarText('Added to Cart!', 'success'))
+            },
+        })}
+
     const items = []
-    ;[copyItems, openItems, downloadItems].forEach((group) => {
+    ;[copyItems, openItems, downloadItems, cartItems].forEach((group) => {
         if (group.length === 0) {return}
         if (items.length > 0) {items.push('-')}
         items.push(...group)

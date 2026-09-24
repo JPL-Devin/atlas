@@ -36,6 +36,7 @@ import ProductIcons from '../../../../../../components/ProductIcons/ProductIcons
 import ContextMenu, {
     useContextMenu,
     buildRecordMenuItems,
+    recordCartItem,
     recordClickHandlers,
 } from '../../../../../../components/ContextMenu/ContextMenu'
 
@@ -367,6 +368,7 @@ const GridCard = ({ index, data, width }) => {
                     labelUri: getIn(s, ES_PATHS.label),
                     browseUri: getIn(s, ES_PATHS.browse),
                     releaseId: release_id,
+                    cartItem: recordCartItem(s),
                     dispatch,
                 })}
             />
