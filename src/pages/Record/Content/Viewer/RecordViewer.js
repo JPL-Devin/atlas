@@ -286,6 +286,8 @@ const TOO_LARGE_NOTICE = {
     title: 'This file is too large to preview inline.',
     body: 'Download the product to view its full contents.',
 }
+const AUDIO_MIME_TYPES = { wav: 'audio/wav', m4a: 'audio/mp4' }
+
 const FETCH_FAILED_NOTICE = {
     title: 'Preview unavailable',
     body: 'The file could not be loaded for inline preview.',
@@ -663,7 +665,7 @@ const RecordViewer = (props) => {
                             <div className={c.mediaBody}>
                                 {/* eslint-disable-next-line jsx-a11y/media-has-caption -- archive products ship no caption tracks */}
                                 <audio className={c.audio} {...mediaProps}>
-                                    <source src={sourceURL} type="audio/wav" />
+                                    <source src={sourceURL} type={AUDIO_MIME_TYPES[sourceType]} />
                                 </audio>
                             </div>
                         ) : type === 'obj' ? (

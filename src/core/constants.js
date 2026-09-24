@@ -159,7 +159,7 @@ export const MODEL_EXTENSIONS = ['obj', 'dae']
 export const TEXT_PREVIEW_EXTENSIONS = ['csv', 'tab', 'txt']
 export const DOCUMENT_PREVIEW_EXTENSIONS = ['pdf']
 export const VIDEO_PREVIEW_EXTENSIONS = ['mp4']
-export const AUDIO_PREVIEW_EXTENSIONS = ['wav']
+export const AUDIO_PREVIEW_EXTENSIONS = ['wav', 'm4a']
 export const PREVIEWABLE_EXTENSIONS = [
     ...IMAGE_EXTENSIONS,
     'obj',
