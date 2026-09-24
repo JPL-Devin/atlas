@@ -33,6 +33,13 @@ import { getIn, getPDSUrl, getExtension } from '../../../../../../core/utils.js'
 
 import ProductToolbar from '../../../../../../components/ProductToolbar/ProductToolbar'
 import ProductIcons from '../../../../../../components/ProductIcons/ProductIcons'
+import ContextMenu, {
+    useContextMenu,
+    buildRecordMenuItems,
+    recordCartItem,
+    useCartIndex,
+    recordClickHandlers,
+} from '../../../../../../components/ContextMenu/ContextMenu'
 
 const gridItemGap = 10
 
@@ -280,7 +287,10 @@ const GridCard = ({ index, data, width }) => {
     const c = useStyles()
 
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     const s = data._source
+    const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
+    const cartIndex = useCartIndex(getIn(s, ES_PATHS.source))
 
     const gridItemHeight = useSelector((state) => state.getIn(['gridSize'])) || 170
 
@@ -313,9 +323,8 @@ const GridCard = ({ index, data, width }) => {
                 minHeight: `${gridItemHeight}px`,
                 maxHeight: `${gridItemHeight}px`,
             }}
-            onClick={() => {
-                navigate(`${HASH_PATHS.record}?uri=${getIn(s, ES_PATHS.source)}`)
-            }}
+            {...recordClickHandlers(getIn(s, ES_PATHS.source), navigate)}
+            onContextMenu={openContextMenu}
             onMouseEnter={() => {
                 sASet(sAKeys.HOVERED_RESULT, data)
             }}
@@ -351,6 +360,21 @@ const GridCard = ({ index, data, width }) => {
                 <div className={c.hasML}>ML</div>
             ) : null}
             <div className={`${c.selectionIndicator} selectionIndicator`}></div>
+            <ContextMenu
+                contextMenu={contextMenu}
+                onClose={closeContextMenu}
+                title={fileName}
+                items={buildRecordMenuItems({
+                    filename: fileName,
+                    sourceUri: getIn(s, ES_PATHS.source),
+                    labelUri: getIn(s, ES_PATHS.label),
+                    browseUri: getIn(s, ES_PATHS.browse),
+                    releaseId: release_id,
+                    cartItem: recordCartItem(s),
+                    cartIndex,
+                    dispatch,
+                })}
+            />
         </div>
     )
 }

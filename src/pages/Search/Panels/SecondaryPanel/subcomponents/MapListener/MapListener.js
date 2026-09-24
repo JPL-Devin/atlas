@@ -10,6 +10,10 @@ import {
 } from '../../../../../../core/redux/actions/subscribableActions.js'
 import { HASH_PATHS, ES_PATHS, AVAILABLE_URI_SIZES } from '../../../../../../core/constants'
 import { getIn, getPDSUrl } from '../../../../../../core/utils'
+import {
+    isNewTabClick,
+    openRecordInNewTab,
+} from '../../../../../../components/ContextMenu/ContextMenu'
 
 // Kind of ugly but works
 // CartoCosmos MapContainer looks at this too
@@ -85,6 +89,7 @@ const MapListener = (props) => {
                         const lat = pos[1]
                         const marker = L.marker([lat, lng], { icon: icon })
                             .on('click', handleClick)
+                            .on('add', bindMiddleClick)
                             .on('mouseover', handleHover)
                             .on('mouseout', handleLeave)
                         marker.data = r
@@ -150,6 +155,7 @@ const MapListener = (props) => {
                         handleLeave()
                     })
                     layer.on('click', handleClick)
+                    layer.on('add', bindMiddleClick)
                 },
             }
 
@@ -233,12 +239,33 @@ const MapListener = (props) => {
         }
     }
 
+    // Leaflet only emits 'click'; middle-clicks arrive as DOM 'auxclick' on the layer element
+    const bindMiddleClick = (e) => {
+        const layer = e.target
+        const el = layer.getElement && layer.getElement()
+        if (!el || el._atlasAuxBound) return
+        el._atlasAuxBound = true
+        el.addEventListener('auxclick', (ev) => {
+            if (ev.button !== 1) return
+            ev.preventDefault()
+            const s = layer.data
+                ? getIn(layer, 'data._source')
+                : getIn(layer, 'feature.properties')
+            openRecordInNewTab(getIn(s, ES_PATHS.source))
+        })
+    }
+
     const handleClick = (e) => {
         const s = e.target.data
             ? getIn(e.target, 'data._source')
             : getIn(e.target, 'feature.properties')
+        const uri = getIn(s, ES_PATHS.source)
+        if (isNewTabClick(e.originalEvent)) {
+            openRecordInNewTab(uri)
+            return
+        }
         setTimeout(() => {
-            navigate(`${HASH_PATHS.record}?uri=${getIn(s, ES_PATHS.source)}`)
+            navigate(`${HASH_PATHS.record}?uri=${uri}`)
         }, 200)
     }
     const handleHover = (e) => {
