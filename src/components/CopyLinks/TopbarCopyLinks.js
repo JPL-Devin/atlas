@@ -38,7 +38,7 @@ const TopbarCopyLinks = () => {
         default:
     }
 
-    return <CopyLinks ariaLabel="copy links" items={items} />
+    return <CopyLinks ariaLabel="quick links" items={items} />
 }
 
 export default TopbarCopyLinks

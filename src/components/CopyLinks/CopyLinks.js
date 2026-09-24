@@ -76,11 +76,11 @@ const useStyles = makeStyles((theme) => ({
     menuli: {
         'display': 'flex',
         'justifyContent': 'space-between',
-        'alignItems': 'stretch',
+        'alignItems': 'center',
         'gap': '16px',
         'fontSize': '14px',
         'minHeight': '36px',
-        'padding': '0 0 0 12px',
+        'padding': '0 6px 0 12px',
         'borderLeft': '4px solid rgba(0,0,0,0)',
         'transition': 'background 0.2s ease-out',
         '&:hover': {
@@ -93,11 +93,6 @@ const useStyles = makeStyles((theme) => ({
         gap: '8px',
         minWidth: 0,
     },
-    menuliIcon: {
-        fontSize: '15px',
-        opacity: 0.6,
-        flexShrink: 0,
-    },
     menuName: {
         lineHeight: '27px',
         whiteSpace: 'nowrap',
@@ -107,29 +102,23 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '12px',
         whiteSpace: 'nowrap',
     },
-    // Per-asset open and download: full-height cells split off by vertical rules.
     menuliActions: {
         display: 'flex',
         flexShrink: 0,
-        alignSelf: 'stretch',
+        gap: '2px',
     },
     menuliAction: {
         'color': theme.palette.text.secondary,
-        'opacity': 0.75,
-        'borderRadius': 0,
-        'padding': '0 10px',
-        'borderLeft': `1px solid ${theme.palette.swatches.grey.grey600}`,
+        'opacity': 0.7,
+        'padding': '5px',
         'transition': 'opacity 0.2s ease-out, background 0.2s ease-out',
         '&:hover': {
             opacity: 1,
             background: theme.palette.swatches.grey.grey600,
         },
         '& .MuiSvgIcon-root': {
-            fontSize: '20px',
+            fontSize: '18px',
         },
-    },
-    menuliSpacer: {
-        width: '12px',
     },
     groupDivider: {
         margin: '6px 0px 0px',
@@ -225,9 +214,9 @@ const CopyLinks = (props) => {
                 variant="outlined"
                 color="secondary"
                 size="small"
-                aria-controls={open ? 'copy-links-menu' : undefined}
+                aria-controls={open ? 'quick-links-menu' : undefined}
                 aria-expanded={open ? 'true' : undefined}
-                aria-label={ariaLabel || 'copy links'}
+                aria-label={ariaLabel || 'quick links'}
                 aria-haspopup="menu"
                 startIcon={<LinkIcon fontSize="small" />}
                 endIcon={<ArrowDropDownIcon />}
@@ -241,7 +230,7 @@ const CopyLinks = (props) => {
                 }}
                 ref={setAnchorEl}
             >
-                Copy Links
+                Quick Links
             </Button>
             <Popper
                 className={c.popper}
@@ -261,7 +250,7 @@ const CopyLinks = (props) => {
                         <Paper>
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList
-                                    id="copy-links-menu"
+                                    id="quick-links-menu"
                                     className={c.menu}
                                     autoFocusItem={open}
                                     onKeyDown={handleKeyDown}
@@ -299,7 +288,6 @@ const CopyLinks = (props) => {
                                             }}
                                         >
                                             <div className={c.menuliLeft}>
-                                                <ContentCopyIcon className={c.menuliIcon} />
                                                 <div className={c.menuName}>{item.label}</div>
                                                 {item.subname != null && (
                                                     <div className={c.menuSubname}>
@@ -307,10 +295,23 @@ const CopyLinks = (props) => {
                                                     </div>
                                                 )}
                                             </div>
-                                            {item.url == null ? (
-                                                <div className={c.menuliSpacer} />
-                                            ) : (
-                                                <div className={c.menuliActions}>
+                                            <div className={c.menuliActions}>
+                                                <Tooltip title="Copy" arrow>
+                                                    <IconButton
+                                                        className={c.menuliAction}
+                                                        aria-label={`copy ${item.label} button`}
+                                                        size="small"
+                                                        tabIndex={-1}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            copyItem(item)
+                                                            setOpen(false)
+                                                        }}
+                                                    >
+                                                        <ContentCopyIcon />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                {item.url != null && (
                                                     <Tooltip title="Open in new tab" arrow>
                                                         <IconButton
                                                             className={c.menuliAction}
@@ -325,6 +326,8 @@ const CopyLinks = (props) => {
                                                             <OpenInNewIcon />
                                                         </IconButton>
                                                     </Tooltip>
+                                                )}
+                                                {item.url != null && (
                                                     <Tooltip title="Download" arrow>
                                                         <IconButton
                                                             className={c.menuliAction}
@@ -343,8 +346,8 @@ const CopyLinks = (props) => {
                                                             <GetAppIcon />
                                                         </IconButton>
                                                     </Tooltip>
-                                                </div>
-                                            )}
+                                                )}
+                                            </div>
                                         </MenuItem>,
                                     ])}
                                 </MenuList>
