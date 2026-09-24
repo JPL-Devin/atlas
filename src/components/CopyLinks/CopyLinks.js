@@ -31,9 +31,9 @@ const useStyles = makeStyles((theme) => ({
     CopyLinks: {
         display: 'flex',
         alignItems: 'center',
-        alignSelf: 'stretch',
+        alignSelf: 'center',
         flexShrink: 0,
-        padding: '0 12px',
+        padding: '6px 12px',
         marginRight: '4px',
         borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
