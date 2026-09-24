@@ -29,10 +29,9 @@ const useStyles = makeStyles((theme) => ({
     title: {
         'fontSize': '13px',
         'fontWeight': 'bold',
-        'color': theme.palette.swatches.grey.grey300,
-        'whiteSpace': 'nowrap',
-        'overflow': 'hidden',
-        'textOverflow': 'ellipsis',
+        'color': theme.palette.swatches.yellow.yellow700,
+        'whiteSpace': 'normal',
+        'overflowWrap': 'anywhere',
         'display': 'block',
         'opacity': '1 !important',
         'cursor': 'default',
@@ -120,14 +119,16 @@ export const buildRecordMenuItems = ({
     releaseId,
     dispatch,
     openInNewTab = true,
+    recordUri = sourceUri,
+    sourceReleaseId = releaseId,
 }) => {
     const name = filename || getFilename(sourceUri)
     const copy = (text, what) => () => {
         copyToClipboard(text)
         dispatch(setSnackBarText(`Copied ${what} to clipboard!`, 'success'))
     }
-    const download = (uri) => () => {
-        streamDownloadFile(getPDSUrl(uri, releaseId), getFilename(uri))
+    const download = (uri, rid = releaseId) => () => {
+        streamDownloadFile(getPDSUrl(uri, rid), getFilename(uri))
     }
 
     const copyItems = []
@@ -148,15 +149,15 @@ export const buildRecordMenuItems = ({
         {copyItems.push({
             label: 'Copy source URL',
             icon: 'copy',
-            onClick: copy(getPDSUrl(sourceUri, releaseId), 'source URL'),
+            onClick: copy(getPDSUrl(sourceUri, sourceReleaseId), 'source URL'),
         })}
 
     const openItems = []
-    if (openInNewTab && sourceUri)
+    if (openInNewTab && recordUri)
         {openItems.push({
             label: 'Open in new tab',
             icon: 'open',
-            onClick: () => openRecordInNewTab(sourceUri),
+            onClick: () => openRecordInNewTab(recordUri),
         })}
 
     const downloadItems = []
@@ -172,7 +173,7 @@ export const buildRecordMenuItems = ({
         {downloadItems.push({
             label: 'Download source',
             icon: 'download',
-            onClick: download(sourceUri),
+            onClick: download(sourceUri, sourceReleaseId),
         })}
 
     const items = []

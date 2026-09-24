@@ -879,6 +879,8 @@ const Preview = (props) => {
                         title={getFilename(preview.uri)}
                         items={buildRecordMenuItems({
                             sourceUri: preview.uri,
+                            sourceReleaseId: getIn(preview, ES_PATHS.release_id),
+                            recordUri: related ? related.uri : null,
                             labelUri: getIn(related, 'gather.pds_archive.related.label.uri'),
                             browseUri: browseUri,
                             releaseId: release_id != null ? release_id : getIn(preview, ES_PATHS.release_id),
