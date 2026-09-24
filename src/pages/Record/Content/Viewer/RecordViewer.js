@@ -25,7 +25,22 @@ import OpenSeadragonViewer from '../../../../components/OpenSeadragonViewer/Open
 import ThreeViewer from '../../../../components/ThreeViewer/ThreeViewer'
 import ViewerLoading from '../../../../components/ViewerLoading/ViewerLoading'
 
+const columnColors = (theme) => [
+    theme.palette.swatches.grey.grey150,
+    theme.palette.swatches.blue.blue300,
+    theme.palette.swatches.green.green200,
+    theme.palette.swatches.yellow.yellow500,
+    theme.palette.swatches.orange.orange600,
+    theme.palette.swatches.purple.purple400,
+    theme.palette.swatches.lightblue.lightblue700,
+    theme.palette.swatches.red.red400,
+]
+
 const useStyles = makeStyles((theme) => ({
+    ...Object.fromEntries(columnColors(theme).map((color, i) => [`col${i}`, { color }])),
+    delimiter: {
+        color: theme.palette.swatches.grey.grey500,
+    },
     RecordViewer: {
         flex: 1,
         height: '100%',
@@ -236,8 +251,66 @@ const useTextPreview = (url) => {
     return state.url === url ? state : { status: 'loading', text: null }
 }
 
+const COLUMN_COLOR_COUNT = 8
+// Beyond this many rows, remaining lines render uncoloured to keep the DOM small
+const MAX_COLORED_ROWS = 5000
+
+const splitDelimited = (line, delimiter) => {
+    const fields = []
+    let field = ''
+    let quoted = false
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i]
+        if (ch === '"') {
+            quoted = !quoted
+            field += ch
+        } else if (ch === delimiter && !quoted) {
+            fields.push(field)
+            field = ''
+        } else {
+            field += ch
+        }
+    }
+    fields.push(field)
+    return fields
+}
+
+const ColoredDelimitedText = (props) => {
+    const { text, delimiter, classes } = props
+    const lines = text.split('\n')
+    const colored = lines.slice(0, MAX_COLORED_ROWS)
+    const rest = lines.slice(MAX_COLORED_ROWS)
+    return (
+        <>
+            {colored.map((line, row) => {
+                const fields = splitDelimited(line, delimiter)
+                return (
+                    <span key={row}>
+                        {fields.map((field, col) => (
+                            <React.Fragment key={col}>
+                                {col > 0 && <span className={classes.delimiter}>{delimiter}</span>}
+                                <span className={classes[`col${col % COLUMN_COLOR_COUNT}`]}>
+                                    {field}
+                                </span>
+                            </React.Fragment>
+                        ))}
+                        {'\n'}
+                    </span>
+                )
+            })}
+            {rest.length > 0 && rest.join('\n')}
+        </>
+    )
+}
+
+ColoredDelimitedText.propTypes = {
+    text: PropTypes.string.isRequired,
+    delimiter: PropTypes.string.isRequired,
+    classes: PropTypes.object.isRequired,
+}
+
 const TextPreview = (props) => {
-    const { url, classes, onNotice } = props
+    const { url, type, classes, onNotice } = props
     const { status, text } = useTextPreview(url)
 
     useEffect(() => {
@@ -254,15 +327,23 @@ const TextPreview = (props) => {
     if (status !== 'ready') {
         return null
     }
+    let content = text
+    if (type === 'csv') {
+        content = <ColoredDelimitedText text={text} delimiter="," classes={classes} />
+    } else if (type === 'tab') {
+        const delimiter = text.includes('\t') ? '\t' : ','
+        content = <ColoredDelimitedText text={text} delimiter={delimiter} classes={classes} />
+    }
     return (
         <pre className={classes.textPreview} aria-label="text preview">
-            {text}
+            {content}
         </pre>
     )
 }
 
 TextPreview.propTypes = {
     url: PropTypes.string,
+    type: PropTypes.string,
     classes: PropTypes.object.isRequired,
     onNotice: PropTypes.func.isRequired,
 }
@@ -331,7 +412,12 @@ const RecordViewer = (props) => {
                     )}
                     <div className={c.viewerBody}>
                         {isTextPreview ? (
-                            <TextPreview url={sourceURL} classes={c} onNotice={setTextNotice} />
+                            <TextPreview
+                                url={sourceURL}
+                                type={sourceType}
+                                classes={c}
+                                onNotice={setTextNotice}
+                            />
                         ) : isDocumentPreview ? (
                             <iframe
                                 className={c.documentFrame}
