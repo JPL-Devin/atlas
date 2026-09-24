@@ -4,6 +4,8 @@ import PropTypes from 'prop-types'
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
 import { getIn, getPDSUrl, getExtension, getHeader } from '../../../../core/utils.js'
 import {
@@ -13,7 +15,6 @@ import {
     DOCUMENT_PREVIEW_EXTENSIONS,
     VIDEO_PREVIEW_EXTENSIONS,
     AUDIO_PREVIEW_EXTENSIONS,
-    PREVIEWABLE_EXTENSIONS,
     MAX_TEXT_PREVIEW_BYTES,
 } from '../../../../core/constants.js'
 import { getAppInstanceKey } from '../../../../core/appConfig.js'
@@ -77,6 +78,7 @@ const useStyles = makeStyles((theme) => ({
         background: theme.palette.swatches.grey.grey150,
     },
     emptyState: {
+        position: 'relative',
         flex: 1,
         display: 'flex',
         flexFlow: 'column',
@@ -100,6 +102,25 @@ const useStyles = makeStyles((theme) => ({
     emptyStateBody: {
         fontSize: '13px',
         maxWidth: '360px',
+    },
+    // Floats over the viewer so the body keeps its full height for both assets.
+    assetToggle: {
+        'position': 'absolute',
+        'top': '8px',
+        'right': '8px',
+        'zIndex': 3,
+        'background': theme.palette.swatches.grey.grey850,
+        '& .MuiToggleButton-root': {
+            padding: '2px 10px',
+            fontSize: '12px',
+            textTransform: 'none',
+            color: theme.palette.swatches.grey.grey300,
+            borderColor: theme.palette.swatches.grey.grey700,
+        },
+        '& .MuiToggleButton-root.Mui-selected': {
+            color: theme.palette.swatches.grey.grey0,
+            background: theme.palette.swatches.grey.grey700,
+        },
     },
     documentFrame: {
         display: 'block',
@@ -187,6 +208,13 @@ export const getViewableAsset = (recordData) => {
     }
     return { url, type }
 }
+
+const SOURCE_PREVIEW_EXTENSIONS = [
+    ...TEXT_PREVIEW_EXTENSIONS,
+    ...DOCUMENT_PREVIEW_EXTENSIONS,
+    ...VIDEO_PREVIEW_EXTENSIONS,
+    ...AUDIO_PREVIEW_EXTENSIONS,
+]
 
 const TOO_LARGE_NOTICE = {
     title: 'This file is too large to preview inline.',
@@ -372,6 +400,7 @@ const RecordViewer = (props) => {
 
     const [viewerFailed, setViewerFailed] = useState(false)
     const [textNotice, setTextNotice] = useState(null)
+    const [asset, setAsset] = useState('source')
     const isNarrow = useMediaQuery(useTheme().breakpoints.down('lg'))
 
     const release_id = getIn(recordData, ES_PATHS.release_id)
@@ -392,30 +421,60 @@ const RecordViewer = (props) => {
     const rawSize = getIn(recordData, ES_PATHS.archive.size)
     const sourceSize = rawSize != null && !isNaN(Number(rawSize)) ? Number(rawSize) : null
 
-    const isImage = imgURL != null && (type === 'obj' || IMAGE_EXTENSIONS.includes(type))
-    const isTextPreview = !isImage && TEXT_PREVIEW_EXTENSIONS.includes(sourceType)
+    const hasImage = imgURL != null && (type === 'obj' || IMAGE_EXTENSIONS.includes(type))
+    const hasSourcePreview =
+        sourceURL != null && sourceURL !== imgURL && SOURCE_PREVIEW_EXTENSIONS.includes(sourceType)
+    // With both a source preview and a browse image, the source leads and the
+    // browse is a toggle away.
+    const canToggle = hasImage && hasSourcePreview
+    const showSource = hasSourcePreview && (!hasImage || asset === 'source')
+    const isImage = hasImage && !showSource
+
+    const isTextPreview = showSource && TEXT_PREVIEW_EXTENSIONS.includes(sourceType)
     const textTooLarge = isTextPreview && sourceSize != null && sourceSize > MAX_TEXT_PREVIEW_BYTES
-    const isDocumentPreview = !isImage && DOCUMENT_PREVIEW_EXTENSIONS.includes(sourceType)
-    const isVideoPreview = !isImage && VIDEO_PREVIEW_EXTENSIONS.includes(sourceType)
-    const isAudioPreview = !isImage && AUDIO_PREVIEW_EXTENSIONS.includes(sourceType)
+    const isDocumentPreview = showSource && DOCUMENT_PREVIEW_EXTENSIONS.includes(sourceType)
+    const isVideoPreview = showSource && VIDEO_PREVIEW_EXTENSIONS.includes(sourceType)
+    const isAudioPreview = showSource && AUDIO_PREVIEW_EXTENSIONS.includes(sourceType)
 
     // A product whose only asset is a source image the archive can't render
     // falls back to the configured empty state once the viewer reports failure.
     const hasViewable =
-        (isImage || (sourceURL != null && PREVIEWABLE_EXTENSIONS.includes(sourceType))) &&
-        !viewerFailed &&
-        !textTooLarge &&
-        textNotice == null
+        (isImage || showSource) && !viewerFailed && !textTooLarge && textNotice == null
 
     useEffect(() => {
         setViewerFailed(false)
         setTextNotice(null)
+        setAsset('source')
     }, [imgURL, sourceURL])
+
+    const assetToggle = canToggle && (
+        <ToggleButtonGroup
+            className={c.assetToggle}
+            size="small"
+            exclusive
+            value={asset}
+            aria-label="viewer asset"
+            onChange={(e, next) => {
+                if (next != null) {
+                    setAsset(next)
+                    setViewerFailed(false)
+                    setTextNotice(null)
+                }
+            }}
+        >
+            <ToggleButton value="source" aria-label="show source preview">
+                {sourceType.toUpperCase()}
+            </ToggleButton>
+            <ToggleButton value="browse" aria-label="show browse image">
+                Browse
+            </ToggleButton>
+        </ToggleButtonGroup>
+    )
 
     const notice = textTooLarge ? TOO_LARGE_NOTICE : textNotice || emptyState
 
     // Stacked, an empty state would only push the panel down.
-    if (isNarrow && !hasViewable && !isLoading) {
+    if (isNarrow && !hasViewable && !canToggle && !isLoading) {
         return null
     }
 
@@ -431,6 +490,7 @@ const RecordViewer = (props) => {
                         <span className={c.srOnly}>{presentation.altText}</span>
                     )}
                     <div className={c.viewerBody}>
+                        {assetToggle}
                         {isTextPreview ? (
                             <TextPreview
                                 url={sourceURL}
@@ -488,6 +548,7 @@ const RecordViewer = (props) => {
                 </>
             ) : (
                 <div className={c.emptyState}>
+                    {assetToggle}
                     <div className={c.emptyStateTitle}>{notice.title}</div>
                     <div className={c.emptyStateBody}>{notice.body}</div>
                 </div>
