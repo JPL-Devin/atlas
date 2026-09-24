@@ -194,8 +194,13 @@ export const buildRecordMenuItems = ({
 }) => {
     const name = filename || getFilename(sourceUri)
     const copy = (text, what) => () => {
-        copyToClipboard(text)
-        dispatch(setSnackBarText(`Copied ${what} to clipboard!`, 'success'))
+        copyToClipboard(text).then((ok) =>
+            dispatch(
+                ok
+                    ? setSnackBarText(`Copied ${what} to clipboard!`, 'success')
+                    : setSnackBarText(`Could not copy ${what} to clipboard`, 'error')
+            )
+        )
     }
     const download = (uri, rid = releaseId) => () => {
         streamDownloadFile(getPDSUrl(uri, rid), getFilename(uri))

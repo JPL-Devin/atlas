@@ -573,8 +573,13 @@ const Column = (props) => {
         label,
         icon: 'copy',
         onClick: () => {
-            copyToClipboard(text)
-            dispatch(setSnackBarText(`Copied ${what} to clipboard!`, 'success'))
+            copyToClipboard(text).then((ok) =>
+                dispatch(
+                    ok
+                        ? setSnackBarText(`Copied ${what} to clipboard!`, 'success')
+                        : setSnackBarText(`Could not copy ${what} to clipboard`, 'error')
+                )
+            )
         },
     })
     const cart = useSelector((state) => state.get('cart').toJS() || [])
