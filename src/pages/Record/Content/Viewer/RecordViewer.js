@@ -1,13 +1,30 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
+import { useDispatch } from 'react-redux'
 
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import WrapTextIcon from '@mui/icons-material/WrapText'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import PauseIcon from '@mui/icons-material/Pause'
+import VolumeUpIcon from '@mui/icons-material/VolumeUp'
+import VolumeOffIcon from '@mui/icons-material/VolumeOff'
 
-import { getIn, getPDSUrl, getExtension, getHeader } from '../../../../core/utils.js'
+import {
+    getIn,
+    getPDSUrl,
+    getExtension,
+    getHeader,
+    copyToClipboard,
+} from '../../../../core/utils.js'
+import { setSnackBarText } from '../../../../core/redux/actions/actions'
 import {
     ES_PATHS,
     IMAGE_EXTENSIONS,
@@ -103,15 +120,64 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '13px',
         maxWidth: '360px',
     },
-    // Floats over the viewer so the body keeps its full height for both assets.
+    // Name | asset toggle | actions, as a strip the preview scrolls beneath.
+    toolbar: {
+        flex: '0 0 36px',
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '0 8px',
+        background: theme.palette.swatches.grey.grey850,
+        borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
+        color: theme.palette.swatches.grey.grey300,
+    },
+    toolbarName: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        minWidth: 0,
+        fontSize: '12px',
+        fontFamily: 'monospace',
+        color: theme.palette.swatches.grey.grey150,
+    },
+    toolbarFilename: {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+    },
+    typeChip: {
+        flexShrink: 0,
+        padding: '1px 6px',
+        borderRadius: '3px',
+        fontSize: '10px',
+        fontWeight: 'bold',
+        letterSpacing: '0.04em',
+        color: theme.palette.swatches.grey.grey850,
+        background: theme.palette.swatches.grey.grey300,
+    },
+    toolbarActions: {
+        display: 'flex',
+        justifyContent: 'flex-end',
+        gap: '2px',
+    },
+    toolbarButton: {
+        'padding': '4px',
+        'color': theme.palette.swatches.grey.grey300,
+        '&.Mui-disabled': {
+            color: theme.palette.swatches.grey.grey600,
+        },
+        '&.active': {
+            color: theme.palette.swatches.grey.grey0,
+            background: theme.palette.swatches.grey.grey700,
+        },
+        '& svg': {
+            fontSize: '18px',
+        },
+    },
     assetToggle: {
-        'position': 'absolute',
-        'top': '8px',
-        'right': '8px',
-        'zIndex': 3,
-        'background': theme.palette.swatches.grey.grey850,
         '& .MuiToggleButton-root': {
-            padding: '2px 10px',
+            padding: '1px 10px',
             fontSize: '12px',
             textTransform: 'none',
             color: theme.palette.swatches.grey.grey300,
@@ -157,6 +223,10 @@ const useStyles = makeStyles((theme) => ({
         whiteSpace: 'pre',
         color: theme.palette.swatches.grey.grey150,
         background: theme.palette.swatches.grey.grey850,
+    },
+    textPreviewWrapped: {
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-all',
     },
     srOnly: {
         position: 'absolute',
@@ -356,23 +426,7 @@ ColoredDelimitedText.propTypes = {
 }
 
 const TextPreview = (props) => {
-    const { url, type, classes, onNotice } = props
-    const { status, text } = useTextPreview(url)
-
-    useEffect(() => {
-        if (status === 'too_large') {
-            onNotice(TOO_LARGE_NOTICE)
-        } else if (status === 'error') {
-            onNotice(FETCH_FAILED_NOTICE)
-        }
-    }, [status, onNotice])
-
-    if (status === 'loading') {
-        return <ViewerLoading label="text preview loading" />
-    }
-    if (status !== 'ready') {
-        return null
-    }
+    const { text, type, wrap, classes } = props
     let content = text
     if (type === 'csv') {
         content = <ColoredDelimitedText text={text} delimiter="," classes={classes} />
@@ -381,26 +435,57 @@ const TextPreview = (props) => {
         content = <ColoredDelimitedText text={text} delimiter={delimiter} classes={classes} />
     }
     return (
-        <pre className={classes.textPreview} aria-label="text preview">
+        <pre
+            className={`${classes.textPreview} ${wrap ? classes.textPreviewWrapped : ''}`}
+            aria-label="text preview"
+        >
             {content}
         </pre>
     )
 }
 
 TextPreview.propTypes = {
-    url: PropTypes.string,
+    text: PropTypes.string.isRequired,
     type: PropTypes.string,
+    wrap: PropTypes.bool,
     classes: PropTypes.object.isRequired,
-    onNotice: PropTypes.func.isRequired,
 }
+
+const ToolbarButton = (props) => {
+    const { title, active, className, ...rest } = props
+    return (
+        <Tooltip title={title} arrow>
+            <span>
+                <IconButton
+                    size="small"
+                    className={`${className} ${active ? 'active' : ''}`}
+                    aria-pressed={active}
+                    {...rest}
+                />
+            </span>
+        </Tooltip>
+    )
+}
+
+ToolbarButton.propTypes = {
+    title: PropTypes.string.isRequired,
+    active: PropTypes.bool,
+    className: PropTypes.string,
+}
+
+const basename = (uri) => (uri || '').split('/').pop()
 
 const RecordViewer = (props) => {
     const { recordData, loading, overlay } = props
     const c = useStyles()
+    const dispatch = useDispatch()
 
     const [viewerFailed, setViewerFailed] = useState(false)
-    const [textNotice, setTextNotice] = useState(null)
     const [asset, setAsset] = useState('source')
+    const [wrap, setWrap] = useState(false)
+    const [playing, setPlaying] = useState(false)
+    const [muted, setMuted] = useState(false)
+    const mediaRef = useRef(null)
     const isNarrow = useMediaQuery(useTheme().breakpoints.down('lg'))
 
     const release_id = getIn(recordData, ES_PATHS.release_id)
@@ -416,7 +501,8 @@ const RecordViewer = (props) => {
     const { url: imgURL, type } = getViewableAsset(recordData)
 
     // Non-image products preview the source product itself, never the browse image.
-    const sourceURL = getPDSUrl(getIn(recordData, ES_PATHS.source), release_id)
+    const sourceURI = getIn(recordData, ES_PATHS.source)
+    const sourceURL = getPDSUrl(sourceURI, release_id)
     const sourceType = getExtension(sourceURL, true)
     const rawSize = getIn(recordData, ES_PATHS.archive.size)
     const sourceSize = rawSize != null && !isNaN(Number(rawSize)) ? Number(rawSize) : null
@@ -434,6 +520,15 @@ const RecordViewer = (props) => {
     const isDocumentPreview = showSource && DOCUMENT_PREVIEW_EXTENSIONS.includes(sourceType)
     const isVideoPreview = showSource && VIDEO_PREVIEW_EXTENSIONS.includes(sourceType)
     const isAudioPreview = showSource && AUDIO_PREVIEW_EXTENSIONS.includes(sourceType)
+    const isMediaPreview = isVideoPreview || isAudioPreview
+
+    const text = useTextPreview(isTextPreview && !textTooLarge ? sourceURL : null)
+    const textNotice =
+        text.status === 'too_large'
+            ? TOO_LARGE_NOTICE
+            : text.status === 'error'
+              ? FETCH_FAILED_NOTICE
+              : null
 
     // A product whose only asset is a source image the archive can't render
     // falls back to the configured empty state once the viewer reports failure.
@@ -442,32 +537,136 @@ const RecordViewer = (props) => {
 
     useEffect(() => {
         setViewerFailed(false)
-        setTextNotice(null)
         setAsset('source')
+        setPlaying(false)
+        setMuted(false)
     }, [imgURL, sourceURL])
 
-    const assetToggle = canToggle && (
-        <ToggleButtonGroup
-            className={c.assetToggle}
-            size="small"
-            exclusive
-            value={asset}
-            aria-label="viewer asset"
-            onChange={(e, next) => {
-                if (next != null) {
-                    setAsset(next)
-                    setViewerFailed(false)
-                    setTextNotice(null)
-                }
-            }}
-        >
-            <ToggleButton value="source" aria-label="show source preview">
-                {sourceType.toUpperCase()}
-            </ToggleButton>
-            <ToggleButton value="browse" aria-label="show browse image">
-                Browse
-            </ToggleButton>
-        </ToggleButtonGroup>
+    const toggleMedia = () => {
+        const media = mediaRef.current
+        if (media == null) {
+            return
+        }
+        if (media.paused) {
+            media.play().catch(() => setViewerFailed(true))
+        } else {
+            media.pause()
+        }
+    }
+    const toggleMuted = () => {
+        if (mediaRef.current != null) {
+            mediaRef.current.muted = !mediaRef.current.muted
+        }
+    }
+
+    const mediaEvents = {
+        ref: mediaRef,
+        controls: true,
+        preload: 'metadata',
+        muted,
+        onPlay: () => setPlaying(true),
+        onPause: () => setPlaying(false),
+        onVolumeChange: (e) => setMuted(e.target.muted),
+        onError: () => setViewerFailed(true),
+    }
+
+    const activeURI = showSource ? sourceURI : getIn(recordData, ES_PATHS.browse) || sourceURI
+    const activeType = showSource ? sourceType : type
+
+    const toolbar = hasSourcePreview && !isLoading && (
+        <div className={c.toolbar} role="toolbar" aria-label="viewer toolbar">
+            <div className={c.toolbarName}>
+                <span className={c.typeChip}>{activeType.toUpperCase()}</span>
+                <span className={c.toolbarFilename} title={activeURI}>
+                    {basename(activeURI)}
+                </span>
+            </div>
+            <div>
+                {canToggle && (
+                    <ToggleButtonGroup
+                        className={c.assetToggle}
+                        size="small"
+                        exclusive
+                        value={asset}
+                        aria-label="viewer asset"
+                        onChange={(e, next) => {
+                            if (next != null) {
+                                setAsset(next)
+                                setViewerFailed(false)
+                            }
+                        }}
+                    >
+                        <ToggleButton value="source" aria-label="show source preview">
+                            {sourceType.toUpperCase()}
+                        </ToggleButton>
+                        <ToggleButton value="browse" aria-label="show browse image">
+                            Browse
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                )}
+            </div>
+            <div className={c.toolbarActions}>
+                {isTextPreview && (
+                    <>
+                        <ToolbarButton
+                            title="Wrap lines"
+                            aria-label="wrap lines"
+                            className={c.toolbarButton}
+                            active={wrap}
+                            disabled={text.status !== 'ready'}
+                            onClick={() => setWrap((w) => !w)}
+                        >
+                            <WrapTextIcon />
+                        </ToolbarButton>
+                        <ToolbarButton
+                            title="Copy text"
+                            aria-label="copy text"
+                            className={c.toolbarButton}
+                            disabled={text.status !== 'ready'}
+                            onClick={() => {
+                                copyToClipboard(text.text)
+                                dispatch(setSnackBarText('Copied text to clipboard!', 'success'))
+                            }}
+                        >
+                            <ContentCopyIcon />
+                        </ToolbarButton>
+                    </>
+                )}
+                {isMediaPreview && (
+                    <>
+                        <ToolbarButton
+                            title={playing ? 'Pause' : 'Play'}
+                            aria-label={playing ? 'pause media' : 'play media'}
+                            className={c.toolbarButton}
+                            disabled={viewerFailed}
+                            onClick={toggleMedia}
+                        >
+                            {playing ? <PauseIcon /> : <PlayArrowIcon />}
+                        </ToolbarButton>
+                        <ToolbarButton
+                            title={muted ? 'Unmute' : 'Mute'}
+                            aria-label={muted ? 'unmute media' : 'mute media'}
+                            className={c.toolbarButton}
+                            active={muted}
+                            disabled={viewerFailed}
+                            onClick={toggleMuted}
+                        >
+                            {muted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+                        </ToolbarButton>
+                    </>
+                )}
+                {(isDocumentPreview || isMediaPreview) && (
+                    <ToolbarButton
+                        title="Open in new tab"
+                        aria-label="open source in new tab"
+                        className={c.toolbarButton}
+                        onClick={() => window.open(sourceURL, '_blank', 'noopener')}
+                    >
+                        <OpenInNewIcon />
+                    </ToolbarButton>
+                )}
+            </div>
+        </div>
     )
 
     const notice = textTooLarge ? TOO_LARGE_NOTICE : textNotice || emptyState
@@ -479,6 +678,7 @@ const RecordViewer = (props) => {
 
     return (
         <div className={c.RecordViewer}>
+            {toolbar}
             {isLoading ? (
                 <div className={`${c.viewerBody} ${c.loadingBody}`}>
                     <ViewerLoading label="record loading" />
@@ -489,14 +689,17 @@ const RecordViewer = (props) => {
                         <span className={c.srOnly}>{presentation.altText}</span>
                     )}
                     <div className={c.viewerBody}>
-                        {assetToggle}
                         {isTextPreview ? (
-                            <TextPreview
-                                url={sourceURL}
-                                type={sourceType}
-                                classes={c}
-                                onNotice={setTextNotice}
-                            />
+                            text.status === 'ready' ? (
+                                <TextPreview
+                                    text={text.text}
+                                    type={sourceType}
+                                    wrap={wrap}
+                                    classes={c}
+                                />
+                            ) : (
+                                <ViewerLoading label="text preview loading" />
+                            )
                         ) : isDocumentPreview ? (
                             <iframe
                                 className={c.documentFrame}
@@ -506,24 +709,14 @@ const RecordViewer = (props) => {
                         ) : isVideoPreview ? (
                             <div className={c.mediaBody}>
                                 {/* eslint-disable-next-line jsx-a11y/media-has-caption -- archive products ship no caption tracks */}
-                                <video
-                                    className={c.video}
-                                    controls
-                                    preload="metadata"
-                                    onError={() => setViewerFailed(true)}
-                                >
+                                <video className={c.video} {...mediaEvents}>
                                     <source src={sourceURL} type="video/mp4" />
                                 </video>
                             </div>
                         ) : isAudioPreview ? (
                             <div className={c.mediaBody}>
                                 {/* eslint-disable-next-line jsx-a11y/media-has-caption -- archive products ship no caption tracks */}
-                                <audio
-                                    className={c.audio}
-                                    controls
-                                    preload="metadata"
-                                    onError={() => setViewerFailed(true)}
-                                >
+                                <audio className={c.audio} {...mediaEvents}>
                                     <source src={sourceURL} type="audio/wav" />
                                 </audio>
                             </div>
@@ -547,7 +740,6 @@ const RecordViewer = (props) => {
                 </>
             ) : (
                 <div className={c.emptyState}>
-                    {assetToggle}
                     <div className={c.emptyStateTitle}>{notice.title}</div>
                     <div className={c.emptyStateBody}>{notice.body}</div>
                 </div>
