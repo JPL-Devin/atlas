@@ -422,8 +422,7 @@ const RecordViewer = (props) => {
     const sourceSize = rawSize != null && !isNaN(Number(rawSize)) ? Number(rawSize) : null
 
     const hasImage = imgURL != null && (type === 'obj' || IMAGE_EXTENSIONS.includes(type))
-    const hasSourcePreview =
-        sourceURL != null && sourceURL !== imgURL && SOURCE_PREVIEW_EXTENSIONS.includes(sourceType)
+    const hasSourcePreview = sourceURL != null && SOURCE_PREVIEW_EXTENSIONS.includes(sourceType)
     // With both a source preview and a browse image, the source leads and the
     // browse is a toggle away.
     const canToggle = hasImage && hasSourcePreview
