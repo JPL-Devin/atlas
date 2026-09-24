@@ -519,6 +519,7 @@ const GridCard = ({ index, data, width }) => {
             <Tooltip title={<pre style={{ margin: '3px 0px' }}>{title}</pre>} arrow>
                 <div
                     className={c.info}
+                    onAuxClick={(e) => e.stopPropagation()}
                     onClick={(e) => {
                         e.stopPropagation()
                         copyToClipboard(title)
