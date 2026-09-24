@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
 
@@ -12,10 +12,6 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import WrapTextIcon from '@mui/icons-material/WrapText'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import PauseIcon from '@mui/icons-material/Pause'
-import VolumeUpIcon from '@mui/icons-material/VolumeUp'
-import VolumeOffIcon from '@mui/icons-material/VolumeOff'
 
 import {
     getIn,
@@ -120,19 +116,19 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '13px',
         maxWidth: '360px',
     },
-    // Name | asset toggle | actions, as a strip the preview scrolls beneath.
+    // Asset toggle | name | actions, as a strip the preview scrolls beneath.
     toolbar: {
         flex: '0 0 36px',
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+        display: 'flex',
         alignItems: 'center',
-        gap: '8px',
+        gap: '10px',
         padding: '0 8px',
         background: theme.palette.swatches.grey.grey850,
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey700}`,
         color: theme.palette.swatches.grey.grey300,
     },
     toolbarName: {
+        flex: 1,
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
@@ -484,9 +480,6 @@ const RecordViewer = (props) => {
     const [viewerFailed, setViewerFailed] = useState(false)
     const [asset, setAsset] = useState('source')
     const [wrap, setWrap] = useState(false)
-    const [playing, setPlaying] = useState(false)
-    const [muted, setMuted] = useState(false)
-    const mediaRef = useRef(null)
     const isNarrow = useMediaQuery(useTheme().breakpoints.down('lg'))
 
     const release_id = getIn(recordData, ES_PATHS.release_id)
@@ -539,35 +532,12 @@ const RecordViewer = (props) => {
     useEffect(() => {
         setViewerFailed(false)
         setAsset('source')
-        setPlaying(false)
-        setMuted(false)
     }, [imgURL, sourceURL])
 
-    const toggleMedia = () => {
-        const media = mediaRef.current
-        if (media == null) {
-            return
-        }
-        if (media.paused) {
-            media.play().catch(() => setViewerFailed(true))
-        } else {
-            media.pause()
-        }
-    }
-    const toggleMuted = () => {
-        if (mediaRef.current != null) {
-            mediaRef.current.muted = !mediaRef.current.muted
-        }
-    }
-
-    const mediaEvents = {
-        ref: mediaRef,
+    const mediaProps = {
+        key: sourceURL,
         controls: true,
         preload: 'metadata',
-        muted,
-        onPlay: () => setPlaying(true),
-        onPause: () => setPlaying(false),
-        onVolumeChange: (e) => setMuted(e.target.muted),
         onError: () => setViewerFailed(true),
     }
 
@@ -576,36 +546,33 @@ const RecordViewer = (props) => {
 
     const toolbar = hasSourcePreview && !isLoading && (
         <div className={c.toolbar} role="toolbar" aria-label="viewer toolbar">
+            {canToggle && (
+                <ToggleButtonGroup
+                    className={c.assetToggle}
+                    size="small"
+                    exclusive
+                    value={asset}
+                    aria-label="viewer asset"
+                    onChange={(e, next) => {
+                        if (next != null) {
+                            setAsset(next)
+                            setViewerFailed(false)
+                        }
+                    }}
+                >
+                    <ToggleButton value="source" aria-label="show source preview">
+                        {sourceType.toUpperCase()}
+                    </ToggleButton>
+                    <ToggleButton value="browse" aria-label="show browse image">
+                        Browse
+                    </ToggleButton>
+                </ToggleButtonGroup>
+            )}
             <div className={c.toolbarName}>
                 <span className={c.typeChip}>{activeType.toUpperCase()}</span>
                 <span className={c.toolbarFilename} title={activeURI}>
                     {basename(activeURI)}
                 </span>
-            </div>
-            <div>
-                {canToggle && (
-                    <ToggleButtonGroup
-                        className={c.assetToggle}
-                        size="small"
-                        exclusive
-                        value={asset}
-                        aria-label="viewer asset"
-                        onChange={(e, next) => {
-                            if (next != null) {
-                                setAsset(next)
-                                setViewerFailed(false)
-                                setPlaying(false)
-                            }
-                        }}
-                    >
-                        <ToggleButton value="source" aria-label="show source preview">
-                            {sourceType.toUpperCase()}
-                        </ToggleButton>
-                        <ToggleButton value="browse" aria-label="show browse image">
-                            Browse
-                        </ToggleButton>
-                    </ToggleButtonGroup>
-                )}
             </div>
             <div className={c.toolbarActions}>
                 {isTextPreview && (
@@ -631,29 +598,6 @@ const RecordViewer = (props) => {
                             }}
                         >
                             <ContentCopyIcon />
-                        </ToolbarButton>
-                    </>
-                )}
-                {isMediaPreview && (
-                    <>
-                        <ToolbarButton
-                            title={playing ? 'Pause' : 'Play'}
-                            aria-label={playing ? 'pause media' : 'play media'}
-                            className={c.toolbarButton}
-                            disabled={viewerFailed}
-                            onClick={toggleMedia}
-                        >
-                            {playing ? <PauseIcon /> : <PlayArrowIcon />}
-                        </ToolbarButton>
-                        <ToolbarButton
-                            title={muted ? 'Unmute' : 'Mute'}
-                            aria-label={muted ? 'unmute media' : 'mute media'}
-                            className={c.toolbarButton}
-                            active={muted}
-                            disabled={viewerFailed}
-                            onClick={toggleMuted}
-                        >
-                            {muted ? <VolumeOffIcon /> : <VolumeUpIcon />}
                         </ToolbarButton>
                     </>
                 )}
@@ -711,14 +655,14 @@ const RecordViewer = (props) => {
                         ) : isVideoPreview ? (
                             <div className={c.mediaBody}>
                                 {/* eslint-disable-next-line jsx-a11y/media-has-caption -- archive products ship no caption tracks */}
-                                <video key={sourceURL} className={c.video} {...mediaEvents}>
+                                <video className={c.video} {...mediaProps}>
                                     <source src={sourceURL} type="video/mp4" />
                                 </video>
                             </div>
                         ) : isAudioPreview ? (
                             <div className={c.mediaBody}>
                                 {/* eslint-disable-next-line jsx-a11y/media-has-caption -- archive products ship no caption tracks */}
-                                <audio key={sourceURL} className={c.audio} {...mediaEvents}>
+                                <audio className={c.audio} {...mediaProps}>
                                     <source src={sourceURL} type="audio/wav" />
                                 </audio>
                             </div>
