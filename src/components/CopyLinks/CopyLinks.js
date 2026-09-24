@@ -29,13 +29,18 @@ import { setSnackBarText } from '../../core/redux/actions/actions'
 const useStyles = makeStyles((theme) => ({
     // Leads the Topbar's right cluster; the faint rule separates it from nav.
     CopyLinks: {
-        display: 'flex',
-        alignItems: 'center',
-        alignSelf: 'center',
-        flexShrink: 0,
-        padding: '6px 12px',
-        marginRight: '4px',
-        borderRight: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'display': 'flex',
+        'alignItems': 'center',
+        'flexShrink': 0,
+        'padding': '0 0 0 12px',
+        'marginRight': '4px',
+        '&::after': {
+            content: '""',
+            width: '1px',
+            height: '20px',
+            marginLeft: '12px',
+            background: theme.palette.swatches.grey.grey300,
+        },
     },
     button: {
         'fontSize': '12px',
