@@ -41,7 +41,7 @@ import ContextMenu, {
     useContextMenu,
     buildRecordMenuItems,
     recordCartItem,
-    useIsInCart,
+    useCartIndex,
     recordClickHandlers,
 } from '../../../../../../components/ContextMenu/ContextMenu'
 
@@ -303,7 +303,7 @@ const TableView = (props) => {
         const navigate = useNavigate()
         const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
         const s = data != null ? data._source : null
-        const inCart = useIsInCart(getIn(s, ES_PATHS.source))
+        const cartIndex = useCartIndex(getIn(s, ES_PATHS.source))
 
         if (data == null) return null
 
@@ -335,7 +335,7 @@ const TableView = (props) => {
                         browseUri: getIn(s, ES_PATHS.browse),
                         releaseId: getIn(s, ES_PATHS.release_id),
                         cartItem: recordCartItem(s),
-                    inCart,
+                    cartIndex,
                         dispatch,
                     })}
                 />

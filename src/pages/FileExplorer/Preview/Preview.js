@@ -28,7 +28,7 @@ import ContextMenu, {
     useContextMenu,
     buildRecordMenuItems,
     recordClickHandlers,
-    useIsInCart,
+    useCartIndex,
 } from '../../../components/ContextMenu/ContextMenu'
 
 import ProductIcons from '../../../components/ProductIcons/ProductIcons'
@@ -586,13 +586,13 @@ const Preview = (props) => {
     const [activeVersion, setActiveVersion] = useState(null)
     const [hasBrowse, setHasBrowse] = useState(null)
     const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
-    const inCart = useIsInCart(preview.uri)
 
     let preview = useSelector((state) => {
         const filexPreview = state.get('filexPreview')
         return typeof filexPreview.toJS === 'function' ? {} : filexPreview
     })
     preview = forcedPreview || preview
+    const cartIndex = useCartIndex(preview.uri)
 
     // The drilled-to mission, so the panel can offer the product's SIS.
     const mission = useSelector((state) => {
@@ -887,7 +887,7 @@ const Preview = (props) => {
                             browseUri: browseUri,
                             releaseId: release_id != null ? release_id : getIn(preview, ES_PATHS.release_id),
                             dispatch,
-                            inCart,
+                            cartIndex,
                             cartItem: {
                                 type: 'file',
                                 item: {

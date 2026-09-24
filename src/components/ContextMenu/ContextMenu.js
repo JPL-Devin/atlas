@@ -13,20 +13,42 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import GetAppIcon from '@mui/icons-material/GetApp'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
+import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart'
 
 import { HASH_PATHS, ES_PATHS } from '../../core/constants'
 import { getIn, getPDSUrl, getFilename, copyToClipboard } from '../../core/utils'
 import { getPublicUrl } from '../../core/runtimeConfig'
 import { getAppConfig } from '../../core/appConfig'
 import { streamDownloadFile } from '../../core/downloaders/ZipStream.js'
-import { addToCart, setSnackBarText } from '../../core/redux/actions/actions'
+import { addToCart, removeFromCart, setSnackBarText } from '../../core/redux/actions/actions'
 
-export const isUriInCart = (cart, uri) =>
-    uri != null && (cart || []).some((c) => getIn(c, 'item.uri', 'unset') === uri)
+// Index of a record uri in the cart, or -1
+export const cartIndexOf = (cart, uri) =>
+    uri == null ? -1 : (cart || []).findIndex((c) => getIn(c, 'item.uri', 'unset') === uri)
 
-// Whether a record uri is already in the redux cart
-export const useIsInCart = (uri) =>
-    useSelector((state) => isUriInCart(state.get('cart').toJS(), uri))
+export const useCartIndex = (uri) =>
+    useSelector((state) => cartIndexOf(state.get('cart').toJS(), uri))
+
+// Add-or-remove cart menu item; removes when cartIndex >= 0
+export const cartMenuItem = (dispatch, type, item, cartIndex) =>
+    cartIndex >= 0
+        ? {
+              label: 'Remove from Cart',
+              icon: 'removeCart',
+              danger: true,
+              onClick: () => {
+                  dispatch(removeFromCart(cartIndex))
+                  dispatch(setSnackBarText('Removed from Cart!', 'success'))
+              },
+          }
+        : {
+              label: 'Add to Cart',
+              icon: 'cart',
+              onClick: () => {
+                  dispatch(addToCart(type, item))
+                  dispatch(setSnackBarText('Added to Cart!', 'success'))
+              },
+          }
 
 // Cart payload for a search record `_source`, mirroring ProductToolbar's add-to-cart
 export const recordCartItem = (s) => {
@@ -84,6 +106,12 @@ const useStyles = makeStyles((theme) => ({
             background: theme.palette.swatches.grey.grey700,
         },
     },
+    danger: {
+        'color': theme.palette.swatches.red.red500,
+        '& $icon': {
+            color: theme.palette.swatches.red.red500,
+        },
+    },
     icon: {
         'minWidth': '32px !important',
         'color': theme.palette.swatches.grey.grey400,
@@ -102,6 +130,7 @@ const ICONS = {
     open: OpenInNewIcon,
     download: GetAppIcon,
     cart: AddShoppingCartIcon,
+    removeCart: RemoveShoppingCartIcon,
 }
 
 export const recordPageUrl = (uri) => `${getPublicUrl()}${HASH_PATHS.record}?uri=${uri}`
@@ -148,7 +177,7 @@ export const recordClickHandlers = (uri, navigate, extraParams) => {
  * @param {Function} opts.dispatch redux dispatch
  * @param {boolean} opts.openInNewTab include "Open in new tab" (default true)
  * @param {{type: string, item: Object}} opts.cartItem adds "Add to Cart" when provided
- * @param {boolean} opts.inCart disables "Add to Cart" when the record is already carted
+ * @param {number} opts.cartIndex index in cart (>= 0 switches the item to "Remove from Cart")
  */
 export const buildRecordMenuItems = ({
     filename,
@@ -161,7 +190,7 @@ export const buildRecordMenuItems = ({
     recordUri = sourceUri,
     sourceReleaseId = releaseId,
     cartItem,
-    inCart = false,
+    cartIndex = -1,
 }) => {
     const name = filename || getFilename(sourceUri)
     const copy = (text, what) => () => {
@@ -219,15 +248,7 @@ export const buildRecordMenuItems = ({
 
     const cartItems = []
     if (cartItem && getAppConfig().enableCart)
-        {cartItems.push({
-            label: inCart ? 'Already in Cart' : 'Add to Cart',
-            icon: 'cart',
-            disabled: inCart,
-            onClick: () => {
-                dispatch(addToCart(cartItem.type, cartItem.item))
-                dispatch(setSnackBarText('Added to Cart!', 'success'))
-            },
-        })}
+        {cartItems.push(cartMenuItem(dispatch, cartItem.type, cartItem.item, cartIndex))}
 
     const items = []
     ;[copyItems, openItems, downloadItems, cartItems].forEach((group) => {
@@ -309,7 +330,7 @@ const ContextMenu = (props) => {
                 return (
                     <MenuItem
                         key={idx}
-                        className={c.item}
+                        className={`${c.item} ${item.danger ? c.danger : ''}`}
                         disabled={item.disabled === true}
                         onClick={(e) => {
                             e.stopPropagation()

@@ -41,7 +41,8 @@ import MenuButton from '../../../components/MenuButton/MenuButton'
 import ContextMenu, {
     useContextMenu,
     buildRecordMenuItems,
-    isUriInCart,
+    cartIndexOf,
+    cartMenuItem,
 } from '../../../components/ContextMenu/ContextMenu'
 import { getAppConfig } from '../../../core/appConfig'
 import IconButton from '@mui/material/IconButton'
@@ -577,15 +578,7 @@ const Column = (props) => {
         },
     })
     const cart = useSelector((state) => state.get('cart').toJS() || [])
-    const cartAction = (type, item) => ({
-        label: isUriInCart(cart, item.uri) ? 'Already in Cart' : 'Add to Cart',
-        icon: 'cart',
-        disabled: isUriInCart(cart, item.uri),
-        onClick: () => {
-            dispatch(addToCart(type, item))
-            dispatch(setSnackBarText('Added to Cart!', 'success'))
-        },
-    })
+    const cartAction = (type, item) => cartMenuItem(dispatch, type, item, cartIndexOf(cart, item.uri))
 
     const withCart = (copyItem, makeCartItem) =>
         getAppConfig().enableCart ? [copyItem, '-', makeCartItem()] : [copyItem]

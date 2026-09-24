@@ -37,7 +37,7 @@ import ContextMenu, {
     useContextMenu,
     buildRecordMenuItems,
     recordCartItem,
-    useIsInCart,
+    useCartIndex,
     recordClickHandlers,
 } from '../../../../../../components/ContextMenu/ContextMenu'
 
@@ -290,7 +290,7 @@ const GridCard = ({ index, data, width }) => {
     const dispatch = useDispatch()
     const s = data._source
     const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
-    const inCart = useIsInCart(getIn(s, ES_PATHS.source))
+    const cartIndex = useCartIndex(getIn(s, ES_PATHS.source))
 
     const gridItemHeight = useSelector((state) => state.getIn(['gridSize'])) || 170
 
@@ -371,7 +371,7 @@ const GridCard = ({ index, data, width }) => {
                     browseUri: getIn(s, ES_PATHS.browse),
                     releaseId: release_id,
                     cartItem: recordCartItem(s),
-                    inCart,
+                    cartIndex,
                     dispatch,
                 })}
             />
