@@ -24,6 +24,11 @@ import {
 } from '../../../core/redux/actions/actions'
 import { ES_PATHS, HASH_PATHS, IMAGE_EXTENSIONS, domain, endpoints } from '../../../core/constants'
 import { streamDownloadFile } from '../../../core/downloaders/ZipStream.js'
+import ContextMenu, {
+    useContextMenu,
+    buildRecordMenuItems,
+    recordClickHandlers,
+} from '../../../components/ContextMenu/ContextMenu'
 
 import ProductIcons from '../../../components/ProductIcons/ProductIcons'
 import SisResources from '../../../components/SisResources/SisResources'
@@ -486,10 +491,7 @@ const ButtonBar = (props) => {
                         disabled={
                             preview.fs_type !== 'file' || related == null || related.uri == null
                         }
-                        onClick={() => {
-                            if (related && related.uri)
-                                navigate(`${HASH_PATHS.record}?uri=${related.uri}&back=page`)
-                        }}
+                        {...recordClickHandlers(related && related.uri, navigate, 'back=page')}
                     >
                         View
                     </Button>
@@ -582,6 +584,7 @@ const Preview = (props) => {
     const [versions, setVersions] = useState([])
     const [activeVersion, setActiveVersion] = useState(null)
     const [hasBrowse, setHasBrowse] = useState(null)
+    const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
 
     let preview = useSelector((state) => {
         const filexPreview = state.get('filexPreview')
@@ -863,11 +866,25 @@ const Preview = (props) => {
                 <div
                     className={c.image}
                     style={imageUrl == 'null' ? { height: '100px' } : {}}
-                    onClick={() => {
-                        if (imageUrl != null && preview.uri)
-                            navigate(`${HASH_PATHS.record}?uri=${preview.uri}&back=page`)
-                    }}
+                    {...recordClickHandlers(
+                        imageUrl != null ? preview.uri : null,
+                        navigate,
+                        'back=page'
+                    )}
+                    onContextMenu={preview.fs_type === 'file' ? openContextMenu : undefined}
                 >
+                    <ContextMenu
+                        contextMenu={contextMenu}
+                        onClose={closeContextMenu}
+                        title={getFilename(preview.uri)}
+                        items={buildRecordMenuItems({
+                            sourceUri: preview.uri,
+                            labelUri: getIn(related, 'gather.pds_archive.related.label.uri'),
+                            browseUri: browseUri,
+                            releaseId: release_id != null ? release_id : getIn(preview, ES_PATHS.release_id),
+                            dispatch,
+                        })}
+                    />
                     {imageUrl != 'null' && hasBrowse !== false ? (
                         <Image
                             className={c.previewImage}

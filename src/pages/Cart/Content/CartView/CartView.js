@@ -45,6 +45,12 @@ import {
 
 import ProductToolbar from '../../../../components/ProductToolbar/ProductToolbar'
 import ProductIcons from '../../../../components/ProductIcons/ProductIcons'
+import ContextMenu, {
+    useContextMenu,
+    buildRecordMenuItems,
+    isNewTabClick,
+    openRecordInNewTab,
+} from '../../../../components/ContextMenu/ContextMenu'
 
 const gridItemHeight = 170
 const gridItemGap = 10
@@ -308,6 +314,7 @@ const GridCard = ({ index, data, width }) => {
 
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
     data.item = data.item || {}
 
     let images
@@ -346,6 +353,69 @@ const GridCard = ({ index, data, width }) => {
     }
 
     const release_id = getIn(data, 'item.release_id', null)
+
+    const navigatesToRecord =
+        data.item?.uri && (data.type === 'query' || data.type === 'image')
+    const toRecord = (e) => {
+        if (!navigatesToRecord) return
+        if (isNewTabClick(e)) {
+            e.preventDefault()
+            openRecordInNewTab(data.item.uri)
+        } else {
+            // force a uri query
+            dispatch(setRecordData({}))
+            navigate(`${HASH_PATHS.record}?uri=${data.item.uri}`)
+        }
+    }
+
+    let menuTitle
+    let menuItems
+    if (data.type === 'image' || data.type === 'file') {
+        menuTitle = getFilename(data.item.uri)
+        menuItems = buildRecordMenuItems({
+            sourceUri: data.item.uri,
+            labelUri: data.type === 'image' ? data.item.related?.label?.uri : null,
+            browseUri: data.type === 'image' ? data.item.related?.browse?.uri : null,
+            releaseId: release_id,
+            dispatch,
+            openInNewTab: data.type === 'image',
+        })
+    } else if (data.type === 'directory') {
+        menuTitle = getBundleVolumeName(data.item.uri) || getFilename(data.item.uri) || title
+        menuItems = data.item.uri
+            ? [
+                  {
+                      label: 'Copy name',
+                      icon: 'copy',
+                      onClick: () => {
+                          copyToClipboard(menuTitle)
+                          dispatch(setSnackBarText('Copied name to clipboard!', 'success'))
+                      },
+                  },
+                  {
+                      label: 'Copy URI',
+                      icon: 'copy',
+                      onClick: () => {
+                          copyToClipboard(data.item.uri)
+                          dispatch(setSnackBarText('Copied URI to clipboard!', 'success'))
+                      },
+                  },
+              ]
+            : []
+    } else {
+        menuTitle = data.type === 'regex' ? 'RegEx' : 'Query'
+        menuItems = [
+            {
+                label: 'Copy query',
+                icon: 'copy',
+                onClick: () => {
+                    copyToClipboard(title)
+                    dispatch(setSnackBarText('Copied query to clipboard!', 'success'))
+                },
+            },
+        ]
+    }
+
     return (
         <div
             cart-index={index}
@@ -354,18 +424,11 @@ const GridCard = ({ index, data, width }) => {
                 [c.noBackground]: data.type === 'directory' || data.type === 'file',
             })}
             style={data.type === 'query' ? { background: 'none' } : null}
-            onClick={() => {
-                // Only navigate for query and image types
-                // Don't navigate for file, directory, or regex types
-                if (
-                    data.item?.uri &&
-                    (data.type === 'query' || data.type === 'image')
-                ) {
-                    // force a uri query
-                    dispatch(setRecordData({}))
-                    navigate(`${HASH_PATHS.record}?uri=${data.item?.uri}`)
-                }
+            onClick={toRecord}
+            onAuxClick={(e) => {
+                if (e.button === 1) toRecord(e)
             }}
+            onContextMenu={openContextMenu}
         >
             {data.type === 'directory' ? (
                 <div className={c.gridItemDirectory}>
@@ -465,6 +528,12 @@ const GridCard = ({ index, data, width }) => {
                     <InfoOutlinedIcon />
                 </div>
             </Tooltip>
+            <ContextMenu
+                contextMenu={contextMenu}
+                onClose={closeContextMenu}
+                title={menuTitle}
+                items={menuItems}
+            />
         </div>
     )
 }

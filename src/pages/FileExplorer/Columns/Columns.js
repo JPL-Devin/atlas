@@ -13,6 +13,7 @@ import {
     getFilename,
     abbreviateNumber,
     getExtension,
+    copyToClipboard,
 } from '../../../core/utils'
 import {
     IMAGE_EXTENSIONS,
@@ -37,6 +38,10 @@ import {
 import { makeStyles } from '@mui/styles'
 
 import MenuButton from '../../../components/MenuButton/MenuButton'
+import ContextMenu, {
+    useContextMenu,
+    buildRecordMenuItems,
+} from '../../../components/ContextMenu/ContextMenu'
 import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
@@ -558,6 +563,91 @@ const Column = (props) => {
 
     const colRef = useRef(null)
     const firstItemRef = useRef(null)
+
+    const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
+
+    const copyAction = (label, text, what) => ({
+        label,
+        icon: 'copy',
+        onClick: () => {
+            copyToClipboard(text)
+            dispatch(setSnackBarText(`Copied ${what} to clipboard!`, 'success'))
+        },
+    })
+    const cartAction = (type, item) => ({
+        label: 'Add to Cart',
+        icon: 'cart',
+        onClick: () => {
+            dispatch(addToCart(type, item))
+            dispatch(setSnackBarText('Added to Cart!', 'success'))
+        },
+    })
+
+    // Row data is set by each <li>'s onContextMenu: { kind, name, s?, uri? }
+    const buildRowMenu = (row) => {
+        if (row == null) return { title: null, items: [] }
+        switch (row.kind) {
+            case 'file': {
+                const s = row.s
+                const releaseId = getIn(s, ES_PATHS.archive.release_id)
+                const items = buildRecordMenuItems({
+                    filename: row.name,
+                    sourceUri: s.uri,
+                    labelUri: getIn(s, ES_PATHS.related.concat(['label', 'uri'])),
+                    browseUri: getIn(s, ES_PATHS.related.concat(['browse', 'uri'])),
+                    releaseId,
+                    dispatch,
+                    openInNewTab: false,
+                })
+                if (items.length > 0) items.push('-')
+                items.push(
+                    cartAction('file', {
+                        uri: getIn(s, ES_PATHS.source),
+                        related: getIn(s, ES_PATHS.related),
+                        release_id: releaseId,
+                        size: getIn(s, ES_PATHS.archive.size),
+                    })
+                )
+                return { title: row.name, items }
+            }
+            case 'directory': {
+                const s = row.s
+                return {
+                    title: row.name,
+                    items: [
+                        copyAction('Copy name', row.name, 'name'),
+                        '-',
+                        cartAction('directory', {
+                            uri: getIn(s, ES_PATHS.source),
+                            related: getIn(s, ES_PATHS.related),
+                            release_id: getIn(s, ES_PATHS.archive.release_id),
+                            size: getIn(s, ES_PATHS.archive.size),
+                        }),
+                    ],
+                }
+            }
+            case 'volume':
+                return {
+                    title: row.name,
+                    items: [
+                        copyAction('Copy name', row.name, 'name'),
+                        '-',
+                        cartAction('directory', {
+                            uri: row.uri,
+                            related: { src: { uri: row.uri } },
+                            size: 0,
+                        }),
+                    ],
+                }
+            case 'filter':
+            default:
+                return {
+                    title: row.name,
+                    items: [copyAction('Copy name', row.name, 'name')],
+                }
+        }
+    }
+    const rowMenu = buildRowMenu(contextMenu && contextMenu.data)
 
     // Get columns and lastFilexFilterDoc from Redux for building bundle/volume URIs
     const columns = useSelector((state) => {
@@ -1086,6 +1176,12 @@ const Column = (props) => {
                                                       })
                                                   )
                                               }}
+                                              onContextMenu={(e) =>
+                                                  openContextMenu(e, {
+                                                      kind: 'filter',
+                                                      name: getDisplayName(result.key),
+                                                  })
+                                              }
                                           >
                                               <div className={c.liflex}>
                                                   <div className={c.liType}>
@@ -1240,6 +1336,16 @@ const Column = (props) => {
                                                           })
                                                       )
                                                   }}
+                                                  onContextMenu={(e) =>
+                                                      openContextMenu(e, {
+                                                          kind: 'volume',
+                                                          name: result.key,
+                                                          uri: buildBundleVolumeUri(
+                                                              result.key,
+                                                              result.type || 'volume'
+                                                          ),
+                                                      })
+                                                  }
                                               >
                                                   <div className={c.flexBetween}>
                                                       <div className={c.liflex}>
@@ -1391,6 +1497,17 @@ const Column = (props) => {
                                                       })
                                                   )
                                               }}
+                                              onContextMenu={(e) =>
+                                                  openContextMenu(e, {
+                                                      kind:
+                                                          getIn(s, ES_PATHS.archive.fs_type) ===
+                                                          'file'
+                                                              ? 'file'
+                                                              : 'directory',
+                                                      name: result.name || getFilename(s.uri),
+                                                      s,
+                                                  })
+                                              }
                                           >
                                               <div
                                                   className={clsx(c.liType, {
@@ -1539,6 +1656,12 @@ const Column = (props) => {
                                   })}
                         </ul>
                     ) : null}
+                    <ContextMenu
+                        contextMenu={contextMenu}
+                        onClose={closeContextMenu}
+                        title={rowMenu.title}
+                        items={rowMenu.items}
+                    />
                 </div>
                 <div className={c.footer}>
                     <div>{isMobile ? mainPath : null}</div>

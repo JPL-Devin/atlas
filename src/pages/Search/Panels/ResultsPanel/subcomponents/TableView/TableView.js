@@ -37,6 +37,11 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ImageIcon from '@mui/icons-material/Image'
 
 import BrowseImage from '../../../../../../components/BrowseImage/BrowseImage.js'
+import ContextMenu, {
+    useContextMenu,
+    buildRecordMenuItems,
+    recordClickHandlers,
+} from '../../../../../../components/ContextMenu/ContextMenu'
 
 const rowItemHeight = 32
 
@@ -294,14 +299,13 @@ const TableView = (props) => {
         const c = useStyles()
 
         const navigate = useNavigate()
+        const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
 
         if (data == null) return null
 
         const s = data._source
 
-        function toRecord() {
-            navigate(`${HASH_PATHS.record}?uri=${getIn(s, ES_PATHS.source)}`)
-        }
+        const toRecord = recordClickHandlers(getIn(s, ES_PATHS.source), navigate)
 
         return (
             <div
@@ -309,6 +313,7 @@ const TableView = (props) => {
                 result-id={index}
                 result-key={data.result_key}
                 className={`${c.rowItem} TableViewRowItem`}
+                onContextMenu={openContextMenu}
                 onMouseEnter={() => {
                     sASet(sAKeys.HOVERED_RESULT, data)
                 }}
@@ -317,6 +322,19 @@ const TableView = (props) => {
                 }}
             >
                 {makeColumns(index, data, cols, columnWidths, toRecord)}
+                <ContextMenu
+                    contextMenu={contextMenu}
+                    onClose={closeContextMenu}
+                    title={getIn(s, ES_PATHS.file_name, '')}
+                    items={buildRecordMenuItems({
+                        filename: getIn(s, ES_PATHS.file_name, ''),
+                        sourceUri: getIn(s, ES_PATHS.source),
+                        labelUri: getIn(s, ES_PATHS.label),
+                        browseUri: getIn(s, ES_PATHS.browse),
+                        releaseId: getIn(s, ES_PATHS.release_id),
+                        dispatch,
+                    })}
+                />
             </div>
         )
     }
@@ -402,7 +420,7 @@ const makeColumns = (idx, data, cols, columnWidths, toRecord) => {
                 break
             case 'thumbnail':
                 colElements.push(
-                    <div key={`${index}_${index}`} className={c.cellThumbnail} onClick={toRecord}>
+                    <div key={`${index}_${index}`} className={c.cellThumbnail} {...toRecord}>
                         <BrowseImage
                             src={
                                 IMAGE_EXTENSIONS.includes(getExtension(imgURL, true))

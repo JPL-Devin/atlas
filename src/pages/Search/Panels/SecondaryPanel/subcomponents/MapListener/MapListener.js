@@ -10,6 +10,10 @@ import {
 } from '../../../../../../core/redux/actions/subscribableActions.js'
 import { HASH_PATHS, ES_PATHS, AVAILABLE_URI_SIZES } from '../../../../../../core/constants'
 import { getIn, getPDSUrl } from '../../../../../../core/utils'
+import {
+    isNewTabClick,
+    openRecordInNewTab,
+} from '../../../../../../components/ContextMenu/ContextMenu'
 
 // Kind of ugly but works
 // CartoCosmos MapContainer looks at this too
@@ -237,8 +241,13 @@ const MapListener = (props) => {
         const s = e.target.data
             ? getIn(e.target, 'data._source')
             : getIn(e.target, 'feature.properties')
+        const uri = getIn(s, ES_PATHS.source)
+        if (isNewTabClick(e.originalEvent)) {
+            openRecordInNewTab(uri)
+            return
+        }
         setTimeout(() => {
-            navigate(`${HASH_PATHS.record}?uri=${getIn(s, ES_PATHS.source)}`)
+            navigate(`${HASH_PATHS.record}?uri=${uri}`)
         }, 200)
     }
     const handleHover = (e) => {
