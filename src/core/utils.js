@@ -305,7 +305,7 @@ export const copyToClipboard = function (text) {
     if (navigator.clipboard && window.isSecureContext)
         return navigator.clipboard.writeText(text).then(
             () => true,
-            () => false
+            () => copyToClipboardLegacy(text)
         )
     return Promise.resolve(copyToClipboardLegacy(text))
 }
