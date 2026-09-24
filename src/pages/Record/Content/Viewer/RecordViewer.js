@@ -219,7 +219,10 @@ const useTextPreview = (url) => {
 
         // Streamed so an oversized body is aborted after the cap, not buffered whole.
         const readCapped = async () => {
-            const res = await fetch(url, { ...getHeader(), signal: controller.signal })
+            const res = await fetch(url, {
+                headers: getHeader().headers,
+                signal: controller.signal,
+            })
             if (!res.ok) {
                 throw new Error(`HTTP ${res.status}`)
             }
@@ -257,8 +260,8 @@ const useTextPreview = (url) => {
 }
 
 const COLUMN_COLOR_COUNT = 8
-// Beyond this many rows, remaining lines render uncoloured to keep the DOM small
-const MAX_COLORED_ROWS = 5000
+// Beyond this many fields, remaining text renders uncoloured to keep the DOM small
+const MAX_COLORED_FIELDS = 50000
 
 const splitDelimited = (line, delimiter) => {
     const fields = []
@@ -283,12 +286,22 @@ const splitDelimited = (line, delimiter) => {
 const ColoredDelimitedText = (props) => {
     const { text, delimiter, classes } = props
     const lines = text.split('\n')
-    const colored = lines.slice(0, MAX_COLORED_ROWS)
-    const rest = lines.slice(MAX_COLORED_ROWS)
+    const rows = []
+    let fieldCount = 0
+    let coloredLines = 0
+    while (coloredLines < lines.length) {
+        const fields = splitDelimited(lines[coloredLines], delimiter)
+        if (fieldCount + fields.length > MAX_COLORED_FIELDS) {
+            break
+        }
+        fieldCount += fields.length
+        rows.push(fields)
+        coloredLines++
+    }
+    const rest = lines.slice(coloredLines)
     return (
         <>
-            {colored.map((line, row) => {
-                const fields = splitDelimited(line, delimiter)
+            {rows.map((fields, row) => {
                 return (
                     <span key={row}>
                         {fields.map((field, col) => (
