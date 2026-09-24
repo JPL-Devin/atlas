@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import PropTypes from 'prop-types'
+import { useSelector } from 'react-redux'
 
 import { makeStyles } from '@mui/styles'
 
@@ -16,8 +17,16 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import { HASH_PATHS, ES_PATHS } from '../../core/constants'
 import { getIn, getPDSUrl, getFilename, copyToClipboard } from '../../core/utils'
 import { getPublicUrl } from '../../core/runtimeConfig'
+import { getAppConfig } from '../../core/appConfig'
 import { streamDownloadFile } from '../../core/downloaders/ZipStream.js'
 import { addToCart, setSnackBarText } from '../../core/redux/actions/actions'
+
+export const isUriInCart = (cart, uri) =>
+    uri != null && (cart || []).some((c) => getIn(c, 'item.uri', 'unset') === uri)
+
+// Whether a record uri is already in the redux cart
+export const useIsInCart = (uri) =>
+    useSelector((state) => isUriInCart(state.get('cart').toJS(), uri))
 
 // Cart payload for a search record `_source`, mirroring ProductToolbar's add-to-cart
 export const recordCartItem = (s) => {
@@ -41,6 +50,18 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.text.secondary,
         minWidth: '120px',
         maxWidth: '320px',
+        borderTopLeftRadius: '0px',
+        // Corner notch marking the click point the menu is anchored to
+        '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: 0,
+            height: 0,
+            borderTop: `10px solid ${theme.palette.swatches.yellow.yellow700}`,
+            borderRight: '10px solid transparent',
+        },
     },
     title: {
         'fontSize': '13px',
@@ -127,6 +148,7 @@ export const recordClickHandlers = (uri, navigate, extraParams) => {
  * @param {Function} opts.dispatch redux dispatch
  * @param {boolean} opts.openInNewTab include "Open in new tab" (default true)
  * @param {{type: string, item: Object}} opts.cartItem adds "Add to Cart" when provided
+ * @param {boolean} opts.inCart disables "Add to Cart" when the record is already carted
  */
 export const buildRecordMenuItems = ({
     filename,
@@ -139,6 +161,7 @@ export const buildRecordMenuItems = ({
     recordUri = sourceUri,
     sourceReleaseId = releaseId,
     cartItem,
+    inCart = false,
 }) => {
     const name = filename || getFilename(sourceUri)
     const copy = (text, what) => () => {
@@ -195,10 +218,11 @@ export const buildRecordMenuItems = ({
         })}
 
     const cartItems = []
-    if (cartItem)
+    if (cartItem && getAppConfig().enableCart)
         {cartItems.push({
-            label: 'Add to Cart',
+            label: inCart ? 'Already in Cart' : 'Add to Cart',
             icon: 'cart',
+            disabled: inCart,
             onClick: () => {
                 dispatch(addToCart(cartItem.type, cartItem.item))
                 dispatch(setSnackBarText('Added to Cart!', 'success'))
@@ -255,14 +279,14 @@ const ContextMenu = (props) => {
                 e.preventDefault()
                 e.stopPropagation()
                 // Right-click outside the paper: close and forward to whatever is underneath
-                if (e.target.closest('.MuiPaper-root')) return
+                if (e.target.closest('.MuiPaper-root')) {return}
                 const root = e.currentTarget
                 root.style.pointerEvents = 'none'
                 const under = document.elementFromPoint(e.clientX, e.clientY)
                 root.style.pointerEvents = ''
                 onClose()
                 if (under)
-                    under.dispatchEvent(
+                    {under.dispatchEvent(
                         new MouseEvent('contextmenu', {
                             bubbles: true,
                             cancelable: true,
@@ -270,7 +294,7 @@ const ContextMenu = (props) => {
                             clientY: e.clientY,
                             button: 2,
                         })
-                    )
+                    )}
             }}
         >
             {title != null ? (

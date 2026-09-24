@@ -41,7 +41,9 @@ import MenuButton from '../../../components/MenuButton/MenuButton'
 import ContextMenu, {
     useContextMenu,
     buildRecordMenuItems,
+    isUriInCart,
 } from '../../../components/ContextMenu/ContextMenu'
+import { getAppConfig } from '../../../core/appConfig'
 import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
@@ -574,14 +576,19 @@ const Column = (props) => {
             dispatch(setSnackBarText(`Copied ${what} to clipboard!`, 'success'))
         },
     })
+    const cart = useSelector((state) => state.get('cart').toJS() || [])
     const cartAction = (type, item) => ({
-        label: 'Add to Cart',
+        label: isUriInCart(cart, item.uri) ? 'Already in Cart' : 'Add to Cart',
         icon: 'cart',
+        disabled: isUriInCart(cart, item.uri),
         onClick: () => {
             dispatch(addToCart(type, item))
             dispatch(setSnackBarText('Added to Cart!', 'success'))
         },
     })
+
+    const withCart = (copyItem, makeCartItem) =>
+        getAppConfig().enableCart ? [copyItem, '-', makeCartItem()] : [copyItem]
 
     // Row data is set by each <li>'s onContextMenu: { kind, name, s?, uri? }
     const buildRowMenu = (row) => {
@@ -599,45 +606,43 @@ const Column = (props) => {
                     dispatch,
                     openInNewTab: false,
                 })
-                if (items.length > 0) items.push('-')
-                items.push(
-                    cartAction('file', {
-                        uri: getIn(s, ES_PATHS.source),
-                        related: getIn(s, ES_PATHS.related),
-                        release_id: releaseId,
-                        size: getIn(s, ES_PATHS.archive.size),
-                    })
-                )
+                if (getAppConfig().enableCart) {
+                    if (items.length > 0) items.push('-')
+                    items.push(
+                        cartAction('file', {
+                            uri: getIn(s, ES_PATHS.source),
+                            related: getIn(s, ES_PATHS.related),
+                            release_id: releaseId,
+                            size: getIn(s, ES_PATHS.archive.size),
+                        })
+                    )
+                }
                 return { title: row.name, items }
             }
             case 'directory': {
                 const s = row.s
                 return {
                     title: row.name,
-                    items: [
-                        copyAction('Copy name', row.name, 'name'),
-                        '-',
+                    items: withCart(copyAction('Copy name', row.name, 'name'), () =>
                         cartAction('directory', {
                             uri: getIn(s, ES_PATHS.source),
                             related: getIn(s, ES_PATHS.related),
                             release_id: getIn(s, ES_PATHS.archive.release_id),
                             size: getIn(s, ES_PATHS.archive.size),
-                        }),
-                    ],
+                        })
+                    ),
                 }
             }
             case 'volume':
                 return {
                     title: row.name,
-                    items: [
-                        copyAction('Copy name', row.name, 'name'),
-                        '-',
+                    items: withCart(copyAction('Copy name', row.name, 'name'), () =>
                         cartAction('directory', {
                             uri: row.uri,
                             related: { src: { uri: row.uri } },
                             size: 0,
-                        }),
-                    ],
+                        })
+                    ),
                 }
             case 'filter':
             default:

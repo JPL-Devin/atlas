@@ -38,6 +38,7 @@ import ContextMenu, {
     useContextMenu,
     buildRecordMenuItems,
     recordCartItem,
+    useIsInCart,
     recordClickHandlers,
 } from '../../../../../../components/ContextMenu/ContextMenu'
 
@@ -312,6 +313,7 @@ const ListCard = ({ index, data, width }) => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
+    const inCart = useIsInCart(getIn(s, ES_PATHS.source))
 
     const release_id = getIn(s, ES_PATHS.release_id)
 
@@ -429,6 +431,7 @@ const ListCard = ({ index, data, width }) => {
                     browseUri: getIn(s, ES_PATHS.browse),
                     releaseId: release_id,
                     cartItem: recordCartItem(s),
+                    inCart,
                     dispatch,
                 })}
             />

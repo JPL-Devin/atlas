@@ -28,6 +28,7 @@ import ContextMenu, {
     useContextMenu,
     buildRecordMenuItems,
     recordClickHandlers,
+    useIsInCart,
 } from '../../../components/ContextMenu/ContextMenu'
 
 import ProductIcons from '../../../components/ProductIcons/ProductIcons'
@@ -585,6 +586,7 @@ const Preview = (props) => {
     const [activeVersion, setActiveVersion] = useState(null)
     const [hasBrowse, setHasBrowse] = useState(null)
     const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
+    const inCart = useIsInCart(preview.uri)
 
     let preview = useSelector((state) => {
         const filexPreview = state.get('filexPreview')
@@ -885,6 +887,7 @@ const Preview = (props) => {
                             browseUri: browseUri,
                             releaseId: release_id != null ? release_id : getIn(preview, ES_PATHS.release_id),
                             dispatch,
+                            inCart,
                             cartItem: {
                                 type: 'file',
                                 item: {
