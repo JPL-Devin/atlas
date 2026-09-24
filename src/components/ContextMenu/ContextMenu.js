@@ -23,8 +23,8 @@ const useStyles = makeStyles((theme) => ({
     paper: {
         background: theme.palette.swatches.grey.grey800,
         color: theme.palette.text.secondary,
-        minWidth: '220px',
-        maxWidth: '420px',
+        minWidth: '170px',
+        maxWidth: '370px',
     },
     title: {
         'fontSize': '13px',
