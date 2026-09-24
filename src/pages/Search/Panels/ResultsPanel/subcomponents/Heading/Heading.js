@@ -11,6 +11,8 @@ import { makeStyles } from '@mui/styles'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import RotateRightIcon from '@mui/icons-material/RotateRight'
@@ -27,6 +29,7 @@ import ChippedFilters from '../ChippedFilters/ChippedFilters'
 import {
     addToCart,
     checkItemInResults,
+    setBrowseableOnly,
     setGridSize,
     setModal,
     setSnackBarText,
@@ -81,6 +84,30 @@ const useStyles = makeStyles((theme) => ({
                     ? 'inherit'
                     : theme.palette.swatches.grey.grey150,
             color: window.atlasGlobal.imageRotation === 0 ? 'rgba(0,0,0,0.54)' : 'black',
+        },
+    },
+    browseableToggle: {
+        'height': '26px',
+        'margin': '7px 5px 7px 4px',
+        'background': theme.palette.swatches.grey.grey100,
+        '& .MuiToggleButton-root': {
+            'height': '26px',
+            'padding': '0px 8px',
+            'fontSize': '10px',
+            'lineHeight': '26px',
+            'fontWeight': 'bold',
+            'whiteSpace': 'nowrap',
+            'color': theme.palette.swatches.grey.grey300,
+            'borderColor': theme.palette.swatches.grey.grey200,
+            'transition': 'color 0.2s ease-out, background 0.2s ease-out',
+            '&:hover': {
+                color: theme.palette.text.primary,
+                background: theme.palette.swatches.grey.grey150,
+            },
+            '&.Mui-selected': {
+                color: theme.palette.text.primary,
+                background: theme.palette.swatches.grey.grey150,
+            },
         },
     },
     gridSize: {
@@ -140,6 +167,7 @@ const Heading = (props) => {
 
     const filterType = useSelector((state) => state.getIn(['filterType']))
     const gridSize = useSelector((state) => state.getIn(['gridSize']))
+    const browseableOnly = useSelector((state) => state.getIn(['browseableOnly']))
 
     const resultKeysChecked = useSelector((state) => state.getIn(['resultKeysChecked'])).toJS()
 
@@ -170,6 +198,28 @@ const Heading = (props) => {
             </div>
             <div className={c.middle}>{filterType === 'basic' && <ChippedFilters />}</div>
             <div className={c.right}>
+                {!mobile && (
+                    <ToggleButtonGroup
+                        className={c.browseableToggle}
+                        value={browseableOnly ? 'browseable' : 'all'}
+                        exclusive
+                        size="small"
+                        aria-label="product type"
+                        onChange={(e, value) => {
+                            if (value == null) {
+                                return
+                            }
+                            dispatch(setBrowseableOnly(value === 'browseable'))
+                        }}
+                    >
+                        <ToggleButton value="all" aria-label="all products">
+                            {isMobile ? 'All' : 'All Products'}
+                        </ToggleButton>
+                        <ToggleButton value="browseable" aria-label="browseable images">
+                            {isMobile ? 'Browseable' : 'Browseable Images'}
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                )}
                 <ResultsSorter />
                 {activeView === 'Grid' && !isMobile && (
                     <div className={c.gridSize}>
@@ -289,14 +339,19 @@ const Heading = (props) => {
                         '-',
                         'Deselect All',
                     ] : []
+                    const browseableOptions = mobile
+                        ? ['All Products', 'Browseable Images', '-']
+                        : []
                     const menuOptions = !isMobile
                         ? cartOptions
                         : activeView === 'Table'
                         ? [
+                              ...browseableOptions,
                               ...(cartOptions.length > 0 ? [...cartOptions, '-'] : []),
                               'Edit Columns',
                           ]
                         : [
+                              ...browseableOptions,
                               ...(cartOptions.length > 0 ? [...cartOptions, '-'] : []),
                               'Small Grid Images',
                               'Medium Grid Images',
@@ -307,9 +362,16 @@ const Heading = (props) => {
                     if (menuOptions.length === 0) return null
                     return (<MenuButton
                     options={menuOptions}
+                    active={mobile ? (browseableOnly ? 'Browseable Images' : 'All Products') : null}
                     buttonComponent={<MoreVertIcon className={c.menuButton} />}
                     onChange={(option) => {
                         switch (option) {
+                            case 'All Products':
+                                dispatch(setBrowseableOnly(false))
+                                break
+                            case 'Browseable Images':
+                                dispatch(setBrowseableOnly(true))
+                                break
                             case 'Add Selected Results to Cart':
                                 dispatch(addToCart('image', 'checkedResults'))
                                 dispatch(setSnackBarText('Added to Cart!', 'success'))
