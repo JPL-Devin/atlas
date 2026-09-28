@@ -288,6 +288,12 @@ const TOO_LARGE_NOTICE = {
 }
 const AUDIO_MIME_TYPES = { wav: 'audio/wav', m4a: 'audio/mp4' }
 const MEDIA_INITIAL_VOLUME = 0.4
+// Stable ref so the volume is only applied on mount, not on every rerender
+const setInitialVolume = (el) => {
+    if (el) {
+        el.volume = MEDIA_INITIAL_VOLUME
+    }
+}
 
 const FETCH_FAILED_NOTICE = {
     title: 'Preview unavailable',
@@ -541,9 +547,7 @@ const RecordViewer = (props) => {
         key: sourceURL,
         controls: true,
         preload: 'metadata',
-        ref: (el) => {
-            if (el) el.volume = MEDIA_INITIAL_VOLUME
-        },
+        ref: setInitialVolume,
         onError: () => setViewerFailed(true),
     }
 
