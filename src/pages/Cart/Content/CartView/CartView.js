@@ -30,7 +30,6 @@ import Tooltip from '@mui/material/Tooltip'
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import FolderIcon from '@mui/icons-material/Folder'
-import ImageIcon from '@mui/icons-material/Image'
 
 import { setRecordData, setSnackBarText } from '../../../../core/redux/actions/actions'
 
@@ -317,6 +316,8 @@ const GridCard = ({ index, data, width }) => {
 
     const imgAlt =
         data.type === 'query' ? 'Collection of images' : getFilename(getIn(data, 'item.uri', ''))
+    // Icon fallback follows the source product's type, not the (missing) browse image's
+    const iconName = data.type === 'image' ? getIn(data, 'item.uri', '') : ''
 
     let title
     if (data.type === 'query' || data.type === 'regex')
@@ -357,10 +358,7 @@ const GridCard = ({ index, data, width }) => {
             onClick={() => {
                 // Only navigate for query and image types
                 // Don't navigate for file, directory, or regex types
-                if (
-                    data.item?.uri &&
-                    (data.type === 'query' || data.type === 'image')
-                ) {
+                if (data.item?.uri && (data.type === 'query' || data.type === 'image')) {
                     // force a uri query
                     dispatch(setRecordData({}))
                     navigate(`${HASH_PATHS.record}?uri=${data.item?.uri}`)
@@ -414,7 +412,7 @@ const GridCard = ({ index, data, width }) => {
                                 }
                                 duration={250}
                                 iconWrapperStyle={{ opacity: 0.6 }}
-                                errorIcon={<ProductIcons filename={imgURL} />}
+                                errorIcon={<ProductIcons filename={iconName || imgURL} />}
                                 src={imgURL || ''}
                                 alt={imgAlt}
                                 loading="lazy"

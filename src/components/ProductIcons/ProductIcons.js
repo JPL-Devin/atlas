@@ -5,10 +5,32 @@ import clsx from 'clsx'
 
 import { makeStyles } from '@mui/styles'
 import { getExtension } from '../../core/utils'
+import {
+    IMAGE_EXTENSIONS,
+    MODEL_EXTENSIONS,
+    TEXT_PREVIEW_EXTENSIONS,
+    DOCUMENT_PREVIEW_EXTENSIONS,
+    VIDEO_PREVIEW_EXTENSIONS,
+    AUDIO_PREVIEW_EXTENSIONS,
+} from '../../core/constants'
 
-import ImageIcon from '@mui/icons-material/Image'
+import ImageNotSupportedOutlinedIcon from '@mui/icons-material/ImageNotSupportedOutlined'
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
+import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined'
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined'
+import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined'
+import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined'
+import AudiotrackOutlinedIcon from '@mui/icons-material/AudiotrackOutlined'
 import FolderIcon from '@mui/icons-material/Folder'
+
+const LABEL_EXTENSIONS = ['lbl', 'xml', 'json', 'cat', 'fmt']
+const TYPE_ICONS = [
+    [['csv', 'tab'], TableChartOutlinedIcon],
+    [[...TEXT_PREVIEW_EXTENSIONS, ...LABEL_EXTENSIONS], DescriptionOutlinedIcon],
+    [DOCUMENT_PREVIEW_EXTENSIONS, PictureAsPdfOutlinedIcon],
+    [VIDEO_PREVIEW_EXTENSIONS, VideocamOutlinedIcon],
+    [AUDIO_PREVIEW_EXTENSIONS, AudiotrackOutlinedIcon],
+]
 
 const useStyles = makeStyles((theme) => ({
     ProductIcons: {
@@ -83,8 +105,26 @@ const useStyles = makeStyles((theme) => ({
     dark: {
         color: 'black',
     },
+    // Products without a browse image: muted so it reads as "no preview", not a broken link
     missing: {
-        color: theme.palette.accent.main,
+        color: theme.palette.swatches.grey.grey400,
+    },
+    typed: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        height: '100%',
+    },
+    caption: {
+        fontSize: '10px',
+        lineHeight: '12px',
+        letterSpacing: '0.04em',
+        wordSpacing: '0.2em',
+        textTransform: 'uppercase',
+        whiteSpace: 'nowrap',
+        marginTop: '2px',
     },
     iconSvg: {
         width: '48px',
@@ -142,26 +182,36 @@ const ProductIcons = (props) => {
                 break
             default:
                 isMissing = true
-                Icon = <ImageIcon className={clsx(c.default)} />
+                Icon = <ImageNotSupportedOutlinedIcon className={clsx(c.default)} />
         }
     } else {
         const ext = getExtension(filename, true)
-        switch (ext) {
-            case 'obj':
-                Icon = (
-                    <div className={clsx(c.model, 'modelIcon')}>
-                        <div className="face -front" />
-                        <div className="face -left" />
-                        <div className="face -top" />
-                        <div className="face -bottom" />
-                        <div className="face -right" />
-                        <div className="face -back" />
-                    </div>
-                )
-                break
-            default:
-                isMissing = true
-                Icon = <ImageIcon className={clsx(c.default)} />
+        if (MODEL_EXTENSIONS.includes(ext)) {
+            Icon = (
+                <div className={clsx(c.model, 'modelIcon')}>
+                    <div className="face -front" />
+                    <div className="face -left" />
+                    <div className="face -top" />
+                    <div className="face -bottom" />
+                    <div className="face -right" />
+                    <div className="face -back" />
+                </div>
+            )
+        } else {
+            isMissing = true
+            const typed = TYPE_ICONS.find(([exts]) => exts.includes(ext))
+            const TypeIcon = typed
+                ? typed[1]
+                : ext && !IMAGE_EXTENSIONS.includes(ext)
+                  ? InsertDriveFileOutlinedIcon
+                  : ImageNotSupportedOutlinedIcon
+            const caption = TypeIcon === ImageNotSupportedOutlinedIcon ? 'No browse' : ext
+            Icon = (
+                <div className={c.typed}>
+                    <TypeIcon className={clsx(c.default)} />
+                    {size !== 'small' && <div className={c.caption}>{caption}</div>}
+                </div>
+            )
         }
     }
 
