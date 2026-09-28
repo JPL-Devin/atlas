@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         gap: '4px',
         minWidth: 0,
-        height: `${theme.headHeights[2]}px`,
+        minHeight: `${theme.headHeights[2]}px`,
         padding: '0 8px 0 4px',
     },
     backButton: {
