@@ -78,6 +78,8 @@ const volumeColumnWidth = 230
 const minVolumeColumnWidth = 230
 const DEPRECATED_COLOR = '#834325'
 
+let latestRecordLookupId = 0
+
 const useStyles = makeStyles((theme) => ({
     Columns: {
         height: '100%',
@@ -563,6 +565,14 @@ const Column = (props) => {
 
     const colRef = useRef(null)
     const firstItemRef = useRef(null)
+    const isMountedRef = useRef(true)
+
+    useEffect(() => {
+        isMountedRef.current = true
+        return () => {
+            isMountedRef.current = false
+        }
+    }, [])
 
     // Get columns and lastFilexFilterDoc from Redux for building bundle/volume URIs
     const columns = useSelector((state) => {
@@ -1467,8 +1477,13 @@ const Column = (props) => {
                                                                   aria-label="view record"
                                                                   onClick={(e) => {
                                                                       e.stopPropagation()
+                                                                      const lookupId = ++latestRecordLookupId
+                                                                      const isCurrent = () =>
+                                                                          isMountedRef.current &&
+                                                                          lookupId === latestRecordLookupId
                                                                       queryRelatedRecord(s.uri)
                                                                           .then((related) => {
+                                                                              if (!isCurrent()) return
                                                                               if (related?.uri)
                                                                                   navigate(
                                                                                       `${HASH_PATHS.record}?uri=${related.uri}&back=page`
@@ -1482,6 +1497,7 @@ const Column = (props) => {
                                                                                   )
                                                                           })
                                                                           .catch(() => {
+                                                                              if (!isCurrent()) return
                                                                               dispatch(
                                                                                   setSnackBarText(
                                                                                       "Could not look up this file's record",
