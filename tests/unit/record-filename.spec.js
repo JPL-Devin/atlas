@@ -27,6 +27,9 @@ test.describe('resolveFilenameSpec', () => {
         expect(resolveFilenameSpec({ mission: 'msl', pds_standard: 'pds3' })).toBe(
             filenameSpecs.msl
         )
+        expect(resolveFilenameSpec({ mission: 'artemis2', pds_standard: 'pds4' })).toBe(
+            filenameSpecs.artemis2
+        )
         expect(resolveFilenameSpec({ mission: 'vgr', pds_standard: 'pds3' })).toBe(null)
         expect(resolveFilenameSpec({})).toBe(null)
     })
@@ -224,6 +227,89 @@ test.describe('missions with several conventions', () => {
         expect(parseFilename('cap004_frame120_lfl1.tif', filenameSpecs.scalpss)).toBe(null)
     })
 
+    test('an artemis ii nikon image decodes its nasa id, camera and product type', () => {
+        const nikon = decode('artemis2', 'art002e024481_nkd5015_prc_v01.tif')
+        expect(nikon.title).toContain('NASA ID')
+        expect(nikon.meaning('Mission')).toBe('Artemis II')
+        expect(nikon.meaning('Media type')).toBe('Still image')
+        expect(nikon.meaning('Sequence number')).toBe('Catalogue number 24481')
+        expect(nikon.meaning('Instrument')).toBe('Nikon D5, serial 3500015')
+        expect(nikon.meaning('Product type')).toContain('Processed')
+        expect(nikon.meaning('Version')).toBe('Version 1')
+        expect(nikon.meaning('Extension')).toContain('TIFF')
+        expect(decode('artemis2', 'art002e027742_nkz9019_src_v01.nef').meaning('Instrument')).toBe(
+            'Nikon Z9, serial 39200019'
+        )
+        expect(decode('artemis2', 'art002e031160_saw3_src_v01.jpg').meaning('Instrument')).toBe(
+            'Orion Solar Array Wing camera 3'
+        )
+        expect(decode('artemis2', 'art002e018386_dcam_raw_v01.tif').meaning('Instrument')).toBe(
+            'Orion Docking Camera'
+        )
+        expect(decode('artemis2', 'art002e041867_iph17_raw_v01.png').meaning('Instrument')).toBe(
+            'iPhone 17'
+        )
+    })
+
+    test('artemis ii pcd audio, transcripts and annotations decode', () => {
+        const audio = decode('artemis2', 'art002a000034_pcd2_raw_v01.m4a')
+        expect(audio.meaning('Media type')).toBe('Audio')
+        expect(audio.meaning('Instrument')).toBe('Portable Computing Device 2')
+        expect(audio.meaning('Extension')).toContain('audio')
+        const transcript = decode('artemis2', 'art002a000034_pcd2_trn-srt_v01.srt')
+        expect(transcript.meaning('Product type')).toBe('Transcript (SRT)')
+        const notes = decode('artemis2', 'art002e009389-e009474_pcd2_ann_v01.pdf')
+        expect(notes.meaning('Sequence number')).toBe('Catalogue number 9389')
+        expect(notes.meaning('Last NASA ID')).toBe('Last page art002e009474')
+        expect(notes.meaning('Product type')).toBe('Annotation')
+    })
+
+    test('an artemis ii video decodes its channel and utc time', () => {
+        const video = decode('artemis2', 'art002m1010961940_saw3_vid_v01.mp4')
+        expect(video.title).toContain('video')
+        expect(video.meaning('Media type')).toBe('Video')
+        expect(video.meaning('Video channel')).toContain('ART-DL-1')
+        expect(video.meaning('UTC day of year')).toBe('Day 96')
+        expect(video.meaning('UTC time')).toBe('19:40 UTC')
+        expect(video.meaning('Product type')).toBe('Video')
+    })
+
+    test('artemis ii voice loops and hobo loggers decode without a nasa id', () => {
+        const loop = decode('artemis2', 'art002_2026-04-07_oe2_trn-csv_v01.csv')
+        expect(loop.title).toContain('voice loop')
+        expect(loop.meaning('UTC date')).toBe('2026-04-07 UTC')
+        expect(loop.meaning('Instrument')).toContain('O/E-2')
+        expect(loop.meaning('Product type')).toBe('Transcript (CSV)')
+        const hobo = decode('artemis2', 'art002_086-162546_111-205046_hobo1104_raw_v01.csv')
+        expect(hobo.title).toContain('HOBO')
+        expect(hobo.meaning('UTC start')).toBe('Day 86, 16:25:46 UTC')
+        expect(hobo.meaning('UTC end')).toBe('Day 111, 20:50:46 UTC')
+        expect(hobo.meaning('Instrument')).toBe('HOBO data logger SN 1104')
+    })
+
+    test('artemis ii names reassemble exactly, in any case', () => {
+        ;[
+            'art002e026016_nkd5017_raw_v01.tif',
+            'art002e000156_onav_raw_v01.png',
+            'art002e041314_cab2_src_v01.jpg',
+            'art002e009303-e009388_pcd1_ann_v01.pdf',
+            'art002m1020961555_saw3_vid_v01.mp4',
+            'art002_2026-04-06_oe1_raw_v01.mp4',
+            'art002_086-162926_111-203826_hobo1105_raw_v01.csv',
+            'ART002E024481_NKD5015_SRC_V01.NEF',
+        ].forEach((name) => {
+            const parsed = parseFilename(name, filenameSpecs.artemis2)
+            expect(parsed, name).not.toBe(null)
+            expect(parsed.pieces.map((p) => p.text).join(''), name).toBe(name)
+        })
+        expect(
+            meaningOf(
+                parseFilename('ART002E024481_NKD5015_SRC_V01.NEF', filenameSpecs.artemis2),
+                'Instrument'
+            )
+        ).toBe('Nikon D5, serial 3500015')
+    })
+
     test('a lunar orbiter frame decodes its orbiter and subframe', () => {
         const lo = decode('lo', 'FRAME_3101_H2.IMG')
         expect(lo.meaning('Orbiter')).toBe('Lunar Orbiter III')
@@ -247,6 +333,15 @@ test.describe('missions with several conventions', () => {
     test('a name matching none of a mission\u2019s conventions stays plain text', () => {
         expect(parseFilename('1mesh_4621x_rfnp.tar.gz', filenameSpecs.mer)).toBe(null)
         expect(parseFilename('MLF_628039357RAD.txt', filenameSpecs.msl)).toBe(null)
+        ;[
+            'art002e024481_nkd5015_prc_v1.tif',
+            'art002e02448_nkd5015_prc_v01.tif',
+            'art002e024481_nkd5015_cal_v01.tif',
+            'art002m101096194_saw3_vid_v01.mp4',
+            'art002_2026-04-06_pcd2_raw_v01.m4a',
+            'art002_086-162546_hobo1104_raw_v01.csv',
+            'collection_data_raw_inventory.csv',
+        ].forEach((name) => expect(parseFilename(name, filenameSpecs.artemis2), name).toBe(null))
     })
 })
 
