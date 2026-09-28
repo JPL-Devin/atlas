@@ -9,10 +9,9 @@ import { useTheme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 
 import Button from '@mui/material/Button'
+import ButtonGroup from '@mui/material/ButtonGroup'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
-import ToggleButton from '@mui/material/ToggleButton'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import RotateRightIcon from '@mui/icons-material/RotateRight'
@@ -89,25 +88,23 @@ const useStyles = makeStyles((theme) => ({
     browseableToggle: {
         'height': '26px',
         'margin': '7px 5px 7px 4px',
-        'background': theme.palette.swatches.grey.grey100,
-        '& .MuiToggleButton-root': {
-            'height': '26px',
-            'padding': '0px 8px',
-            'fontSize': '10px',
-            'lineHeight': '26px',
-            'fontWeight': 'bold',
-            'whiteSpace': 'nowrap',
-            'color': theme.palette.swatches.grey.grey300,
-            'borderColor': theme.palette.swatches.grey.grey200,
-            'transition': 'color 0.2s ease-out, background 0.2s ease-out',
-            '&:hover': {
-                color: theme.palette.text.primary,
-                background: theme.palette.swatches.grey.grey150,
-            },
-            '&.Mui-selected': {
-                color: theme.palette.text.primary,
-                background: theme.palette.swatches.grey.grey150,
-            },
+        'borderRadius': '2px',
+        '& > .MuiButton-root': {
+            background: theme.palette.swatches.grey.grey0,
+            fontSize: '10px',
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+            whiteSpace: 'nowrap',
+        },
+        '& .MuiButtonGroup-groupedOutlinedHorizontal:not(:last-child)': {
+            borderRight: '2px solid rgba(23, 23, 27, 0.5) !important',
+        },
+    },
+    browseableActive: {
+        'background': `${theme.palette.accent.main} !important`,
+        'color': theme.palette.swatches.grey.grey0,
+        '&:hover': {
+            color: theme.palette.swatches.grey.grey0,
         },
     },
     gridSize: {
@@ -199,26 +196,40 @@ const Heading = (props) => {
             <div className={c.middle}>{filterType === 'basic' && <ChippedFilters />}</div>
             <div className={c.right}>
                 {!mobile && (
-                    <ToggleButtonGroup
+                    <ButtonGroup
                         className={c.browseableToggle}
-                        value={browseableOnly ? 'browseable' : 'all'}
-                        exclusive
+                        variant="outlined"
+                        color="secondary"
                         size="small"
                         aria-label="product type"
-                        onChange={(e, value) => {
-                            if (value == null) {
-                                return
-                            }
-                            dispatch(setBrowseableOnly(value === 'browseable'))
-                        }}
                     >
-                        <ToggleButton value="all" aria-label="all products">
-                            {isMobile ? 'All' : 'All Products'}
-                        </ToggleButton>
-                        <ToggleButton value="browseable" aria-label="browseable images">
-                            {isMobile ? 'Browseable' : 'Browseable Images'}
-                        </ToggleButton>
-                    </ToggleButtonGroup>
+                        <Tooltip
+                            title="Show every product, including those without a browse image"
+                            arrow
+                        >
+                            <Button
+                                className={clsx({ [c.browseableActive]: !browseableOnly })}
+                                aria-label="all products"
+                                aria-pressed={!browseableOnly}
+                                onClick={() => dispatch(setBrowseableOnly(false))}
+                            >
+                                {isMobile ? 'All' : 'All Products'}
+                            </Button>
+                        </Tooltip>
+                        <Tooltip
+                            title="Only show image and model products that have a browse image"
+                            arrow
+                        >
+                            <Button
+                                className={clsx({ [c.browseableActive]: browseableOnly })}
+                                aria-label="browseable images"
+                                aria-pressed={browseableOnly}
+                                onClick={() => dispatch(setBrowseableOnly(true))}
+                            >
+                                {isMobile ? 'Browseable' : 'Browseable Images'}
+                            </Button>
+                        </Tooltip>
+                    </ButtonGroup>
                 )}
                 <ResultsSorter />
                 {activeView === 'Grid' && !isMobile && (
