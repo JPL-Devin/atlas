@@ -373,6 +373,7 @@ const GridCard = ({ index, data, width }) => {
                     cartItem: recordCartItem(s),
                     cartIndex,
                     dispatch,
+                    navigate,
                 })}
             />
         </div>

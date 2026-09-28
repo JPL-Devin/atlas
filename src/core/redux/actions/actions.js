@@ -8,6 +8,7 @@ import {
     endpoints,
     resultsStatuses,
     ES_PATHS,
+    HASH_PATHS,
     IMAGE_EXTENSIONS,
     MODEL_EXTENSIONS,
 } from '../../constants'
@@ -2212,6 +2213,46 @@ export const queryFilexColumn = (columnId, isLast, cb) => {
                 console.error('DSL Error')
                 console.dir(err)
             })
+    }
+}
+
+/**
+ * Archive Explorer deep link for an atlas uri, or null if it has no mission.
+ * Files get the trailing "-" the deep link uses to mark the final file.
+ *
+ * @param {string} uri
+ * @returns {string|null}
+ */
+export const getArchiveExplorerPath = (uri) => {
+    const { pds_format, mission, spacecraft, relativeUrl, bundle } = splitUri(uri)
+    if (!mission) return null
+    const pds = pds_format === 'pds3' ? '3' : '4'
+    const path = (relativeUrl || '').replace(/\/+$/, '')
+    if (spacecraft === '*' || path.split('/').length <= 2)
+        return `${HASH_PATHS.fileExplorer}?mission=${mission}${
+            bundle ? `&bundle=${bundle}` : ''
+        }&pds=${pds}`
+    const isFile = path.split('/').pop().indexOf('.') > -1
+    return `${HASH_PATHS.fileExplorer}?uri=${splitUri(uri, 'spacecraft')}${path}${
+        isFile ? '-' : ''
+    }&pds=${pds}`
+}
+
+/**
+ * Clears the Archive Explorer and navigates to it, drilled down to `uri`
+ *
+ * @param {string} uri
+ * @param {function} navigate - react-router navigate
+ */
+export const openInArchiveExplorer = (uri, navigate) => {
+    return (dispatch) => {
+        const path = getArchiveExplorerPath(uri)
+        if (path == null) return
+        usedURLState = false
+        dispatch(removeFilexColumn(0))
+        dispatch(setFilexPreview({}))
+        dispatch({ type: ACTIONS.SET_LAST_FILEX_FILTER_DOC, payload: null })
+        navigate(path)
     }
 }
 

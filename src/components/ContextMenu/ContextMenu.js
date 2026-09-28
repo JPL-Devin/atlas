@@ -14,13 +14,19 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import GetAppIcon from '@mui/icons-material/GetApp'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart'
+import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 
 import { HASH_PATHS, ES_PATHS } from '../../core/constants'
 import { getIn, getPDSUrl, getFilename, copyToClipboard } from '../../core/utils'
 import { getPublicUrl } from '../../core/runtimeConfig'
 import { getAppConfig } from '../../core/appConfig'
 import { streamDownloadFile } from '../../core/downloaders/ZipStream.js'
-import { addToCart, removeFromCart, setSnackBarText } from '../../core/redux/actions/actions'
+import {
+    addToCart,
+    removeFromCart,
+    setSnackBarText,
+    openInArchiveExplorer,
+} from '../../core/redux/actions/actions'
 
 // Index of a record uri in the cart, or -1
 export const cartIndexOf = (cart, uri) =>
@@ -49,6 +55,16 @@ export const cartMenuItem = (dispatch, type, item, cartIndex) =>
                   dispatch(setSnackBarText('Added to Cart!', 'success'))
               },
           }
+
+// "Open in Archive Explorer" menu item, or null when the explorer is disabled
+export const archiveExplorerMenuItem = (dispatch, navigate, uri) =>
+    uri && navigate && getAppConfig().enableArchiveExplorer
+        ? {
+              label: 'Open in Archive Explorer',
+              icon: 'archive',
+              onClick: () => dispatch(openInArchiveExplorer(uri, navigate)),
+          }
+        : null
 
 // Cart payload for a search record `_source`, mirroring ProductToolbar's add-to-cart
 export const recordCartItem = (s) => {
@@ -131,6 +147,7 @@ const ICONS = {
     download: GetAppIcon,
     cart: AddShoppingCartIcon,
     removeCart: RemoveShoppingCartIcon,
+    archive: FolderOpenIcon,
 }
 
 export const recordPageUrl = (uri) => `${getPublicUrl()}${HASH_PATHS.record}?uri=${uri}`
@@ -175,6 +192,7 @@ export const recordClickHandlers = (uri, navigate, extraParams) => {
  * @param {string} opts.browseUri
  * @param {string|number} opts.releaseId
  * @param {Function} opts.dispatch redux dispatch
+ * @param {Function} opts.navigate react-router navigate; adds "Open in Archive Explorer" when provided
  * @param {boolean} opts.openInNewTab include "Open in new tab" (default true)
  * @param {{type: string, item: Object}} opts.cartItem adds "Add to Cart" when provided
  * @param {number} opts.cartIndex index in cart (>= 0 switches the item to "Remove from Cart")
@@ -186,6 +204,7 @@ export const buildRecordMenuItems = ({
     browseUri,
     releaseId,
     dispatch,
+    navigate,
     openInNewTab = true,
     recordUri = sourceUri,
     sourceReleaseId = releaseId,
@@ -234,6 +253,8 @@ export const buildRecordMenuItems = ({
             icon: 'open',
             onClick: () => openRecordInNewTab(recordUri),
         })}
+    const archiveItem = archiveExplorerMenuItem(dispatch, navigate, sourceUri)
+    if (archiveItem) {openItems.push(archiveItem)}
 
     const downloadItems = []
     if (labelUri)

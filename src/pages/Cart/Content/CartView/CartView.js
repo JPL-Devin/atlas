@@ -47,6 +47,7 @@ import ProductIcons from '../../../../components/ProductIcons/ProductIcons'
 import ContextMenu, {
     useContextMenu,
     buildRecordMenuItems,
+    archiveExplorerMenuItem,
     isNewTabClick,
     openRecordInNewTab,
 } from '../../../../components/ContextMenu/ContextMenu'
@@ -379,6 +380,7 @@ const GridCard = ({ index, data, width }) => {
             browseUri: data.type === 'image' ? data.item.related?.browse?.uri : null,
             releaseId: release_id,
             dispatch,
+            navigate,
             openInNewTab: data.type === 'image',
         })
     } else if (data.type === 'directory') {
@@ -401,7 +403,8 @@ const GridCard = ({ index, data, width }) => {
                           dispatch(setSnackBarText('Copied URI to clipboard!', 'success'))
                       },
                   },
-              ]
+                  archiveExplorerMenuItem(dispatch, navigate, data.item.uri),
+              ].filter(Boolean)
             : []
     } else {
         menuTitle = data.type === 'regex' ? 'RegEx' : 'Query'
