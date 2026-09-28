@@ -287,6 +287,7 @@ const TOO_LARGE_NOTICE = {
     body: 'Download the product to view its full contents.',
 }
 const AUDIO_MIME_TYPES = { wav: 'audio/wav', m4a: 'audio/mp4' }
+const MEDIA_INITIAL_VOLUME = 0.4
 
 const FETCH_FAILED_NOTICE = {
     title: 'Preview unavailable',
@@ -540,6 +541,9 @@ const RecordViewer = (props) => {
         key: sourceURL,
         controls: true,
         preload: 'metadata',
+        ref: (el) => {
+            if (el) el.volume = MEDIA_INITIAL_VOLUME
+        },
         onError: () => setViewerFailed(true),
     }
 
