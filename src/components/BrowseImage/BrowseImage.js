@@ -54,7 +54,7 @@ const BrowseImage = ({ src, addBaseUrl = false, alt, className, style, filename 
           onError={handleError}
           {...rest}
         />
-      : <div style={{width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center'}}><ProductIcons filename={filename} size="small" /></div>
+      : <div style={{position: 'relative', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center'}}><ProductIcons filename={filename} size="small" fit /></div>
   );
 
 };
