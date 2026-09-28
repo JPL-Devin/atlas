@@ -199,13 +199,13 @@ const useStyles = makeStyles((theme) => ({
         background: theme.palette.swatches.grey.grey850,
     },
     video: {
-        maxWidth: '100%',
-        maxHeight: '100%',
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain',
         outline: 'none',
     },
     audio: {
-        width: 'calc(100% - 64px)',
-        maxWidth: '640px',
+        width: 'calc(100% - 32px)',
     },
     textPreview: {
         height: '100%',
