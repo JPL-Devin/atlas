@@ -566,11 +566,13 @@ const handleSearchResponse = (
                             })
                         }
 
-                        // Sort buckets case-insensitively
+                        // Sort buckets numerically, else case-insensitively
                         buckets.sort((a, b) =>
-                            String(a.key).localeCompare(String(b.key), undefined, {
-                                sensitivity: 'base',
-                            })
+                            typeof a.key === 'number' && typeof b.key === 'number'
+                                ? a.key - b.key
+                                : String(a.key).localeCompare(String(b.key), undefined, {
+                                      sensitivity: 'base',
+                                  })
                         )
 
                         nextActiveFilters[filter].facets[i].fields = buckets

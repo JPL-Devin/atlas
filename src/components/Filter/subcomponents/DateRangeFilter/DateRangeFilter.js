@@ -208,6 +208,8 @@ const DateRangeFilter = (props) => {
     )
     const noDates = selectedStartDate === null && selectedEndDate === null
     const bothDates = selectedStartDate && selectedEndDate ? true : false
+    const hasSavedRange =
+        facet.state?.daterange?.start || facet.state?.daterange?.end ? true : false
 
     useEffect(() => {
         if (facet.state?.daterange === false) {
@@ -240,7 +242,7 @@ const DateRangeFilter = (props) => {
         setDateFormatIdx(nextIdx)
     }
     const handleClear = () => {
-        if (!noDates)
+        if (!noDates || hasSavedRange)
             dispatch(
                 setFieldState(filterKey, facetId, {
                     daterange: false,
@@ -386,7 +388,7 @@ const DateRangeFilter = (props) => {
                     size="small"
                     variant="contained"
                     onClick={handleClear}
-                    disabled={selectedStartDate !== null || selectedEndDate !== null}
+                    disabled={noDates && !hasSavedRange}
                 >
                     Clear
                 </Button>
@@ -395,10 +397,7 @@ const DateRangeFilter = (props) => {
                     size="small"
                     variant="contained"
                     onClick={handleSubmit}
-                    disabled={
-                        selectedStartDate?.utc() > selectedEndDate?.utc() ||
-                        (selectedStartDate === null && selectedStartDate === null)
-                    }
+                    disabled={selectedStartDate?.utc() > selectedEndDate?.utc() || noDates}
                 >
                     Search
                 </Button>

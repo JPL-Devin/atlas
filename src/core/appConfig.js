@@ -21,6 +21,7 @@ const instances = {
             'gather.common.target',
             'gather.common.product_type',
             'gather.common.kind',
+            'gather.time.start_time',
             'archive.bundle_id',
             'gather.machine_learning.classification.classifications.class',
             'gather.machine_learning.classification.classifications.confidence',
@@ -57,6 +58,7 @@ const instances = {
             'gather.common.target',
             'gather.common.product_type',
             'gather.common.kind',
+            'gather.time.start_time',
             'archive.bundle_id',
         ],
         defaultFilterValues: {
