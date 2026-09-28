@@ -29,7 +29,8 @@ const useStyles = makeStyles((theme) => ({
 
 /**
  * Links a SIS document's PDF, showing its download size since these run from a
- * few hundred KB to tens of MB. `label` overrides the generated title.
+ * few hundred KB to tens of MB. `label` overrides the generated title. A
+ * document with no `url` is cited as plain text.
  */
 export const SisLink = (props) => {
     const { document, label } = props
@@ -37,6 +38,10 @@ export const SisLink = (props) => {
     const c = useStyles()
 
     const size = formatSisSize(document.size)
+
+    if (document.url == null) {
+        return <span title={document.note || undefined}>{label || formatSisTitle(document)}</span>
+    }
 
     return (
         <a
