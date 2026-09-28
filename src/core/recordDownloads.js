@@ -39,6 +39,9 @@ export const getDownloadProducts = (recordData) => {
         (key) => key === 'src' || related[key]?.uri
     )
 
+    const configuredDefault = getAppConfig().defaultDownloadProduct
+    const defaultKey = keys.includes(configuredDefault) ? configuredDefault : 'src'
+
     return keys.map((key) => {
         const uri = key === 'src' ? getIn(recordData, ES_PATHS.source) : related[key].uri
         // The source product carries its size on the archive entry, not in `related`.
@@ -52,7 +55,7 @@ export const getDownloadProducts = (recordData) => {
             extension,
             size,
             uri,
-            checked: key === getAppConfig().defaultDownloadProduct,
+            checked: key === defaultKey,
             release_id,
         }
     })
