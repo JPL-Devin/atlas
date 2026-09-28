@@ -1446,6 +1446,7 @@ export const setBrowseableOnly = (browseableOnly) => {
             type: ACTIONS.SET_BROWSEABLE_ONLY,
             payload: { browseableOnly },
         })
+        dispatch(checkItemInResults('clear'))
         dispatch(clearResults())
         dispatch(search())
     }
