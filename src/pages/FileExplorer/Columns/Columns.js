@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 import Url from 'url-parse'
@@ -18,6 +19,7 @@ import {
 import {
     IMAGE_EXTENSIONS,
     ES_PATHS,
+    HASH_PATHS,
     getDisplayName,
     getShortDisplayName,
 } from '../../../core/constants'
@@ -33,6 +35,7 @@ import {
     addToCart,
     setSnackBarText,
     setShowDeprecated,
+    queryRelatedRecord,
 } from '../../../core/redux/actions/actions'
 
 import { makeStyles } from '@mui/styles'
@@ -69,6 +72,7 @@ import ImageIcon from '@mui/icons-material/Image'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import GetAppIcon from '@mui/icons-material/GetApp'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
+import PageviewIcon from '@mui/icons-material/Pageview'
 import SearchIcon from '@mui/icons-material/Search'
 import FilterListIcon from '@mui/icons-material/FilterList'
 
@@ -81,6 +85,8 @@ const minColumnWidth = 220
 const volumeColumnWidth = 230
 const minVolumeColumnWidth = 230
 const DEPRECATED_COLOR = '#834325'
+
+let latestRecordLookupId = 0
 
 const useStyles = makeStyles((theme) => ({
     Columns: {
@@ -559,6 +565,7 @@ const Column = (props) => {
     const c = useStyles()
 
     const dispatch = useDispatch()
+    const navigate = useNavigate()
 
     const showDeprecated = useSelector((state) => {
         return state.getIn(['showDeprecated'], false)
@@ -566,6 +573,14 @@ const Column = (props) => {
 
     const colRef = useRef(null)
     const firstItemRef = useRef(null)
+    const isMountedRef = useRef(true)
+
+    useEffect(() => {
+        isMountedRef.current = true
+        return () => {
+            isMountedRef.current = false
+        }
+    }, [])
 
     const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
 
@@ -1569,6 +1584,54 @@ const Column = (props) => {
                                                           }
                                                       )}
                                                   >
+                                                      {getIn(s, ES_PATHS.archive.fs_type) ===
+                                                          'file' && s.uri != null ? (
+                                                          <Tooltip
+                                                              title="View this product's record page"
+                                                              arrow
+                                                          >
+                                                              <IconButton
+                                                                  className={clsx(c.button, {
+                                                                      [c.buttonMobile]: isMobile,
+                                                                  })}
+                                                                  aria-label="view record"
+                                                                  onClick={(e) => {
+                                                                      e.stopPropagation()
+                                                                      const lookupId = ++latestRecordLookupId
+                                                                      const isCurrent = () =>
+                                                                          isMountedRef.current &&
+                                                                          lookupId === latestRecordLookupId
+                                                                      queryRelatedRecord(s.uri)
+                                                                          .then((related) => {
+                                                                              if (!isCurrent()) return
+                                                                              if (related?.uri)
+                                                                                  navigate(
+                                                                                      `${HASH_PATHS.record}?uri=${related.uri}&back=page`
+                                                                                  )
+                                                                              else
+                                                                                  dispatch(
+                                                                                      setSnackBarText(
+                                                                                          'No record found for this file',
+                                                                                          'warning'
+                                                                                      )
+                                                                                  )
+                                                                          })
+                                                                          .catch(() => {
+                                                                              if (!isCurrent()) return
+                                                                              dispatch(
+                                                                                  setSnackBarText(
+                                                                                      "Could not look up this file's record",
+                                                                                      'error'
+                                                                                  )
+                                                                              )
+                                                                          })
+                                                                  }}
+                                                                  size="large"
+                                                              >
+                                                                  <PageviewIcon size="small" />
+                                                              </IconButton>
+                                                          </Tooltip>
+                                                      ) : null}
                                                       {getIn(s, ES_PATHS.archive.fs_type) ===
                                                       'file' ? (
                                                           <Tooltip title="Download" arrow>
