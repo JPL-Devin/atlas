@@ -824,8 +824,16 @@ const Overview = (props) => {
                                   }
                                   displayEmpty
                                   onChange={(e) => {
+                                      // Replace, so File Explorer's `back=page` still points at File Explorer.
+                                      const backToPage =
+                                          new URLSearchParams(window.location.search).get(
+                                              'back'
+                                          ) === 'page'
                                       navigate(
-                                          `${HASH_PATHS.record}?uri=${versions[e.target.value].uri}`
+                                          `${HASH_PATHS.record}?uri=${versions[e.target.value].uri}${
+                                              backToPage ? '&back=page' : ''
+                                          }`,
+                                          { replace: backToPage }
                                       )
                                   }}
                                   value={activeVersion == null ? '' : activeVersion}

@@ -10,6 +10,7 @@ import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import LinkIcon from '@mui/icons-material/Link'
 
@@ -50,8 +51,21 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         gap: '4px',
         minWidth: 0,
-        height: `${theme.headHeights[2]}px`,
+        minHeight: `${theme.headHeights[2]}px`,
         padding: '0 8px 0 4px',
+    },
+    backButton: {
+        'flexShrink': 0,
+        'padding': '2px',
+        'color': theme.palette.swatches.grey.grey500,
+        'transition': 'color 0.15s ease-out, background 0.15s ease-out',
+        '&:hover': {
+            color: theme.palette.swatches.grey.grey900,
+            background: theme.palette.swatches.grey.grey150,
+        },
+        '& .MuiSvgIcon-root': {
+            fontSize: '24px',
+        },
     },
     copyName: {
         'flexShrink': 0,
@@ -160,10 +174,31 @@ const PanelHeader = (props) => {
 
     const filename = getIn(recordData, ES_PATHS.file_name, '--')
 
+    // `back=page` only means "go back" while this tab holds the page that set it.
+    const canGoBack =
+        new URLSearchParams(window.location.search).get('back') === 'page' &&
+        window.history.state?.idx > 0
+
     return (
         <div className={c.PanelHeader}>
             <div className={c.titleBlock}>
                 <div className={c.identity}>
+                    <Tooltip title={canGoBack ? 'Back' : 'Back to Search'} arrow>
+                        <IconButton
+                            className={c.backButton}
+                            aria-label={canGoBack ? 'go back a page' : 'return to search'}
+                            size="small"
+                            onClick={() => {
+                                if (canGoBack) {
+                                    navigate(-1)
+                                } else {
+                                    navigate(HASH_PATHS.search)
+                                }
+                            }}
+                        >
+                            <ChevronLeftIcon />
+                        </IconButton>
+                    </Tooltip>
                     <div className={c.name}>
                         {parsedFilename != null ? (
                             <FilenameName selection={filenameSelection} />
@@ -241,7 +276,12 @@ const PanelHeader = (props) => {
                         aria-label="copy link to record page"
                         startIcon={<LinkIcon fontSize="small" />}
                         onClick={() => {
-                            copyToClipboard(window.location.href)
+                            copyToClipboard(
+                                window.location.href.replace(
+                                    /([?&])back=[^&#]*(&?)/,
+                                    (_, sep, next) => (next ? sep : '')
+                                )
+                            )
                             dispatch(setSnackBarText('Copied URL to clipboard!', 'success'))
                         }}
                     >
