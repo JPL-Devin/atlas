@@ -1171,10 +1171,9 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                 const cacheableData = isCacheableSearchResponse(response)
                     ? structuredClone(response.data)
                     : null
-                if (cacheableData != null) setCachedSearch(cacheKey, cacheableData)
                 // A response for a search the user has since moved away from must not overwrite it
-                if (isSuperseded()) return
-                handleSearchResponse(dispatch, response, responseOptions)
+                if (!isSuperseded()) handleSearchResponse(dispatch, response, responseOptions)
+                if (cacheableData != null) setCachedSearch(cacheKey, cacheableData)
             })
             .catch((err) => {
                 if (isSuperseded()) return
