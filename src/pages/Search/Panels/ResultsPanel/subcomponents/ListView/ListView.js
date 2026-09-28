@@ -433,6 +433,7 @@ const ListCard = ({ index, data, width }) => {
                     cartItem: recordCartItem(s),
                     cartIndex,
                     dispatch,
+                    navigate,
                 })}
             />
         </div>

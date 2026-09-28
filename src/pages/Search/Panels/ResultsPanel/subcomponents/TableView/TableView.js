@@ -337,8 +337,9 @@ const TableView = (props) => {
                         browseUri: getIn(s, ES_PATHS.browse),
                         releaseId: getIn(s, ES_PATHS.release_id),
                         cartItem: recordCartItem(s),
-                    cartIndex,
+                        cartIndex,
                         dispatch,
+                        navigate,
                     })}
                 />
             </div>

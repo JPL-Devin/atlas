@@ -13,11 +13,16 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import LinkIcon from '@mui/icons-material/Link'
+import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 
 import { HASH_PATHS, ES_PATHS } from '../../../../core/constants'
 import { getIn, copyToClipboard, getPDSUrl, getFilename } from '../../../../core/utils'
 import { streamDownloadFile } from '../../../../core/downloaders/ZipStream.js'
-import { addToCart, setSnackBarText } from '../../../../core/redux/actions/actions'
+import {
+    addToCart,
+    setSnackBarText,
+    openInArchiveExplorer,
+} from '../../../../core/redux/actions/actions'
 import { getDownloadProducts } from '../../../../core/recordDownloads'
 import { getAppConfig } from '../../../../core/appConfig'
 import SplitButton from '../../../../components/SplitButton/SplitButton'
@@ -268,6 +273,27 @@ const PanelHeader = (props) => {
                         })
                     }}
                 />
+                {getAppConfig().enableArchiveExplorer && getIn(recordData, ES_PATHS.uri) && (
+                    <Tooltip title="Open this file in the Archive Explorer" arrow>
+                        <Button
+                            className={c.copyAction}
+                            variant="outlined"
+                            size="small"
+                            aria-label="open record in archive explorer"
+                            startIcon={<FolderOpenIcon fontSize="small" />}
+                            onClick={() => {
+                                dispatch(
+                                    openInArchiveExplorer(
+                                        getIn(recordData, ES_PATHS.uri),
+                                        navigate
+                                    )
+                                )
+                            }}
+                        >
+                            Archive Explorer
+                        </Button>
+                    </Tooltip>
+                )}
                 <Tooltip title="Copy link to this record" arrow>
                     <Button
                         className={c.copyAction}
