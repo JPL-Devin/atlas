@@ -24,6 +24,7 @@ let lastDSL = {}
 const SEARCH_CACHE_MAX_ENTRIES = 25
 const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000
 const searchCache = new Map()
+let pendingCachedReplay = null
 
 const getCachedSearch = (key) => {
     const entry = searchCache.get(key)
@@ -1110,11 +1111,16 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
             )
         }
 
+        // A newer search supersedes any cached replay that hasn't been applied yet
+        clearTimeout(pendingCachedReplay)
+        pendingCachedReplay = null
+
         const cachedData = getCachedSearch(cacheKey)
         if (cachedData != null) {
             // Replay on a later task, like a network response, so views render the
             // pre-search state (e.g. cleared results) before the new results arrive
-            setTimeout(() => {
+            pendingCachedReplay = setTimeout(() => {
+                pendingCachedReplay = null
                 try {
                     handleSearchResponse(dispatch, { data: cachedData }, responseOptions)
                 } catch (err) {
