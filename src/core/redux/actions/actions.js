@@ -32,6 +32,9 @@ const SEARCH_CACHE_MAX_ENTRIES = 25
 const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000
 const searchCache = new Map()
 let pendingCachedReplay = null
+// Everything but `from`, so in-flight page loads of the current search still apply
+let currentSearchSignature = null
+const getSearchSignature = (dsl) => JSON.stringify({ ...dsl, from: undefined })
 
 const getCachedSearch = (key) => {
     const entry = searchCache.get(key)
@@ -53,7 +56,11 @@ const setCachedSearch = (key, data) => {
 
 // getHeader() accepts every status, so failures arrive as resolved responses
 const isCacheableSearchResponse = (response) =>
-    response?.status >= 200 && response.status < 300 && Array.isArray(response.data?.hits?.hits)
+    response?.status >= 200 &&
+    response.status < 300 &&
+    Array.isArray(response.data?.hits?.hits) &&
+    response.data.timed_out !== true &&
+    !(response.data._shards?.failed > 0)
 
 // Extensions that reliably have a browse product (both casings, since the
 // index stores lowercase but the field is displayed uppercase)
@@ -1120,6 +1127,9 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
         lastDSL = dsl
 
         const cacheKey = JSON.stringify(dsl)
+        const signature = getSearchSignature(dsl)
+        currentSearchSignature = signature
+        const isSuperseded = () => currentSearchSignature !== signature
         const responseOptions = {
             page,
             filtersNeedUpdate,
@@ -1161,10 +1171,15 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                 const cacheableData = isCacheableSearchResponse(response)
                     ? structuredClone(response.data)
                     : null
-                handleSearchResponse(dispatch, response, responseOptions)
                 if (cacheableData != null) setCachedSearch(cacheKey, cacheableData)
+                // A response for a search the user has since moved away from must not overwrite it
+                if (isSuperseded()) return
+                handleSearchResponse(dispatch, response, responseOptions)
             })
-            .catch(dispatchSearchError)
+            .catch((err) => {
+                if (isSuperseded()) return
+                dispatchSearchError(err)
+            })
     }
 }
 
