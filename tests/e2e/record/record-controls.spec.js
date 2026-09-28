@@ -6,7 +6,7 @@ import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-hel
  *
  *   1. Tab switching (Overview <-> Product Label)
  *   2. OpenSeadragon viewer controls (home / fullscreen / rotate / zoom)
- *   3. Browser back navigates from /record to /search
+ *   3. The title-row back button navigates from /record to /search
  *   4. "copy link to record page" button is reachable
  *
  * The record page is opened by clicking a result on /search. We rely
@@ -104,10 +104,16 @@ test.describe('/record - OpenSeadragon viewer controls', () => {
 })
 
 test.describe('/record - secondary controls', () => {
-    test('browser back navigates from /record to /search', async ({ page }) => {
+    test('back button is visible and navigates from /record to /search', async ({ page }) => {
         await openFirstRecordFromSearch(page)
 
-        await page.goBack()
+        // Opened from /search (no `back=page`), so this is the
+        // 'return to search' variant; match either label to be safe.
+        const back = page
+            .getByRole('button', { name: 'return to search' })
+            .or(page.getByRole('button', { name: 'go back a page' }))
+        await expect(back.first()).toBeVisible({ timeout: SHORT_RESULT_WAIT_MS })
+        await back.first().click()
         await page.waitForURL((u) => u.pathname.includes('/search'), { timeout: 30_000 })
         expect(page.url()).toContain('/search')
     })
