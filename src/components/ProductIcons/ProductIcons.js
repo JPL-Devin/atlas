@@ -24,12 +24,13 @@ import AudiotrackOutlinedIcon from '@mui/icons-material/AudiotrackOutlined'
 import FolderIcon from '@mui/icons-material/Folder'
 
 const LABEL_EXTENSIONS = ['lbl', 'xml', 'json', 'cat', 'fmt']
+// [extensions, icon, muted tint]
 const TYPE_ICONS = [
-    [['csv', 'tab'], TableChartOutlinedIcon],
-    [[...TEXT_PREVIEW_EXTENSIONS, ...LABEL_EXTENSIONS], DescriptionOutlinedIcon],
-    [DOCUMENT_PREVIEW_EXTENSIONS, PictureAsPdfOutlinedIcon],
-    [VIDEO_PREVIEW_EXTENSIONS, VideocamOutlinedIcon],
-    [AUDIO_PREVIEW_EXTENSIONS, AudiotrackOutlinedIcon],
+    [['csv', 'tab'], TableChartOutlinedIcon, '#7cb6e8'],
+    [[...TEXT_PREVIEW_EXTENSIONS, ...LABEL_EXTENSIONS], DescriptionOutlinedIcon, '#9fc7f0'],
+    [DOCUMENT_PREVIEW_EXTENSIONS, PictureAsPdfOutlinedIcon, '#e88a80'],
+    [VIDEO_PREVIEW_EXTENSIONS, VideocamOutlinedIcon, '#c39be8'],
+    [AUDIO_PREVIEW_EXTENSIONS, AudiotrackOutlinedIcon, '#8fd39a'],
 ]
 
 const useStyles = makeStyles((theme) => ({
@@ -207,7 +208,7 @@ const ProductIcons = (props) => {
                   : ImageNotSupportedOutlinedIcon
             const caption = TypeIcon === ImageNotSupportedOutlinedIcon ? 'No browse' : ext
             Icon = (
-                <div className={c.typed}>
+                <div className={c.typed} style={typed ? { color: typed[2] } : undefined}>
                     <TypeIcon className={clsx(c.default)} />
                     {size !== 'small' && <div className={c.caption}>{caption}</div>}
                 </div>
