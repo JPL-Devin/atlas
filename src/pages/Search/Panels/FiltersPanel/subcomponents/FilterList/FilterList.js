@@ -46,10 +46,10 @@ const GROUP_DISPLAY_NAMES = {
 
 const GROUP_ORDER = [
     'common',
+    'time',
     'archive',
     'machine_learning',
     'ancillary',
-    'time',
     'pds_archive',
     'pds4_label',
     'pds3_label',
