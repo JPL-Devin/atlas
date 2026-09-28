@@ -180,7 +180,9 @@ test.describe('Results panel - Table view navigation', () => {
         expect(filterCriticalJsErrors(errors)).toEqual([])
     })
 
-    test('clicking a Table view toolbar cell does not navigate to /record', async ({ page }) => {
+    test('clicking the Table view toolbar selection checkbox does not navigate to /record', async ({
+        page,
+    }) => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await waitForAppReady(page)
 
