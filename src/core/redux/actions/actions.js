@@ -20,6 +20,33 @@ import { formatMappings, getInitialActiveFilters } from '../../../facets/FacetBu
 // Just a quick way to remember
 let lastDSL = {}
 
+// In-memory LRU cache of search responses keyed by the serialized DSL
+const SEARCH_CACHE_MAX_ENTRIES = 25
+const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000
+const searchCache = new Map()
+
+const getCachedSearch = (key) => {
+    const entry = searchCache.get(key)
+    if (entry == null) return null
+    searchCache.delete(key)
+    if (Date.now() - entry.timestamp > SEARCH_CACHE_TTL_MS) return null
+    searchCache.set(key, entry)
+    // Consumers mutate response data (sorting buckets, tagging results), so hand out copies
+    return structuredClone(entry.data)
+}
+
+const setCachedSearch = (key, data) => {
+    searchCache.delete(key)
+    searchCache.set(key, { data, timestamp: Date.now() })
+    while (searchCache.size > SEARCH_CACHE_MAX_ENTRIES) {
+        searchCache.delete(searchCache.keys().next().value)
+    }
+}
+
+// getHeader() accepts every status, so failures arrive as resolved responses
+const isCacheableSearchResponse = (response) =>
+    response?.status >= 200 && response.status < 300 && Array.isArray(response.data?.hits?.hits)
+
 // Let's result views share which image index the user is scrolled to
 // without being an expensive subscription
 let resultViewIndex = 20
@@ -348,6 +375,261 @@ export const updateGeoGrid = (buckets) => {
         payload: {
             buckets,
         },
+    }
+}
+
+/**
+ * Applies a search response (network or cached) to the store
+ *
+ * @param {function} dispatch - redux dispatch
+ * @param {Object} response - object with the elasticsearch response body under `data`
+ * @param {Object} options - the originating search's page, filtersNeedUpdate,
+ *   pageNeedsUpdate, url, dsl, atlasMapping and activeFilters
+ */
+const handleSearchResponse = (
+    dispatch,
+    response,
+    { page, filtersNeedUpdate, pageNeedsUpdate, url, dsl, atlasMapping, activeFilters }
+) => {
+    const aggs = response.data.aggregations || {}
+    const urlHasQuery = url != null ? Object.keys(url.query).length > 0 : false
+    if (!urlHasQuery) {
+        let cartImages = []
+        for (let i = 0; i < 4 && i < response.data.hits.hits.length; i++) {
+            const release_id = getIn(response.data.hits.hits[i]._source, ES_PATHS.release_id)
+            cartImages.push(
+                `${getIn(response.data.hits.hits[i]._source, ES_PATHS.thumb)}${
+                    release_id != null && release_id != 0 ? `::${release_id}` : ''
+                }`
+            )
+        }
+
+        const resultsTotal = getIn(response, 'data.hits.total.value')
+        dispatch({
+            type: ACTIONS.SET_LAST_QUERY,
+            payload: {
+                total: resultsTotal,
+                images: cartImages.reverse(),
+                query: dsl.query,
+            },
+        })
+
+        // Update Results
+        dispatch({
+            type: ACTIONS.ADD_RESULTS,
+            payload: {
+                results: response.data.hits.hits,
+                total: resultsTotal,
+                page: page,
+            },
+        })
+
+        if (resultsTotal === 0) dispatch(setResultsStatus(resultsStatuses.NONE))
+        else dispatch(setResultsStatus(resultsStatuses.SUCCESSFUL))
+    }
+    // Set Active Missions list
+    if (aggs._activeMissions?.buckets) {
+        const nextActiveMissions = []
+        aggs._activeMissions.buckets.forEach((b) => {
+            if (b.doc_count > 0) {
+                nextActiveMissions.push(b.key)
+            }
+        })
+        dispatch(updateActiveMissions(nextActiveMissions))
+    }
+
+    // Geogrid
+    const geoLngLatBuckets = {
+        lat: {},
+        lng: {},
+    }
+    if (aggs._geoGrid?.buckets) {
+        const geoGrid = []
+        aggs._geoGrid.buckets.forEach((g) => {
+            // bbox is [minlat, minlon, maxlat, maxlon]
+            const bbox = geohash.decode_bbox(g.key)
+            geoGrid.push({
+                bbox: bbox,
+                doc_count: g.doc_count,
+                key: g.key,
+            })
+            const latId = bbox[0] + ',' + bbox[2]
+            const lngId = bbox[1] + ',' + bbox[3]
+            if (geoLngLatBuckets.lat[latId] != null) {
+                geoLngLatBuckets.lat[latId].doc_count += g.doc_count
+            } else {
+                geoLngLatBuckets.lat[bbox[0] + ',' + bbox[2]] = {
+                    min: bbox[0],
+                    max: bbox[2],
+                    doc_count: g.doc_count,
+                }
+            }
+            if (geoLngLatBuckets.lng[lngId] != null) {
+                geoLngLatBuckets.lng[lngId].doc_count += g.doc_count
+            } else {
+                geoLngLatBuckets.lng[bbox[1] + ',' + bbox[3]] = {
+                    min: bbox[1],
+                    max: bbox[3],
+                    doc_count: g.doc_count,
+                }
+            }
+        })
+        geoLngLatBuckets.lat = Object.keys(geoLngLatBuckets.lat)
+            .map((b) => geoLngLatBuckets.lat[b])
+            .sort((a, b) => parseFloat(a.min) - parseFloat(b.max))
+        geoLngLatBuckets.lng = Object.keys(geoLngLatBuckets.lng)
+            .map((b) => geoLngLatBuckets.lng[b])
+            .sort((a, b) => parseFloat(a.min) - parseFloat(b.max))
+        aggs['bounding_box'] = geoLngLatBuckets
+        dispatch(updateGeoGrid(geoGrid))
+    } else {
+        dispatch(updateGeoGrid([]))
+    }
+
+    // Update Filters
+    let nextActiveFilters = activeFilters
+    if (filtersNeedUpdate) {
+        Object.keys(nextActiveFilters).forEach((filter) => {
+            if (filter[0] !== '_' && aggs[filter])
+                nextActiveFilters[filter].facets.forEach((facet, i) => {
+                    if (facet.type == 'keyword') {
+                        let buckets = aggs[filter].buckets
+
+                        // Since we'ew filtering, clear the existing bucket aggs
+                        if (facet?.state?.__filter != null && facet?.state?.__filter != '')
+                            nextActiveFilters[filter].facets[i].fields = []
+
+                        // Account for nested buckets
+                        if (aggs[filter].nested) {
+                            buckets = []
+                            aggs[filter].nested.buckets.forEach((b) => {
+                                const newBucket = {
+                                    key: b.key,
+                                    doc_count: b.reverse_nested
+                                        ? b.reverse_nested.doc_count
+                                        : b.doc_count,
+                                }
+                                buckets.push(newBucket)
+                            })
+                        }
+                        // We merge on keywords so that users can always see the full list
+                        nextActiveFilters[filter].facets[i].fields = mergeFields(
+                            nextActiveFilters[filter].facets[i].fields,
+                            buckets
+                        )
+                    } else if (facet.type == 'geo_bounding_box') {
+                        if (geoLngLatBuckets != null)
+                            if (facet.term == 'lat') {
+                                nextActiveFilters[filter].facets[i].fields = geoLngLatBuckets.lat
+                            }
+                        if (facet.term == 'lon') {
+                            nextActiveFilters[filter].facets[i].fields = geoLngLatBuckets.lng
+                        }
+                    } else {
+                        let buckets = aggs[filter].buckets
+
+                        // Account for nested buckets
+                        if (aggs[filter].nested) {
+                            buckets = []
+                            aggs[filter].nested.buckets.forEach((b) => {
+                                const newBucket = {
+                                    key: b.key,
+                                    doc_count: b.reverse_nested
+                                        ? b.reverse_nested.doc_count
+                                        : b.doc_count,
+                                }
+                                if (b.min != null) newBucket.min = b.min
+                                if (b.max != null) newBucket.max = b.max
+                                buckets.push(newBucket)
+                            })
+                        }
+
+                        // Sort buckets case-insensitively
+                        buckets.sort((a, b) =>
+                            String(a.key).localeCompare(String(b.key), undefined, {
+                                sensitivity: 'base',
+                            })
+                        )
+
+                        nextActiveFilters[filter].facets[i].fields = buckets
+                    }
+                })
+        })
+        dispatch(updateActiveFilters(nextActiveFilters))
+        dispatch(checkItemInResults('clear'))
+    }
+
+    if (pageNeedsUpdate) {
+        dispatch({
+            type: ACTIONS.SET_RESULTS_PAGE,
+            payload: { page },
+        })
+    }
+
+    // If this search is capturing state from the url...
+    // We need to do this after the main first query to retain all the match_all aggs
+    if (urlHasQuery) {
+        let isAdvancedFilter = false
+        Object.keys(url.query).forEach((q) => {
+            // In case coming from record page
+            if (q === 'id') return
+            // skip the rest if the url is advanced
+            if (isAdvancedFilter) return
+            if (q === '_adv') {
+                isAdvancedFilter = true
+                dispatch(setAdvancedFilters(decodeURI(url.query[q]), true))
+                dispatch(setFilterType('advanced'))
+            } else {
+                let qSplit = q.split('.')
+                const q2 = qSplit[qSplit.length - 1].split('-')
+                const qMain = q
+                const qIdx = parseInt(q2[1] || '0')
+                qSplit = qSplit.join('..groups..').split('..')
+                if (qSplit.length === 2) qSplit.unshift('default')
+                const addFilter = getIn(atlasMapping.groups, qSplit) || {}
+
+                let filterState = {}
+                if (q[0] === '_') {
+                    filterState.input = url.query[q]
+                } else {
+                    url.query[q].split(',').forEach((v) => {
+                        // Check if this is a range parameter (contains _to_)
+                        if (v.includes('_to_')) {
+                            const [min, max] = v.split('_to_').map(decodeURI)
+                            const filter = getIn(atlasMapping.groups, qSplit) || {}
+                            const facet = filter?.facets?.[qIdx]
+
+                            if (facet?.component === 'date_range') {
+                                // Date range format
+                                filterState.daterange = {
+                                    start: min || '',
+                                    end: max || '',
+                                }
+                            } else if (
+                                facet?.component === 'input_range' ||
+                                facet?.component === 'slider_range'
+                            ) {
+                                // Numeric range format
+                                filterState.range = [
+                                    min !== '' ? parseFloat(min) : null,
+                                    max !== '' ? parseFloat(max) : null,
+                                ]
+                            }
+                        } else {
+                            // Regular keyword filter
+                            filterState[v] = true
+                        }
+                    })
+                }
+                if (nextActiveFilters[qMain] == null && addFilter?.facets?.[qIdx] != null) {
+                    addFilter.facets[qIdx].state = filterState
+                    nextActiveFilters[qMain] = addFilter
+                } else if (nextActiveFilters?.[qMain]?.facets?.[qIdx] != null) {
+                    nextActiveFilters[qMain].facets[qIdx].state = filterState
+                }
+            }
+        })
+        dispatch(search(null, true, null, null, nextActiveFilters))
     }
 }
 
@@ -812,267 +1094,43 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
 
         lastDSL = dsl
 
+        const cacheKey = JSON.stringify(dsl)
+        const responseOptions = {
+            page,
+            filtersNeedUpdate,
+            pageNeedsUpdate,
+            url,
+            dsl,
+            atlasMapping,
+            activeFilters,
+        }
+        const dispatchSearchError = (err) => {
+            dispatch(
+                setResultsStatus(resultsStatuses.ERROR, { error: err == null ? '' : err + '' })
+            )
+        }
+
+        const cachedData = getCachedSearch(cacheKey)
+        if (cachedData != null) {
+            try {
+                handleSearchResponse(dispatch, { data: cachedData }, responseOptions)
+            } catch (err) {
+                searchCache.delete(cacheKey)
+                dispatchSearchError(err)
+            }
+            return
+        }
+
         axios
             .post(`${domain}${endpoints.search}`, dsl, getHeader())
             .then((response) => {
-                const aggs = response.data.aggregations || {}
-                const urlHasQuery = url != null ? Object.keys(url.query).length > 0 : false
-                if (!urlHasQuery) {
-                    let cartImages = []
-                    for (let i = 0; i < 4 && i < response.data.hits.hits.length; i++) {
-                        const release_id = getIn(
-                            response.data.hits.hits[i]._source,
-                            ES_PATHS.release_id
-                        )
-                        cartImages.push(
-                            `${getIn(response.data.hits.hits[i]._source, ES_PATHS.thumb)}${
-                                release_id != null && release_id != 0 ? `::${release_id}` : ''
-                            }`
-                        )
-                    }
-
-                    const resultsTotal = getIn(response, 'data.hits.total.value')
-                    dispatch({
-                        type: ACTIONS.SET_LAST_QUERY,
-                        payload: {
-                            total: resultsTotal,
-                            images: cartImages.reverse(),
-                            query: dsl.query,
-                        },
-                    })
-
-                    // Update Results
-                    dispatch({
-                        type: ACTIONS.ADD_RESULTS,
-                        payload: {
-                            results: response.data.hits.hits,
-                            total: resultsTotal,
-                            page: page,
-                        },
-                    })
-
-                    if (resultsTotal === 0) dispatch(setResultsStatus(resultsStatuses.NONE))
-                    else dispatch(setResultsStatus(resultsStatuses.SUCCESSFUL))
-                }
-                // Set Active Missions list
-                if (aggs._activeMissions?.buckets) {
-                    const nextActiveMissions = []
-                    aggs._activeMissions.buckets.forEach((b) => {
-                        if (b.doc_count > 0) {
-                            nextActiveMissions.push(b.key)
-                        }
-                    })
-                    dispatch(updateActiveMissions(nextActiveMissions))
-                }
-
-                // Geogrid
-                const geoLngLatBuckets = {
-                    lat: {},
-                    lng: {},
-                }
-                if (aggs._geoGrid?.buckets) {
-                    const geoGrid = []
-                    aggs._geoGrid.buckets.forEach((g) => {
-                        // bbox is [minlat, minlon, maxlat, maxlon]
-                        const bbox = geohash.decode_bbox(g.key)
-                        geoGrid.push({
-                            bbox: bbox,
-                            doc_count: g.doc_count,
-                            key: g.key,
-                        })
-                        const latId = bbox[0] + ',' + bbox[2]
-                        const lngId = bbox[1] + ',' + bbox[3]
-                        if (geoLngLatBuckets.lat[latId] != null) {
-                            geoLngLatBuckets.lat[latId].doc_count += g.doc_count
-                        } else {
-                            geoLngLatBuckets.lat[bbox[0] + ',' + bbox[2]] = {
-                                min: bbox[0],
-                                max: bbox[2],
-                                doc_count: g.doc_count,
-                            }
-                        }
-                        if (geoLngLatBuckets.lng[lngId] != null) {
-                            geoLngLatBuckets.lng[lngId].doc_count += g.doc_count
-                        } else {
-                            geoLngLatBuckets.lng[bbox[1] + ',' + bbox[3]] = {
-                                min: bbox[1],
-                                max: bbox[3],
-                                doc_count: g.doc_count,
-                            }
-                        }
-                    })
-                    geoLngLatBuckets.lat = Object.keys(geoLngLatBuckets.lat)
-                        .map((b) => geoLngLatBuckets.lat[b])
-                        .sort((a, b) => parseFloat(a.min) - parseFloat(b.max))
-                    geoLngLatBuckets.lng = Object.keys(geoLngLatBuckets.lng)
-                        .map((b) => geoLngLatBuckets.lng[b])
-                        .sort((a, b) => parseFloat(a.min) - parseFloat(b.max))
-                    aggs['bounding_box'] = geoLngLatBuckets
-                    dispatch(updateGeoGrid(geoGrid))
-                } else {
-                    dispatch(updateGeoGrid([]))
-                }
-
-                // Update Filters
-                let nextActiveFilters = activeFilters
-                if (filtersNeedUpdate) {
-                    Object.keys(nextActiveFilters).forEach((filter) => {
-                        if (filter[0] !== '_' && aggs[filter])
-                            nextActiveFilters[filter].facets.forEach((facet, i) => {
-                                if (facet.type == 'keyword') {
-                                    let buckets = aggs[filter].buckets
-
-                                    // Since we'ew filtering, clear the existing bucket aggs
-                                    if (
-                                        facet?.state?.__filter != null &&
-                                        facet?.state?.__filter != ''
-                                    )
-                                        nextActiveFilters[filter].facets[i].fields = []
-
-                                    // Account for nested buckets
-                                    if (aggs[filter].nested) {
-                                        buckets = []
-                                        aggs[filter].nested.buckets.forEach((b) => {
-                                            const newBucket = {
-                                                key: b.key,
-                                                doc_count: b.reverse_nested
-                                                    ? b.reverse_nested.doc_count
-                                                    : b.doc_count,
-                                            }
-                                            buckets.push(newBucket)
-                                        })
-                                    }
-                                    // We merge on keywords so that users can always see the full list
-                                    nextActiveFilters[filter].facets[i].fields = mergeFields(
-                                        nextActiveFilters[filter].facets[i].fields,
-                                        buckets
-                                    )
-                                } else if (facet.type == 'geo_bounding_box') {
-                                    if (geoLngLatBuckets != null)
-                                        if (facet.term == 'lat') {
-                                            nextActiveFilters[filter].facets[i].fields =
-                                                geoLngLatBuckets.lat
-                                        }
-                                    if (facet.term == 'lon') {
-                                        nextActiveFilters[filter].facets[i].fields =
-                                            geoLngLatBuckets.lng
-                                    }
-                                } else {
-                                    let buckets = aggs[filter].buckets
-
-                                    // Account for nested buckets
-                                    if (aggs[filter].nested) {
-                                        buckets = []
-                                        aggs[filter].nested.buckets.forEach((b) => {
-                                            const newBucket = {
-                                                key: b.key,
-                                                doc_count: b.reverse_nested
-                                                    ? b.reverse_nested.doc_count
-                                                    : b.doc_count,
-                                            }
-                                            if (b.min != null) newBucket.min = b.min
-                                            if (b.max != null) newBucket.max = b.max
-                                            buckets.push(newBucket)
-                                        })
-                                    }
-
-                                    // Sort buckets case-insensitively
-                                    buckets.sort((a, b) =>
-                                        String(a.key).localeCompare(String(b.key), undefined, {
-                                            sensitivity: 'base',
-                                        })
-                                    )
-
-                                    nextActiveFilters[filter].facets[i].fields = buckets
-                                }
-                            })
-                    })
-                    dispatch(updateActiveFilters(nextActiveFilters))
-                    dispatch(checkItemInResults('clear'))
-                }
-
-                if (pageNeedsUpdate) {
-                    dispatch({
-                        type: ACTIONS.SET_RESULTS_PAGE,
-                        payload: { page },
-                    })
-                }
-
-                // If this search is capturing state from the url...
-                // We need to do this after the main first query to retain all the match_all aggs
-                if (urlHasQuery) {
-                    let isAdvancedFilter = false
-                    Object.keys(url.query).forEach((q) => {
-                        // In case coming from record page
-                        if (q === 'id') return
-                        // skip the rest if the url is advanced
-                        if (isAdvancedFilter) return
-                        if (q === '_adv') {
-                            isAdvancedFilter = true
-                            dispatch(setAdvancedFilters(decodeURI(url.query[q]), true))
-                            dispatch(setFilterType('advanced'))
-                        } else {
-                            let qSplit = q.split('.')
-                            const q2 = qSplit[qSplit.length - 1].split('-')
-                            const qMain = q
-                            const qIdx = parseInt(q2[1] || '0')
-                            qSplit = qSplit.join('..groups..').split('..')
-                            if (qSplit.length === 2) qSplit.unshift('default')
-                            const addFilter = getIn(atlasMapping.groups, qSplit) || {}
-
-                            let filterState = {}
-                            if (q[0] === '_') {
-                                filterState.input = url.query[q]
-                            } else {
-                                url.query[q].split(',').forEach((v) => {
-                                    // Check if this is a range parameter (contains _to_)
-                                    if (v.includes('_to_')) {
-                                        const [min, max] = v.split('_to_').map(decodeURI)
-                                        const filter = getIn(atlasMapping.groups, qSplit) || {}
-                                        const facet = filter?.facets?.[qIdx]
-
-                                        if (facet?.component === 'date_range') {
-                                            // Date range format
-                                            filterState.daterange = {
-                                                start: min || '',
-                                                end: max || '',
-                                            }
-                                        } else if (
-                                            facet?.component === 'input_range' ||
-                                            facet?.component === 'slider_range'
-                                        ) {
-                                            // Numeric range format
-                                            filterState.range = [
-                                                min !== '' ? parseFloat(min) : null,
-                                                max !== '' ? parseFloat(max) : null,
-                                            ]
-                                        }
-                                    } else {
-                                        // Regular keyword filter
-                                        filterState[v] = true
-                                    }
-                                })
-                            }
-                            if (
-                                nextActiveFilters[qMain] == null &&
-                                addFilter?.facets?.[qIdx] != null
-                            ) {
-                                addFilter.facets[qIdx].state = filterState
-                                nextActiveFilters[qMain] = addFilter
-                            } else if (nextActiveFilters?.[qMain]?.facets?.[qIdx] != null) {
-                                nextActiveFilters[qMain].facets[qIdx].state = filterState
-                            }
-                        }
-                    })
-                    dispatch(search(null, true, null, null, nextActiveFilters))
-                }
-                // console.log(state.toJS())
+                const cacheableData = isCacheableSearchResponse(response)
+                    ? structuredClone(response.data)
+                    : null
+                handleSearchResponse(dispatch, response, responseOptions)
+                if (cacheableData != null) setCachedSearch(cacheKey, cacheableData)
             })
-            .catch((err) => {
-                dispatch(
-                    setResultsStatus(resultsStatuses.ERROR, { error: err == null ? '' : err + '' })
-                )
-            })
+            .catch(dispatchSearchError)
     }
 }
 
