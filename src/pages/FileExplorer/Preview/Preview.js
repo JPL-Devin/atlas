@@ -21,6 +21,7 @@ import {
     goToFilexURI,
     addToCart,
     setSnackBarText,
+    queryRelatedRecord,
 } from '../../../core/redux/actions/actions'
 import { ES_PATHS, HASH_PATHS, IMAGE_EXTENSIONS, domain, endpoints } from '../../../core/constants'
 import { streamDownloadFile } from '../../../core/downloaders/ZipStream.js'
@@ -610,32 +611,8 @@ const Preview = (props) => {
     useEffect(() => {
         // Query Related
         if (preview.uri && preview.fs_type === 'file') {
-            let uri = preview.uri
-            uri = uri
-                .replaceAll('/', '\\/')
-                .replaceAll(':', '\\:')
-                .replace(/\.[^/.]+$/, '')
-            const dsl = {
-                query: {
-                    bool: {
-                        must: [
-                            { query_string: { query: `${uri}.*`, default_field: '*uri' } },
-                            { exists: { field: 'gather.common' } },
-                        ],
-                    },
-                },
-                size: 1,
-                _source: ['uri', 'gather.pds_archive.related', ES_PATHS.release_id.join('.')],
-                sort: [{ [ES_PATHS.release_id.join('.')]: 'desc' }],
-                collapse: {
-                    field: 'uri',
-                },
-            }
-
-            axios
-                .post(`${domain}${endpoints.search}`, dsl, getHeader())
-                .then((response) => {
-                    const hit = response?.data?.hits?.hits?.[0]?._source
+            queryRelatedRecord(preview.uri)
+                .then((hit) => {
                     if (hit) {
                         setHasBrowse(true)
                         setRelated(hit)
