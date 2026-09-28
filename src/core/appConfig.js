@@ -51,6 +51,7 @@ const instances = {
         aboutContactUrl: 'https://pds-imaging.jpl.nasa.gov/help/help.html',
         defaultFilters: [
             '_text',
+            'gather.time.start_time',
             'gather.common.mission',
             'gather.common.spacecraft',
             'gather.common.instrument',
