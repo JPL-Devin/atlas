@@ -14,17 +14,28 @@ import sisConfig from '../../src/config/sis.json'
 const variantsOf = (spec) => (Array.isArray(spec) ? spec : [spec])
 
 test.describe('the SIS registry', () => {
-    test('every document links a PDF and carries its size', () => {
+    test('every linked document is a PDF with its size', () => {
         Object.keys(sisConfig.documents).forEach((id) => {
             const document = sisConfig.documents[id]
             expect(document.title, id).toBeTruthy()
             expect(document.mission, id).toBeTruthy()
-            expect(document.url, id).toMatch(/^https:\/\//)
-            expect(document.size, id).toBeGreaterThan(0)
+            // Unpublished documents are cited without a link or download size.
+            if (document.url == null) {
+                expect(document.size, id).toBe(undefined)
+            } else {
+                expect(document.url, id).toMatch(/^https:\/\//)
+                expect(document.size, id).toBeGreaterThan(0)
+            }
             expect(typeof document.camera, id).toBe('boolean')
             // Only the current revision is registered, so there are no mirrors.
             expect(document.alternates, id).toBe(undefined)
         })
+    })
+
+    test('the unpublished artemis ii guide is cited without a link', () => {
+        const [guide] = getSisDocuments('artemis2_user_guide')
+        expect(guide.title).toBe('Artemis II Science Data User Guide')
+        expect(guide.url).toBe(undefined)
     })
 
     test('every gap explains itself', () => {

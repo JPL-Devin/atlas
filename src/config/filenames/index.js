@@ -1,3 +1,4 @@
+import artemis2 from './artemis2.json'
 import cas from './cas.json'
 import ch1 from './ch1.json'
 import clem from './clem.json'
@@ -21,6 +22,7 @@ import scalpss from './scalpss.json'
 // Filename naming conventions, keyed by `<mission>` or `<mission>.<pds_standard>`.
 // A mission with no spec renders its filename as plain text.
 export const filenameSpecs = {
+    artemis2,
     cas,
     ch1,
     clem,

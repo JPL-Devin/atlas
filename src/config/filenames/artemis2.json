@@ -1,0 +1,518 @@
+[
+    {
+        "title": "Artemis II product filename (still image, audio or annotation NASA ID)",
+        "sis": "artemis2_user_guide",
+        "reference": "Artemis II Science Data User Guide (Artemis II archive SIS), v1.0-R1, Appendix D (File Naming Convention, Table 21)",
+        "ignoreCase": true,
+        "match": "^(art002)(e|a)([0-9]{6})(?:-(e[0-9]{6}))?_(?:(nkd5[0-9]{3}|nkz9[0-9]{3}|saw[0-9]|cab[0-9]|onav|dcam|iph17|pcd[0-9]?)_)?(src|raw|prc|trn-csv|trn-srt|ann)_(v[0-9]{2})\\.(nef|tif|jpg|png|m4a|csv|srt|pdf|xml)$",
+        "segments": [
+            {
+                "group": 1,
+                "label": "Mission",
+                "color": "blue",
+                "description": "Artemis II prefix. On products with a NASA ID it opens the ID assigned by NASA Johnson Space Center Imagery Online, the permanent identifier for Artemis II data across NASA data-serving systems.",
+                "values": {
+                    "ART002": "Artemis II"
+                }
+            },
+            {
+                "group": 2,
+                "label": "Media type",
+                "color": "teal",
+                "description": "Kind of media the NASA ID was assigned to.",
+                "values": {
+                    "E": "Still image",
+                    "A": "Audio"
+                }
+            },
+            {
+                "group": 3,
+                "label": "Sequence number",
+                "color": "amber",
+                "description": "Sequential six-digit NASA ID number. It is the order in which JSC received and catalogued the files, not necessarily the order they were recorded; use the label's start_date_time for time order.",
+                "patterns": [
+                    {
+                        "match": "^[0-9]{6}$",
+                        "meaning": "Catalogue number {number}"
+                    }
+                ]
+            },
+            {
+                "group": 4,
+                "label": "Last NASA ID",
+                "color": "brown",
+                "description": "Appended to a PCD annotation document to give the NASA ID of its last page; the leading ID is that of the first page.",
+                "patterns": [
+                    {
+                        "match": "^E([0-9]{6})$",
+                        "meaning": "Last page art002e{1}"
+                    }
+                ]
+            },
+            {
+                "group": 5,
+                "label": "Instrument",
+                "color": "violet",
+                "description": "Camera, device or sensor that produced the data. Some crew annotation documents carry no instrument ID.",
+                "values": {
+                    "NKD5015": {
+                        "meaning": "Nikon D5, serial 3500015",
+                        "description": "Crew handheld DSLR, paired with the 80\u2013400 mm Long Lens for about 98% of its science images."
+                    },
+                    "NKD5017": {
+                        "meaning": "Nikon D5, serial 3500017",
+                        "description": "Crew handheld DSLR, paired with the 12\u201324 mm Short Lens for about 57% of its science images and the Long Lens for 29%."
+                    },
+                    "NKZ9019": {
+                        "meaning": "Nikon Z9, serial 39200019",
+                        "description": "Crew handheld mirrorless camera, paired with a 35 mm lens for 74% of its science images; the primary camera for the eclipse observations during the lunar flyby. Records NEF in the High Efficiency star (HE*) format."
+                    },
+                    "SAW2": {
+                        "meaning": "Orion Solar Array Wing camera 2",
+                        "description": "Modified GoPro Hero 4 Black mounted at the end of Orion solar array wing 2."
+                    },
+                    "SAW3": {
+                        "meaning": "Orion Solar Array Wing camera 3",
+                        "description": "Modified GoPro Hero 4 Black mounted at the end of Orion solar array wing 3; the primary vehicle camera for stills and video during the lunar flyby."
+                    },
+                    "SAW4": {
+                        "meaning": "Orion Solar Array Wing camera 4",
+                        "description": "Modified GoPro Hero 4 Black mounted at the end of Orion solar array wing 4."
+                    },
+                    "CAB2": {
+                        "meaning": "Orion Cabin camera 2",
+                        "description": "GoPro Hero 4 Black mounted inside forward Window 3, capturing the crew's perspective."
+                    },
+                    "ONAV": {
+                        "meaning": "Orion Optical Navigation (OpNav) camera",
+                        "description": "Pixelink Prometheus PL-D725MU monochrome camera; primarily supported Guidance, Navigation & Control (GNC) activities."
+                    },
+                    "DCAM": {
+                        "meaning": "Orion Docking Camera",
+                        "description": "Malin Space Science Systems custom monochrome CMOS camera; primarily supported Guidance, Navigation & Control (GNC) activities."
+                    },
+                    "IPH17": "iPhone 17",
+                    "PCD": {
+                        "meaning": "Portable Computing Device (unnumbered)",
+                        "description": "Portable Computing Device (Microsoft Surface Pro 5) used to record crew audio with a Peltor headset, record handwritten notes, relay imagery for downlink and carry the Lunar Targeting Plan."
+                    },
+                    "PCD1": {
+                        "meaning": "Portable Computing Device 1",
+                        "description": "CDR Wiseman's primary PCD; shared with MS1 Koch after the PCD 4 failure."
+                    },
+                    "PCD2": {
+                        "meaning": "Portable Computing Device 2",
+                        "description": "PLT Glover's primary PCD; recorded audio of Hansen and Glover during the lunar flyby."
+                    },
+                    "PCD3": {
+                        "meaning": "Portable Computing Device 3",
+                        "description": "MS2 Hansen's primary PCD; recorded audio of Koch and Wiseman during the lunar flyby."
+                    },
+                    "PCD4": {
+                        "meaning": "Portable Computing Device 4",
+                        "description": "MS1 Koch's primary PCD; failed part-way through the mission."
+                    }
+                },
+                "patterns": [
+                    {
+                        "match": "^NKD5([0-9]{3})$",
+                        "meaning": "Nikon D5, serial ending {1}"
+                    },
+                    {
+                        "match": "^NKZ9([0-9]{3})$",
+                        "meaning": "Nikon Z9, serial ending {1}"
+                    },
+                    {
+                        "match": "^SAW([0-9])$",
+                        "meaning": "Orion Solar Array Wing camera {1}"
+                    },
+                    {
+                        "match": "^CAB([0-9])$",
+                        "meaning": "Orion Cabin camera {1}"
+                    },
+                    {
+                        "match": "^PCD([0-9])$",
+                        "meaning": "Portable Computing Device {1}"
+                    }
+                ]
+            },
+            {
+                "group": 6,
+                "label": "Product type",
+                "color": "orange",
+                "description": "Processing level or type of product.",
+                "values": {
+                    "SRC": {
+                        "meaning": "Source \u2014 original data, no format conversion",
+                        "description": "Original data from the camera or instrument with no format conversion applied (not a standard PDS4 processing level). Nikon NEF files are archived as native products; Orion camera JPEG and PNG originals as browse products."
+                    },
+                    "RAW": {
+                        "meaning": "Raw \u2014 converted to a PDS4-compliant format",
+                        "description": "Data as received from the system, converted to a PDS-approved format where required (Nikon NEF to TIFF, Orion JPEG/PNG to TIFF, voice-loop MP3 to M4A)."
+                    },
+                    "PRC": {
+                        "meaning": "Processed \u2014 partially processed, uncalibrated",
+                        "description": "Nikon images demosaiced from NEF to 16-bit TIFF with Nikon NX Studio (Original Camera Settings, sRGB, autoscaling); no calibration applied. The PNG of a processed image is its 8-bit browse product."
+                    },
+                    "TRN-CSV": {
+                        "meaning": "Transcript (CSV)",
+                        "description": "Derived transcript of a PCD or voice-loop recording, generated with whisperX and checked by the Lunar Science Team; columns are audio elapsed time, UTC time, speaker and text."
+                    },
+                    "TRN-SRT": {
+                        "meaning": "Transcript (SRT)",
+                        "description": "Derived transcript of a PCD or voice-loop recording in SubRip subtitle form, generated with whisperX and checked by the Lunar Science Team."
+                    },
+                    "ANN": {
+                        "meaning": "Annotation",
+                        "description": "Crew handwritten annotations made in OneNote on a PCD, converted from the downlinked .one file to PDF/A."
+                    }
+                }
+            },
+            {
+                "group": 7,
+                "label": "Version",
+                "color": "indigo",
+                "description": "Two-digit major version number. A change in data warrants a major version change; a change in metadata only is a minor change.",
+                "patterns": [
+                    {
+                        "match": "^V0*([0-9]+)$",
+                        "meaning": "Version {1}"
+                    }
+                ]
+            },
+            {
+                "group": 8,
+                "label": "Extension",
+                "color": "slate",
+                "description": "File format. Still images are .tif (PDS4) with .nef, .jpg or .png source originals and .png browse; PCD audio is .m4a; transcripts .csv and .srt; annotations .pdf. Every product has a detached .xml label of the same name.",
+                "values": {
+                    "NEF": "Nikon Electronic Format \u2014 native source image from the crew Nikon D5 (14-bit lossless NEF) or Z9 (NEF HE*) cameras",
+                    "TIF": "Uncompressed TIFF \u2014 PDS4 raw or processed image array",
+                    "JPG": "Original source JPEG from an Orion GoPro camera (SAW Cam 2\u20134, Cab Cam 2), archived as a browse product",
+                    "PNG": "PNG \u2014 browse image of a processed Nikon TIFF, or an original Orion DCAM/OpNav or iPhone image",
+                    "M4A": "M4A (AAC) audio \u2014 PCD recording or voice-loop audio",
+                    "CSV": "Comma-delimited table \u2014 audio transcript or HOBO data-logger record",
+                    "SRT": "SubRip subtitle transcript",
+                    "PDF": "PDF/A document \u2014 crew annotations or mission documentation",
+                    "XML": "Detached PDS4 label"
+                }
+            }
+        ]
+    },
+    {
+        "title": "Artemis II video filename (NASA ID)",
+        "sis": "artemis2_user_guide",
+        "reference": "Artemis II Science Data User Guide (Artemis II archive SIS), v1.0-R1, Appendix D (File Naming Convention, Table 21)",
+        "ignoreCase": true,
+        "match": "^(art002)(m)([0-9]{3})([0-9]{3})([0-9]{4})_(saw[0-9]|cab[0-9])_(vid|raw)_(v[0-9]{2})\\.(mp4|xml)$",
+        "segments": [
+            {
+                "group": 1,
+                "label": "Mission",
+                "color": "blue",
+                "description": "Artemis II prefix. On products with a NASA ID it opens the ID assigned by NASA Johnson Space Center Imagery Online, the permanent identifier for Artemis II data across NASA data-serving systems.",
+                "values": {
+                    "ART002": "Artemis II"
+                }
+            },
+            {
+                "group": 2,
+                "label": "Media type",
+                "color": "teal",
+                "description": "Kind of media the NASA ID was assigned to.",
+                "values": {
+                    "M": "Video"
+                }
+            },
+            {
+                "group": 3,
+                "label": "Video channel",
+                "color": "amber",
+                "description": "Video channel, the first three digits of the ten-digit video NASA ID. SAW Cam 3 video was recorded at JSC on two separate downlink decoders; both copies are archived (channel1 and channel2).",
+                "values": {
+                    "101": "Downlink decoder 1 (ART-DL-1)",
+                    "102": "Downlink decoder 2 (ART-DL-2)"
+                },
+                "patterns": [
+                    {
+                        "match": "^[0-9]{3}$",
+                        "meaning": "Channel {number}"
+                    }
+                ]
+            },
+            {
+                "group": 4,
+                "label": "UTC day of year",
+                "color": "green",
+                "description": "UTC day of year of the recording.",
+                "patterns": [
+                    {
+                        "match": "^[0-9]{3}$",
+                        "meaning": "Day {number}"
+                    }
+                ]
+            },
+            {
+                "group": 5,
+                "label": "UTC time",
+                "color": "pink",
+                "description": "UTC hour and minute of the recording.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{2})([0-9]{2})$",
+                        "meaning": "{1}:{2} UTC"
+                    }
+                ]
+            },
+            {
+                "group": 6,
+                "label": "Instrument",
+                "color": "violet",
+                "description": "Orion camera that produced the video.",
+                "values": {
+                    "SAW3": {
+                        "meaning": "Orion Solar Array Wing camera 3",
+                        "description": "Modified GoPro Hero 4 Black on solar array wing 3; streamed video in real time during the lunar flyby."
+                    }
+                },
+                "patterns": [
+                    {
+                        "match": "^SAW([0-9])$",
+                        "meaning": "Orion Solar Array Wing camera {1}"
+                    },
+                    {
+                        "match": "^CAB([0-9])$",
+                        "meaning": "Orion Cabin camera {1}"
+                    }
+                ]
+            },
+            {
+                "group": 7,
+                "label": "Product type",
+                "color": "orange",
+                "description": "Processing level or type of product.",
+                "values": {
+                    "VID": {
+                        "meaning": "Video",
+                        "description": "SAW Cam 3 video, converted from the ground-recorded MXF streams to H.264 MP4."
+                    },
+                    "RAW": {
+                        "meaning": "Raw \u2014 converted to a PDS4-compliant format",
+                        "description": "Data as received from the system, converted to a PDS-approved format where required (Nikon NEF to TIFF, Orion JPEG/PNG to TIFF, voice-loop MP3 to M4A)."
+                    }
+                }
+            },
+            {
+                "group": 8,
+                "label": "Version",
+                "color": "indigo",
+                "description": "Two-digit major version number. A change in data warrants a major version change; a change in metadata only is a minor change.",
+                "patterns": [
+                    {
+                        "match": "^V0*([0-9]+)$",
+                        "meaning": "Version {1}"
+                    }
+                ]
+            },
+            {
+                "group": 9,
+                "label": "Extension",
+                "color": "slate",
+                "description": "File format. Video is H.264 .mp4 (PDS4) with a detached .xml label.",
+                "values": {
+                    "MP4": "MP4 \u2014 H.264 video (SAW Cam 3) or voice-loop audio",
+                    "XML": "Detached PDS4 label"
+                }
+            }
+        ]
+    },
+    {
+        "title": "Artemis II voice loop filename",
+        "sis": "artemis2_user_guide",
+        "reference": "Artemis II Science Data User Guide (Artemis II archive SIS), v1.0-R1, Appendix D (File Naming Convention, Table 21)",
+        "ignoreCase": true,
+        "match": "^(art002)_([0-9]{4}-[0-9]{2}-[0-9]{2})_(oe[12])_(raw|trn-csv|trn-srt)_(v[0-9]{2})\\.(m4a|mp4|csv|srt|xml)$",
+        "segments": [
+            {
+                "group": 1,
+                "label": "Mission",
+                "color": "blue",
+                "description": "Artemis II prefix. On products with a NASA ID it opens the ID assigned by NASA Johnson Space Center Imagery Online, the permanent identifier for Artemis II data across NASA data-serving systems.",
+                "values": {
+                    "ART002": "Artemis II"
+                }
+            },
+            {
+                "group": 2,
+                "label": "UTC date",
+                "color": "green",
+                "description": "UTC day covered. Voice-loop audio was split into files by UTC day; files without a NASA ID carry the date instead.",
+                "patterns": [
+                    {
+                        "match": "^([0-9]{4})-([0-9]{2})-([0-9]{2})$",
+                        "meaning": "{1}-{2}-{3} UTC"
+                    }
+                ]
+            },
+            {
+                "group": 3,
+                "label": "Instrument",
+                "color": "violet",
+                "description": "Houston voice loop between the crew and JSC mission control.",
+                "values": {
+                    "OE1": {
+                        "meaning": "Orion-to-Earth 1 (O/E-1) voice loop",
+                        "description": "Primary crew-to-mission-control loop, publicly aired during NASA video streams."
+                    },
+                    "OE2": {
+                        "meaning": "Orion-to-Earth 2 (O/E-2) voice loop",
+                        "description": "Used sparingly during loss of signal on O/E-1."
+                    }
+                }
+            },
+            {
+                "group": 4,
+                "label": "Product type",
+                "color": "orange",
+                "description": "Processing level or type of product.",
+                "values": {
+                    "RAW": {
+                        "meaning": "Raw \u2014 converted to a PDS4-compliant format",
+                        "description": "Data as received from the system, converted to a PDS-approved format where required (Nikon NEF to TIFF, Orion JPEG/PNG to TIFF, voice-loop MP3 to M4A)."
+                    },
+                    "TRN-CSV": {
+                        "meaning": "Transcript (CSV)",
+                        "description": "Derived transcript of a PCD or voice-loop recording, generated with whisperX and checked by the Lunar Science Team; columns are audio elapsed time, UTC time, speaker and text."
+                    },
+                    "TRN-SRT": {
+                        "meaning": "Transcript (SRT)",
+                        "description": "Derived transcript of a PCD or voice-loop recording in SubRip subtitle form, generated with whisperX and checked by the Lunar Science Team."
+                    }
+                }
+            },
+            {
+                "group": 5,
+                "label": "Version",
+                "color": "indigo",
+                "description": "Two-digit major version number. A change in data warrants a major version change; a change in metadata only is a minor change.",
+                "patterns": [
+                    {
+                        "match": "^V0*([0-9]+)$",
+                        "meaning": "Version {1}"
+                    }
+                ]
+            },
+            {
+                "group": 6,
+                "label": "Extension",
+                "color": "slate",
+                "description": "File format. Voice-loop audio (received as MP3) is archived as .m4a/.mp4; transcripts as .csv and .srt. Every product has a detached .xml label.",
+                "values": {
+                    "M4A": "M4A (AAC) audio \u2014 PCD recording or voice-loop audio",
+                    "MP4": "MP4 \u2014 H.264 video (SAW Cam 3) or voice-loop audio",
+                    "CSV": "Comma-delimited table \u2014 audio transcript or HOBO data-logger record",
+                    "SRT": "SubRip subtitle transcript",
+                    "XML": "Detached PDS4 label"
+                }
+            }
+        ]
+    },
+    {
+        "title": "Artemis II HOBO data logger filename",
+        "sis": "artemis2_user_guide",
+        "reference": "Artemis II Science Data User Guide (Artemis II archive SIS), v1.0-R1, Appendix D (File Naming Convention, Table 21)",
+        "ignoreCase": true,
+        "match": "^(art002)_([0-9]{3}-[0-9]{6})_([0-9]{3}-[0-9]{6})_(hobo[0-9]{4})_(raw)_(v[0-9]{2})\\.(csv|xml)$",
+        "segments": [
+            {
+                "group": 1,
+                "label": "Mission",
+                "color": "blue",
+                "description": "Artemis II prefix. On products with a NASA ID it opens the ID assigned by NASA Johnson Space Center Imagery Online, the permanent identifier for Artemis II data across NASA data-serving systems.",
+                "values": {
+                    "ART002": "Artemis II"
+                }
+            },
+            {
+                "group": 2,
+                "label": "UTC start",
+                "color": "green",
+                "description": "UTC start of the logged record, as day of year and hhmmss.",
+                "patterns": [
+                    {
+                        "match": "^0*([0-9]+)-([0-9]{2})([0-9]{2})([0-9]{2})$",
+                        "meaning": "Day {1}, {2}:{3}:{4} UTC"
+                    }
+                ]
+            },
+            {
+                "group": 3,
+                "label": "UTC end",
+                "color": "pink",
+                "description": "UTC end of the logged record, as day of year and hhmmss.",
+                "patterns": [
+                    {
+                        "match": "^0*([0-9]+)-([0-9]{2})([0-9]{2})([0-9]{2})$",
+                        "meaning": "Day {1}, {2}:{3}:{4} UTC"
+                    }
+                ]
+            },
+            {
+                "group": 4,
+                "label": "Instrument",
+                "color": "violet",
+                "description": "Onset HOBO MX1101 data logger measuring temperature, humidity and dew point in the Orion storage lockers at 60-second intervals.",
+                "values": {
+                    "HOBO1104": {
+                        "meaning": "HOBO data logger SN 1104",
+                        "description": "In Locker E, Bag L_011, for the whole mission."
+                    },
+                    "HOBO1105": {
+                        "meaning": "HOBO data logger SN 1105",
+                        "description": "In Locker D, Bag L_022, for launch; moved to Locker F, Bag R_027, on Flight Day 9."
+                    }
+                },
+                "patterns": [
+                    {
+                        "match": "^HOBO([0-9]{4})$",
+                        "meaning": "HOBO data logger SN {1}"
+                    }
+                ]
+            },
+            {
+                "group": 5,
+                "label": "Product type",
+                "color": "orange",
+                "description": "Processing level or type of product.",
+                "values": {
+                    "RAW": {
+                        "meaning": "Raw \u2014 converted to a PDS4-compliant format",
+                        "description": "Data as received from the system, converted to a PDS-approved format where required (Nikon NEF to TIFF, Orion JPEG/PNG to TIFF, voice-loop MP3 to M4A)."
+                    }
+                }
+            },
+            {
+                "group": 6,
+                "label": "Version",
+                "color": "indigo",
+                "description": "Two-digit major version number. A change in data warrants a major version change; a change in metadata only is a minor change.",
+                "patterns": [
+                    {
+                        "match": "^V0*([0-9]+)$",
+                        "meaning": "Version {1}"
+                    }
+                ]
+            },
+            {
+                "group": 7,
+                "label": "Extension",
+                "color": "slate",
+                "description": "File format. Logger records, delivered as Excel, are archived as .csv tables with a detached .xml label.",
+                "values": {
+                    "CSV": "Comma-delimited table \u2014 audio transcript or HOBO data-logger record",
+                    "XML": "Detached PDS4 label"
+                }
+            }
+        ]
+    }
+]

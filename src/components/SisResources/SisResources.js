@@ -104,6 +104,9 @@ export const SisResources = (props) => {
     if (sis == null && gap == null) return null
 
     const size = formatSisSize(sis?.size)
+    const linked = sis?.url != null
+    const Card = linked ? 'a' : 'div'
+    const cardProps = linked ? { href: sis.url, target: '_blank', rel: 'noopener noreferrer' } : {}
 
     return (
         <>
@@ -115,12 +118,7 @@ export const SisResources = (props) => {
                         title="Software Interface Specification — defines this product’s data"
                         arrow
                     >
-                        <a
-                            className={c.card}
-                            href={sis.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                        <Card className={c.card} {...cardProps}>
                             <div className={c.badge}>
                                 <DescriptionOutlinedIcon />
                             </div>
@@ -132,9 +130,9 @@ export const SisResources = (props) => {
                             </div>
                             <div className={c.actions}>
                                 {size != null && <span>{size}</span>}
-                                <OpenInNewIcon className={c.actionIcon} />
+                                {linked && <OpenInNewIcon className={c.actionIcon} />}
                             </div>
-                        </a>
+                        </Card>
                     </Tooltip>
                 </div>
             )}
