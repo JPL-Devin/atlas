@@ -1077,6 +1077,40 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
 }
 
 /**
+ * Finds the record document (one with gather.common) for an archive file uri,
+ * matching on the uri with its extension stripped so labels resolve to their product.
+ *
+ * @param {string} uri - archive file uri
+ * @returns {Promise<Object|null>} the latest-release hit _source, or null
+ */
+export const queryRelatedRecord = (uri) => {
+    const escapedUri = uri
+        .replaceAll('/', '\\/')
+        .replaceAll(':', '\\:')
+        .replace(/\.[^/.]+$/, '')
+    const dsl = {
+        query: {
+            bool: {
+                must: [
+                    { query_string: { query: `${escapedUri}.*`, default_field: '*uri' } },
+                    { exists: { field: 'gather.common' } },
+                ],
+            },
+        },
+        size: 1,
+        _source: ['uri', 'gather.pds_archive.related', ES_PATHS.release_id.join('.')],
+        sort: [{ [ES_PATHS.release_id.join('.')]: 'desc' }],
+        collapse: {
+            field: 'uri',
+        },
+    }
+
+    return axios
+        .post(`${domain}${endpoints.search}`, dsl, getHeader())
+        .then((response) => response?.data?.hits?.hits?.[0]?._source || null)
+}
+
+/**
  * Searches for a single uri and updates the active recordData
  *
  * @param {string} uri
