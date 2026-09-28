@@ -34,6 +34,13 @@ import { getIn, getPDSUrl, getExtension, humanFileSize } from '../../../../../..
 
 import ProductToolbar from '../../../../../../components/ProductToolbar/ProductToolbar'
 import ProductIcons from '../../../../../../components/ProductIcons/ProductIcons'
+import ContextMenu, {
+    useContextMenu,
+    buildRecordMenuItems,
+    recordCartItem,
+    useCartIndex,
+    recordClickHandlers,
+} from '../../../../../../components/ContextMenu/ContextMenu'
 
 const listItemHeight = 243
 const listItemWidth = 520
@@ -304,6 +311,9 @@ const ListCard = ({ index, data, width }) => {
     const s = data._source
 
     const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
+    const cartIndex = useCartIndex(getIn(s, ES_PATHS.source))
 
     const release_id = getIn(s, ES_PATHS.release_id)
 
@@ -331,9 +341,8 @@ const ListCard = ({ index, data, width }) => {
             // Key relative to all pages
             result-key={data.result_key}
             className={c.listItem}
-            onClick={() => {
-                navigate(`${HASH_PATHS.record}?uri=${getIn(s, ES_PATHS.source)}`)
-            }}
+            {...recordClickHandlers(getIn(s, ES_PATHS.source), navigate)}
+            onContextMenu={openContextMenu}
             onMouseEnter={() => {
                 sASet(sAKeys.HOVERED_RESULT, data)
             }}
@@ -411,6 +420,21 @@ const ListCard = ({ index, data, width }) => {
                 </div>
             </div>
             <div className={`${c.selectionIndicator} selectionIndicator`}></div>
+            <ContextMenu
+                contextMenu={contextMenu}
+                onClose={closeContextMenu}
+                title={fileName}
+                items={buildRecordMenuItems({
+                    filename: fileName,
+                    sourceUri: getIn(s, ES_PATHS.source),
+                    labelUri: getIn(s, ES_PATHS.label),
+                    browseUri: getIn(s, ES_PATHS.browse),
+                    releaseId: release_id,
+                    cartItem: recordCartItem(s),
+                    cartIndex,
+                    dispatch,
+                })}
+            />
         </div>
     )
 }

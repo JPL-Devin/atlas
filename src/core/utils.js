@@ -302,6 +302,15 @@ export const stringToRGB = function (str) {
  * @credit https://hackernoon.com/copying-text-to-clipboard-with-javascript-df4d4988697f
  */
 export const copyToClipboard = function (text) {
+    if (navigator.clipboard && window.isSecureContext)
+        return navigator.clipboard.writeText(text).then(
+            () => true,
+            () => copyToClipboardLegacy(text)
+        )
+    return Promise.resolve(copyToClipboardLegacy(text))
+}
+
+const copyToClipboardLegacy = function (text) {
     const el = document.createElement('textarea') // Create a <textarea> element
     el.value = text // Set its value to the string that you want copied
     el.setAttribute('readonly', '') // Make it readonly to be tamper-proof
@@ -313,13 +322,14 @@ export const copyToClipboard = function (text) {
             ? document.getSelection().getRangeAt(0) // Store selection if found
             : false // Mark as false to know no selection existed before
     el.select() // Select the <textarea> content
-    document.execCommand('copy') // Copy - only works as a result of a user action (e.g. click events)
+    const ok = document.execCommand('copy') // Copy - only works as a result of a user action (e.g. click events)
     document.body.removeChild(el) // Remove the <textarea> element
     if (selected) {
         // If a selection existed before copying
         document.getSelection().removeAllRanges() // Unselect everything on the HTML document
         document.getSelection().addRange(selected) // Restore the original selection
     }
+    return ok
 }
 
 // Capitalizes first char in a string
