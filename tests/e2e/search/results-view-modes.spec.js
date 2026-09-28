@@ -136,3 +136,75 @@ test.describe('Results panel - inline controls', () => {
         await expect(addAll).toBeVisible({ timeout: SHORT_RESULT_WAIT_MS })
     })
 })
+
+test.describe('Results panel - Table view navigation', () => {
+    // Table row children: [toolbar, thumbnail, first label column (file name), ...]
+    const FIRST_LABEL_CELL = 2
+
+    test('Table view selection survives a /record round trip', async ({ page }) => {
+        const errors = []
+        page.on('pageerror', (e) => errors.push(e.message))
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        const tableTab = page.getByRole('tab', { name: 'Table', exact: true })
+        await expect(tableTab).toBeVisible({ timeout: SHORT_RESULT_WAIT_MS })
+        await tableTab.click()
+        await expect(tableTab).toHaveAttribute('aria-selected', 'true')
+
+        const firstRow = page.locator('.TableViewRowItem').first()
+        try {
+            await firstRow.waitFor({ state: 'visible', timeout: SHORT_RESULT_WAIT_MS })
+        } catch {
+            test.skip(true, 'Upstream Atlas API not returning results in this environment')
+        }
+
+        await firstRow.locator(':scope > div').nth(FIRST_LABEL_CELL).click()
+        await page.waitForURL(/\/record\?uri=/, { timeout: SHORT_RESULT_WAIT_MS })
+        await waitForAppReady(page)
+
+        await page.goBack()
+        await page.waitForURL(/\/search/, { timeout: SHORT_RESULT_WAIT_MS })
+        await waitForAppReady(page)
+
+        await expect(page.getByRole('tab', { name: 'Table', exact: true })).toHaveAttribute(
+            'aria-selected',
+            'true',
+            { timeout: SHORT_RESULT_WAIT_MS },
+        )
+        await expect(page.locator('.TableViewRowItem').first()).toBeVisible({
+            timeout: SHORT_RESULT_WAIT_MS,
+        })
+
+        expect(filterCriticalJsErrors(errors)).toEqual([])
+    })
+
+    test('clicking the Table view toolbar selection checkbox does not navigate to /record', async ({
+        page,
+    }) => {
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+
+        const tableTab = page.getByRole('tab', { name: 'Table', exact: true })
+        await expect(tableTab).toBeVisible({ timeout: SHORT_RESULT_WAIT_MS })
+        await tableTab.click()
+
+        const firstRow = page.locator('.TableViewRowItem').first()
+        try {
+            await firstRow.waitFor({ state: 'visible', timeout: SHORT_RESULT_WAIT_MS })
+        } catch {
+            test.skip(true, 'Upstream Atlas API not returning results in this environment')
+        }
+
+        const checkbox = firstRow.getByRole('checkbox')
+        await expect(checkbox).not.toBeChecked()
+        await checkbox.click()
+        await expect(checkbox).toBeChecked()
+        expect(page.url()).toMatch(/\/search/)
+
+        await checkbox.click()
+        await expect(checkbox).not.toBeChecked()
+        expect(page.url()).toMatch(/\/search/)
+    })
+})

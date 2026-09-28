@@ -215,7 +215,6 @@ const ResultsPanel = (props) => {
     // On phones the map is a bottom bar destination instead of a fourth tab
     const activeViews =
         mapEnabled && !mobile ? ['Grid', 'List', 'Table', 'Map'] : ['Grid', 'List', 'Table']
-    const [activeView, setActiveView] = useState('Grid')
     const [split, setSplit] = useState(false)
     const [mobileMap, setMobileMap] = useState(false)
 
@@ -234,6 +233,8 @@ const ResultsPanel = (props) => {
     const w = useSelector((state) => {
         return state.getIn(['workspace', 'main'])
     }).toJS()
+
+    const activeView = activeViews.includes(w.resultsView) ? w.resultsView : 'Grid'
 
     let results = useSelector((state) => {
         return state.getIn(['results'])
@@ -259,7 +260,7 @@ const ResultsPanel = (props) => {
                         <StyledTabs
                             value={activeViews.indexOf(activeView)}
                             onChange={(e, v) => {
-                                setActiveView(activeViews[v])
+                                dispatch(setWorkspace({ ...w, resultsView: activeViews[v] }))
                             }}
                             aria-label="results view tab"
                             variant="scrollable"

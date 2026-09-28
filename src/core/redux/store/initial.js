@@ -33,6 +33,7 @@ export const INITIAL = (() => {
             main: {
                 filters: true,
                 mobileFilters: false,
+                resultsView: 'Grid',
                 filtersSize: '360px',
                 advancedFiltersSize: '520px',
                 mapSize: '50%',
