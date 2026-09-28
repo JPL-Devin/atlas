@@ -88,6 +88,7 @@ const useStyles = makeStyles((theme) => ({
         'textOverflow': 'ellipsis',
         'overflow': 'hidden',
         'display': 'inline-block',
+        'cursor': 'pointer',
         'transition': 'box-shadow 0.2s ease-out, background 0.2s ease-out',
         '&:hover': {
             background: theme.palette.swatches.grey.grey0,
@@ -467,6 +468,7 @@ const makeColumns = (idx, data, cols, columnWidths, toRecord) => {
                             width: columnWidths[index],
                         }}
                         title={value}
+                        {...toRecord}
                     >
                         {typeof value === 'string' ? value : JSON.stringify(value)}
                     </div>
