@@ -6,7 +6,8 @@ import { waitForAppReady, filterCriticalJsErrors } from '../../helpers/atlas-hel
  *
  *   1. Tab switching (Overview <-> Product Label)
  *   2. OpenSeadragon viewer controls (home / fullscreen / rotate / zoom)
- *   3. The title-row back button navigates from /record to /search
+ *   3. The title-row back button navigates from /record to /search,
+ *      including a `back=page` link opened in a fresh tab
  *   4. "copy link to record page" button is reachable
  *
  * The record page is opened by clicking a result on /search. We rely
@@ -116,6 +117,26 @@ test.describe('/record - secondary controls', () => {
         await back.first().click()
         await page.waitForURL((u) => u.pathname.includes('/search'), { timeout: 30_000 })
         expect(page.url()).toContain('/search')
+    })
+
+    test('a `back=page` link opened in a fresh tab falls back to /search', async ({
+        page,
+        context,
+    }) => {
+        await openFirstRecordFromSearch(page)
+        const sharedUrl = `${page.url()}&back=page`
+
+        // A new tab has no earlier Atlas page to go back to.
+        const fresh = await context.newPage()
+        await fresh.goto(sharedUrl, { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(fresh)
+
+        const back = fresh.getByRole('button', { name: 'return to search' })
+        await expect(back).toBeVisible({ timeout: SHORT_RESULT_WAIT_MS })
+        await expect(fresh.getByRole('button', { name: 'go back a page' })).toHaveCount(0)
+        await back.click()
+        await fresh.waitForURL((u) => u.pathname.includes('/search'), { timeout: 30_000 })
+        expect(fresh.url()).toContain('/search')
     })
 
     test('"copy link to record page" button is reachable', async ({ page }) => {

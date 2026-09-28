@@ -174,19 +174,22 @@ const PanelHeader = (props) => {
 
     const filename = getIn(recordData, ES_PATHS.file_name, '--')
 
-    const back = new URLSearchParams(window.location.search).get('back')
+    // `back=page` only means "go back" while this tab holds the page that set it.
+    const canGoBack =
+        new URLSearchParams(window.location.search).get('back') === 'page' &&
+        window.history.state?.idx > 0
 
     return (
         <div className={c.PanelHeader}>
             <div className={c.titleBlock}>
                 <div className={c.identity}>
-                    <Tooltip title={back === 'page' ? 'Back' : 'Back to Search'} arrow>
+                    <Tooltip title={canGoBack ? 'Back' : 'Back to Search'} arrow>
                         <IconButton
                             className={c.backButton}
-                            aria-label={back === 'page' ? 'go back a page' : 'return to search'}
+                            aria-label={canGoBack ? 'go back a page' : 'return to search'}
                             size="small"
                             onClick={() => {
-                                if (back === 'page') {
+                                if (canGoBack) {
                                     navigate(-1)
                                 } else {
                                     navigate(HASH_PATHS.search)
@@ -273,7 +276,12 @@ const PanelHeader = (props) => {
                         aria-label="copy link to record page"
                         startIcon={<LinkIcon fontSize="small" />}
                         onClick={() => {
-                            copyToClipboard(window.location.href)
+                            copyToClipboard(
+                                window.location.href.replace(
+                                    /([?&])back=[^&#]*(&?)/,
+                                    (_, sep, next) => (next ? sep : '')
+                                )
+                            )
                             dispatch(setSnackBarText('Copied URL to clipboard!', 'success'))
                         }}
                     >
