@@ -192,6 +192,12 @@ const ProductToolbar = (props) => {
             onClick={(e) => {
                 e.stopPropagation()
             }}
+            onAuxClick={(e) => {
+                e.stopPropagation()
+            }}
+            onContextMenu={(e) => {
+                e.stopPropagation()
+            }}
         >
             <div
                 className={clsx(c.inner, 'ProductToolbarInner', {
