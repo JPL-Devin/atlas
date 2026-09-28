@@ -1112,12 +1112,16 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
 
         const cachedData = getCachedSearch(cacheKey)
         if (cachedData != null) {
-            try {
-                handleSearchResponse(dispatch, { data: cachedData }, responseOptions)
-            } catch (err) {
-                searchCache.delete(cacheKey)
-                dispatchSearchError(err)
-            }
+            // Replay on a later task, like a network response, so views render the
+            // pre-search state (e.g. cleared results) before the new results arrive
+            setTimeout(() => {
+                try {
+                    handleSearchResponse(dispatch, { data: cachedData }, responseOptions)
+                } catch (err) {
+                    searchCache.delete(cacheKey)
+                    dispatchSearchError(err)
+                }
+            }, 0)
             return
         }
 
