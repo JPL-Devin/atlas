@@ -34,7 +34,6 @@ import ProductIcons from '../../../../../../components/ProductIcons/ProductIcons
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
-import ImageIcon from '@mui/icons-material/Image'
 
 import BrowseImage from '../../../../../../components/BrowseImage/BrowseImage.js'
 import ContextMenu, {
@@ -279,7 +278,9 @@ const TableView = (props) => {
     useLayoutEffect(() => {
         return () => {
             const imgs = document.querySelectorAll('.hoverImage')
-            imgs.forEach((img) => { img.src = '' })
+            imgs.forEach((img) => {
+                img.src = ''
+            })
         }
     }, [])
 
@@ -433,6 +434,7 @@ const makeColumns = (idx, data, cols, columnWidths, toRecord) => {
                             }
                             className={clsx(c.cellImage, 'hoverImage')}
                             alt=""
+                            filename={fileName}
                         />
                     </div>
                 )
