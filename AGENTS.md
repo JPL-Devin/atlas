@@ -152,7 +152,7 @@ but not a hard rule.
 | MUI `<IconButton>` (custom MenuButton trigger) | `button` | Has `aria-label="menu"`. Multiple per page (Topbar, FiltersPanel, ResultsPanel) — disambiguate by proximity. |
 | OpenSeadragon viewer controls | `button` | `aria-label="image view home"`, `"image view zoom in/out"`, `"image view rotate clockwise/counter clockwise"`, `"image view fullscreen"` |
 | RemoveFromCartModal buttons | `button` | `aria-label="yes button"`, `"no button"`, `"close modal"` (literal strings, not regex matches) |
-| Record title row | `button` | `"copy record filename"`; there is no back button — use `page.goBack()` to leave `/record` |
+| Record title row | `button` | Back button (first in the row): `"go back a page"` (calls `navigate(-1)`) only when the URL has `back=page` (set by FileX, kept across version switches) **and** the tab has an earlier Atlas history entry; otherwise `"return to search"` (navigates to `/search`, e.g. a `back=page` link opened in a fresh tab). "Copy Link" strips `back` from the copied URL. Use Playwright's `.or()` to match either. Also `"copy record filename"`. |
 | Topbar nav buttons | `button` | `name=/go to cart/i`, `"navigation"` (drawer toggle, left of the NASA logo), `"info button"` (information modal, last icon at the far right) |
 | ResultsPanel Split toggle | `button` | `"split map"` — MUI `ToggleButton`, `aria-pressed`, disabled while the `Map` tab is selected. Desktop only; the map renders to the LEFT of the active view. |
 | Mobile bottom bar (below `md`) | `button` | `"filters view"` / `"results view"` / `"map view"` — MUI `BottomNavigation`. The `Map` tab does NOT exist below `md`; the map lives here instead. |
