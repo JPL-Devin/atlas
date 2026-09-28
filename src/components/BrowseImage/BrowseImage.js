@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import ImageIcon from '@mui/icons-material/Image'
-import light from '../../themes/light'
+import ProductIcons from '../ProductIcons/ProductIcons'
 
 function getFullImagePath(path = "") {
     try {
@@ -27,7 +26,7 @@ function getFullImagePath(path = "") {
     }
 }
 
-const BrowseImage = ({ src, addBaseUrl = false, alt, className, style, ...rest }) => {
+const BrowseImage = ({ src, addBaseUrl = false, alt, className, style, filename = '', ...rest }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -55,7 +54,7 @@ const BrowseImage = ({ src, addBaseUrl = false, alt, className, style, ...rest }
           onError={handleError}
           {...rest}
         />
-      : <div style={{width: 32, height: 32, padding: 5.5, color: light.palette.accent.main}}><ImageIcon style={{display: 'block'}} /></div>
+      : <div style={{position: 'relative', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center'}}><ProductIcons filename={filename} size="small" fit /></div>
   );
 
 };

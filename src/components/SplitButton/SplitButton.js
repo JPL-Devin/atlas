@@ -122,6 +122,10 @@ export default function SplitButton(props) {
     const anchorRef = useRef(null)
     const [selectedIndex, setSelectedIndex] = useState(startingIndex || 0)
     const [checkedIndices, setCheckedIndices] = useState([])
+    // Checklist selection is positional, so reset it whenever the set of items changes
+    const itemsIdentity = items
+        .map((item) => `${item.key ?? item.name}:${item.checked ? 1 : 0}`)
+        .join('|')
 
     useEffect(() => {
         if (type === 'checklist') {
@@ -131,7 +135,7 @@ export default function SplitButton(props) {
             })
             setCheckedIndices(nextCheckedIndices)
         }
-    }, [items.length])
+    }, [itemsIdentity])
 
     const handleClick = () => {
         if (typeof onClick === 'function') {
