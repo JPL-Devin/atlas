@@ -386,7 +386,7 @@ const DateRangeFilter = (props) => {
                     size="small"
                     variant="contained"
                     onClick={handleClear}
-                    disabled={selectedStartDate !== null || selectedEndDate !== null}
+                    disabled={noDates}
                 >
                     Clear
                 </Button>
@@ -395,10 +395,7 @@ const DateRangeFilter = (props) => {
                     size="small"
                     variant="contained"
                     onClick={handleSubmit}
-                    disabled={
-                        selectedStartDate?.utc() > selectedEndDate?.utc() ||
-                        (selectedStartDate === null && selectedStartDate === null)
-                    }
+                    disabled={selectedStartDate?.utc() > selectedEndDate?.utc() || noDates}
                 >
                     Search
                 </Button>
