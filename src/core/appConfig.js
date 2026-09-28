@@ -15,6 +15,7 @@ const instances = {
         aboutContactUrl: '',
         defaultFilters: [
             '_text',
+            'gather.time.start_time',
             'gather.common.mission',
             'gather.common.spacecraft',
             'gather.common.instrument',
