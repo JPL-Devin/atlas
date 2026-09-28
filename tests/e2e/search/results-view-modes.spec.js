@@ -197,8 +197,14 @@ test.describe('Results panel - Table view navigation', () => {
             test.skip(true, 'Upstream Atlas API not returning results in this environment')
         }
 
-        await firstRow.locator(':scope > div').first().click({ position: { x: 2, y: 2 } })
-        await page.waitForTimeout(500)
+        const checkbox = firstRow.getByRole('checkbox')
+        await expect(checkbox).not.toBeChecked()
+        await checkbox.click()
+        await expect(checkbox).toBeChecked()
+        expect(page.url()).toMatch(/\/search/)
+
+        await checkbox.click()
+        await expect(checkbox).not.toBeChecked()
         expect(page.url()).toMatch(/\/search/)
     })
 })
