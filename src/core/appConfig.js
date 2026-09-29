@@ -22,6 +22,7 @@ const instances = {
             'gather.common.product_type',
             'gather.common.kind',
             'gather.time.start_time',
+            'gather.flyby_missions.flight_day_number',
             'archive.bundle_id',
             'gather.machine_learning.classification.classifications.class',
             'gather.machine_learning.classification.classifications.confidence',
