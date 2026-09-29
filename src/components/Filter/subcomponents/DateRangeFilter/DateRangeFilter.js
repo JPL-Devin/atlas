@@ -165,6 +165,19 @@ const useStyles = makeStyles((theme) => ({
     submit: {},
 }))
 
+// Saved values are UTC ISO 8601 date-times ("2022-02-10T19:59:00.000Z") or dates ("2022-02-10").
+// A date-only end value covers the whole day, matching how OpenSearch treats a date-only `lte`.
+const parseSavedDate = (value, isEnd) => {
+    if (typeof value !== 'string' || value.length === 0) {
+        return null
+    }
+    const parsed = moment.utc(value, moment.ISO_8601)
+    if (!parsed.isValid()) {
+        return null
+    }
+    return isEnd && !value.includes('T') ? parsed.endOf('day') : parsed
+}
+
 const DateRangeFilter = (props) => {
     const { filterKey, facetId, alone, settingsActive } = props
     const c = useStyles()
@@ -177,18 +190,28 @@ const DateRangeFilter = (props) => {
 
     const facetName = facet.field_name || filterKey
 
+    // Displayed and queried in UTC. Start rounds down / end rounds up to `unit` (inclusive range).
     const formats = [
-        {
-            format: 'YYYY-MM-DD',
-            example: '2022-02-10',
-            useTime: false,
-            views: ['year', 'month', 'day'],
-        },
         {
             format: 'YYYY-MM-DD HH:mm',
             example: '2022-02-10 19:59',
             useTime: true,
+            unit: 'minute',
             views: ['year', 'month', 'day', 'hours', 'minutes'],
+        },
+        {
+            format: 'YYYY-MM-DD HH:mm:ss',
+            example: '2022-02-10 19:59:30',
+            useTime: true,
+            unit: 'second',
+            views: ['year', 'month', 'day', 'hours', 'minutes', 'seconds'],
+        },
+        {
+            format: 'YYYY-MM-DD',
+            example: '2022-02-10',
+            useTime: false,
+            unit: 'day',
+            views: ['year', 'month', 'day'],
         },
         // Commenting out day of year format because the newer MUI DateTimePicker does not support day of year
         // date formats. If support is added in the future we can try enabling this format again
@@ -196,15 +219,16 @@ const DateRangeFilter = (props) => {
     ]
 
     const defaultMinDate = '1965-01-01'
-    const [minDate, setMinDate] = useState(moment(defaultMinDate))
-    const [maxDate, setMaxDate] = useState(moment(`${moment().year()}-12-31`))
+    const [minDate, setMinDate] = useState(moment.utc(defaultMinDate))
+    const [maxDate, setMaxDate] = useState(moment.utc(`${moment.utc().year()}-12-31`))
     const [dateFormatIdx, setDateFormatIdx] = useState(0)
     const dateFormat = formats[dateFormatIdx].format
+    const dateUnit = formats[dateFormatIdx].unit
     const [selectedStartDate, handleStartDateChange] = useState(
-        facet.state?.daterange?.start?.length > 0 ? moment.utc(facet.state.daterange.start, dateFormat) : null
+        parseSavedDate(facet.state?.daterange?.start)
     )
     const [selectedEndDate, handleEndDateChange] = useState(
-        facet.state?.daterange?.end?.length > 0 ? moment.utc(facet.state.daterange.end, dateFormat) : null
+        parseSavedDate(facet.state?.daterange?.end, true)
     )
     const noDates = selectedStartDate === null && selectedEndDate === null
     const bothDates = selectedStartDate && selectedEndDate ? true : false
@@ -217,28 +241,19 @@ const DateRangeFilter = (props) => {
             handleEndDateChange(null)
         } else if (facet.state?.daterange?.start || facet.state?.daterange?.end) {
             // Update local state when daterange is set (e.g., from deeplink)
-            const start = facet.state.daterange.start?.length > 0
-                ? moment.utc(facet.state.daterange.start, dateFormat)
-                : null
-            const end = facet.state.daterange.end?.length > 0
-                ? moment.utc(facet.state.daterange.end, dateFormat)
-                : null
-            handleStartDateChange(start)
-            handleEndDateChange(end)
+            handleStartDateChange(parseSavedDate(facet.state.daterange.start))
+            handleEndDateChange(parseSavedDate(facet.state.daterange.end, true))
         }
-    }, [JSON.stringify(facet.state), dateFormat])
+    }, [JSON.stringify(facet.state)])
 
     useEffect(() => {
         if (facet.fields && facet.fields.length > 0) {
-            setMinDate(moment(Math.max(facet.fields[0].key, moment(defaultMinDate).utc())))
-            setMaxDate(moment(facet.fields[facet.fields.length - 1].key + 2592000000)) //+ 30day to fill out bucket
+            setMinDate(moment.utc(Math.max(facet.fields[0].key, moment.utc(defaultMinDate))))
+            setMaxDate(moment.utc(facet.fields[facet.fields.length - 1].key + 2592000000)) //+ 30day to fill out bucket
         }
     }, [JSON.stringify(facet.fields)])
 
     const handleDateFormatChange = (nextIdx) => {
-        if (selectedStartDate !== null)
-            handleStartDateChange(moment.utc(selectedStartDate, dateFormat))
-        if (selectedEndDate !== null) handleEndDateChange(moment.utc(selectedEndDate, dateFormat))
         setDateFormatIdx(nextIdx)
     }
     const handleClear = () => {
@@ -255,14 +270,12 @@ const DateRangeFilter = (props) => {
         let formattedStartDate = selectedStartDate
         let formattedEndDate = selectedEndDate
         if (facet.field_format === 'ISO') {
-            if (formattedStartDate !== null)
-                formattedStartDate = moment(
-                    moment.utc(formattedStartDate, dateFormat).valueOf()
-                ).toISOString()
-            if (formattedEndDate !== null)
-                formattedEndDate = moment(
-                    moment.utc(formattedEndDate, dateFormat).valueOf()
-                ).toISOString()
+            if (formattedStartDate !== null) {
+                formattedStartDate = moment.utc(formattedStartDate).startOf(dateUnit).toISOString()
+            }
+            if (formattedEndDate !== null) {
+                formattedEndDate = moment.utc(formattedEndDate).endOf(dateUnit).toISOString()
+            }
         }
 
         dispatch(
@@ -308,11 +321,12 @@ const DateRangeFilter = (props) => {
                     </FormControl>
                 </div>
                 <div className={c.picker}>
-                    <InputLabel htmlFor="start-date-picker">Start Date</InputLabel>
+                    <InputLabel htmlFor="start-date-picker">Start (UTC)</InputLabel>
                     <DateTimePicker
                         id={'start-date-picker'}
                         className={c.datePicker}
                         ampm={false}
+                        timezone="UTC"
                         value={selectedStartDate}
                         onChange={(val, context) => {
                             if (context.validationError === null) handleStartDateChange(val)
@@ -331,7 +345,7 @@ const DateRangeFilter = (props) => {
                                 InputLabelProps: {
                                     shrink: false,
                                 },
-                                helperText: `Min: ~${moment.utc(minDate).format(dateFormat)}`,
+                                helperText: `Min: ~${moment.utc(minDate).format(dateFormat)} UTC`,
                             },
                         }}
                         views={formats[dateFormatIdx].views}
@@ -344,11 +358,12 @@ const DateRangeFilter = (props) => {
                 </div>
                 <div className={c.gap}>to</div>
                 <div className={c.picker}>
-                    <InputLabel htmlFor="end-date-picker">End Date</InputLabel>
+                    <InputLabel htmlFor="end-date-picker">End (UTC)</InputLabel>
                     <DateTimePicker
                         id={'end-date-picker'}
                         className={c.datePicker}
                         ampm={false}
+                        timezone="UTC"
                         value={selectedEndDate}
                         onChange={(val, context) => {
                             if (context.validationError === null) handleEndDateChange(val)
@@ -367,7 +382,7 @@ const DateRangeFilter = (props) => {
                                 InputLabelProps: {
                                     shrink: false,
                                 },
-                                helperText: `Max: ~${moment.utc(maxDate).format(dateFormat)}`,
+                                helperText: `Max: ~${moment.utc(maxDate).format(dateFormat)} UTC`,
                             },
                         }}
                         views={formats[dateFormatIdx].views}

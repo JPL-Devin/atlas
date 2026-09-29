@@ -621,7 +621,7 @@ const handleSearchResponse = (
                         // Check if this is a range parameter (contains _to_)
                         if (v.includes('_to_')) {
                             const [min, max] = v.split('_to_').map(decodeURI)
-                            const filter = getIn(atlasMapping.groups, qSplit) || {}
+                            const filter = nextActiveFilters?.[qMain] || addFilter
                             const facet = filter?.facets?.[qIdx]
 
                             if (facet?.component === 'date_range') {
