@@ -22,8 +22,12 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import NavigationDrawer from '../NavigationDrawer/NavigationDrawer'
 import TopbarCopyLinks from '../CopyLinks/TopbarCopyLinks'
 
-import { setModal } from '../../core/redux/actions/actions.js'
-import { HASH_PATHS, publicUrl } from '../../core/constants'
+import {
+    setModal,
+    getArchiveExplorerPath,
+    openInArchiveExplorer,
+} from '../../core/redux/actions/actions.js'
+import { ES_PATHS, HASH_PATHS, publicUrl } from '../../core/constants'
 import { getPublicUrl } from '../../core/runtimeConfig'
 import { getAppConfig } from '../../core/appConfig'
 
@@ -211,6 +215,8 @@ const Topbar = () => {
     })
     const cartLength = cart.length
 
+    const recordUri = useSelector((state) => state.getIn(['recordData', ...ES_PATHS.uri]))
+
     let pageName = null
     switch (location.pathname) {
         case HASH_PATHS.cart:
@@ -322,7 +328,14 @@ const Topbar = () => {
                             })}
                             aria-label="go to archive explorer"
                             onClick={() => {
-                                navigate(HASH_PATHS.fileExplorer)
+                                if (
+                                    location.pathname === HASH_PATHS.record &&
+                                    getArchiveExplorerPath(recordUri)
+                                ) {
+                                    dispatch(openInArchiveExplorer(recordUri, navigate))
+                                } else {
+                                    navigate(HASH_PATHS.fileExplorer)
+                                }
                             }}
                             size="large"
                         >
