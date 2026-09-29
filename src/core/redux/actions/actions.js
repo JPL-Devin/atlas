@@ -1900,7 +1900,13 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
                         }
                     }
                 }
-                dispatch(setFilexPreview(options.active))
+                dispatch(
+                    setFilexPreview(
+                        oldColumn.type === 'filter'
+                            ? { ...options.active, fs_type: 'filter' }
+                            : options.active
+                    )
+                )
             }
         }
     }
