@@ -118,5 +118,5 @@ export const getSearchCopyItems = (copy) => [
     { key: 'dsl', label: 'Query (DSL)', onCopy: () => copy('DSL') },
     { key: 'python', groupLabel: 'Commands', label: 'Python', onCopy: () => copy('Python') },
     { key: 'curl', label: 'CURL', onCopy: () => copy('CURL') },
-    { key: 'fetch', label: 'Fetch', onCopy: () => copy('Fetch') },
+    { key: 'fetch', label: 'Node Fetch', onCopy: () => copy('Fetch') },
 ]
