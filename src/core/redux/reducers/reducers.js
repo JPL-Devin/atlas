@@ -31,7 +31,6 @@ const reducerFuncs = {
     SET_RESULTS_STATUS: setResultsStatus,
     SET_RESULTS_PAGE: setResultsPage,
     SET_RESULT_SORTING: setResultSorting,
-    SET_BROWSEABLE_ONLY: setBrowseableOnly,
     SET_RESULTS_TABLE_COLUMNS: setResultsTableColumns,
     SET_LAST_QUERY: setLastQuery,
     CHECK_ITEM_IN_RESULTS: checkItemInResults,
@@ -422,18 +421,6 @@ function setResultsPage(state, payload) {
  */
 function setResultSorting(state, payload) {
     return state.setIn(['resultSorting'], fromJS(payload))
-}
-
-/**
- * Sets whether search results are restricted to browseable images
- *
- * @param {object} state
- * @param {object} payload
- * @param {boolean} payload.browseableOnly
- * @return {Object} new state
- */
-function setBrowseableOnly(state, payload) {
-    return state.set('browseableOnly', payload.browseableOnly)
 }
 
 /**

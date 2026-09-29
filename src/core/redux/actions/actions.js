@@ -9,8 +9,6 @@ import {
     resultsStatuses,
     ES_PATHS,
     HASH_PATHS,
-    IMAGE_EXTENSIONS,
-    MODEL_EXTENSIONS,
 } from '../../constants'
 import { getAppConfig } from '../../appConfig'
 import {
@@ -63,12 +61,6 @@ const isCacheableSearchResponse = (response) =>
     response.data.timed_out !== true &&
     !(response.data._shards?.failed > 0)
 
-// Extensions that reliably have a browse product (both casings, since the
-// index stores lowercase but the field is displayed uppercase)
-const BROWSEABLE_EXTENSIONS = [...new Set([...IMAGE_EXTENSIONS, ...MODEL_EXTENSIONS])].flatMap(
-    (ext) => [ext.toLowerCase(), ext.toUpperCase()]
-)
-
 // Let's result views share which image index the user is scrolled to
 // without being an expensive subscription
 let resultViewIndex = 20
@@ -107,7 +99,6 @@ let flatActions = [
     'SET_RESULTS_STATUS',
     'SET_RESULTS_PAGE',
     'SET_RESULT_SORTING',
-    'SET_BROWSEABLE_ONLY',
     'SET_RESULTS_TABLE_COLUMNS',
     'SET_LAST_QUERY',
     'CHECK_ITEM_IN_RESULTS',
@@ -672,7 +663,6 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
         const resultsPerPage = state.getIn(['resultsPaging', 'resultsPerPage'])
         const resultSorting = state.getIn(['resultSorting']).toJS()
         const filterType = state.getIn(['filterType'])
-        const browseableOnly = state.getIn(['browseableOnly'])
         const atlasMapping = state.getIn(['mappings', 'atlas'])
 
         const resultsTable = state.getIn(['resultsTable']).toJS()
@@ -1060,15 +1050,6 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                 'gather.pds_archive.volume_id': '*deprecated*',
             },
         })
-
-        if (browseableOnly) {
-            query.bool.must = query.bool.must || []
-            query.bool.must.push({
-                terms: {
-                    'archive.file_extension': BROWSEABLE_EXTENSIONS,
-                },
-            })
-        }
 
         // === Secondary aggs
         // Always include a mission agg so that other components can know
@@ -1519,28 +1500,6 @@ export const setResultSorting = (field, direction) => {
             dispatch(clearResults())
             dispatch(search())
         }
-    }
-}
-
-/**
- * Toggles between browseable-image-only results and all products
- *
- * @param {boolean} browseableOnly
- * @return {Object} redux action
- */
-export const setBrowseableOnly = (browseableOnly) => {
-    return (dispatch, getState) => {
-        const state = getState()
-        if (state.getIn(['browseableOnly']) === browseableOnly) {
-            return
-        }
-        dispatch({
-            type: ACTIONS.SET_BROWSEABLE_ONLY,
-            payload: { browseableOnly },
-        })
-        dispatch(checkItemInResults('clear'))
-        dispatch(clearResults())
-        dispatch(search())
     }
 }
 

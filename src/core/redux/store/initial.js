@@ -96,7 +96,6 @@ export const INITIAL = (() => {
             resultsPerPage: 100,
             total: null,
         },
-        browseableOnly: true,
         resultSorting: {
             field: getAppConfig().defaultSortField,
             direction: getAppConfig().defaultSortDirection,
