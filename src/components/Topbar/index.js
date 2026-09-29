@@ -330,6 +330,7 @@ const Topbar = () => {
                             onClick={() => {
                                 if (
                                     location.pathname === HASH_PATHS.record &&
+                                    new URLSearchParams(location.search).get('uri') === recordUri &&
                                     getArchiveExplorerPath(recordUri)
                                 ) {
                                     dispatch(openInArchiveExplorer(recordUri, navigate))

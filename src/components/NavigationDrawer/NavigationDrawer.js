@@ -280,6 +280,8 @@ const NavigationDrawer = ({ open, onClose }) => {
                                     if (
                                         item.path === HASH_PATHS.fileExplorer &&
                                         pathRoot === HASH_PATHS.record &&
+                                        new URLSearchParams(location.search).get('uri') ===
+                                            recordUri &&
                                         getArchiveExplorerPath(recordUri)
                                     ) {
                                         dispatch(openInArchiveExplorer(recordUri, navigate))
