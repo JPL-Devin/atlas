@@ -99,6 +99,22 @@ test.describe('resolvePresentation', () => {
         expect(valueOf(m2020, 'Spacecraft')).toBe('Perseverance')
     })
 
+    test('Artemis 2 mission and spacecraft labels resolve scalar and array index values', () => {
+        for (const value of ['artemis2', ['artemis2']]) {
+            const record = {
+                gather: {
+                    common: { mission: value, spacecraft: value, instrument: ['nikon_d5'] },
+                    pds_archive: { pds_standard: 'pds4', bundle_id: 'artemis2_crew_camera' },
+                },
+            }
+            for (const instance of ['atlas', 'raws']) {
+                const p = resolvePresentation(record, { instance })
+                expect(valueOf(p, 'Mission')).toBe('Artemis 2')
+                expect(valueOf(p, 'Spacecraft')).toBe('Artemis 2')
+            }
+        }
+    })
+
     test('cassini sentinel geometry drops out', () => {
         const p = resolvePresentation(cassini)
         expect(labels(p)).not.toContain('Incidence angle')

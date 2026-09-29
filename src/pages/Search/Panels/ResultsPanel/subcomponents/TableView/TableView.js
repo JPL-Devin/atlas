@@ -28,6 +28,8 @@ import {
 } from '../../../../../../core/redux/actions/actions.js'
 import { sAKeys, sASet } from '../../../../../../core/redux/actions/subscribableActions.js'
 import { getIn, getPDSUrl, getExtension } from '../../../../../../core/utils.js'
+import { formatValue } from '../../../../../../core/recordPresentation/formatters'
+import fields from '../../../../../../config/fields.json'
 
 import ProductToolbar from '../../../../../../components/ProductToolbar/ProductToolbar'
 import ProductIcons from '../../../../../../components/ProductIcons/ProductIcons'
@@ -441,8 +443,13 @@ const makeColumns = (idx, data, cols, columnWidths, toRecord) => {
                     </div>
                 )
                 break
-            case 'label':
-                const rawValue = getIn(s, col.path, '--')
+            case 'label': {
+                const field = fields[col.path.join('.')]
+                const sourceValue = getIn(s, col.path, '--')
+                const rawValue =
+                    field?.vocabulary === 'mission' || field?.vocabulary === 'spacecraft'
+                        ? formatValue(sourceValue, field)
+                        : sourceValue
 
                 let value = ''
                 switch (typeof rawValue) {
@@ -475,6 +482,7 @@ const makeColumns = (idx, data, cols, columnWidths, toRecord) => {
                     </div>
                 )
                 break
+            }
             default:
                 console.warn(`Unknown Table View column type: ${col.type}`)
         }
