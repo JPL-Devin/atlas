@@ -22,14 +22,7 @@ import {
     addToCart,
     setSnackBarText,
 } from '../../../core/redux/actions/actions'
-import {
-    ES_PATHS,
-    HASH_PATHS,
-    IMAGE_EXTENSIONS,
-    domain,
-    endpoints,
-    getShortDisplayName,
-} from '../../../core/constants'
+import { ES_PATHS, HASH_PATHS, IMAGE_EXTENSIONS, domain, endpoints } from '../../../core/constants'
 import { streamDownloadFile } from '../../../core/downloaders/ZipStream.js'
 import ContextMenu, {
     useContextMenu,
@@ -599,8 +592,6 @@ const Preview = (props) => {
         return typeof filexPreview.toJS === 'function' ? {} : filexPreview
     })
     preview = forcedPreview || preview
-    const previewTitle =
-        preview.fs_type === 'filter' ? getShortDisplayName(preview.key) : preview.key
     const cartIndex = useCartIndex(preview.uri)
 
     // The drilled-to mission, so the panel can offer the product's SIS.
@@ -819,10 +810,10 @@ const Preview = (props) => {
                             <Typography
                                 noWrap
                                 className={c.titleMobile}
-                                title={previewTitle}
+                                title={preview.key}
                                 variant="h5"
                             >
-                                {previewTitle}
+                                {preview.key}
                             </Typography>
                         </div>
                     </div>
@@ -848,8 +839,8 @@ const Preview = (props) => {
                 <div className={c.header}>
                     <div className={c.headerTitle}>
                         <div>
-                            <Typography className={c.title} title={previewTitle} variant="h5">
-                                {previewTitle}
+                            <Typography className={c.title} title={preview.key} variant="h5">
+                                {preview.key}
                             </Typography>
                         </div>
                     </div>

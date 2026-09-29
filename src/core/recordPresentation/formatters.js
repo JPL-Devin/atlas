@@ -7,7 +7,7 @@ const asNumber = (value) => (typeof value === 'number' ? value : Number(String(v
 
 // Missions use Atlas display names, without the trailing gloss.
 const displayName = (value, field) => {
-    return (field.vocabulary === 'mission' || field.vocabulary === 'spacecraft') &&
+    return field.vocabulary === 'mission' &&
         DISPLAY_NAME_MAPPINGS[String(value).toLowerCase()] != null
         ? getShortDisplayName(String(value).toLowerCase())
         : prettify(String(value))

@@ -1,5 +1,4 @@
 import { capitalize, prettify, isObject, objectToString } from '../../../../../../core/utils'
-import { getShortDisplayName, ES_PATHS } from '../../../../../../core/constants'
 
 export const MAP_BOUNDARY_FILTER_KEY = 'bounding_box'
 
@@ -53,14 +52,6 @@ export const getActiveFilterChips = (activeFilters) => {
                 } else if (isObject(value)) 
                     value = objectToString(value)
                 
-
-                if (
-                    stateKey !== '__filter' &&
-                    (filterKey === ES_PATHS.mission.join('.') ||
-                        filterKey === ES_PATHS.spacecraft.join('.'))
-                ) {
-                    value = getShortDisplayName(value)
-                }
 
                 let subName = ''
                 if (filter.facets.length > 1)

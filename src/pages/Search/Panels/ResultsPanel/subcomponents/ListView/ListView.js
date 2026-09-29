@@ -31,8 +31,6 @@ import {
 } from '../../../../../../core/redux/actions/actions.js'
 import { sAKeys, sASet } from '../../../../../../core/redux/actions/subscribableActions.js'
 import { getIn, getPDSUrl, getExtension, humanFileSize } from '../../../../../../core/utils.js'
-import { formatValue } from '../../../../../../core/recordPresentation/formatters'
-import fields from '../../../../../../config/fields.json'
 
 import ProductToolbar from '../../../../../../components/ProductToolbar/ProductToolbar'
 import ProductIcons from '../../../../../../components/ProductIcons/ProductIcons'
@@ -382,15 +380,11 @@ const ListCard = ({ index, data, width }) => {
 
                 <div className={c.listItemProperty}>
                     <div>Mission:</div>
-                    <div>
-                        {formatValue(getIn(s, ES_PATHS.mission, []), fields['gather.common.mission'])}
-                    </div>
+                    <div>{getIn(s, ES_PATHS.mission)}</div>
                 </div>
                 <div className={c.listItemProperty}>
                     <div>Spacecraft:</div>
-                    <div>
-                        {formatValue(getIn(s, ES_PATHS.spacecraft, []), fields['gather.common.spacecraft'])}
-                    </div>
+                    <div>{getIn(s, ES_PATHS.spacecraft)}</div>
                 </div>
                 <div className={c.listItemProperty}>
                     <div>Instrument:</div>

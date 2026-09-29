@@ -1754,13 +1754,6 @@ export const updateFilexColumn = (columnId, options, stopPropagate, forcePropaga
 
         const oldColumn = state.getIn(['columns', columnId])
 
-        if (oldColumn.type === 'filter' && options.active != null) {
-            options = {
-                ...options,
-                active: { ...options.active, fs_type: 'filter' },
-            }
-        }
-
         let isFinalFilter = false
         if (oldColumn.type === 'filter') {
             isFinalFilter = true
