@@ -13,7 +13,6 @@ import {
     getPDSUrl,
     getFilename,
     abbreviateNumber,
-    getExtension,
     humanFileSize,
 } from '../../../../core/utils'
 
@@ -25,8 +24,6 @@ import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 import TextField from '@mui/material/TextField'
 import SearchIcon from '@mui/icons-material/Search'
 import GetAppIcon from '@mui/icons-material/GetApp'
-import ImageIcon from '@mui/icons-material/Image'
-import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
 import FolderIcon from '@mui/icons-material/Folder'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
@@ -41,7 +38,8 @@ import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-import { publicUrl, ES_PATHS, IMAGE_EXTENSIONS } from '../../../../core/constants'
+import { publicUrl, ES_PATHS } from '../../../../core/constants'
+import { FileTypeIcon } from '../../../../components/ProductIcons/ProductIcons'
 import { streamDownloadFile } from '../../../../core/downloaders/ZipStream.js'
 
 import clsx from 'clsx'
@@ -745,13 +743,7 @@ const RegexModal = (props) => {
                                             {getIn(r._source, ES_PATHS.archive.fs_type) ===
                                             'file' ? (
                                                 <>
-                                                    {IMAGE_EXTENSIONS.includes(
-                                                        getExtension(result.uri, true)
-                                                    ) ? (
-                                                        <ImageIcon size="small" />
-                                                    ) : (
-                                                        <InsertDriveFileOutlinedIcon size="small" />
-                                                    )}{' '}
+                                                    <FileTypeIcon filename={result.uri} size="small" />{' '}
                                                 </>
                                             ) : (
                                                 <FolderIcon size="small" />
