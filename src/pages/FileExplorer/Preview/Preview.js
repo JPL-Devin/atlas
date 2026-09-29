@@ -379,19 +379,14 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         height: '400px',
         position: 'relative',
-        cursor: 'pointer',
         overflow: 'hidden',
         background: theme.palette.swatches.grey.grey0,
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     previewImage: {
-        'overflow': 'hidden',
-        'position': 'static !important',
-        'objectFit': 'cover !important',
-        'transition': 'filter 0.15s ease-in-out !important',
-        '&:hover': {
-            filter: 'brightness(1.25)',
-        },
+        overflow: 'hidden',
+        position: 'static !important',
+        objectFit: 'cover !important',
     },
     imageCover: {
         position: 'absolute',
@@ -577,8 +572,6 @@ const Preview = (props) => {
     const { isMobile, showMobilePreview, setShowMobilePreview, forcedPreview } = props
 
     const c = useStyles()
-    const navigate = useNavigate()
-
     const dispatch = useDispatch()
 
     const [related, setRelated] = useState(null)
@@ -868,11 +861,6 @@ const Preview = (props) => {
                 <div
                     className={c.image}
                     style={imageUrl == 'null' ? { height: '100px' } : {}}
-                    {...recordClickHandlers(
-                        imageUrl != null ? preview.uri : null,
-                        navigate,
-                        'back=page'
-                    )}
                     onContextMenu={preview.fs_type === 'file' ? openContextMenu : undefined}
                 >
                     <ContextMenu
