@@ -22,6 +22,7 @@ import {
     removeComments,
     copyToClipboard,
 } from '../../utils'
+import { getSortField } from '../../sortFields'
 
 import { formatMappings, getInitialActiveFilters } from '../../../facets/FacetBuilder'
 
@@ -1104,17 +1105,24 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
             source = source.concat(resultsTable.columns)
         }
 
+        const mappingAll = state.getIn(['mappings', 'all'])
+        const sortField =
+            getSortField(mappingAll, resultSorting.field) ??
+            getSortField(mappingAll, resultSorting.defaultField)
+
         const dsl = {
             query,
             from,
             size: resultsPerPage,
             sort: [
                 {
-                    [resultSorting.field]: {
-                        order: resultSorting.direction,
-                        missing: '_last',
-                        unmapped_type: 'keyword',
-                    },
+                    ...(sortField != null && {
+                        [sortField]: {
+                            order: resultSorting.direction,
+                            missing: '_last',
+                            unmapped_type: 'keyword',
+                        },
+                    }),
                     [ES_PATHS.uri.join('.')]: 'asc',
                     [ES_PATHS.release_id.join('.')]: 'desc',
                 },
