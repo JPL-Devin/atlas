@@ -11,6 +11,7 @@ import {
     getPDSUrl,
     splitUri,
     getFilename,
+    getBundleVolumeUri,
     abbreviateNumber,
     getExtension,
     copyToClipboard,
@@ -1226,32 +1227,13 @@ const Column = (props) => {
                                       )
 
                                       // Helper function to build URI for bundle/volume cart items
-                                      const buildBundleVolumeUri = (bundleKey, itemType) => {
-                                          let mission = null
-                                          let spacecraft = null
-
-                                          for (let i = 0; i < columnId; i++) {
-                                              const col = columns[i]
-                                              if (col && col.active && col.type === 'filter') {
-                                                  if (!mission) {
-                                                      mission = col.active.key
-                                                  } else if (!spacecraft) {
-                                                      spacecraft = col.active.key
-                                                  }
-                                              }
-                                          }
-
-                                          const standard = itemType === 'bundle' ? 'pds4' : 'pds3'
-
-                                          const finalUri =
-                                              mission && spacecraft
-                                                  ? `atlas:${standard}:${mission}:${spacecraft}:/${bundleKey}/`
-                                                  : mission
-                                                  ? `atlas:${standard}:${mission}:*:/${bundleKey}/`
-                                                  : `atlas:${standard}:*:*:/${bundleKey}/`
-
-                                          return finalUri
-                                      }
+                                      const buildBundleVolumeUri = (bundleKey, itemType) =>
+                                          getBundleVolumeUri(
+                                              columns,
+                                              columnId,
+                                              bundleKey,
+                                              itemType
+                                          )
 
                                       // Build flat list of rows for virtualization
                                       const hasBoth =
