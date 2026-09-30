@@ -622,7 +622,7 @@ const Preview = (props) => {
     const [versions, setVersions] = useState([])
     const [activeVersion, setActiveVersion] = useState(null)
     const [hasBrowse, setHasBrowse] = useState(null)
-    const [failedMediaUrl, setFailedMediaUrl] = useState(null)
+    const [failedMediaPreview, setFailedMediaPreview] = useState(null)
     const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
 
     let preview = useSelector((state) => {
@@ -790,14 +790,15 @@ const Preview = (props) => {
     const isAudio = AUDIO_PREVIEW_EXTENSIONS.includes(mediaType)
     const mediaUrl =
         isVideo || isAudio ? getPDSUrl(preview.uri, getIn(preview, ES_PATHS.release_id)) : null
-    const showMedia = mediaUrl != null && failedMediaUrl !== mediaUrl
+    // Keyed by selection, so reselecting a file retries after a load error
+    const showMedia = mediaUrl != null && failedMediaPreview !== preview
     const mediaProps = {
         key: mediaUrl,
         src: mediaUrl,
         controls: true,
         preload: 'metadata',
         ref: setInitialVolume,
-        onError: () => setFailedMediaUrl(mediaUrl),
+        onError: () => setFailedMediaPreview(preview),
     }
     // Files get their type icon; directories and volumes keep theirs.
     const placeholderIcon =
