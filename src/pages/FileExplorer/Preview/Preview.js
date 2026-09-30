@@ -889,6 +889,7 @@ const Preview = (props) => {
                     />
                     {imageUrl != 'null' && hasBrowse !== false ? (
                         <Image
+                            key={imageUrl}
                             className={c.previewImage}
                             wrapperStyle={{
                                 height: '100%',
