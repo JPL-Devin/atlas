@@ -202,8 +202,6 @@ const StyledTab = withStyles((theme) => ({
 
 // Don't rerender for this change
 let firstSearch = false
-// We want this evaluated only as soon as possible
-const url = new Url(window.location, true)
 
 const ResultsPanel = (props) => {
     const { mobile } = props
@@ -217,6 +215,8 @@ const ResultsPanel = (props) => {
         mapEnabled && !mobile ? ['Grid', 'List', 'Table', 'Map'] : ['Grid', 'List', 'Table']
     const [split, setSplit] = useState(false)
     const [mobileMap, setMobileMap] = useState(false)
+    // Read during render, before FilterList's effect syncs the URL to the store
+    const [initialUrl] = useState(() => new Url(window.location, true))
 
     const atlasMapping = useSelector((state) => {
         return state.getIn(['mappings', 'atlas'])
@@ -225,10 +225,10 @@ const ResultsPanel = (props) => {
     useEffect(() => {
         // Runs after the first render() lifecycle
         if (!firstSearch && atlasMapping?.groups) {
-            dispatch(search(null, true, null, url))
+            dispatch(search(null, true, null, initialUrl))
             firstSearch = true
         }
-    }, [atlasMapping])
+    }, [atlasMapping, dispatch, initialUrl])
 
     const w = useSelector((state) => {
         return state.getIn(['workspace', 'main'])
