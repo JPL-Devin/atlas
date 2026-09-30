@@ -896,6 +896,7 @@ const Preview = (props) => {
                                 position: 'initial',
                             }}
                             duration={250}
+                            showLoading
                             src={imageUrl}
                             alt={imageUrl}
                             errorIcon={
