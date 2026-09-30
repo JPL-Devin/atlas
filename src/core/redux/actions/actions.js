@@ -2727,7 +2727,7 @@ export const setData = (name, data) => {
  * Pulls data from various parts of store
  * And triggers the snackbar
  *
- * @param {type} - 'DSL' | 'CURL'
+ * @param {type} - 'DSL' | 'Python' | 'CURL' | 'Fetch'
  * @return {null}
  */
 export const copyToClipboardAction = (type) => {
@@ -2740,12 +2740,13 @@ export const copyToClipboardAction = (type) => {
             case 'python':
                 copyToClipboard(
                     [
+                        `# Queries the Atlas PDS search API with the current Atlas search and prints the JSON response.`,
+                        `# Requires Python 3 and the requests package: pip install requests`,
+                        `# Run: save as atlas_search.py, then: python atlas_search.py`,
+                        `import json`,
                         `import requests`,
-                        `r = requests.post("${domain}${endpoints.search}", json=${JSON.stringify(
-                            formattedLastDSL,
-                            null,
-                            2
-                        )})`,
+                        `query = json.loads(r"""${JSON.stringify(formattedLastDSL, null, 2)}""")`,
+                        `r = requests.post("${domain}${endpoints.search}", json=query)`,
                         `print(r.text)`,
                     ].join('\n')
                 )
@@ -2757,15 +2758,22 @@ export const copyToClipboardAction = (type) => {
                 break
             case 'curl':
                 copyToClipboard(
-                    `curl -XPOST "${domain}${endpoints.search}" -d '${JSON.stringify(
-                        formattedLastDSL
-                    )}'`
+                    [
+                        `# Queries the Atlas PDS search API with the current Atlas search and prints the JSON response.`,
+                        `# Requires only curl. Run: paste into a POSIX shell (bash, zsh, Git Bash).`,
+                        `curl -XPOST "${domain}${endpoints.search}" -d '${JSON.stringify(
+                            formattedLastDSL
+                        ).replace(/'/g, "'\\''")}'`,
+                    ].join('\n')
                 )
                 dispatch(setSnackBarText('Copied CURL Command to Clipboard!', 'success'))
                 break
             case 'fetch':
                 copyToClipboard(
                     [
+                        `// Queries the Atlas PDS search API with the current Atlas search and logs the JSON response.`,
+                        `// Requires Node.js 18+ (built-in fetch); no packages to install.`,
+                        `// Run: save as atlas_search.mjs, then: node atlas_search.mjs`,
                         `fetch('${domain}${endpoints.search}', {`,
                         `method: "POST",`,
                         `body: JSON.stringify(${JSON.stringify(formattedLastDSL, null, 2)})`,
@@ -2775,7 +2783,7 @@ export const copyToClipboardAction = (type) => {
                         `.catch((err) => console.log(err))`,
                     ].join('\n')
                 )
-                dispatch(setSnackBarText('Copied Fetch Command to Clipboard!', 'success'))
+                dispatch(setSnackBarText('Copied Node Fetch Command to Clipboard!', 'success'))
                 break
             default:
                 break
