@@ -14,6 +14,19 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const ENV_PREFIX = ['REACT_APP_', 'VITE_', 'PUBLIC_URL']
 
+// Keys read via `buildEnv` in src/core/runtimeConfig.js and src/core/appConfig.js.
+const APP_ENV_KEYS = [
+    'PUBLIC_URL',
+    'REACT_APP_DOMAIN',
+    'REACT_APP_API_URL',
+    'REACT_APP_ES_URL',
+    'REACT_APP_FOOTPRINT_URL',
+    'REACT_APP_IMAGERY_URL',
+    'REACT_APP_REGISTRY_URL',
+    'REACT_APP_DOI_URL',
+    'REACT_APP_APP_INSTANCE',
+]
+
 export default defineConfig(({ mode }) => {
     // Vite's automatic .env loading only populates `import.meta.env` for
     // client code — it does NOT merge `.env` into this file's `process.env`
@@ -28,6 +41,9 @@ export default defineConfig(({ mode }) => {
     const shouldAnalyze = configEnv.ANALYZE === 'true'
     const shouldSourceMap = configEnv.GENERATE_SOURCEMAP !== 'false'
     const clientEnv = loadEnv(mode, process.cwd(), ENV_PREFIX)
+    const appEnv = Object.fromEntries(
+        APP_ENV_KEYS.filter((key) => key in clientEnv).map((key) => [key, clientEnv[key]])
+    )
 
     return {
         plugins: [
@@ -67,8 +83,10 @@ export default defineConfig(({ mode }) => {
         // src/core/runtimeConfig.js reads build-time env through __APP_ENV__
         // rather than import.meta.env so it stays loadable under plain Node
         // (the Playwright `unit` project), where it falls back to process.env.
+        // Only APP_ENV_KEYS are inlined, so unrelated prefixed values never
+        // reach the bundle.
         define: {
-            __APP_ENV__: JSON.stringify(clientEnv),
+            __APP_ENV__: JSON.stringify(appEnv),
         },
 
         resolve: {
