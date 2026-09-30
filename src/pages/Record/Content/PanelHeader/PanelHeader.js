@@ -30,6 +30,10 @@ import ViewTabs from '../ViewTabs/ViewTabs'
 import { getVisibleViewTabs } from '../../viewTabs'
 import { parseRecordFilename } from '../../../../core/recordPresentation'
 import { useFilenameSelection, FilenameName, FilenameDetails } from './FilenameLegend'
+import { useResultNav } from '../ResultNav/ResultNavMockup'
+import ResultNavActions from '../ResultNav/ResultNavActions'
+import ResultNavBar from '../ResultNav/ResultNavBar'
+import ResultNavBreadcrumb from '../ResultNav/ResultNavBreadcrumb'
 
 const useStyles = makeStyles((theme) => ({
     PanelHeader: {
@@ -146,6 +150,17 @@ const useStyles = makeStyles((theme) => ({
             background: theme.palette.swatches.grey.grey150,
         },
     },
+    // Variant A needs the room: the secondary actions drop to icons beside the result nav.
+    compactActions: {
+        [theme.breakpoints.up('lg')]: {
+            '& $copyAction': {
+                fontSize: 0,
+            },
+            '& $copyAction .MuiButton-startIcon': {
+                margin: 0,
+            },
+        },
+    },
     tabs: {
         height: `${theme.headHeights[2]}px`,
         background: theme.palette.swatches.grey.grey0,
@@ -161,6 +176,8 @@ const PanelHeader = (props) => {
     const dispatch = useDispatch()
 
     const recordViewTab = useSelector((state) => state.get('recordViewTab'))
+    const resultNav = useResultNav()
+    const resultNavVariant = resultNav?.variant
 
     // Missions with no filename spec have nothing to explain.
     const parsedFilename = parseRecordFilename(getIn(recordData, ES_PATHS.file_name), recordData)
@@ -186,24 +203,28 @@ const PanelHeader = (props) => {
 
     return (
         <div className={c.PanelHeader}>
+            {resultNavVariant === 'b' && <ResultNavBar nav={resultNav} />}
             <div className={c.titleBlock}>
+                {resultNavVariant === 'c' && <ResultNavBreadcrumb nav={resultNav} />}
                 <div className={c.identity}>
-                    <Tooltip title={canGoBack ? 'Back' : 'Back to Search'} arrow>
-                        <IconButton
-                            className={c.backButton}
-                            aria-label={canGoBack ? 'go back a page' : 'return to search'}
-                            size="small"
-                            onClick={() => {
-                                if (canGoBack) {
-                                    navigate(-1)
-                                } else {
-                                    navigate(HASH_PATHS.search)
-                                }
-                            }}
-                        >
-                            <ChevronLeftIcon />
-                        </IconButton>
-                    </Tooltip>
+                    {resultNavVariant !== 'c' && (
+                        <Tooltip title={canGoBack ? 'Back' : 'Back to Search'} arrow>
+                            <IconButton
+                                className={c.backButton}
+                                aria-label={canGoBack ? 'go back a page' : 'return to search'}
+                                size="small"
+                                onClick={() => {
+                                    if (canGoBack) {
+                                        navigate(-1)
+                                    } else {
+                                        navigate(HASH_PATHS.search)
+                                    }
+                                }}
+                            >
+                                <ChevronLeftIcon />
+                            </IconButton>
+                        </Tooltip>
+                    )}
                     <div className={c.name}>
                         {parsedFilename != null ? (
                             <FilenameName selection={filenameSelection} />
@@ -233,7 +254,11 @@ const PanelHeader = (props) => {
                     </div>
                 )}
             </div>
-            <div className={c.actions} aria-label="record actions">
+            <div
+                className={`${c.actions} ${resultNavVariant === 'a' ? c.compactActions : ''}`}
+                aria-label="record actions"
+            >
+                {resultNavVariant === 'a' && <ResultNavActions nav={resultNav} />}
                 {extraActions}
                 {getAppConfig().enableCart && (
                     <Button
