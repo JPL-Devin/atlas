@@ -690,14 +690,22 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
 
         // Make query
         let query = {}
+        let hasAdvancedQuery = false
         if (filterType === 'advanced') {
             const advancedFilters = state.getIn(['advancedFilters'])
 
             if (advancedFilters) {
                 const trimmedQuery = removeComments(advancedFilters)
-                query.query_string = {
-                    query: `_exists_:gather.uri AND (${trimmedQuery})`,
+                query.bool = {
+                    must: [
+                        {
+                            query_string: {
+                                query: `_exists_:gather.uri AND (${trimmedQuery})`,
+                            },
+                        },
+                    ],
                 }
+                hasAdvancedQuery = true
             }
         } else {
             Object.keys(activeFilters).forEach((filter) => {
@@ -1040,7 +1048,7 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
         }
 
         // Default to searching everything with a gather
-        if (query.query_string == null) {
+        if (!hasAdvancedQuery) {
             query.bool = query.bool || {}
             query.bool.must = query.bool.must || []
             query.bool.must.push({ exists: { field: 'gather.uri' } })
