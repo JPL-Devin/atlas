@@ -205,7 +205,7 @@ const PanelHeader = (props) => {
         <div className={c.PanelHeader}>
             {resultNavVariant === 'b' && <ResultNavBar nav={resultNav} />}
             <div className={c.titleBlock}>
-                {resultNavVariant === 'c' && <ResultNavBreadcrumb nav={resultNav} />}
+                {resultNavVariant === 'c' && <ResultNavBreadcrumb nav={resultNav} canGoBack={canGoBack} />}
                 <div className={c.identity}>
                     {resultNavVariant !== 'c' && (
                         <Tooltip title={canGoBack ? 'Back' : 'Back to Search'} arrow>

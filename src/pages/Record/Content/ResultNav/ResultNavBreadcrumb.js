@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { useNavigate } from 'react-router-dom'
 
 import { makeStyles } from '@mui/styles'
 
@@ -45,8 +46,9 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const ResultNavBreadcrumb = (props) => {
-    const { nav } = props
+    const { nav, canGoBack } = props
     const c = useStyles()
+    const navigate = useNavigate()
 
     return (
         <nav className={c.ResultNavBreadcrumb} aria-label="result navigation">
@@ -66,10 +68,10 @@ const ResultNavBreadcrumb = (props) => {
             <Tooltip title={`Result ${nav.index + 1} of ${nav.total.toLocaleString()}`} arrow>
                 <ButtonBase
                     className={`${c.link} ${c.back}`}
-                    aria-label="back to results"
-                    onClick={nav.backToResults}
+                    aria-label={canGoBack ? 'go back a page' : 'back to results'}
+                    onClick={canGoBack ? () => navigate(-1) : nav.backToResults}
                 >
-                    Back to results
+                    {canGoBack ? 'Back' : 'Back to results'}
                 </ButtonBase>
             </Tooltip>
             <span className={c.separator}>|</span>
@@ -102,6 +104,7 @@ const ResultNavBreadcrumb = (props) => {
 
 ResultNavBreadcrumb.propTypes = {
     nav: PropTypes.object.isRequired,
+    canGoBack: PropTypes.bool,
 }
 
 export default ResultNavBreadcrumb

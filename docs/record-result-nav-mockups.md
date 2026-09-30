@@ -73,7 +73,8 @@ which is hidden in this variant to avoid two "back" controls.
 - Pro: lightest visual weight; groups "where did I come from" with "where can I
   go next".
 - Con: small targets; hides the `?back=page` / "return to search" chevron, so
-  its semantics must be folded into "Back to results" (see below).
+  its semantics are folded in: with a live `back=page` the middle link reads
+  "Back" and returns to the previous page (e.g. FileX) instead of search.
 
 ## Files
 

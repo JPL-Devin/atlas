@@ -23,7 +23,7 @@ export const readResultNavParams = (search) => {
         return null
     }
     const state = params.get('resultNavState')
-    return { variant, state: RESULT_NAV_STATES[state] ? state : 'middle' }
+    return { variant, state: RESULT_NAV_STATES[state] ? state : 'middle', uri: params.get('uri') }
 }
 
 export const ResultNavMockupProvider = (props) => {
@@ -39,6 +39,18 @@ export const ResultNavMockupProvider = (props) => {
     const [loadingNext, setLoadingNext] = useState(initialPreset.loadingNext === true)
     const loadTimer = useRef(null)
 
+    // Re-seed whenever the route's flag, preset, or record changes (e.g. a version switch).
+    const initialKey = initial ? `${initial.variant}|${initial.state}|${initial.uri}` : ''
+    const [seededKey, setSeededKey] = useState(initialKey)
+    if (seededKey !== initialKey) {
+        setSeededKey(initialKey)
+        setVariant(initial?.variant || null)
+        setPreset(initial?.state || 'middle')
+        setIndex(initialPreset.index)
+        setLoaded(initialPreset.loaded)
+        setLoadingNext(initialPreset.loadingNext === true)
+    }
+
     const applyPreset = (key) => {
         const p = RESULT_NAV_STATES[key]
         clearTimeout(loadTimer.current)
@@ -48,7 +60,7 @@ export const ResultNavMockupProvider = (props) => {
         setLoadingNext(p.loadingNext === true)
     }
 
-    useEffect(() => () => clearTimeout(loadTimer.current), [])
+    useEffect(() => () => clearTimeout(loadTimer.current), [initialKey])
 
     const value = useMemo(() => {
         if (variant == null) {
@@ -112,6 +124,7 @@ ResultNavMockupProvider.propTypes = {
     initial: PropTypes.shape({
         variant: PropTypes.string,
         state: PropTypes.string,
+        uri: PropTypes.string,
     }),
     children: PropTypes.node,
 }
