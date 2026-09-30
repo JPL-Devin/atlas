@@ -13,6 +13,7 @@ import {
     humanFileSize,
     getPDSUrl,
     getFilename,
+    getBundleVolumeUri,
     copyToClipboard,
 } from '../../../core/utils'
 
@@ -388,19 +389,14 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         height: '400px',
         position: 'relative',
-        cursor: 'pointer',
         overflow: 'hidden',
         background: theme.palette.swatches.grey.grey0,
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
     previewImage: {
-        'overflow': 'hidden',
-        'position': 'static !important',
-        'objectFit': 'cover !important',
-        'transition': 'filter 0.15s ease-in-out !important',
-        '&:hover': {
-            filter: 'brightness(1.25)',
-        },
+        overflow: 'hidden',
+        position: 'static !important',
+        objectFit: 'cover !important',
     },
     imageCover: {
         position: 'absolute',
@@ -503,7 +499,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const ButtonBar = (props) => {
-    const { preview, related } = props
+    const { preview, related, bundleVolumeUri } = props
     const c = useStyles()
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -582,15 +578,28 @@ const ButtonBar = (props) => {
                         size="small"
                         aria-label="add to cart"
                         startIcon={<AddShoppingCartIcon fontSize="small" />}
-                        disabled={preview.fs_type !== 'file' && preview.fs_type !== 'directory'}
+                        disabled={
+                            bundleVolumeUri == null &&
+                            preview.fs_type !== 'file' &&
+                            preview.fs_type !== 'directory'
+                        }
                         onClick={() => {
                             dispatch(
-                                addToCart(preview.fs_type === 'directory' ? 'directory' : 'file', {
-                                    uri: preview.uri,
-                                    related: related,
-                                    size: preview.size,
-                                    release_id: getIn(preview, ES_PATHS.release_id),
-                                })
+                                bundleVolumeUri != null
+                                    ? addToCart('directory', {
+                                          uri: bundleVolumeUri,
+                                          related: { src: { uri: bundleVolumeUri } },
+                                          size: 0,
+                                      })
+                                    : addToCart(
+                                          preview.fs_type === 'directory' ? 'directory' : 'file',
+                                          {
+                                              uri: preview.uri,
+                                              related: related,
+                                              size: preview.size,
+                                              release_id: getIn(preview, ES_PATHS.release_id),
+                                          }
+                                      )
                             )
                             dispatch(setSnackBarText('Added to Cart!', 'success'))
                         }}
@@ -607,8 +616,6 @@ const Preview = (props) => {
     const { isMobile, showMobilePreview, setShowMobilePreview, forcedPreview } = props
 
     const c = useStyles()
-    const navigate = useNavigate()
-
     const dispatch = useDispatch()
 
     const [related, setRelated] = useState(null)
@@ -636,6 +643,24 @@ const Preview = (props) => {
                 col.active != null
         )
         return column ? column.active.key : null
+    })
+
+    // Cart URI when the preview is the bundle/volume selected in the volume column.
+    const bundleVolumeUri = useSelector((state) => {
+        const cols = state.get('columns')
+        if (typeof cols.toJS === 'function' || preview.uniqueKey == null) {
+            return null
+        }
+        const columnId = cols.findIndex(
+            (col) =>
+                col.type === 'volume' &&
+                col.active != null &&
+                col.active.uniqueKey === preview.uniqueKey
+        )
+        if (columnId < 0) {
+            return null
+        }
+        return getBundleVolumeUri(cols, columnId, preview.key, preview.type || 'volume')
     })
 
     useEffect(() => {
@@ -899,7 +924,11 @@ const Preview = (props) => {
                         </div>
                     </div>
                     <div className={c.headerRight}>
-                        <ButtonBar preview={preview} related={related} />
+                        <ButtonBar
+                            preview={preview}
+                            related={related}
+                            bundleVolumeUri={bundleVolumeUri}
+                        />
                     </div>
                     {activeVersion != 0 && activeVersion != null && versions.length > 0 ? (
                         <div
@@ -928,11 +957,6 @@ const Preview = (props) => {
                               ? { height: '100px' }
                               : {}
                     }
-                    {...recordClickHandlers(
-                        imageUrl != null ? preview.uri : null,
-                        navigate,
-                        'back=page'
-                    )}
                     onContextMenu={preview.fs_type === 'file' ? openContextMenu : undefined}
                 >
                     <ContextMenu
@@ -945,7 +969,10 @@ const Preview = (props) => {
                             recordUri: related ? related.uri : null,
                             labelUri: getIn(related, 'gather.pds_archive.related.label.uri'),
                             browseUri: browseUri,
-                            releaseId: release_id != null ? release_id : getIn(preview, ES_PATHS.release_id),
+                            releaseId:
+                                release_id != null
+                                    ? release_id
+                                    : getIn(preview, ES_PATHS.release_id),
                             dispatch,
                             cartIndex,
                             cartItem: {
@@ -960,13 +987,7 @@ const Preview = (props) => {
                         })}
                     />
                     {showMedia ? (
-                        // Keeps player clicks from opening the record
-                        <div
-                            className={c.media}
-                            role="presentation"
-                            onClick={(e) => e.stopPropagation()}
-                            onAuxClick={(e) => e.stopPropagation()}
-                        >
+                        <div className={c.media}>
                             {isVideo ? (
                                 // eslint-disable-next-line jsx-a11y/media-has-caption -- archive products ship no caption tracks
                                 <video className={c.video} {...mediaProps} />
@@ -980,6 +1001,7 @@ const Preview = (props) => {
                         </div>
                     ) : imageUrl != 'null' && hasBrowse !== false ? (
                         <Image
+                            key={imageUrl}
                             className={c.previewImage}
                             wrapperStyle={{
                                 height: '100%',
@@ -987,6 +1009,7 @@ const Preview = (props) => {
                                 position: 'initial',
                             }}
                             duration={250}
+                            showLoading
                             src={imageUrl}
                             alt={imageUrl}
                             errorIcon={placeholderIcon}
@@ -1005,7 +1028,12 @@ const Preview = (props) => {
                 {isMobile && (
                     <div className={c.headerMobile}>
                         <div className={c.headerTop}>
-                            <ButtonBar preview={preview} related={related} isMobile={true} />
+                            <ButtonBar
+                                preview={preview}
+                                related={related}
+                                bundleVolumeUri={bundleVolumeUri}
+                                isMobile={true}
+                            />
                         </div>
                     </div>
                 )}

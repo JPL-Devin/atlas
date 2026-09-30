@@ -151,7 +151,7 @@ const FiltersPanel = (props) => {
             case 'Copy CURL Command':
                 dispatch(copyToClipboardAction('CURL'))
                 break
-            case 'Copy Fetch Command':
+            case 'Copy Node Fetch Command':
                 dispatch(copyToClipboardAction('Fetch'))
                 break
             default:
@@ -214,7 +214,7 @@ const FiltersPanel = (props) => {
                                     'Copy Query',
                                     'Copy Python Command',
                                     'Copy CURL Command',
-                                    'Copy Fetch Command',
+                                    'Copy Node Fetch Command',
                                 ]}
                                 checkboxIndices={[0, 1]}
                                 active={FILTER_TYPES[filterType]}

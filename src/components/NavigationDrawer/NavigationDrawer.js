@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 
@@ -18,6 +18,8 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
+import { getArchiveExplorerPath, openInArchiveExplorer } from '../../core/redux/actions/actions'
+import { ES_PATHS, HASH_PATHS } from '../../core/constants'
 import { getPublicUrl } from '../../core/runtimeConfig'
 import { getAppInstanceKey, getAllInstances } from '../../core/appConfig'
 
@@ -225,12 +227,15 @@ const NavigationDrawer = ({ open, onClose }) => {
 
     const location = useLocation()
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     const publicUrl = getPublicUrl()
 
     const cart = useSelector((state) => {
         return state.get('cart').toJS() || []
     })
     const cartLength = cart.length
+
+    const recordUri = useSelector((state) => state.getIn(['recordData', ...ES_PATHS.uri]))
 
     const pathRoot = location.pathname.split('?')[0]
 
@@ -272,7 +277,17 @@ const NavigationDrawer = ({ open, onClose }) => {
                                 if (item.isAtlas && !item.openInNewTab) {
                                     e.preventDefault()
                                     onClose()
-                                    navigate(`${item.path}`)
+                                    if (
+                                        item.path === HASH_PATHS.fileExplorer &&
+                                        pathRoot === HASH_PATHS.record &&
+                                        new URLSearchParams(location.search).get('uri') ===
+                                            recordUri &&
+                                        getArchiveExplorerPath(recordUri)
+                                    ) {
+                                        dispatch(openInArchiveExplorer(recordUri, navigate))
+                                    } else {
+                                        navigate(`${item.path}`)
+                                    }
                                 } else if (item.openInNewTab) 
                                     onClose()
                                 

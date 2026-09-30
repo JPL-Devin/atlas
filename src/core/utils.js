@@ -95,6 +95,32 @@ export const splitUri = (uri, get) => {
     return s
 }
 
+// Atlas cart URI for a bundle (PDS4) or volume (PDS3) in the FileX volume column,
+// scoped by the mission/spacecraft filters active in the columns before it.
+export const getBundleVolumeUri = (columns, columnId, bundleKey, itemType) => {
+    let mission = null
+    let spacecraft = null
+
+    for (let i = 0; i < columnId; i++) {
+        const col = columns[i]
+        if (col && col.active && col.type === 'filter') {
+            if (!mission) {
+                mission = col.active.key
+            } else if (!spacecraft) {
+                spacecraft = col.active.key
+            }
+        }
+    }
+
+    const standard = itemType === 'bundle' ? 'pds4' : 'pds3'
+
+    return mission && spacecraft
+        ? `atlas:${standard}:${mission}:${spacecraft}:/${bundleKey}/`
+        : mission
+        ? `atlas:${standard}:${mission}:*:/${bundleKey}/`
+        : `atlas:${standard}:*:*:/${bundleKey}/`
+}
+
 export const getFilename = (url) => {
     if (!url || typeof url != 'string') return url
     // Get the filename from the URL

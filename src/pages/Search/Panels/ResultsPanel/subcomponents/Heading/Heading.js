@@ -9,7 +9,6 @@ import { useTheme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 
 import Button from '@mui/material/Button'
-import ButtonGroup from '@mui/material/ButtonGroup'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
@@ -28,7 +27,6 @@ import ChippedFilters from '../ChippedFilters/ChippedFilters'
 import {
     addToCart,
     checkItemInResults,
-    setBrowseableOnly,
     setGridSize,
     setModal,
     setSnackBarText,
@@ -83,28 +81,6 @@ const useStyles = makeStyles((theme) => ({
                     ? 'inherit'
                     : theme.palette.swatches.grey.grey150,
             color: window.atlasGlobal.imageRotation === 0 ? 'rgba(0,0,0,0.54)' : 'black',
-        },
-    },
-    browseableToggle: {
-        'height': '26px',
-        'margin': '7px 5px 7px 4px',
-        'borderRadius': '2px',
-        '& > .MuiButton-root': {
-            background: theme.palette.swatches.grey.grey0,
-            fontSize: '10px',
-            fontWeight: 'bold',
-            textTransform: 'uppercase',
-            whiteSpace: 'nowrap',
-        },
-        '& .MuiButtonGroup-groupedOutlinedHorizontal:not(:last-child)': {
-            borderRight: '2px solid rgba(23, 23, 27, 0.5) !important',
-        },
-    },
-    browseableActive: {
-        'background': `${theme.palette.accent.main} !important`,
-        'color': theme.palette.swatches.grey.grey0,
-        '&:hover': {
-            color: theme.palette.swatches.grey.grey0,
         },
     },
     gridSize: {
@@ -164,7 +140,6 @@ const Heading = (props) => {
 
     const filterType = useSelector((state) => state.getIn(['filterType']))
     const gridSize = useSelector((state) => state.getIn(['gridSize']))
-    const browseableOnly = useSelector((state) => state.getIn(['browseableOnly']))
 
     const resultKeysChecked = useSelector((state) => state.getIn(['resultKeysChecked'])).toJS()
 
@@ -195,42 +170,6 @@ const Heading = (props) => {
             </div>
             <div className={c.middle}>{filterType === 'basic' && <ChippedFilters />}</div>
             <div className={c.right}>
-                {!mobile && (
-                    <ButtonGroup
-                        className={c.browseableToggle}
-                        variant="outlined"
-                        color="secondary"
-                        size="small"
-                        aria-label="product type"
-                    >
-                        <Tooltip
-                            title="Show every product, including those without a browse image"
-                            arrow
-                        >
-                            <Button
-                                className={clsx({ [c.browseableActive]: !browseableOnly })}
-                                aria-label="all products"
-                                aria-pressed={!browseableOnly}
-                                onClick={() => dispatch(setBrowseableOnly(false))}
-                            >
-                                {isMobile ? 'All' : 'All Products'}
-                            </Button>
-                        </Tooltip>
-                        <Tooltip
-                            title="Only show image and model products that have a browse image"
-                            arrow
-                        >
-                            <Button
-                                className={clsx({ [c.browseableActive]: browseableOnly })}
-                                aria-label="browseable images"
-                                aria-pressed={browseableOnly}
-                                onClick={() => dispatch(setBrowseableOnly(true))}
-                            >
-                                {isMobile ? 'Browseable' : 'Browseable Images'}
-                            </Button>
-                        </Tooltip>
-                    </ButtonGroup>
-                )}
                 <ResultsSorter />
                 {activeView === 'Grid' && !isMobile && (
                     <div className={c.gridSize}>
@@ -350,19 +289,14 @@ const Heading = (props) => {
                         '-',
                         'Deselect All',
                     ] : []
-                    const browseableOptions = mobile
-                        ? ['All Products', 'Browseable Images', '-']
-                        : []
                     const menuOptions = !isMobile
                         ? cartOptions
                         : activeView === 'Table'
                         ? [
-                              ...browseableOptions,
                               ...(cartOptions.length > 0 ? [...cartOptions, '-'] : []),
                               'Edit Columns',
                           ]
                         : [
-                              ...browseableOptions,
                               ...(cartOptions.length > 0 ? [...cartOptions, '-'] : []),
                               'Small Grid Images',
                               'Medium Grid Images',
@@ -373,16 +307,9 @@ const Heading = (props) => {
                     if (menuOptions.length === 0) return null
                     return (<MenuButton
                     options={menuOptions}
-                    active={mobile ? (browseableOnly ? 'Browseable Images' : 'All Products') : null}
                     buttonComponent={<MoreVertIcon className={c.menuButton} />}
                     onChange={(option) => {
                         switch (option) {
-                            case 'All Products':
-                                dispatch(setBrowseableOnly(false))
-                                break
-                            case 'Browseable Images':
-                                dispatch(setBrowseableOnly(true))
-                                break
                             case 'Add Selected Results to Cart':
                                 dispatch(addToCart('image', 'checkedResults'))
                                 dispatch(setSnackBarText('Added to Cart!', 'success'))

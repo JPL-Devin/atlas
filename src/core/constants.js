@@ -246,6 +246,7 @@ export const MISSIONS_TO_BODIES = {
 export const DISPLAY_NAME_MAPPINGS = {
     'ap': 'Apollo',
     'apollo': 'Apollo',
+    'artemis2': 'Artemis 2',
     'cas': 'Cassini',
     'cassini': 'Cassini',
     'cassini_orbiter': 'Cassini Orbiter',

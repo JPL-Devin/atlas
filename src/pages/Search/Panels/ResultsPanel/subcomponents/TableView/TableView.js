@@ -28,6 +28,7 @@ import {
 } from '../../../../../../core/redux/actions/actions.js'
 import { sAKeys, sASet } from '../../../../../../core/redux/actions/subscribableActions.js'
 import { getIn, getPDSUrl, getExtension } from '../../../../../../core/utils.js'
+import { getSortField } from '../../../../../../core/sortFields.js'
 
 import ProductToolbar from '../../../../../../components/ProductToolbar/ProductToolbar'
 import ProductIcons from '../../../../../../components/ProductIcons/ProductIcons'
@@ -260,6 +261,11 @@ const TableView = (props) => {
         return state.getIn(['resultSorting'])
     }).toJS()
 
+    const mappingAll = useSelector((state) => {
+        return state.getIn(['mappings', 'all'])
+    })
+    const isSortable = (field) => getSortField(mappingAll, field) != null
+
     let resultsTable = useSelector((state) => {
         return state.getIn(['resultsTable'])
     })
@@ -350,7 +356,14 @@ const TableView = (props) => {
         <div className={`${c.TableView} fade-in`}>
             <div className={c.content} id="TableViewContent">
                 <div className={c.header} ref={headerRef}>
-                    {makeHeader(cols, columnWidths, setColumnWidths, resultSorting, setSort)}
+                    {makeHeader(
+                        cols,
+                        columnWidths,
+                        setColumnWidths,
+                        resultSorting,
+                        setSort,
+                        isSortable
+                    )}
                 </div>
                 <InfiniteLoader
                     isRowLoaded={({ index }) => results[index]}
@@ -482,7 +495,7 @@ const makeColumns = (idx, data, cols, columnWidths, toRecord) => {
     return colElements
 }
 
-const makeHeader = (cols, columnWidths, setColumnWidths, resultSorting, setSort) => {
+const makeHeader = (cols, columnWidths, setColumnWidths, resultSorting, setSort, isSortable) => {
     const c = useStyles()
 
     const nodeRef = useRef(null)
@@ -530,33 +543,36 @@ const makeHeader = (cols, columnWidths, setColumnWidths, resultSorting, setSort)
                             <div className={c.cellHeaderName} title={colField}>
                                 {col.name || col.path[col.path.length - 1]}
                             </div>
-                            <div className={c.cellSorting}>
-                                <Tooltip title="Sort Column" arrow placement="top">
-                                    <IconButton
-                                        className={clsx('tableViewSortButton', c.sortButton, {
-                                            [c.sortButtonActive]: resultSorting.field === colField,
-                                        })}
-                                        aria-label={`sort ${colField} column`}
-                                        size="small"
-                                        onClick={() => {
-                                            if (resultSorting.field === colField)
-                                                setSort(
-                                                    null,
-                                                    resultSorting.direction === 'asc'
-                                                        ? 'desc'
-                                                        : 'asc'
-                                                )
-                                            else setSort(colField, resultSorting.direction)
-                                        }}
-                                    >
-                                        {resultSorting.direction === 'asc' ? (
-                                            <ArrowUpwardIcon />
-                                        ) : (
-                                            <ArrowDownwardIcon />
-                                        )}
-                                    </IconButton>
-                                </Tooltip>
-                            </div>
+                            {isSortable(colField) && (
+                                <div className={c.cellSorting}>
+                                    <Tooltip title="Sort Column" arrow placement="top">
+                                        <IconButton
+                                            className={clsx('tableViewSortButton', c.sortButton, {
+                                                [c.sortButtonActive]:
+                                                    resultSorting.field === colField,
+                                            })}
+                                            aria-label={`sort ${colField} column`}
+                                            size="small"
+                                            onClick={() => {
+                                                if (resultSorting.field === colField)
+                                                    setSort(
+                                                        null,
+                                                        resultSorting.direction === 'asc'
+                                                            ? 'desc'
+                                                            : 'asc'
+                                                    )
+                                                else setSort(colField, resultSorting.direction)
+                                            }}
+                                        >
+                                            {resultSorting.direction === 'asc' ? (
+                                                <ArrowUpwardIcon />
+                                            ) : (
+                                                <ArrowDownwardIcon />
+                                            )}
+                                        </IconButton>
+                                    </Tooltip>
+                                </div>
+                            )}
                         </div>
                         <Draggable
                             nodeRef={nodeRef}

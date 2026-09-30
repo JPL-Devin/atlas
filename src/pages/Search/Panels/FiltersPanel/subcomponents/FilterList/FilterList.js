@@ -39,6 +39,7 @@ const GROUP_DISPLAY_NAMES = {
     machine_learning: 'Machine Learning',
     ancillary: 'Ancillary',
     time: 'Time',
+    flyby_missions: 'Flyby Missions',
     pds_archive: 'PDS Archive',
     pds4_label: 'PDS4 Label',
     pds3_label: 'PDS3 Label',
@@ -47,6 +48,7 @@ const GROUP_DISPLAY_NAMES = {
 const GROUP_ORDER = [
     'common',
     'time',
+    'flyby_missions',
     'archive',
     'machine_learning',
     'ancillary',
