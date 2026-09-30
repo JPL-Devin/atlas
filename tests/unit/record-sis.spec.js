@@ -24,7 +24,10 @@ test.describe('the SIS registry', () => {
                 expect(document.size, id).toBe(undefined)
             } else {
                 expect(document.url, id).toMatch(/^https:\/\//)
-                expect(document.size, id).toBeGreaterThan(0)
+                // A size is only recorded once the file can be measured.
+                if (document.size !== undefined) {
+                    expect(document.size, id).toBeGreaterThan(0)
+                }
             }
             expect(typeof document.camera, id).toBe('boolean')
             // Only the current revision is registered, so there are no mirrors.
@@ -32,10 +35,13 @@ test.describe('the SIS registry', () => {
         })
     })
 
-    test('the unpublished artemis ii guide is cited without a link', () => {
+    test('the artemis ii guide links to the geosciences node', () => {
         const [guide] = getSisDocuments('artemis2_user_guide')
         expect(guide.title).toBe('Artemis II Science Data User Guide')
-        expect(guide.url).toBe(undefined)
+        expect(guide.url).toBe(
+            'https://pds-geosciences.wustl.edu/artemis2/urn-nasa-pds-artemis2_mission/document/artemis2_data_user_guide.pdf'
+        )
+        expect(formatSisSize(guide.size)).toBe(null)
     })
 
     test('every gap explains itself', () => {

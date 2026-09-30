@@ -344,9 +344,10 @@
             "title": "Artemis II Science Data User Guide",
             "mission": "artemis2",
             "camera": true,
+            "url": "https://pds-geosciences.wustl.edu/artemis2/urn-nasa-pds-artemis2_mission/document/artemis2_data_user_guide.pdf",
             "document": "Version 1.0-R1",
             "revision": "September 24, 2026",
-            "note": "Not yet published online. Serves as the archive SIS for the crew camera, Orion camera, mission audio and mission bundles: file naming convention (Appendix D, Table 21), product types (\u00a75, Tables 13\u201316) and directory structure (Appendix C). Archived in the artemis2_mission bundle at the Geosciences Node."
+            "note": "Serves as the archive SIS for the crew camera, Orion camera, mission audio and mission bundles: file naming convention (Appendix D, Table 21), product types (\u00a75, Tables 13\u201316) and directory structure (Appendix C). Archived in the artemis2_mission bundle at the Geosciences Node."
         },
         "lo_loirp": {
             "title": "Lunar Orbiter Image Recovery Project (LOIRP) SIS",
