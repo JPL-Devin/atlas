@@ -692,10 +692,9 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
         let query = {}
         let hasAdvancedQuery = false
         if (filterType === 'advanced') {
-            const advancedFilters = state.getIn(['advancedFilters'])
+            const trimmedQuery = removeComments(state.getIn(['advancedFilters']))
 
-            if (advancedFilters) {
-                const trimmedQuery = removeComments(advancedFilters)
+            if (trimmedQuery) {
                 query.bool = {
                     must: [
                         {
