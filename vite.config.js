@@ -12,6 +12,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 // out during the Phase 2 spike — see docs/plan notes for details. Revisit
 // in a follow-up "Phase 3" once the plugin ecosystem catches up.
 
+const ENV_PREFIX = ['REACT_APP_', 'VITE_', 'PUBLIC_URL']
+
 export default defineConfig(({ mode }) => {
     // Vite's automatic .env loading only populates `import.meta.env` for
     // client code — it does NOT merge `.env` into this file's `process.env`
@@ -25,6 +27,7 @@ export default defineConfig(({ mode }) => {
     const configEnv = loadEnv(mode, process.cwd(), '')
     const shouldAnalyze = configEnv.ANALYZE === 'true'
     const shouldSourceMap = configEnv.GENERATE_SOURCEMAP !== 'false'
+    const clientEnv = loadEnv(mode, process.cwd(), ENV_PREFIX)
 
     return {
         plugins: [
@@ -59,7 +62,14 @@ export default defineConfig(({ mode }) => {
         // — kept as the bare key (not REACT_APP_PUBLIC_URL) so the existing
         // .env `PUBLIC_URL` var (shared with scripts/start-prod.js) doesn't
         // need to be renamed.
-        envPrefix: ['REACT_APP_', 'VITE_', 'PUBLIC_URL'],
+        envPrefix: ENV_PREFIX,
+
+        // src/core/runtimeConfig.js reads build-time env through __APP_ENV__
+        // rather than import.meta.env so it stays loadable under plain Node
+        // (the Playwright `unit` project), where it falls back to process.env.
+        define: {
+            __APP_ENV__: JSON.stringify(clientEnv),
+        },
 
         resolve: {
             alias: {

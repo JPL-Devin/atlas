@@ -1,3 +1,5 @@
+import { buildEnv } from './runtimeConfig'
+
 const instances = {
     atlas: {
         appTitle: 'Atlas',
@@ -80,7 +82,7 @@ export const getAppInstanceKey = () => {
     let appInstance = 'atlas'
     if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.APP_INSTANCE)
         appInstance = window.APP_CONFIG.APP_INSTANCE
-    else if (import.meta.env.REACT_APP_APP_INSTANCE) appInstance = import.meta.env.REACT_APP_APP_INSTANCE
+    else if (buildEnv.REACT_APP_APP_INSTANCE) appInstance = buildEnv.REACT_APP_APP_INSTANCE
     return instances[appInstance] ? appInstance : 'atlas'
 }
 

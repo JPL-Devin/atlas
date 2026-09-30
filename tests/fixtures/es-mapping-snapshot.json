@@ -53,6 +53,7 @@
         "gather.common.product_type_name",
         "gather.common.spacecraft",
         "gather.common.target",
+        "gather.flyby_missions.flight_day_number",
         "gather.galileo_content.image_class",
         "gather.landed_missions.frame_type",
         "gather.landed_missions.image_type",

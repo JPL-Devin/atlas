@@ -3,10 +3,14 @@
  *
  * Provides a single source of truth for all application configuration.
  * In production, reads from window.APP_CONFIG (server-injected at runtime).
- * In development, falls back to import.meta.env (Vite-injected at build time).
+ * Otherwise falls back to the build-time env: Vite's `define` injects
+ * `__APP_ENV__` into the bundle, and under plain Node (unit tests) it is
+ * `process.env`.
  *
  * This allows building once and deploying to any path without rebuilding.
  */
+
+export const buildEnv = typeof __APP_ENV__ !== 'undefined' ? __APP_ENV__ : process.env
 
 /**
  * Get the public URL from runtime config or fallback to build-time env
@@ -16,7 +20,7 @@ export const getPublicUrl = () => {
     if (typeof window !== 'undefined' && window.APP_CONFIG) {
         return window.APP_CONFIG.PUBLIC_URL ?? ''
     }
-    return import.meta.env.PUBLIC_URL ?? ''
+    return buildEnv.PUBLIC_URL ?? ''
 }
 
 /**
@@ -27,7 +31,7 @@ export const getDomain = () => {
     if (typeof window !== 'undefined' && window.APP_CONFIG) {
         return window.APP_CONFIG.DOMAIN ?? ''
     }
-    return import.meta.env.REACT_APP_DOMAIN ?? ''
+    return buildEnv.REACT_APP_DOMAIN ?? ''
 }
 
 /**
@@ -38,7 +42,7 @@ export const getApiUrl = () => {
     if (typeof window !== 'undefined' && window.APP_CONFIG) {
         return window.APP_CONFIG.API_URL ?? ''
     }
-    return import.meta.env.REACT_APP_API_URL ?? ''
+    return buildEnv.REACT_APP_API_URL ?? ''
 }
 
 /**
@@ -49,7 +53,7 @@ export const getEsUrl = () => {
     if (typeof window !== 'undefined' && window.APP_CONFIG) {
         return window.APP_CONFIG.ES_URL ?? ''
     }
-    return import.meta.env.REACT_APP_ES_URL ?? ''
+    return buildEnv.REACT_APP_ES_URL ?? ''
 }
 
 /**
@@ -60,7 +64,7 @@ export const getFootprintUrl = () => {
     if (typeof window !== 'undefined' && window.APP_CONFIG) {
         return window.APP_CONFIG.FOOTPRINT_URL ?? ''
     }
-    return import.meta.env.REACT_APP_FOOTPRINT_URL ?? ''
+    return buildEnv.REACT_APP_FOOTPRINT_URL ?? ''
 }
 
 /**
@@ -71,7 +75,7 @@ export const getImageryUrl = () => {
     if (typeof window !== 'undefined' && window.APP_CONFIG) {
         return window.APP_CONFIG.IMAGERY_URL ?? ''
     }
-    return import.meta.env.REACT_APP_IMAGERY_URL ?? ''
+    return buildEnv.REACT_APP_IMAGERY_URL ?? ''
 }
 
 /**
@@ -82,7 +86,7 @@ export const getRegistryUrl = () => {
     if (typeof window !== 'undefined' && window.APP_CONFIG) {
         return window.APP_CONFIG.REGISTRY_URL ?? ''
     }
-    return import.meta.env.REACT_APP_REGISTRY_URL ?? ''
+    return buildEnv.REACT_APP_REGISTRY_URL ?? ''
 }
 
 /**
@@ -93,7 +97,7 @@ export const getDoiUrl = () => {
     if (typeof window !== 'undefined' && window.APP_CONFIG) {
         return window.APP_CONFIG.DOI_URL ?? ''
     }
-    return import.meta.env.REACT_APP_DOI_URL ?? ''
+    return buildEnv.REACT_APP_DOI_URL ?? ''
 }
 
 /**
@@ -104,7 +108,7 @@ export const getAppInstance = () => {
     if (typeof window !== 'undefined' && window.APP_CONFIG && window.APP_CONFIG.APP_INSTANCE)
         return window.APP_CONFIG.APP_INSTANCE
 
-    return import.meta.env.REACT_APP_APP_INSTANCE ?? 'atlas'
+    return buildEnv.REACT_APP_APP_INSTANCE ?? 'atlas'
 }
 
 /**
