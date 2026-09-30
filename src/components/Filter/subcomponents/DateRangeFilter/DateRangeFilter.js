@@ -163,6 +163,45 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     submit: {},
+    pickerLayout: {
+        '& .MuiClockNumber-root:not(.Mui-selected):not(.Mui-disabled)': {
+            color: theme.palette.text.primary,
+        },
+        '& .MuiClockNumber-root.Mui-selected': {
+            color: theme.palette.swatches.grey.grey0,
+        },
+        '& .MuiClock-pin, & .MuiClockPointer-root': {
+            backgroundColor: theme.palette.primary.light,
+        },
+        '& .MuiClockPointer-thumb': {
+            borderColor: theme.palette.primary.light,
+            backgroundColor: theme.palette.primary.light,
+        },
+        '& .MuiDateTimePickerTabs-root .MuiTab-root.Mui-selected': {
+            color: theme.palette.primary.light,
+        },
+        '& .MuiDateTimePickerTabs-root .MuiTabs-indicator': {
+            backgroundColor: theme.palette.primary.light,
+        },
+        '& .MuiPickersYear-yearButton.Mui-selected, & .MuiPickersMonth-monthButton.Mui-selected, & .MuiPickersDay-root.Mui-selected':
+            {
+                'color': theme.palette.swatches.grey.grey0,
+                'backgroundColor': theme.palette.primary.light,
+                '&:focus': {
+                    backgroundColor: theme.palette.primary.light,
+                },
+                '&:hover': {
+                    backgroundColor: theme.palette.accent.tertiary,
+                },
+            },
+        '& .MuiPickersDay-today:not(.Mui-selected)': {
+            borderColor: theme.palette.primary.light,
+        },
+        '& .MuiDayCalendar-weekDayLabel, & .MuiPickersYear-yearButton.Mui-disabled, & .MuiPickersMonth-monthButton.Mui-disabled':
+            {
+                color: theme.palette.text.muted,
+            },
+    },
 }))
 
 // Saved values are UTC ISO 8601 date-times ("2022-02-10T19:59:00.000Z") or dates ("2022-02-10").
@@ -341,6 +380,8 @@ const DateRangeFilter = (props) => {
                         //    className: c.pickerModal,
                         //}}
                         slotProps={{
+                            layout: { className: c.pickerLayout },
+                            tabs: { hidden: false },
                             textField: {
                                 InputLabelProps: {
                                     shrink: false,
@@ -378,6 +419,8 @@ const DateRangeFilter = (props) => {
                         //    className: c.pickerModal,
                         //}}
                         slotProps={{
+                            layout: { className: c.pickerLayout },
+                            tabs: { hidden: false },
                             textField: {
                                 InputLabelProps: {
                                     shrink: false,
