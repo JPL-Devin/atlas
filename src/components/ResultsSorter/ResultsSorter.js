@@ -9,6 +9,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import { setResultSorting } from '../../core/redux/actions/actions.js'
 import { ES_PATHS } from '../../core/constants'
 import { getFieldLabel } from '../../core/recordPresentation'
+import { getSortField } from '../../core/sortFields'
 
 import { makeStyles } from '@mui/styles'
 import { Typography } from '@mui/material'
@@ -57,6 +58,10 @@ export default function ResultsSorter(props) {
         return state.getIn(['resultSorting'])
     }).toJS()
 
+    const mappingAll = useSelector((state) => {
+        return state.getIn(['mappings', 'all'])
+    })
+
     //Primary sorts, always offered first regardless of filters and columns
     const flatFields = [resultSorting.defaultField]
     PINNED_SORT_FIELDS.forEach((field) => {
@@ -68,6 +73,9 @@ export default function ResultsSorter(props) {
 
     let groupLabelled = false
     const pushGrouped = (field) => {
+        if (getSortField(mappingAll, field) == null) {
+            return
+        }
         const item = { name: field, label: getFieldLabel(field) }
         if (!groupLabelled) {
             item.groupLabel = 'Filters & Columns'
