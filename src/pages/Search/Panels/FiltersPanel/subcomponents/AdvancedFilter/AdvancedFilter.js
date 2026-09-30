@@ -262,8 +262,8 @@ const AdvancedFilter = (props) => {
             (advancedFilters == null || advancedFilters === '') ? basicToAdvancedFilters(activeFilters) : removeComments(advancedFilters),
             ``,
             `// Example queries:`,
-            `# gather.common.mission:"cas" AND gather.common.target:(*ring OR dione)`,
-            `# gather.common.target:(dione AND tethys AND NOT saturn)`
+            `# gather.common.mission:"cas" AND gather.common.target:(DIONE OR TETHYS)`,
+            `# gather.common.mission:"cas" AND NOT gather.common.target:(SATURN OR SKY)`
         ].join('\n') : ''
 
     // Set the advancedFilters to the base text if unset
