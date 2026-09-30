@@ -381,7 +381,7 @@ const DateRangeFilter = (props) => {
                         //}}
                         slotProps={{
                             layout: { className: c.pickerLayout },
-                            tabs: { hidden: false },
+                            tabs: { hidden: !formats[dateFormatIdx].useTime },
                             textField: {
                                 InputLabelProps: {
                                     shrink: false,
@@ -420,7 +420,7 @@ const DateRangeFilter = (props) => {
                         //}}
                         slotProps={{
                             layout: { className: c.pickerLayout },
-                            tabs: { hidden: false },
+                            tabs: { hidden: !formats[dateFormatIdx].useTime },
                             textField: {
                                 InputLabelProps: {
                                     shrink: false,
