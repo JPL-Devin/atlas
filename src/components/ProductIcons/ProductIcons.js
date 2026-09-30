@@ -22,16 +22,44 @@ import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined'
 import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined'
 import AudiotrackOutlinedIcon from '@mui/icons-material/AudiotrackOutlined'
 import FolderIcon from '@mui/icons-material/Folder'
+import ImageIcon from '@mui/icons-material/Image'
 
 const LABEL_EXTENSIONS = ['lbl', 'xml', 'json', 'cat', 'fmt']
-// [extensions, icon, muted tint]
+// [extensions, icon, muted tint for dark backgrounds, vivid tint for light backgrounds]
 const TYPE_ICONS = [
-    [['csv', 'tab'], TableChartOutlinedIcon, '#7cb6e8'],
-    [[...TEXT_PREVIEW_EXTENSIONS, ...LABEL_EXTENSIONS], DescriptionOutlinedIcon, '#9fc7f0'],
-    [DOCUMENT_PREVIEW_EXTENSIONS, PictureAsPdfOutlinedIcon, '#e88a80'],
-    [VIDEO_PREVIEW_EXTENSIONS, VideocamOutlinedIcon, '#c39be8'],
-    [AUDIO_PREVIEW_EXTENSIONS, AudiotrackOutlinedIcon, '#8fd39a'],
+    [['csv', 'tab'], TableChartOutlinedIcon, '#7cb6e8', '#0277bd'],
+    [
+        [...TEXT_PREVIEW_EXTENSIONS, ...LABEL_EXTENSIONS],
+        DescriptionOutlinedIcon,
+        '#9fc7f0',
+        '#1e88e5',
+    ],
+    [DOCUMENT_PREVIEW_EXTENSIONS, PictureAsPdfOutlinedIcon, '#e88a80', '#d32f2f'],
+    [VIDEO_PREVIEW_EXTENSIONS, VideocamOutlinedIcon, '#c39be8', '#8e24aa'],
+    [AUDIO_PREVIEW_EXTENSIONS, AudiotrackOutlinedIcon, '#8fd39a', '#2e7d32'],
 ]
+const findTypeIcon = (ext) => TYPE_ICONS.find(([exts]) => exts.includes(ext))
+
+/**
+ * Small inline icon for a file row on a light background: the type icon and its
+ * vivid tint, else an image or generic file icon.
+ */
+export const FileTypeIcon = (props) => {
+    const { filename, tinted = true, ...rest } = props
+    const ext = getExtension(filename, true)
+    const typed = findTypeIcon(ext)
+    const Icon = typed
+        ? typed[1]
+        : IMAGE_EXTENSIONS.includes(ext)
+          ? ImageIcon
+          : InsertDriveFileOutlinedIcon
+    return <Icon style={typed && tinted ? { color: typed[3] } : undefined} {...rest} />
+}
+
+FileTypeIcon.propTypes = {
+    filename: PropTypes.string,
+    tinted: PropTypes.bool,
+}
 
 const useStyles = makeStyles((theme) => ({
     ProductIcons: {
@@ -200,7 +228,7 @@ const ProductIcons = (props) => {
             )
         } else {
             isMissing = true
-            const typed = TYPE_ICONS.find(([exts]) => exts.includes(ext))
+            const typed = findTypeIcon(ext)
             const TypeIcon = typed
                 ? typed[1]
                 : ext && !IMAGE_EXTENSIONS.includes(ext)
@@ -208,7 +236,10 @@ const ProductIcons = (props) => {
                   : ImageNotSupportedOutlinedIcon
             const caption = TypeIcon === ImageNotSupportedOutlinedIcon ? 'No browse' : ext
             Icon = (
-                <div className={c.typed} style={typed ? { color: typed[2] } : undefined}>
+                <div
+                    className={c.typed}
+                    style={typed ? { color: typed[color === 'dark' ? 3 : 2] } : undefined}
+                >
                     <TypeIcon className={clsx(c.default)} />
                     {size !== 'small' && <div className={c.caption}>{caption}</div>}
                 </div>

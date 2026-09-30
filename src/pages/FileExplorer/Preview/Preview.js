@@ -23,7 +23,16 @@ import {
     addToCart,
     setSnackBarText,
 } from '../../../core/redux/actions/actions'
-import { ES_PATHS, HASH_PATHS, IMAGE_EXTENSIONS, domain, endpoints } from '../../../core/constants'
+import {
+    ES_PATHS,
+    HASH_PATHS,
+    IMAGE_EXTENSIONS,
+    VIDEO_PREVIEW_EXTENSIONS,
+    AUDIO_PREVIEW_EXTENSIONS,
+    domain,
+    endpoints,
+} from '../../../core/constants'
+import { setInitialVolume } from '../../../core/media'
 import { streamDownloadFile } from '../../../core/downloaders/ZipStream.js'
 import ContextMenu, {
     useContextMenu,
@@ -408,6 +417,27 @@ const useStyles = makeStyles((theme) => ({
             transform: 'translateX(-50%) translateY(-50%)',
         },
     },
+    // The record viewer's media body, sized to the preview panel.
+    media: {
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexFlow: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+        cursor: 'default',
+        background: theme.palette.swatches.grey.grey850,
+    },
+    video: {
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain',
+        outline: 'none',
+    },
+    audio: {
+        width: 'calc(100% - 32px)',
+    },
     description: {},
     navHeader: {
         'height': `${theme.headHeights[2]}px`,
@@ -592,6 +622,7 @@ const Preview = (props) => {
     const [versions, setVersions] = useState([])
     const [activeVersion, setActiveVersion] = useState(null)
     const [hasBrowse, setHasBrowse] = useState(null)
+    const [failedMediaPreview, setFailedMediaPreview] = useState(null)
     const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu()
 
     let preview = useSelector((state) => {
@@ -753,6 +784,30 @@ const Preview = (props) => {
     if (browseUri && IMAGE_EXTENSIONS.includes(getExtension(browseUri, true)))
         imageUrl = getPDSUrl(browseUri, release_id, 'md')
 
+    // As on the record page, media plays the file itself, never its browse image.
+    const mediaType = preview.fs_type === 'file' ? getExtension(preview.uri, true) : ''
+    const isVideo = VIDEO_PREVIEW_EXTENSIONS.includes(mediaType)
+    const isAudio = AUDIO_PREVIEW_EXTENSIONS.includes(mediaType)
+    const mediaUrl =
+        isVideo || isAudio ? getPDSUrl(preview.uri, getIn(preview, ES_PATHS.release_id)) : null
+    // Keyed by selection, so reselecting a file retries after a load error
+    const showMedia = mediaUrl != null && failedMediaPreview !== preview
+    const mediaProps = {
+        key: mediaUrl,
+        src: mediaUrl,
+        controls: true,
+        preload: 'metadata',
+        ref: setInitialVolume,
+        onError: () => setFailedMediaPreview(preview),
+    }
+    // Files get their type icon; directories and volumes keep theirs.
+    const placeholderIcon =
+        preview.fs_type === 'file' ? (
+            <ProductIcons filename={preview.uri} color="dark" />
+        ) : (
+            <ProductIcons filename={imageUrl} type={preview.fs_type} color="dark" />
+        )
+
     if (Object.keys(preview).length == 0) {
         return (
             <div className={c.Preview}>
@@ -896,7 +951,13 @@ const Preview = (props) => {
             <div className={clsx(c.body, { [c.bodyMobile]: isMobile })}>
                 <div
                     className={c.image}
-                    style={imageUrl == 'null' ? { height: '100px' } : {}}
+                    style={
+                        showMedia && isAudio
+                            ? { height: '160px' }
+                            : imageUrl == 'null' && !showMedia
+                              ? { height: '100px' }
+                              : {}
+                    }
                     onContextMenu={preview.fs_type === 'file' ? openContextMenu : undefined}
                 >
                     <ContextMenu
@@ -909,7 +970,10 @@ const Preview = (props) => {
                             recordUri: related ? related.uri : null,
                             labelUri: getIn(related, 'gather.pds_archive.related.label.uri'),
                             browseUri: browseUri,
-                            releaseId: release_id != null ? release_id : getIn(preview, ES_PATHS.release_id),
+                            releaseId:
+                                release_id != null
+                                    ? release_id
+                                    : getIn(preview, ES_PATHS.release_id),
                             dispatch,
                             cartIndex,
                             cartItem: {
@@ -923,7 +987,20 @@ const Preview = (props) => {
                             },
                         })}
                     />
-                    {imageUrl != 'null' && hasBrowse !== false ? (
+                    {showMedia ? (
+                        <div className={c.media}>
+                            {isVideo ? (
+                                // eslint-disable-next-line jsx-a11y/media-has-caption -- archive products ship no caption tracks
+                                <video className={c.video} {...mediaProps} />
+                            ) : (
+                                <>
+                                    <ProductIcons filename={preview.uri} />
+                                    {/* eslint-disable-next-line jsx-a11y/media-has-caption -- archive products ship no caption tracks */}
+                                    <audio className={c.audio} {...mediaProps} />
+                                </>
+                            )}
+                        </div>
+                    ) : imageUrl != 'null' && hasBrowse !== false ? (
                         <Image
                             key={imageUrl}
                             className={c.previewImage}
@@ -936,13 +1013,7 @@ const Preview = (props) => {
                             showLoading
                             src={imageUrl}
                             alt={imageUrl}
-                            errorIcon={
-                                <ProductIcons
-                                    filename={imageUrl}
-                                    type={preview.fs_type}
-                                    color="dark"
-                                />
-                            }
+                            errorIcon={placeholderIcon}
                             onLoad={() => {
                                 setHasBrowse(true)
                             }}
@@ -951,9 +1022,7 @@ const Preview = (props) => {
                             }}
                         />
                     ) : (
-                        <div className={c.imageless}>
-                            <ProductIcons filename={imageUrl} type={preview.fs_type} color="dark" />
-                        </div>
+                        <div className={c.imageless}>{placeholderIcon}</div>
                     )}
                     <div className={c.imageCover}></div>
                 </div>

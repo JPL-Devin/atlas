@@ -13,15 +13,9 @@ import {
     getFilename,
     getBundleVolumeUri,
     abbreviateNumber,
-    getExtension,
     copyToClipboard,
 } from '../../../core/utils'
-import {
-    IMAGE_EXTENSIONS,
-    ES_PATHS,
-    getDisplayName,
-    getShortDisplayName,
-} from '../../../core/constants'
+import { ES_PATHS, getDisplayName, getShortDisplayName } from '../../../core/constants'
 import { streamDownloadFile } from '../../../core/downloaders/ZipStream.js'
 
 import {
@@ -39,6 +33,7 @@ import {
 import { makeStyles } from '@mui/styles'
 
 import MenuButton from '../../../components/MenuButton/MenuButton'
+import { FileTypeIcon } from '../../../components/ProductIcons/ProductIcons'
 import ContextMenu, {
     useContextMenu,
     buildRecordMenuItems,
@@ -60,13 +55,11 @@ import InputAdornment from '@mui/material/InputAdornment'
 import AddIcon from '@mui/icons-material/Add'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SortIcon from '@mui/icons-material/Sort'
-import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
 import FolderIcon from '@mui/icons-material/Folder'
 import FolderOffIcon from '@mui/icons-material/FolderOff'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
-import ImageIcon from '@mui/icons-material/Image'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import GetAppIcon from '@mui/icons-material/GetApp'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
@@ -1504,13 +1497,11 @@ const Column = (props) => {
                                                   {getIn(r._source, ES_PATHS.archive.fs_type) ===
                                                   'file' ? (
                                                       <>
-                                                          {IMAGE_EXTENSIONS.includes(
-                                                              getExtension(result.uri, true)
-                                                          ) ? (
-                                                              <ImageIcon size="small" />
-                                                          ) : (
-                                                              <InsertDriveFileOutlinedIcon size="small" />
-                                                          )}{' '}
+                                                          <FileTypeIcon
+                                                              filename={result.uri}
+                                                              tinted={!isActive && !isDeprecated}
+                                                              size="small"
+                                                          />{' '}
                                                       </>
                                                   ) : isDeprecated ? (
                                                       <FolderOffIcon size="small" />

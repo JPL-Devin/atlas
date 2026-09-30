@@ -31,6 +31,7 @@ import {
     MAX_TEXT_PREVIEW_BYTES,
 } from '../../../../core/constants.js'
 import { getAppInstanceKey } from '../../../../core/appConfig.js'
+import { AUDIO_MIME_TYPES, setInitialVolume } from '../../../../core/media'
 import { resolvePresentation } from '../../../../core/recordPresentation'
 import { emptyStates } from '../../../../config/recordDetail'
 
@@ -285,14 +286,6 @@ const SOURCE_PREVIEW_EXTENSIONS = [
 const TOO_LARGE_NOTICE = {
     title: 'This file is too large to preview inline.',
     body: 'Download the product to view its full contents.',
-}
-const AUDIO_MIME_TYPES = { wav: 'audio/wav', m4a: 'audio/mp4' }
-const MEDIA_INITIAL_VOLUME = 0.4
-// Stable ref so the volume is only applied on mount, not on every rerender
-const setInitialVolume = (el) => {
-    if (el) {
-        el.volume = MEDIA_INITIAL_VOLUME
-    }
 }
 
 const FETCH_FAILED_NOTICE = {
