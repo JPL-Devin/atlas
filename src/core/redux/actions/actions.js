@@ -239,6 +239,14 @@ export const setMappings = (indexName, mapping) => {
                 all: mapping,
             },
         })
+
+        const resultSorting = getState().getIn(['resultSorting']).toJS()
+        if (
+            resultSorting.field !== resultSorting.defaultField &&
+            getSortField(mapping, resultSorting.field) == null
+        ) {
+            dispatch(setResultSorting(resultSorting.defaultField))
+        }
     }
 }
 
