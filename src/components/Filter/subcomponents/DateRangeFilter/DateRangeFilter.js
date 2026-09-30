@@ -175,7 +175,7 @@ const parseSavedDate = (value, isEnd) => {
     if (!parsed.isValid()) {
         return null
     }
-    return isEnd && !value.includes('T') ? parsed.endOf('day') : parsed
+    return isEnd && /^\d{4}-\d{2}-\d{2}$/.test(value) ? parsed.endOf('day') : parsed
 }
 
 const DateRangeFilter = (props) => {
