@@ -225,7 +225,7 @@ const Topbar = () => {
     })
     const cartLength = cart.length
 
-    const { unseenCount } = useReleaseNotes()
+    const { hasUpdate } = useReleaseNotes()
 
     const recordUri = useSelector((state) => state.getIn(['recordData', ...ES_PATHS.uri]))
 
@@ -376,7 +376,7 @@ const Topbar = () => {
 
                 <Tooltip
                     title={
-                        unseenCount > 0
+                        hasUpdate
                             ? `About ${getAppConfig().appTitle} — new release notes`
                             : `About ${getAppConfig().appTitle}`
                     }
@@ -393,7 +393,7 @@ const Topbar = () => {
                             className={c.infoBadge}
                             variant="dot"
                             overlap="circular"
-                            invisible={unseenCount === 0}
+                            invisible={!hasUpdate}
                             data-testid="info-release-notes-badge"
                         >
                             <InfoOutlinedIcon fontSize="inherit" />

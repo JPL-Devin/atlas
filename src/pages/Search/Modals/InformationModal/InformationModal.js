@@ -10,7 +10,6 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import IconButton from '@mui/material/IconButton'
-import Badge from '@mui/material/Badge'
 import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import NewReleasesOutlinedIcon from '@mui/icons-material/NewReleasesOutlined'
@@ -125,15 +124,6 @@ const useStyles = makeStyles((theme) => ({
     },
     releaseNotesButtonWrap: {
         margin: `0px 0px ${theme.spacing(4)} 0px`,
-    },
-    releaseNotesBadge: {
-        '& .MuiBadge-badge': {
-            background: theme.palette.swatches.green.green500,
-            border: `2px solid ${theme.palette.primary.main}`,
-            width: 14,
-            height: 14,
-            borderRadius: 7,
-        },
     },
     releaseNotesButton: {
         'color': theme.palette.swatches.grey.grey800,
@@ -289,7 +279,7 @@ const InformationModal = () => {
     })
     const open = modal !== false
 
-    const { notes, unseenCount, markSeen } = useReleaseNotes()
+    const { notes, markSeen } = useReleaseNotes()
     const [view, setView] = useState('about')
 
     const openReleaseNotes = () => {
@@ -389,22 +379,15 @@ const InformationModal = () => {
                     <div className={c.bottom}>
                         {notes.length > 0 && (
                             <div className={c.releaseNotesButtonWrap}>
-                                <Badge
-                                    className={c.releaseNotesBadge}
-                                    variant="dot"
-                                    invisible={unseenCount === 0}
-                                    data-testid="release-notes-badge"
+                                <Button
+                                    className={c.releaseNotesButton}
+                                    variant="outlined"
+                                    startIcon={<NewReleasesOutlinedIcon />}
+                                    aria-label="view release notes"
+                                    onClick={openReleaseNotes}
                                 >
-                                    <Button
-                                        className={c.releaseNotesButton}
-                                        variant="outlined"
-                                        startIcon={<NewReleasesOutlinedIcon />}
-                                        aria-label="view release notes"
-                                        onClick={openReleaseNotes}
-                                    >
-                                        View Release Notes
-                                    </Button>
-                                </Badge>
+                                    View Release Notes
+                                </Button>
                             </div>
                         )}
                         <div className={c.description}>

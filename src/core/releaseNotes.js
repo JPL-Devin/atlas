@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import releaseNotes from '../config/releaseNotes.json'
 import { getAppInstanceKey } from './appConfig'
 import { localStorageReleaseNotesSeen } from './constants'
+import { buildEnv } from './runtimeConfig'
 
 const SEEN_EVENT = 'atlas-release-notes-seen'
 
@@ -45,50 +46,65 @@ export const groupReleaseNotesByMonth = (notes) => {
     return groups
 }
 
-/**
- * @param {Object} note
- * @param {Set<string>} seenIds - ids of notes the user has seen
- * @return {boolean}
- */
-export const isReleaseNoteUnseen = (note, seenIds) => !seenIds.has(note.id)
+const parseVersion = (version) => (String(version).match(/\d+/g) || []).map(Number)
 
-export const getReleaseNotesSeenIds = () => {
-    if (typeof window === 'undefined' || !window.localStorage) {
-        return new Set()
+/**
+ * @param {string} a
+ * @param {string} b
+ * @return {number} positive if `a` is newer than `b`, negative if older, 0 if equal
+ */
+export const compareVersions = (a, b) => {
+    const pa = parseVersion(a)
+    const pb = parseVersion(b)
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+        const diff = (pa[i] || 0) - (pb[i] || 0)
+        if (diff !== 0) {
+            return diff
+        }
     }
-    try {
-        const ids = JSON.parse(window.localStorage.getItem(localStorageReleaseNotesSeen))
-        return new Set(Array.isArray(ids) ? ids : [])
-    } catch {
-        return new Set()
-    }
+    return 0
 }
 
-export const markReleaseNotesSeen = (notes) => {
+/**
+ * @param {string|undefined} version - running app version
+ * @param {string|null} seenVersion - app version the user last viewed release notes on
+ * @return {boolean}
+ */
+export const isNewerVersion = (version, seenVersion) =>
+    Boolean(version) && (seenVersion == null || compareVersions(version, seenVersion) > 0)
+
+export const getAppVersion = () => buildEnv.REACT_APP_VERSION
+
+export const getReleaseNotesSeenVersion = () => {
     if (typeof window === 'undefined' || !window.localStorage) {
+        return null
+    }
+    return window.localStorage.getItem(localStorageReleaseNotesSeen)
+}
+
+export const markReleaseNotesSeen = () => {
+    const version = getAppVersion()
+    if (typeof window === 'undefined' || !window.localStorage || !version) {
         return
     }
-    const seenIds = getReleaseNotesSeenIds()
-    const unseen = notes.filter((note) => isReleaseNoteUnseen(note, seenIds))
-    if (unseen.length === 0) {
+    if (!isNewerVersion(version, getReleaseNotesSeenVersion())) {
         return
     }
-    unseen.forEach((note) => seenIds.add(note.id))
-    window.localStorage.setItem(localStorageReleaseNotesSeen, JSON.stringify([...seenIds]))
+    window.localStorage.setItem(localStorageReleaseNotesSeen, version)
     window.dispatchEvent(new Event(SEEN_EVENT))
 }
 
 /**
- * Release notes for the current app instance plus the user's seen state, kept in sync across
- * components and tabs.
- * @return {{ notes: Object[], unseenCount: number, markSeen: Function }}
+ * Release notes for the current app instance, plus whether the running app version is newer
+ * than the one the user last viewed release notes on. Kept in sync across components and tabs.
+ * @return {{ notes: Object[], hasUpdate: boolean, markSeen: Function }}
  */
 export const useReleaseNotes = () => {
     const [notes] = useState(() => getReleaseNotes())
-    const [seenIds, setSeenIds] = useState(getReleaseNotesSeenIds)
+    const [seenVersion, setSeenVersion] = useState(getReleaseNotesSeenVersion)
 
     useEffect(() => {
-        const sync = () => setSeenIds(getReleaseNotesSeenIds())
+        const sync = () => setSeenVersion(getReleaseNotesSeenVersion())
         window.addEventListener(SEEN_EVENT, sync)
         window.addEventListener('storage', sync)
         return () => {
@@ -97,8 +113,7 @@ export const useReleaseNotes = () => {
         }
     }, [])
 
-    const markSeen = useCallback(() => markReleaseNotesSeen(notes), [notes])
-    const unseenCount = notes.filter((note) => isReleaseNoteUnseen(note, seenIds)).length
+    const hasUpdate = isNewerVersion(getAppVersion(), seenVersion)
 
-    return { notes, unseenCount, markSeen }
+    return { notes, hasUpdate, markSeen: markReleaseNotesSeen }
 }

@@ -25,6 +25,7 @@ const APP_ENV_KEYS = [
     'REACT_APP_REGISTRY_URL',
     'REACT_APP_DOI_URL',
     'REACT_APP_APP_INSTANCE',
+    'REACT_APP_VERSION',
 ]
 
 export default defineConfig(({ mode }) => {

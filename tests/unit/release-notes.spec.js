@@ -4,7 +4,8 @@ import releaseNotes from '../../src/config/releaseNotes.json'
 import {
     getReleaseNotes,
     groupReleaseNotesByMonth,
-    isReleaseNoteUnseen,
+    compareVersions,
+    isNewerVersion,
 } from '../../src/core/releaseNotes'
 
 const notes = [
@@ -32,10 +33,18 @@ test.describe('release notes', () => {
         ])
     })
 
-    test('notes not in the seen set are unseen', () => {
-        expect(isReleaseNoteUnseen(notes[0], new Set())).toBe(true)
-        expect(isReleaseNoteUnseen(notes[0], new Set(['b']))).toBe(true)
-        expect(isReleaseNoteUnseen(notes[0], new Set(['a']))).toBe(false)
+    test('compares app versions numerically', () => {
+        expect(compareVersions('v1.10.0', 'v1.9.2')).toBeGreaterThan(0)
+        expect(compareVersions('1.0', 'v1.0.0')).toBe(0)
+        expect(compareVersions('v1.0.0', 'v1.0.1')).toBeLessThan(0)
+    })
+
+    test('a newer app version than the last viewed one is an update', () => {
+        expect(isNewerVersion('v1.0.0', null)).toBe(true)
+        expect(isNewerVersion('v1.1.0', 'v1.0.0')).toBe(true)
+        expect(isNewerVersion('v1.0.0', 'v1.0.0')).toBe(false)
+        expect(isNewerVersion('v1.0.0', 'v1.1.0')).toBe(false)
+        expect(isNewerVersion(undefined, null)).toBe(false)
     })
 
     test('shipped release notes are well formed', () => {
