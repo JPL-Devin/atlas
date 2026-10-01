@@ -167,11 +167,21 @@ const useStyles = makeStyles((theme) => ({
         lineHeight: '20px',
         color: theme.palette.text.primary,
     },
-    captionText: {
+    captionDescription: {
         fontSize: '13px',
         lineHeight: '19px',
         color: theme.palette.swatches.grey.grey600,
-        marginTop: '2px',
+        marginTop: '4px',
+    },
+    // Set off from the description's prose as a terse, ruled-off line.
+    captionText: {
+        fontSize: '12px',
+        lineHeight: '18px',
+        fontStyle: 'italic',
+        color: theme.palette.swatches.grey.grey500,
+        borderLeft: `2px solid ${theme.palette.swatches.grey.grey300}`,
+        paddingLeft: '8px',
+        marginTop: '6px',
     },
     captionFoot: {
         display: 'flex',
@@ -745,6 +755,10 @@ const Overview = (props) => {
     const wholeRows = Math.floor(available.length / tileColumns) * tileColumns
     const tiles = available.slice(0, wholeRows || available.length)
     const caption = presentation.caption || presentation.shortCaption
+    const captionCopy =
+        [presentation.captionTitle, presentation.description, caption]
+            .filter((text) => text != null)
+            .join('\n') || null
 
     // The filename's product type code, so wherever that code shows up it can
     // explain itself on hover instead of reading as an acronym.
@@ -1007,12 +1021,17 @@ const Overview = (props) => {
     }
 
     const renderCaptionCard = () => {
-        if (presentation.captionTitle == null && caption == null) return null
+        if (captionCopy == null) return null
         return (
             <div className={c.captionCard} aria-label="record caption">
                 <div className={c.cardBody}>
                     {presentation.captionTitle != null && (
                         <div className={c.captionTitle}>{presentation.captionTitle}</div>
+                    )}
+                    {!isNarrow && presentation.description != null && (
+                        <div className={c.captionDescription} aria-label="record description">
+                            {presentation.description}
+                        </div>
                     )}
                     {caption != null && <div className={c.captionText}>{caption}</div>}
                     {(presentation.captionChips.length > 0 || mlChips.length > 0) && (
@@ -1055,13 +1074,13 @@ const Overview = (props) => {
                         </div>
                     )}
                 </div>
-                {caption != null && (
+                {captionCopy != null && (
                     <Tooltip title="Copy caption" arrow>
                         <IconButton
                             className={c.captionCopy}
                             aria-label="copy record caption"
                             size="small"
-                            onClick={() => copy(caption, 'Copied caption to clipboard!')}
+                            onClick={() => copy(captionCopy, 'Copied caption to clipboard!')}
                         >
                             <ContentCopyIcon />
                         </IconButton>

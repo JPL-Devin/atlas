@@ -4,6 +4,7 @@ import sections from './sections.json'
 import validity from './validity.json'
 
 import _default from './profiles/_default.json'
+import artemis2 from './profiles/artemis2.json'
 import cas from './profiles/cas.json'
 import clem from './profiles/clem.json'
 import mars_2020 from './profiles/mars_2020.json'
@@ -20,6 +21,7 @@ import raws from './instances/raws.json'
 // Keyed by `<mission>` or `<mission>.<pds_standard>`; the standard-specific
 // profile is merged over the mission one when both exist.
 export const profiles = {
+    'artemis2': artemis2,
     'cas': cas,
     'clem': clem,
     'mars_2020': mars_2020,

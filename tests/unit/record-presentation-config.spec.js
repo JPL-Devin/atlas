@@ -117,6 +117,24 @@ test.describe('record detail config', () => {
         })
     })
 
+    test('every caption token format override is a known formatter', () => {
+        layers().forEach(({ name, layer }) => {
+            CAPTION_KEYS.forEach((key) => {
+                ;(layer[key] || []).forEach((fragment) => {
+                    ;[...String(fragment).matchAll(new RegExp(TOKEN))].forEach(
+                        ([, path, format]) => {
+                            if (format == null) return
+                            expect(
+                                FORMATTER_NAMES,
+                                `${name}.${key}: {{${path}|${format}}} uses an unknown formatter`
+                            ).toContain(format)
+                        }
+                    )
+                })
+            })
+        })
+    })
+
     test('every profile declares a known empty state', () => {
         layers().forEach(({ name, layer }) => {
             if (layer.emptyState == null) return

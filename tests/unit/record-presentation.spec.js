@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test'
 
 import { resolvePresentation } from '../../src/core/recordPresentation'
 
+import artemis2Crew from '../fixtures/records/artemis2-crew-camera.json'
+import artemis2Orion from '../fixtures/records/artemis2-orion-camera.json'
 import cassini from '../fixtures/records/cassini-iss.json'
 import goNims from '../fixtures/records/go-nims-sparse.json'
 import mars2020Navcam from '../fixtures/records/mars2020-navcam.json'
@@ -75,6 +77,47 @@ test.describe('resolvePresentation', () => {
         expect(atlas.caption.startsWith('Navcam Right')).toBe(false)
         expect(raws.tiles.length).toBe(6)
         expect(raws.tiles.length).toBeLessThan(atlas.tiles.length)
+    })
+
+    test('artemis ii leads with flight day and names the mission', () => {
+        const p = resolvePresentation(artemis2Crew)
+        expect(labels(p).slice(0, 4)).toEqual([
+            'Mission',
+            'Instrument',
+            'Flight Day',
+            'Product type',
+        ])
+        expect(valueOf(p, 'Mission')).toBe('Artemis II')
+        expect(valueOf(p, 'Flight Day')).toBe('6')
+        expect(labels(p)).not.toContain('Spacecraft')
+        expect(p.captionTitle).toBe(
+            'Artemis 2 Mission NIKON_Z9 Observational Product - art002e015531_nkz9019_prc_v01.tif'
+        )
+        expect(p.caption).toBeNull()
+        expect(p.shortCaption).toBeNull()
+        expect(p.description).not.toContain('archived')
+        expect(p.description).toContain(
+            'It was taken on flight day 6 at 2026-04-07 00:35:27Z and observes the following targets: Moon, Sunset.'
+        )
+        expect(p.citation.startsWith('Artemis II, nikon_z9')).toBe(true)
+    })
+
+    test('artemis ii orion cameras use the same profile', () => {
+        const p = resolvePresentation(artemis2Orion)
+        expect(valueOf(p, 'Instrument')).toBe('saw')
+        expect(p.captionTitle).toBe(
+            'Artemis 2 Mission SAW Observational Product - art002e031160_saw3_raw_v01.tif'
+        )
+        expect(valueOf(p, 'Collection')).toBe('data_raw_image')
+        expect(p.description).toContain('Raw product from the saw camera on Artemis II.')
+        expect(p.description).toContain('It was taken on flight day 6')
+    })
+
+    test('a caption token can override its catalogued format', () => {
+        const p = resolvePresentation(artemis2Crew)
+        // The instrument tile keeps its catalogued text format.
+        expect(valueOf(p, 'Instrument')).toBe('nikon_z9')
+        expect(p.captionTitle).toContain('NIKON_Z9')
     })
 
     test('mgs orbiter uses orbit and drops the N/A filter', () => {
@@ -169,9 +212,10 @@ test.describe('resolvePresentation', () => {
         expect(resolvePresentation(goNims).timeline.length).not.toBe(1)
     })
 
-    test('citation names its author', () => {
+    test('citation carries no author by default', () => {
         const p = resolvePresentation(mars2020Navcam)
-        expect(p.citation.startsWith('NASA/JPL, ')).toBe(true)
+        expect(p.citationAuthor).toBeNull()
+        expect(p.citation.startsWith('NASA/JPL')).toBe(false)
     })
 
     test('citation never ends on dangling punctuation when a fragment drops', () => {

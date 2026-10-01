@@ -10,7 +10,8 @@ import { formatElapsed, formatValue, parseTime } from './formatters'
 import { readOtherRows } from './otherFields'
 import { isValidValue } from './validity'
 
-export const TOKEN = /\{\{\s*([\w.]+)\s*\}\}/g
+// `{{path}}`, or `{{path|format}}` to override the catalogued format as a tile can.
+export const TOKEN = /\{\{\s*([\w.]+)\s*(?:\|\s*(\w+)\s*)?\}\}/g
 
 const first = (value) => (Array.isArray(value) ? value[0] : value)
 
@@ -168,8 +169,8 @@ const renderFragments = (recordData, fragments, separator = ' ') => {
     const rendered = fragments
         .map((fragment) => {
             let dropped = false
-            const text = String(fragment).replace(TOKEN, (match, path) => {
-                const tile = readTile(recordData, path)
+            const text = String(fragment).replace(TOKEN, (match, path, format) => {
+                const tile = readTile(recordData, path, format)
                 if (tile == null) dropped = true
                 return tile ? tile.value : ''
             })

@@ -1,0 +1,44 @@
+{
+    "gather": {
+        "common": {
+            "spacecraft": "artemis2",
+            "mission_phase_name": "Operations",
+            "mission": "artemis2",
+            "product_type": "Processed",
+            "kind": "regular",
+            "instrument": [
+                "nikon_z9"
+            ],
+            "target": [
+                "moon",
+                "sunset"
+            ]
+        },
+        "pds_archive": {
+            "collection_id": "data_processed",
+            "release_id": "0",
+            "pds_standard": "pds4",
+            "related": {
+                "supplemental": [],
+                "label": {
+                    "uri": "atlas:pds4:artemis2:artemis2:/artemis2_crew_camera/data_processed/fd06/art002e015531_nkz9019_prc_v01.xml"
+                },
+                "browse": {
+                    "uri": "atlas:pds4:artemis2:artemis2:/artemis2_crew_camera/browse/fd06/art002e015531_nkz9019_prc_v01.png"
+                }
+            },
+            "file_name": "art002e015531_nkz9019_prc_v01.tif",
+            "product_id": "urn:nasa:pds:artemis2_crew_camera:data_processed:art002e015531_nkz9019_prc.tif",
+            "bundle_id": "artemis2_crew_camera",
+            "release_id_num": 0
+        },
+        "flyby_missions": {
+            "flight_day_number": 6
+        },
+        "time": {
+            "start_time": "2026-04-07T00:35:27Z",
+            "product_creation_time": "2026-09-22T08:59:23Z"
+        },
+        "uri": "atlas:pds4:artemis2:artemis2:/artemis2_crew_camera/data_processed/fd06/art002e015531_nkz9019_prc_v01.tif"
+    }
+}
