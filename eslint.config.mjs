@@ -35,6 +35,7 @@ export default tseslint.config(
                 ...globals.node,
                 __BROWSER__: 'readonly',
                 __SERVER__: 'readonly',
+                __APP_ENV__: 'readonly',
             },
         },
         plugins: {
