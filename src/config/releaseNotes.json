@@ -7,20 +7,6 @@
     "description": "See what has changed right here in the About window. A green dot on the info button lets you know when there is something new."
   },
   {
-    "id": "2026-10-artemis2-profile",
-    "date": "2026-10-01",
-    "type": "new",
-    "title": "Artemis II record pages",
-    "description": "Artemis II records now open with a tailored overview: a descriptive title, flight day and targets at a glance."
-  },
-  {
-    "id": "2026-10-record-versions",
-    "date": "2026-10-01",
-    "type": "fixed",
-    "title": "Cleaner version selector",
-    "description": "The record version dropdown lists each product version once instead of repeating it per file."
-  },
-  {
     "id": "2026-09-quick-links",
     "date": "2026-09-28",
     "type": "new",
