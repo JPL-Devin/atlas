@@ -59,13 +59,6 @@
     "description": "Start Time is now a default filter and accepts a date and time (UTC). A Flight Day filter is also available by default."
   },
   {
-    "id": "2026-09-artemis2",
-    "date": "2026-09-30",
-    "type": "new",
-    "title": "Artemis II support",
-    "description": "Artemis II products show friendly mission names, explain each part of their filenames and link to the Science Data User Guide."
-  },
-  {
     "id": "2026-09-faster-search",
     "date": "2026-09-28",
     "type": "improved",
