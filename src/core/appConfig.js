@@ -14,7 +14,6 @@ const instances = {
         aboutTitle: 'Atlas',
         aboutDescription:
             'The Cartography and Imaging Sciences Node of the Planetary Data System provides a set of applications under the name, "Atlas". These applications allow users to explore, search, and download imaging and data products that have been collected from a variety NASA\'s planetary space missions. Through the use of these tools, users have access to petabytes of imaging data in one central location. This collection of data is updated periodically and is reported within the Latest News section of our home page.',
-        aboutContactUrl: '',
         defaultFilters: [
             '_text',
             'gather.common.mission',
@@ -52,7 +51,6 @@ const instances = {
         aboutTitle: 'Planetary Raws',
         aboutDescription:
             'Planetary Raws provides access to raw imaging data from NASA planetary missions.',
-        aboutContactUrl: 'https://pds-imaging.jpl.nasa.gov/help/help.html',
         defaultFilters: [
             '_text',
             'gather.common.mission',

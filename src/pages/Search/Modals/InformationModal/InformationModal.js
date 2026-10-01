@@ -202,27 +202,15 @@ const InformationModal = (props) => {
                     <div className={c.message}>
                         <Typography>
                             If you have questions, want to share feedback, or need support,{' '}
-                            {getAppConfig().aboutContactUrl ? (
-                                <a
-                                    className={c.aLink}
-                                    aria-label="contact us"
-                                    href={getAppConfig().aboutContactUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    please contact us
-                                </a>
-                            ) : (
-                                <a
-                                    className={c.aLink}
-                                    aria-label="give feedback"
-                                    href={`mailto:pds.img.help@jpl.nasa.gov?subject=${encodeURIComponent(
-                                        `PDS Imaging Node \u2014 ${getAppConfig().appTitle} Feedback`
-                                    )}`}
-                                >
-                                    please send us a message
-                                </a>
-                            )}
+                            <a
+                                className={c.aLink}
+                                aria-label="give feedback"
+                                href={`mailto:pds.img.help@jpl.nasa.gov?subject=${encodeURIComponent(
+                                    `PDS Imaging Node \u2014 ${getAppConfig().appTitle} Feedback`
+                                )}`}
+                            >
+                                please send us a message
+                            </a>
                             .
                         </Typography>
                     </div>
