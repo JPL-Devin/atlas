@@ -13,6 +13,7 @@ import { searchRecordByURI, setRecordData } from '../../core/redux/actions/actio
 import { ES_PATHS, domain, endpoints } from '../../core/constants'
 import { getIn, getHeader } from '../../core/utils'
 import { getAppConfig } from '../../core/appConfig'
+import { getVersionQuery, getVersionOptions } from '../../core/recordVersions'
 
 import Content from './Content/Content'
 import Footer from './Footer/Footer'
@@ -61,76 +62,43 @@ const Record = (props) => {
 
     // Query for different product versions
     useEffect(() => {
+        let cancelled = false
+        setVersions([])
+        setActiveVersion(null)
         const pds_standard = getIn(recordData, ES_PATHS.pds_standard)
 
         // Query Versions (Current PDS4 specific)
         if (pds_standard === 'pds4') {
             const lidvid = getIn(recordData, ES_PATHS.pds4_label.lidvid)
-            if (lidvid) {
-                let [lid, vid] = lidvid.split('::')
-                lid = lid
-                    .replaceAll('/', '\\/')
-                    .replaceAll(':', '\\:')
-                    .replace(/\.[^/.]+$/, '')
-                const dsl = {
-                    query: {
-                        bool: {
-                            must: [
-                                {
-                                    regexp: {
-                                        [ES_PATHS.pds4_label.lidvid.join('.')]: {
-                                            value: `${lid}.*`,
-                                        },
-                                    },
-                                },
-                            ],
-                        },
-                    },
-                    _source: ['uri', ES_PATHS.pds4_label.lidvid.join('.')],
-                }
-
+            const dsl = getVersionQuery(lidvid, recordData.uri)
+            if (dsl) {
                 axios
                     .post(`${domain}${endpoints.search}`, dsl, getHeader())
                     .then((response) => {
-                        const nextVersions = []
-                        if (response?.data?.hits?.hits?.[0] != null) {
-                            response.data.hits.hits.forEach((r) => {
-                                if (r._source?.pds4_label?.lidvid != null) {
-                                    let [rlid, rvid] = r._source.pds4_label.lidvid.split('::')
-                                    nextVersions.push({
-                                        uri: r._source.uri,
-                                        name: r._source.uri.split('/').pop(),
-                                        version: `Version ${rvid}`,
-                                        versionRaw: rvid,
-                                        versionNum: parseFloat(rvid),
-                                    })
-                                }
-                            })
-                            nextVersions.sort(function (a, b) {
-                                return b.versionNum - a.versionNum
-                            })
+                        if (cancelled) {
+                            return
                         }
-
-                        if (nextVersions.length > 0) {
-                            const [flid, fvid] = lidvid.split('::')
-                            for (let i = 0; i < nextVersions.length; i++) {
-                                if (nextVersions[i].versionRaw == fvid) {
-                                    setActiveVersion(i)
-                                    break
-                                }
-                            }
-                        }
-
+                        const nextVersions = getVersionOptions(
+                            response?.data?.hits?.hits,
+                            lidvid,
+                            recordData.uri
+                        )
+                        const currentVersion = lidvid.split('::')[1]
+                        setActiveVersion(
+                            nextVersions.findIndex((v) => v.versionRaw === currentVersion)
+                        )
                         setVersions(nextVersions)
                     })
-                    .catch((err) => {
-                        setVersions([])
+                    .catch(() => {
+                        if (!cancelled) {
+                            setVersions([])
+                            setActiveVersion(null)
+                        }
                     })
-            } else {
-                setVersions([])
             }
-        } else {
-            setVersions([])
+        }
+        return () => {
+            cancelled = true
         }
     }, [JSON.stringify(recordData)])
 
