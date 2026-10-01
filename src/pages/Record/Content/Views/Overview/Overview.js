@@ -423,7 +423,7 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        margin: '0 0 8px 0',
+        margin: '10px 0 8px 0',
     },
     // A quiet inset field rather than an underline, so it doesn't compete with
     // the section dividers below it.
