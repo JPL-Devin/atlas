@@ -205,7 +205,7 @@ const InformationModal = (props) => {
                             <a
                                 className={c.aLink}
                                 aria-label="give feedback"
-                                href={`mailto:pds.img.help@jpl.nasa.gov?subject=${encodeURIComponent(
+                                href={`mailto:${getAppConfig().feedbackEmail}?subject=${encodeURIComponent(
                                     `PDS Imaging Node \u2014 ${getAppConfig().appTitle} Feedback`
                                 )}`}
                             >
