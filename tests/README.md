@@ -25,7 +25,7 @@ tests/
 │   │   ├── filter-input.spec.js            # Text Search input enable/disable + Restart
 │   │   ├── results-panel.spec.js           # ResultsPanel rendering
 │   │   ├── results-view-modes.spec.js      # grid/list/table tabs + image size + rotate
-│   │   ├── modals.spec.js                  # Information / Add Filter / Edit Columns / Feedback
+│   │   ├── modals.spec.js                  # Information / Add Filter / Edit Columns
 │   │   ├── advanced-filter.spec.js         # Basic ↔ Advanced Filters menu + warning modal
 │   │   ├── snackbar.spec.js                # "Added to Cart!" snackbar lifecycle
 │   │   ├── empty-state.spec.js             # Zero-result state ("No Records Found")
