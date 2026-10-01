@@ -97,7 +97,7 @@ test.describe('resolvePresentation', () => {
         expect(p.shortCaption).toBeNull()
         expect(p.description).not.toContain('archived')
         expect(p.description).toContain('It observes the following targets: Moon, Sunset.')
-        expect(p.citation.startsWith('NASA, Artemis II, nikon_z9')).toBe(true)
+        expect(p.citation.startsWith('Artemis II, nikon_z9')).toBe(true)
     })
 
     test('artemis ii orion cameras use the same profile', () => {
@@ -210,9 +210,10 @@ test.describe('resolvePresentation', () => {
         expect(resolvePresentation(goNims).timeline.length).not.toBe(1)
     })
 
-    test('citation names its author', () => {
+    test('citation carries no author by default', () => {
         const p = resolvePresentation(mars2020Navcam)
-        expect(p.citation.startsWith('NASA/JPL, ')).toBe(true)
+        expect(p.citationAuthor).toBeNull()
+        expect(p.citation.startsWith('NASA/JPL')).toBe(false)
     })
 
     test('citation never ends on dangling punctuation when a fragment drops', () => {

@@ -51,9 +51,6 @@
         "of {{gather.common.target}}",
         "from {{gather.common.mission}} flight day {{gather.flyby_missions.flight_day_number}}"
     ],
-    "citationAuthor": [
-        "NASA"
-    ],
     "citation": [
         "{{gather.common.mission}}",
         "{{gather.common.instrument}}",

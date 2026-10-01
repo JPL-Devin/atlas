@@ -1574,9 +1574,10 @@ implementation left out:
   the plain filename — the breakdown lives in one place. Missions with no
   filename spec, and names that do not match the spec's grammar, omit the
   breakdown rather than inventing one.
-- **Citation.** Under a `Citation` heading, with the author (`citationAuthor`,
-  `NASA/JPL` by default) as its own profile field so it can be overridden per
-  instance; the caption card repeats just the author in its bottom-right.
+- **Citation.** Under a `Citation` heading, with the author (`citationAuthor`)
+  as its own profile field so it can be set per instance; the caption card
+  repeats just the author in its bottom-right. No profile sets one: NASA/JPL is
+  implied by the site.
 - **No action bar.** The panel had a sticky bottom bar (Download, Add to cart,
   Copy citation, View full label, copy-link), but every action except the
   citation copy already exists above: Download / Add to cart / Copy link live in
