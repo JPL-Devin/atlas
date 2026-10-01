@@ -19,8 +19,19 @@ test('queries the complete product LID and groups files by LIDVID', () => {
     expect(query.query.bool.should).toContainEqual({
         term: { uri: { value: uri, boost: 2 } },
     })
-    expect(query.query.bool.should).toContainEqual({ wildcard: { uri: '*.obj' } })
+    expect(query.query.bool.should).toContainEqual({
+        wildcard: { uri: { value: '*.obj', case_insensitive: true } },
+    })
     expect(query.sort).toEqual(['_score', { release_id_num: 'desc' }, { uri: 'asc' }])
+})
+
+test('file type preference accepts both uppercase and lowercase extensions', () => {
+    for (const extension of ['IMG', 'img', 'Img']) {
+        const query = getVersionQuery(lidvid, uri.replace('.obj', `.${extension}`))
+        expect(query.query.bool.should).toContainEqual({
+            wildcard: { uri: { value: `*.${extension}`, case_insensitive: true } },
+        })
+    }
 })
 
 test('one version with several files yields one choice pointing to the open file', () => {

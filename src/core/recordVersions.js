@@ -14,7 +14,9 @@ export function getVersionQuery(lidvid, uri) {
                 filter: [{ prefix: { [`${LIDVID_FIELD}.keyword`]: `${lid}::` } }],
                 should: [
                     { term: { uri: { value: uri, boost: 2 } } },
-                    ...(extension ? [{ wildcard: { uri: `*${extension}` } }] : []),
+                    ...(extension
+                        ? [{ wildcard: { uri: { value: `*${extension}`, case_insensitive: true } } }]
+                        : []),
                 ],
             },
         },
