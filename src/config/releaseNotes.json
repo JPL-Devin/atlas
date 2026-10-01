@@ -101,13 +101,6 @@
     "description": "The left icon rail is gone: filters live in a sidebar, the map is a results view you can split alongside the others, and phones get a bottom navigation bar."
   },
   {
-    "id": "2026-07-instances",
-    "date": "2026-07-23",
-    "type": "new",
-    "title": "Atlas and Planetary Raws",
-    "description": "Switch between Atlas and Planetary Raws from the navigation menu in the top left."
-  },
-  {
     "id": "2026-07-performance",
     "date": "2026-07-08",
     "type": "fixed",

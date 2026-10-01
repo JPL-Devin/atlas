@@ -1,7 +1,6 @@
 # Atlas IV Changelog
 
-All notable changes to Atlas (and the Planetary Raws instance built from the
-same codebase) are recorded here, newest first and grouped by month.
+All notable changes to Atlas are recorded here, newest first and grouped by month.
 
 - PR links of the form `NASA-PDS/atlas#N` point at the upstream
   [NASA-PDS/atlas](https://github.com/NASA-PDS/atlas) repository; `JPL-Devin/atlas#N`
@@ -20,8 +19,6 @@ same codebase) are recorded here, newest first and grouped by month.
   tailored to Artemis II products ([JPL-Devin/atlas#62](https://github.com/JPL-Devin/atlas/pull/62)).
 
 ### Changed
-- The record detail Citation block is hidden in Atlas and kept in Planetary Raws
-  ([JPL-Devin/atlas#60](https://github.com/JPL-Devin/atlas/pull/60)).
 - Added top spacing above the General Fields filter on the record details page
   ([JPL-Devin/atlas#63](https://github.com/JPL-Devin/atlas/pull/63)).
 
@@ -105,7 +102,7 @@ same codebase) are recorded here, newest first and grouped by month.
 ## 2026-08
 
 ### Added
-- Record detail Overview redesign, configured per mission and per app instance: filename
+- Record detail Overview redesign, configured per mission: filename
   breakdown with SIS-sourced segment explanations, at-a-glance tiles, timestamp timeline,
   Files cards, General Fields, Related Resources (SIS documents) and a rebuilt ML
   Classification panel ([JPL-Devin/atlas#21](https://github.com/JPL-Devin/atlas/pull/21)).
@@ -129,10 +126,6 @@ same codebase) are recorded here, newest first and grouped by month.
   eslint-plugin-react-hooks, brace-expansion, fast-uri.
 
 ## 2026-07
-
-### Added
-- Multi-instance app configuration (`atlas` / `raws`) with feature toggles, behavioral config and
-  a shared navigation drawer ([JPL-Devin/atlas#15](https://github.com/JPL-Devin/atlas/pull/15)).
 
 ### Fixed
 - Archive Explorer performance degradation for missions with many volumes (e.g. MRO)
