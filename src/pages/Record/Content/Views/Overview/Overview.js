@@ -167,6 +167,12 @@ const useStyles = makeStyles((theme) => ({
         lineHeight: '20px',
         color: theme.palette.text.primary,
     },
+    captionDescription: {
+        fontSize: '13px',
+        lineHeight: '19px',
+        color: theme.palette.swatches.grey.grey600,
+        marginTop: '4px',
+    },
     captionText: {
         fontSize: '13px',
         lineHeight: '19px',
@@ -1013,6 +1019,11 @@ const Overview = (props) => {
                 <div className={c.cardBody}>
                     {presentation.captionTitle != null && (
                         <div className={c.captionTitle}>{presentation.captionTitle}</div>
+                    )}
+                    {!isNarrow && presentation.description != null && (
+                        <div className={c.captionDescription} aria-label="record description">
+                            {presentation.description}
+                        </div>
                     )}
                     {caption != null && <div className={c.captionText}>{caption}</div>}
                     {(presentation.captionChips.length > 0 || mlChips.length > 0) && (

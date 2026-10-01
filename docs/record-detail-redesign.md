@@ -1743,8 +1743,8 @@ told you anything new. Four changes:
 - **`About this product` is gone.** Its prose restated the caption card almost
   verbatim (same instrument, sol, site, drive, azimuth/elevation). The caption
   over the image is the better copy; profile `description` templates stay in the
-  config and in `resolvePresentation`, unrendered, so a future surface can use
-  them.
+  config and in `resolvePresentation`. They now render on the caption card,
+  directly under the caption title (hidden under `md`, like before).
 - **A row never repeats a tile.** `readSections` drops any row whose _exact_
   formatted value already appears as an At-a-glance tile, so At a glance is the
   identification summary and the sections carry the rest. The value comparison
