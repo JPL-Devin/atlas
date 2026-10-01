@@ -22,11 +22,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import NASALogoPath from '../../../../media/images/nasa-logo.svg'
 import { getPublicUrl } from '../../../../core/runtimeConfig'
 import { getAppConfig } from '../../../../core/appConfig'
-import {
-    RELEASE_NOTES_MONTHS,
-    groupReleaseNotesByMonth,
-    useReleaseNotes,
-} from '../../../../core/releaseNotes'
+import { groupReleaseNotesByMonth, useReleaseNotes } from '../../../../core/releaseNotes'
 
 // Construct runtime-aware logo URL
 const getNASALogoUrl = () => {
@@ -250,7 +246,7 @@ const ReleaseNotes = ({ notes }) => {
     const groups = groupReleaseNotesByMonth(notes)
 
     if (groups.length === 0) {
-        return <Typography className={c.notesEmpty}>No recent release notes.</Typography>
+        return <Typography className={c.notesEmpty}>No release notes yet.</Typography>
     }
 
     return groups.map((group) => (
@@ -342,8 +338,7 @@ const InformationModal = () => {
                                 Release Notes
                             </Typography>
                             <Typography className={c.notesSubtitle}>
-                                What&apos;s changed in {getAppConfig().appTitle} over the past{' '}
-                                {RELEASE_NOTES_MONTHS} months
+                                What&apos;s changed in {getAppConfig().appTitle}
                             </Typography>
                         </div>
                         <IconButton

@@ -4,38 +4,21 @@ import releaseNotes from '../config/releaseNotes.json'
 import { getAppInstanceKey } from './appConfig'
 import { localStorageReleaseNotesSeen } from './constants'
 
-export const RELEASE_NOTES_MONTHS = 12
-
 const SEEN_EVENT = 'atlas-release-notes-seen'
 
-const monthIndex = (year, month) => year * 12 + (month - 1)
-
-const noteMonthIndex = (note) => {
-    const [year, month] = note.date.split('-').map(Number)
-    return monthIndex(year, month)
-}
-
 /**
- * Release notes for an app instance from the last `months` calendar months, newest first.
+ * Release notes for an app instance, newest first.
  * @param {Object[]} notes - entries shaped like src/config/releaseNotes.json
  * @param {Object} [options]
  * @param {string} [options.app] - app instance key; notes without `apps` apply to every instance
- * @param {number} [options.months]
- * @param {Date} [options.now]
  * @return {Object[]}
  */
-export const getReleaseNotes = (
-    notes = releaseNotes,
-    { app = getAppInstanceKey(), months = RELEASE_NOTES_MONTHS, now = new Date() } = {}
-) => {
-    const oldest = monthIndex(now.getUTCFullYear(), now.getUTCMonth() + 1) - (months - 1)
-    return notes
+export const getReleaseNotes = (notes = releaseNotes, { app = getAppInstanceKey() } = {}) =>
+    notes
         .filter((note) => !Array.isArray(note.apps) || note.apps.includes(app))
-        .filter((note) => noteMonthIndex(note) >= oldest)
         .map((note, index) => ({ note, index }))
         .sort((a, b) => b.note.date.localeCompare(a.note.date) || a.index - b.index)
         .map(({ note }) => note)
-}
 
 /**
  * Groups date-sorted notes into consecutive months.
@@ -64,42 +47,48 @@ export const groupReleaseNotesByMonth = (notes) => {
 
 /**
  * @param {Object} note
- * @param {string|null} seenDate - newest note date (YYYY-MM-DD) the user has seen
+ * @param {Set<string>} seenIds - ids of notes the user has seen
  * @return {boolean}
  */
-export const isReleaseNoteUnseen = (note, seenDate) => seenDate == null || note.date > seenDate
+export const isReleaseNoteUnseen = (note, seenIds) => !seenIds.has(note.id)
 
-export const getReleaseNotesSeenDate = () => {
+export const getReleaseNotesSeenIds = () => {
     if (typeof window === 'undefined' || !window.localStorage) {
-        return null
+        return new Set()
     }
-    return window.localStorage.getItem(localStorageReleaseNotesSeen)
+    try {
+        const ids = JSON.parse(window.localStorage.getItem(localStorageReleaseNotesSeen))
+        return new Set(Array.isArray(ids) ? ids : [])
+    } catch {
+        return new Set()
+    }
 }
 
 export const markReleaseNotesSeen = (notes) => {
-    if (typeof window === 'undefined' || !window.localStorage || notes.length === 0) {
+    if (typeof window === 'undefined' || !window.localStorage) {
         return
     }
-    const newest = notes.reduce((max, note) => (note.date > max ? note.date : max), '')
-    const seenDate = getReleaseNotesSeenDate()
-    if (seenDate != null && seenDate >= newest) {
+    const seenIds = getReleaseNotesSeenIds()
+    const unseen = notes.filter((note) => isReleaseNoteUnseen(note, seenIds))
+    if (unseen.length === 0) {
         return
     }
-    window.localStorage.setItem(localStorageReleaseNotesSeen, newest)
+    unseen.forEach((note) => seenIds.add(note.id))
+    window.localStorage.setItem(localStorageReleaseNotesSeen, JSON.stringify([...seenIds]))
     window.dispatchEvent(new Event(SEEN_EVENT))
 }
 
 /**
  * Release notes for the current app instance plus the user's seen state, kept in sync across
  * components and tabs.
- * @return {{ notes: Object[], seenDate: string|null, unseenCount: number, markSeen: Function }}
+ * @return {{ notes: Object[], unseenCount: number, markSeen: Function }}
  */
 export const useReleaseNotes = () => {
     const [notes] = useState(() => getReleaseNotes())
-    const [seenDate, setSeenDate] = useState(getReleaseNotesSeenDate)
+    const [seenIds, setSeenIds] = useState(getReleaseNotesSeenIds)
 
     useEffect(() => {
-        const sync = () => setSeenDate(getReleaseNotesSeenDate())
+        const sync = () => setSeenIds(getReleaseNotesSeenIds())
         window.addEventListener(SEEN_EVENT, sync)
         window.addEventListener('storage', sync)
         return () => {
@@ -109,7 +98,7 @@ export const useReleaseNotes = () => {
     }, [])
 
     const markSeen = useCallback(() => markReleaseNotesSeen(notes), [notes])
-    const unseenCount = notes.filter((note) => isReleaseNoteUnseen(note, seenDate)).length
+    const unseenCount = notes.filter((note) => isReleaseNoteUnseen(note, seenIds)).length
 
-    return { notes, seenDate, unseenCount, markSeen }
+    return { notes, unseenCount, markSeen }
 }

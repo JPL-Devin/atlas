@@ -46,9 +46,9 @@
   {
     "id": "2026-09-cart-bundles",
     "date": "2026-09-29",
-    "type": "improved",
-    "title": "Add whole bundles to your cart",
-    "description": "The Archive Explorer preview can now add an entire bundle or volume to your cart.",
+    "type": "fixed",
+    "title": "Adding bundles from Preview",
+    "description": "The Archive Explorer Preview panel's Add to cart button now works for whole bundles and volumes.",
     "apps": ["atlas"]
   },
   {
@@ -136,8 +136,8 @@
     "id": "2026-03-ae-bundles",
     "date": "2026-03-19",
     "type": "new",
-    "title": "Archive Explorer cart support",
-    "description": "Add an entire bundle or volume to your cart from the Archive Explorer.",
+    "title": "Add whole bundles to your cart",
+    "description": "Add an entire bundle or volume to your cart from the Archive Explorer in one click.",
     "apps": ["atlas"]
   },
   {
@@ -155,13 +155,6 @@
     "title": "Easier download choices",
     "description": "Choosing a download type is clearer, ZIP downloads work in Firefox and download scripts match your operating system.",
     "apps": ["atlas"]
-  },
-  {
-    "id": "2026-01-apollo",
-    "date": "2026-01-28",
-    "type": "new",
-    "title": "Apollo mission names",
-    "description": "Apollo missions appear with friendly names in filters and the Archive Explorer."
   },
   {
     "id": "2025-11-out-of-beta",
