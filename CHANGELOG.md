@@ -13,8 +13,8 @@ All notable changes to Atlas are recorded here, newest first and grouped by mont
 
 ### Added
 - Release Notes view in the About modal, grouped by month, with a green badge on the
-  Topbar info button and on the "Release Notes" button when there are notes the user
-  has not seen yet.
+  Topbar info button when the app version is newer than the one the user last viewed
+  release notes on.
 - Artemis II record detail profile: Overview title, description and at-a-glance layout
   tailored to Artemis II products ([JPL-Devin/atlas#62](https://github.com/JPL-Devin/atlas/pull/62)).
 
