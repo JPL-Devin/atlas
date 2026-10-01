@@ -50,6 +50,8 @@ const GROUP_ORDER = [
     'time',
     'flyby_missions',
     'archive',
+    'landed_missions',
+    'orbital_missions',
     'machine_learning',
     'ancillary',
     'pds_archive',

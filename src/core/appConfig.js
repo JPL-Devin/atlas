@@ -26,6 +26,8 @@ const instances = {
             'gather.time.start_time',
             'gather.flyby_missions.flight_day_number',
             'archive.bundle_id',
+            'gather.landed_missions.planet_day_number',
+            'gather.orbital_missions.orbit',
             'gather.machine_learning.classification.classifications.class',
             'gather.machine_learning.classification.classifications.confidence',
         ],
@@ -63,6 +65,8 @@ const instances = {
             'gather.common.kind',
             'gather.time.start_time',
             'archive.bundle_id',
+            'gather.landed_missions.planet_day_number',
+            'gather.orbital_missions.orbit',
         ],
         defaultFilterValues: {
             'gather.common.product_type': { exclude: ['Movie Frame'] },
