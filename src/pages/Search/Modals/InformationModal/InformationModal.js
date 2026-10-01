@@ -17,7 +17,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 
 import NASALogoPath from '../../../../media/images/nasa-logo.svg'
 import { getPublicUrl } from '../../../../core/runtimeConfig'
-import { getAppConfig } from '../../../../core/appConfig'
+import { getAppConfig, getAppInstanceKey } from '../../../../core/appConfig'
 
 import { publicUrl } from '../../../../core/constants'
 
@@ -156,6 +156,9 @@ const InformationModal = (props) => {
 
     const newsPath = `https://pds-imaging.jpl.nasa.gov/`
 
+    const appInstanceKey = getAppInstanceKey()
+    const appInstanceName = appInstanceKey.charAt(0).toUpperCase() + appInstanceKey.slice(1)
+
     return (
         <Dialog
             className={c.InformationModal}
@@ -216,7 +219,9 @@ const InformationModal = (props) => {
                                 <a
                                     className={c.aLink}
                                     aria-label="give feedback"
-                                    href="mailto:pds.img.help@jpl.nasa.gov?subject=PDS%20Imaging%20Node%20&mdash;%20Atlas%20Feedback"
+                                    href={`mailto:pds.img.help@jpl.nasa.gov?subject=${encodeURIComponent(
+                                        `PDS Imaging Node \u2014 ${appInstanceName} Feedback`
+                                    )}`}
                                 >
                                     please send us a message
                                 </a>
