@@ -5,6 +5,8 @@ import { getAppInstanceKey } from './appConfig'
 import { localStorageReleaseNotesSeen } from './constants'
 import { buildEnv } from './runtimeConfig'
 
+const seenStorageKey = () => `${localStorageReleaseNotesSeen}_${getAppInstanceKey()}`
+
 const SEEN_EVENT = 'atlas-release-notes-seen'
 
 /**
@@ -79,7 +81,7 @@ export const getReleaseNotesSeenVersion = () => {
     if (typeof window === 'undefined' || !window.localStorage) {
         return null
     }
-    return window.localStorage.getItem(localStorageReleaseNotesSeen)
+    return window.localStorage.getItem(seenStorageKey())
 }
 
 export const markReleaseNotesSeen = () => {
@@ -90,7 +92,7 @@ export const markReleaseNotesSeen = () => {
     if (!isNewerVersion(version, getReleaseNotesSeenVersion())) {
         return
     }
-    window.localStorage.setItem(localStorageReleaseNotesSeen, version)
+    window.localStorage.setItem(seenStorageKey(), version)
     window.dispatchEvent(new Event(SEEN_EVENT))
 }
 
