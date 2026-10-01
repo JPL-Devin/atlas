@@ -96,7 +96,9 @@ test.describe('resolvePresentation', () => {
         expect(p.caption).toBeNull()
         expect(p.shortCaption).toBeNull()
         expect(p.description).not.toContain('archived')
-        expect(p.description).toContain('It observes the following targets: Moon, Sunset.')
+        expect(p.description).toContain(
+            'It was taken on flight day 6 at 2026-04-07 00:35:27Z and observes the following targets: Moon, Sunset.'
+        )
         expect(p.citation.startsWith('Artemis II, nikon_z9')).toBe(true)
     })
 
