@@ -30,6 +30,7 @@ import {
 import { ES_PATHS, HASH_PATHS, publicUrl } from '../../core/constants'
 import { getPublicUrl } from '../../core/runtimeConfig'
 import { getAppConfig } from '../../core/appConfig'
+import { useReleaseNotes } from '../../core/releaseNotes'
 
 import NASALogoPath from '../../media/images/nasa-logo.svg'
 
@@ -196,6 +197,15 @@ const useStyles = makeStyles((theme) => ({
             minWidth: '16px;',
         },
     },
+    infoBadge: {
+        '& .MuiBadge-badge': {
+            background: theme.palette.swatches.green.green500,
+            border: `1px solid ${theme.palette.swatches.grey.grey100}`,
+            width: 10,
+            height: 10,
+            borderRadius: 5,
+        },
+    },
 }))
 
 const Topbar = () => {
@@ -214,6 +224,8 @@ const Topbar = () => {
         return state.get('cart').toJS() || []
     })
     const cartLength = cart.length
+
+    const { hasUpdate } = useReleaseNotes()
 
     const recordUri = useSelector((state) => state.getIn(['recordData', ...ES_PATHS.uri]))
 
@@ -362,14 +374,30 @@ const Topbar = () => {
                     </Tooltip>
                 )}
 
-                <Tooltip title={`About ${getAppConfig().appTitle}`} arrow placement="bottom">
+                <Tooltip
+                    title={
+                        hasUpdate
+                            ? `About ${getAppConfig().appTitle} — new release notes`
+                            : `About ${getAppConfig().appTitle}`
+                    }
+                    arrow
+                    placement="bottom"
+                >
                     <IconButton
                         className={clsx(c.button)}
                         aria-label="info button"
                         onClick={() => dispatch(setModal('information'))}
                         size="large"
                     >
-                        <InfoOutlinedIcon fontSize="inherit" />
+                        <Badge
+                            className={c.infoBadge}
+                            variant="dot"
+                            overlap="circular"
+                            invisible={!hasUpdate}
+                            data-testid="info-release-notes-badge"
+                        >
+                            <InfoOutlinedIcon fontSize="inherit" />
+                        </Badge>
                     </IconButton>
                 </Tooltip>
             </div>
