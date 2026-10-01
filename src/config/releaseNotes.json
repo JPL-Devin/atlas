@@ -25,7 +25,15 @@
     "date": "2026-09-28",
     "type": "new",
     "title": "Preview more file types",
-    "description": "Tables, text, PDFs, video and audio products can be previewed directly on the record page and in the Archive Explorer, with file-type icons throughout."
+    "description": "Tables, text, PDFs, video and audio products can be previewed directly on the record page, with file-type thumbnails in search and the cart."
+  },
+  {
+    "id": "2026-09-ae-icons-media",
+    "date": "2026-09-30",
+    "type": "improved",
+    "title": "Archive Explorer icons and playback",
+    "description": "Archive Explorer shows an icon for each file type, and audio and video files play right in the Preview panel.",
+    "apps": ["atlas"]
   },
   {
     "id": "2026-09-open-in-archive-explorer",
@@ -91,7 +99,14 @@
     "date": "2026-08-27",
     "type": "new",
     "title": "Redesigned record pages",
-    "description": "Record pages have a new Overview with an at-a-glance summary, a timeline, file cards, links to instrument documentation and a clickable filename breakdown for many missions."
+    "description": "Record pages have a new Overview with an at-a-glance summary, a timeline, file cards and links to instrument documentation."
+  },
+  {
+    "id": "2026-08-filename-grammars",
+    "date": "2026-08-27",
+    "type": "new",
+    "title": "Filename breakdowns",
+    "description": "Record pages explain each part of a product's filename for MSL, MER, InSight, Phoenix, Pathfinder, MRO, MESSENGER, MGS MOC, Cassini ISS, Odyssey THEMIS, Clementine, M3, JunoCam, LCROSS, Galileo SSI, LRO LAMP and Lunar Orbiter."
   },
   {
     "id": "2026-08-layout",
@@ -129,7 +144,15 @@
     "date": "2026-03-19",
     "type": "new",
     "title": "Archive Explorer cart support",
-    "description": "Add an entire bundle or volume to your cart from the Archive Explorer, which now also shows deprecated folders.",
+    "description": "Add an entire bundle or volume to your cart from the Archive Explorer.",
+    "apps": ["atlas"]
+  },
+  {
+    "id": "2026-03-ae-deprecated",
+    "date": "2026-03-18",
+    "type": "new",
+    "title": "Deprecated folders in Archive Explorer",
+    "description": "Archive Explorer now shows deprecated folders so you can browse their contents too.",
     "apps": ["atlas"]
   },
   {
