@@ -96,7 +96,7 @@ test.describe('resolvePresentation', () => {
         expect(p.caption).toBeNull()
         expect(p.shortCaption).toBeNull()
         expect(p.description).not.toContain('archived')
-        expect(p.description).toContain('It observes the following targets: Moon.')
+        expect(p.description).toContain('It observes the following targets: Moon, Sunset.')
         expect(p.citation.startsWith('NASA, Artemis II, nikon_z9')).toBe(true)
     })
 
