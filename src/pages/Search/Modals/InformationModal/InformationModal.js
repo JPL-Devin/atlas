@@ -15,8 +15,6 @@ import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import NewReleasesOutlinedIcon from '@mui/icons-material/NewReleasesOutlined'
 
-import clsx from 'clsx'
-
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -27,7 +25,6 @@ import { getAppConfig } from '../../../../core/appConfig'
 import {
     RELEASE_NOTES_MONTHS,
     groupReleaseNotesByMonth,
-    isReleaseNoteUnseen,
     useReleaseNotes,
 } from '../../../../core/releaseNotes'
 
@@ -194,63 +191,28 @@ const useStyles = makeStyles((theme) => ({
         textTransform: 'uppercase',
         color: theme.palette.swatches.yellow.yellow800,
     },
+    notesColumn: {
+        maxWidth: '720px',
+        margin: '0px auto',
+    },
     monthCards: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+        display: 'flex',
+        flexFlow: 'column',
         gap: theme.spacing(1.5),
     },
     noteCard: {
-        position: 'relative',
-        padding: '14px 16px',
+        padding: '16px 20px',
         background: theme.palette.swatches.grey.grey0,
         border: `1px solid ${theme.palette.swatches.grey.grey150}`,
         borderRadius: '4px',
-        boxShadow: '0px 1px 2px rgba(0,0,0,0.06)',
-    },
-    noteCardUnseen: {
-        borderColor: theme.palette.swatches.green.green500,
-    },
-    noteMeta: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: theme.spacing(1),
-        marginBottom: theme.spacing(0.75),
     },
     noteType: {
+        marginBottom: theme.spacing(0.5),
         fontSize: '11px',
         fontWeight: 'bold',
-        letterSpacing: '0.5px',
+        letterSpacing: '1px',
         textTransform: 'uppercase',
-        padding: '1px 6px',
-        borderRadius: '3px',
-    },
-    noteTypeNew: {
-        color: theme.palette.swatches.blue.blue900,
-        background: theme.palette.swatches.blue.blue100,
-    },
-    noteTypeImproved: {
-        color: '#5b3d00',
-        background: theme.palette.swatches.yellow.yellow500,
-    },
-    noteTypeFixed: {
-        color: theme.palette.swatches.grey.grey700,
-        background: theme.palette.swatches.grey.grey150,
-    },
-    noteUnseen: {
-        'fontSize': '11px',
-        'fontWeight': 'bold',
-        'textTransform': 'uppercase',
-        'color': '#167a3f',
-        'display': 'flex',
-        'alignItems': 'center',
-        'gap': '4px',
-        '&:before': {
-            content: '""',
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            background: theme.palette.swatches.green.green500,
-        },
+        color: theme.palette.swatches.grey.grey400,
     },
     noteTitle: {
         fontSize: '16px',
@@ -277,13 +239,13 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const NOTE_TYPES = {
-    new: { label: 'New', className: 'noteTypeNew' },
-    improved: { label: 'Improved', className: 'noteTypeImproved' },
-    fixed: { label: 'Fixed', className: 'noteTypeFixed' },
+const NOTE_TYPE_LABELS = {
+    new: 'New',
+    improved: 'Improved',
+    fixed: 'Fixed',
 }
 
-const ReleaseNotes = ({ notes, seenDate }) => {
+const ReleaseNotes = ({ notes }) => {
     const c = useStyles()
     const groups = groupReleaseNotesByMonth(notes)
 
@@ -297,29 +259,17 @@ const ReleaseNotes = ({ notes, seenDate }) => {
                 {group.label}
             </Typography>
             <div className={c.monthCards}>
-                {group.notes.map((note) => {
-                    const type = NOTE_TYPES[note.type] || NOTE_TYPES.new
-                    const unseen = isReleaseNoteUnseen(note, seenDate)
-                    return (
-                        <article
-                            key={note.id}
-                            className={clsx(c.noteCard, { [c.noteCardUnseen]: unseen })}
-                        >
-                            <div className={c.noteMeta}>
-                                <span className={clsx(c.noteType, c[type.className])}>
-                                    {type.label}
-                                </span>
-                                {unseen && <span className={c.noteUnseen}>Unread</span>}
-                            </div>
-                            <Typography className={c.noteTitle} variant="h4">
-                                {note.title}
-                            </Typography>
-                            <Typography className={c.noteDescription}>
-                                {note.description}
-                            </Typography>
-                        </article>
-                    )
-                })}
+                {group.notes.map((note) => (
+                    <article key={note.id} className={c.noteCard}>
+                        <Typography className={c.noteType}>
+                            {NOTE_TYPE_LABELS[note.type] || NOTE_TYPE_LABELS.new}
+                        </Typography>
+                        <Typography className={c.noteTitle} variant="h4">
+                            {note.title}
+                        </Typography>
+                        <Typography className={c.noteDescription}>{note.description}</Typography>
+                    </article>
+                ))}
             </div>
         </section>
     ))
@@ -327,7 +277,6 @@ const ReleaseNotes = ({ notes, seenDate }) => {
 
 ReleaseNotes.propTypes = {
     notes: PropTypes.arrayOf(PropTypes.object).isRequired,
-    seenDate: PropTypes.string,
 }
 
 const InformationModal = () => {
@@ -344,12 +293,10 @@ const InformationModal = () => {
     })
     const open = modal !== false
 
-    const { notes, seenDate, unseenCount, markSeen } = useReleaseNotes()
+    const { notes, unseenCount, markSeen } = useReleaseNotes()
     const [view, setView] = useState('about')
-    const [notesSeenDate, setNotesSeenDate] = useState(null)
 
     const openReleaseNotes = () => {
-        setNotesSeenDate(seenDate)
         setView('releaseNotes')
         markSeen()
     }
@@ -410,7 +357,9 @@ const InformationModal = () => {
                         </IconButton>
                     </div>
                     <div className={c.notesBody}>
-                        <ReleaseNotes notes={notes} seenDate={notesSeenDate} />
+                        <div className={c.notesColumn}>
+                            <ReleaseNotes notes={notes} />
+                        </div>
                     </div>
                 </DialogContent>
             ) : (
