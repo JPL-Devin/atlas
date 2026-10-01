@@ -31,8 +31,7 @@
     "description": [
         "{{gather.common.product_type}} product from the {{gather.common.instrument}} camera on {{gather.common.mission}}.",
         "It was taken on flight day {{gather.flyby_missions.flight_day_number}} at {{gather.time.start_time}}.",
-        "It observes {{gather.common.target}}.",
-        "The product is archived in bundle {{gather.pds_archive.bundle_id}}, collection {{gather.pds_archive.collection_id}}."
+        "It observes {{gather.common.target}}."
     ],
     "captionTitle": [
         "Artemis 2 Mission {{gather.common.instrument|uppercase}} Observational Product - {{gather.pds_archive.file_name}}"
@@ -44,16 +43,9 @@
         "{{gather.common.target}}",
         "{{gather.time.start_time}}"
     ],
-    "caption": [
-        "Imaged by {{gather.common.instrument}} on {{gather.common.mission}}",
-        "on flight day {{gather.flyby_missions.flight_day_number}}",
-        "at {{gather.time.start_time}}"
-    ],
+    "caption": [],
     "separator": ", ",
-    "shortCaption": [
-        "{{gather.common.instrument}}",
-        "FD {{gather.flyby_missions.flight_day_number}}"
-    ],
+    "shortCaption": [],
     "altText": [
         "{{gather.common.instrument}} image",
         "of {{gather.common.target}}",

@@ -93,10 +93,9 @@ test.describe('resolvePresentation', () => {
         expect(p.captionTitle).toBe(
             'Artemis 2 Mission NIKON_Z9 Observational Product - art002e015531_nkz9019_prc_v01.tif'
         )
-        expect(p.shortCaption).toBe('nikon_z9, FD 6')
-        expect(p.caption).toBe(
-            'Imaged by nikon_z9 on Artemis II, on flight day 6, at 2026-04-07 00:35:27Z'
-        )
+        expect(p.caption).toBeNull()
+        expect(p.shortCaption).toBeNull()
+        expect(p.description).not.toContain('archived')
         expect(p.citation.startsWith('NASA, Artemis II, nikon_z9')).toBe(true)
     })
 
