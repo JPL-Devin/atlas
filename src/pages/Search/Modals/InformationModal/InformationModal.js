@@ -216,7 +216,7 @@ const InformationModal = (props) => {
                                 <a
                                     className={c.aLink}
                                     aria-label="give feedback"
-                                    href="mailto:pds.img.help@jpl.nasa.gov?subject=PDS%20Imaging%20Node%20Website%20Feedback"
+                                    href="mailto:pds.img.help@jpl.nasa.gov?subject=PDS%20Imaging%20Node%20&mdash;%20Atlas%20Feedback"
                                 >
                                     please send us a message
                                 </a>

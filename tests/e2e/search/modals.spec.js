@@ -39,7 +39,7 @@ test.describe('Search - Modals', () => {
         await expect(feedback).toBeVisible()
         await expect(feedback).toHaveAttribute(
             'href',
-            'mailto:pds.img.help@jpl.nasa.gov?subject=PDS%20Imaging%20Node%20Website%20Feedback'
+            'mailto:pds.img.help@jpl.nasa.gov?subject=PDS%20Imaging%20Node%20—%20Atlas%20Feedback'
         )
 
         await page.keyboard.press('Escape')
