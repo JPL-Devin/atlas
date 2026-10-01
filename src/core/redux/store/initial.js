@@ -44,7 +44,6 @@ export const INITIAL = (() => {
             addFilter: false,
             filterHelp: false,
             information: false,
-            feedback: false,
             removeFromCart: false,
             editColumns: false,
             advancedFilter: false,

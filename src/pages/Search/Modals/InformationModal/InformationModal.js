@@ -154,10 +154,6 @@ const InformationModal = (props) => {
         dispatch(setModal(false))
     }
 
-    const openFeedback = () => {
-        dispatch(setModal('feedback'))
-    }
-
     const newsPath = `https://pds-imaging.jpl.nasa.gov/`
 
     return (
@@ -220,7 +216,7 @@ const InformationModal = (props) => {
                                 <a
                                     className={c.aLink}
                                     aria-label="give feedback"
-                                    onClick={openFeedback}
+                                    href="mailto:pds.img.help@jpl.nasa.gov?subject=PDS%20Imaging%20Node%20Website%20Feedback"
                                 >
                                     please send us a message
                                 </a>
