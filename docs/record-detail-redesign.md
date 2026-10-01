@@ -1458,8 +1458,10 @@ not to serve traffic.
 
 Note the asymmetry: the mission layer exists because field *availability*
 differs, the instance/instrument layer exists because *editorial preference*
-differs. Instrument is still not an availability axis (§4.1). RAWS also sets
-`enableRecordCitation: false`, so the citation line is Atlas-only.
+differs. Instrument is still not an availability axis (§4.1). The citation
+line is gated per instance by `enableRecordCitation`: currently `true` for
+RAWS and `false` for Atlas (flip it back in `src/core/appConfig.js` to
+re-enable).
 
 ### 12.5 Resolution runs client-side, for now
 
