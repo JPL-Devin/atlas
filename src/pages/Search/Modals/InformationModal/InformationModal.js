@@ -12,7 +12,8 @@ import DialogContent from '@mui/material/DialogContent'
 import IconButton from '@mui/material/IconButton'
 import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import NewReleasesOutlinedIcon from '@mui/icons-material/NewReleasesOutlined'
+import CardGiftcardOutlinedIcon from '@mui/icons-material/CardGiftcardOutlined'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
@@ -122,18 +123,34 @@ const useStyles = makeStyles((theme) => ({
             fontFamily: 'monospace',
         },
     },
-    releaseNotesButtonWrap: {
-        margin: `0px 0px ${theme.spacing(4)} 0px`,
-    },
-    releaseNotesButton: {
+    releaseNotesStrip: {
+        'display': 'flex',
+        'alignItems': 'center',
+        'gap': theme.spacing(1.5),
+        'width': '100%',
+        'margin': `${theme.spacing(3)} 0px 0px 0px`,
+        'padding': '12px 16px',
+        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'borderRadius': '4px',
+        'background': theme.palette.swatches.grey.grey100,
         'color': theme.palette.swatches.grey.grey800,
-        'borderColor': theme.palette.swatches.grey.grey300,
-        'textTransform': 'none',
-        'fontWeight': 600,
+        'font': 'inherit',
+        'textAlign': 'left',
+        'cursor': 'pointer',
         '&:hover': {
-            borderColor: theme.palette.swatches.grey.grey500,
-            background: theme.palette.swatches.grey.grey100,
+            background: theme.palette.swatches.grey.grey150,
         },
+    },
+    releaseNotesStripText: {
+        flex: 1,
+    },
+    releaseNotesStripTitle: {
+        fontSize: '15px',
+        fontWeight: 'bold',
+    },
+    releaseNotesStripSubtitle: {
+        fontSize: '13px',
+        color: theme.palette.swatches.grey.grey500,
     },
     notesContent: {
         padding: '0px',
@@ -377,22 +394,29 @@ const InformationModal = () => {
                         </IconButton>
                     </div>
                     <div className={c.bottom}>
-                        {notes.length > 0 && (
-                            <div className={c.releaseNotesButtonWrap}>
-                                <Button
-                                    className={c.releaseNotesButton}
-                                    variant="outlined"
-                                    startIcon={<NewReleasesOutlinedIcon />}
-                                    aria-label="view release notes"
-                                    onClick={openReleaseNotes}
-                                >
-                                    View Release Notes
-                                </Button>
-                            </div>
-                        )}
                         <div className={c.description}>
                             <Typography>{getAppConfig().aboutDescription}</Typography>
                         </div>
+                        {notes.length > 0 && (
+                            <button
+                                type="button"
+                                className={c.releaseNotesStrip}
+                                aria-label="view release notes"
+                                onClick={openReleaseNotes}
+                            >
+                                <CardGiftcardOutlinedIcon />
+                                <span className={c.releaseNotesStripText}>
+                                    <span className={c.releaseNotesStripTitle}>
+                                        What&apos;s new in {getAppConfig().appTitle}
+                                    </span>
+                                    <br />
+                                    <span className={c.releaseNotesStripSubtitle}>
+                                        Recent features, improvements and fixes, month by month
+                                    </span>
+                                </span>
+                                <ChevronRightIcon />
+                            </button>
+                        )}
                         <div className={c.message}>
                             <Typography>
                                 If you have questions, want to share feedback, or need support,{' '}
