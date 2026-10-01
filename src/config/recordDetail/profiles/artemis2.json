@@ -35,8 +35,7 @@
         "The product is archived in bundle {{gather.pds_archive.bundle_id}}, collection {{gather.pds_archive.collection_id}}."
     ],
     "captionTitle": [
-        "{{gather.common.instrument}}",
-        "Flight Day {{gather.flyby_missions.flight_day_number}}"
+        "Artemis 2 Mission {{gather.common.instrument|uppercase}} Observational Product - {{gather.pds_archive.file_name}}"
     ],
     "captionChips": [
         "Flight Day {{gather.flyby_missions.flight_day_number}}",

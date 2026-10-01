@@ -90,7 +90,9 @@ test.describe('resolvePresentation', () => {
         expect(valueOf(p, 'Mission')).toBe('Artemis II')
         expect(valueOf(p, 'Flight Day')).toBe('6')
         expect(labels(p)).not.toContain('Spacecraft')
-        expect(p.captionTitle).toBe('nikon_z9, Flight Day 6')
+        expect(p.captionTitle).toBe(
+            'Artemis 2 Mission NIKON_Z9 Observational Product - art002e015531_nkz9019_prc_v01.tif'
+        )
         expect(p.shortCaption).toBe('nikon_z9, FD 6')
         expect(p.caption).toBe(
             'Imaged by nikon_z9 on Artemis II, on flight day 6, at 2026-04-07 00:35:27Z'
@@ -101,9 +103,19 @@ test.describe('resolvePresentation', () => {
     test('artemis ii orion cameras use the same profile', () => {
         const p = resolvePresentation(artemis2Orion)
         expect(valueOf(p, 'Instrument')).toBe('saw')
+        expect(p.captionTitle).toBe(
+            'Artemis 2 Mission SAW Observational Product - art002e031160_saw3_raw_v01.tif'
+        )
         expect(valueOf(p, 'Collection')).toBe('data_raw_image')
         expect(p.description).toContain('Raw product from the saw camera on Artemis II.')
         expect(p.description).toContain('It was taken on flight day 6')
+    })
+
+    test('a caption token can override its catalogued format', () => {
+        const p = resolvePresentation(artemis2Crew)
+        // The instrument tile keeps its catalogued text format.
+        expect(valueOf(p, 'Instrument')).toBe('nikon_z9')
+        expect(p.captionTitle).toContain('NIKON_Z9')
     })
 
     test('mgs orbiter uses orbit and drops the N/A filter', () => {
