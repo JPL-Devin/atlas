@@ -1,0 +1,193 @@
+[
+  {
+    "id": "2026-10-release-notes",
+    "date": "2026-10-01",
+    "type": "new",
+    "title": "Release Notes",
+    "description": "See what has changed right here in the About window. A green dot on the info button lets you know when there is something new."
+  },
+  {
+    "id": "2026-10-artemis2-profile",
+    "date": "2026-10-01",
+    "type": "new",
+    "title": "Artemis II record pages",
+    "description": "Artemis II records now open with a tailored overview: a descriptive title, flight day and targets at a glance."
+  },
+  {
+    "id": "2026-10-record-versions",
+    "date": "2026-10-01",
+    "type": "fixed",
+    "title": "Cleaner version selector",
+    "description": "The record version dropdown lists each product version once instead of repeating it per file."
+  },
+  {
+    "id": "2026-09-quick-links",
+    "date": "2026-09-28",
+    "type": "new",
+    "title": "Quick Links menu",
+    "description": "A new Quick Links menu in the top bar lets you copy or open the current page, record, archive path or API query in one click."
+  },
+  {
+    "id": "2026-09-context-menus",
+    "date": "2026-09-28",
+    "type": "new",
+    "title": "Right-click menus and new tabs",
+    "description": "Right-click any result card or Archive Explorer row to copy links or add it to your cart. Middle-click or Ctrl-click opens a record in a new tab."
+  },
+  {
+    "id": "2026-09-file-previews",
+    "date": "2026-09-28",
+    "type": "new",
+    "title": "Preview more file types",
+    "description": "Tables, text, PDFs, video and audio products can be previewed directly on the record page and in the Archive Explorer, with file-type icons throughout."
+  },
+  {
+    "id": "2026-09-open-in-archive-explorer",
+    "date": "2026-09-29",
+    "type": "new",
+    "title": "Open in Archive Explorer",
+    "description": "Jump from a search result, record or cart item straight to its location in the Archive Explorer.",
+    "apps": ["atlas"]
+  },
+  {
+    "id": "2026-09-cart-bundles",
+    "date": "2026-09-29",
+    "type": "improved",
+    "title": "Add whole bundles to your cart",
+    "description": "The Archive Explorer preview can now add an entire bundle or volume to your cart.",
+    "apps": ["atlas"]
+  },
+  {
+    "id": "2026-09-time-filters",
+    "date": "2026-09-30",
+    "type": "improved",
+    "title": "Start Time and Flight Day filters",
+    "description": "Start Time is now a default filter and accepts a date and time (UTC). A Flight Day filter is also available by default."
+  },
+  {
+    "id": "2026-09-artemis2",
+    "date": "2026-09-30",
+    "type": "new",
+    "title": "Artemis II support",
+    "description": "Artemis II products show friendly mission names, explain each part of their filenames and link to the Science Data User Guide."
+  },
+  {
+    "id": "2026-09-faster-search",
+    "date": "2026-09-28",
+    "type": "improved",
+    "title": "Faster back-and-forth searching",
+    "description": "Returning to a search you already ran is instant, and your Grid, List, Table or Map view is kept when you come back from a record."
+  },
+  {
+    "id": "2026-09-search-fixes",
+    "date": "2026-09-30",
+    "type": "fixed",
+    "title": "Search error fixes",
+    "description": "Sorting by File Name and running Advanced Filters queries no longer show a Search Error."
+  },
+  {
+    "id": "2026-09-novelty-sort",
+    "date": "2026-09-01",
+    "type": "improved",
+    "title": "Most novel images first",
+    "description": "Search results are sorted by machine-learning novelty by default so unusual images surface first. Sort options also have friendlier names.",
+    "apps": ["atlas"]
+  },
+  {
+    "id": "2026-09-scalpss",
+    "date": "2026-09-17",
+    "type": "new",
+    "title": "SCALPSS (Blue Ghost Mission 1)",
+    "description": "Firefly Blue Ghost Mission 1 SCALPSS products have readable names and filename breakdowns."
+  },
+  {
+    "id": "2026-08-record-redesign",
+    "date": "2026-08-27",
+    "type": "new",
+    "title": "Redesigned record pages",
+    "description": "Record pages have a new Overview with an at-a-glance summary, a timeline, file cards, links to instrument documentation and a clickable filename breakdown for many missions."
+  },
+  {
+    "id": "2026-08-layout",
+    "date": "2026-08-25",
+    "type": "improved",
+    "title": "Simpler search layout",
+    "description": "The left icon rail is gone: filters live in a sidebar, the map is a results view you can split alongside the others, and phones get a bottom navigation bar."
+  },
+  {
+    "id": "2026-07-instances",
+    "date": "2026-07-23",
+    "type": "new",
+    "title": "Atlas and Planetary Raws",
+    "description": "Switch between Atlas and Planetary Raws from the navigation menu in the top left."
+  },
+  {
+    "id": "2026-07-performance",
+    "date": "2026-07-08",
+    "type": "fixed",
+    "title": "Snappier Archive Explorer",
+    "description": "The Archive Explorer stays responsive for missions with thousands of volumes, and short result lists no longer leave a spinner running.",
+    "apps": ["atlas"]
+  },
+  {
+    "id": "2026-05-download-cancel",
+    "date": "2026-05-21",
+    "type": "fixed",
+    "title": "Cancelling downloads",
+    "description": "Cancelling a download now stops it immediately.",
+    "apps": ["atlas"]
+  },
+  {
+    "id": "2026-04-ml-filters",
+    "date": "2026-04-06",
+    "type": "new",
+    "title": "Machine-learning filters",
+    "description": "Filter by machine-learning classification and confidence, and pick filters by friendly name in the Add Filter window.",
+    "apps": ["atlas"]
+  },
+  {
+    "id": "2026-03-ae-bundles",
+    "date": "2026-03-19",
+    "type": "new",
+    "title": "Archive Explorer cart support",
+    "description": "Add an entire bundle or volume to your cart from the Archive Explorer, which now also shows deprecated folders.",
+    "apps": ["atlas"]
+  },
+  {
+    "id": "2026-02-downloads",
+    "date": "2026-02-03",
+    "type": "improved",
+    "title": "Easier download choices",
+    "description": "Choosing a download type is clearer, ZIP downloads work in Firefox and download scripts match your operating system.",
+    "apps": ["atlas"]
+  },
+  {
+    "id": "2026-01-apollo",
+    "date": "2026-01-28",
+    "type": "new",
+    "title": "Apollo mission names",
+    "description": "Apollo missions appear with friendly names in filters and the Archive Explorer."
+  },
+  {
+    "id": "2025-11-out-of-beta",
+    "date": "2025-11-17",
+    "type": "improved",
+    "title": "Atlas is out of beta",
+    "description": "Beta labels have been removed from the interface."
+  },
+  {
+    "id": "2025-10-bulk-warning",
+    "date": "2025-10-30",
+    "type": "new",
+    "title": "Bulk download size warning",
+    "description": "Atlas warns you before starting a very large download.",
+    "apps": ["atlas"]
+  },
+  {
+    "id": "2025-10-fixes",
+    "date": "2025-10-29",
+    "type": "fixed",
+    "title": "Table view and page title fixes",
+    "description": "List and Table views show the right columns, headers line up, and browser tab titles follow the page you are on."
+  }
+]

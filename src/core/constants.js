@@ -51,6 +51,7 @@ export const HASH_PATHS = {
 }
 
 export const localStorageCart = 'ATLAS_CART'
+export const localStorageReleaseNotesSeen = 'ATLAS_RELEASE_NOTES_SEEN'
 
 export const ES_PATHS = {
     source: ['uri'],
