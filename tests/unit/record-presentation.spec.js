@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test'
 
 import { resolvePresentation } from '../../src/core/recordPresentation'
 
+import artemis2Crew from '../fixtures/records/artemis2-crew-camera.json'
+import artemis2Orion from '../fixtures/records/artemis2-orion-camera.json'
 import cassini from '../fixtures/records/cassini-iss.json'
 import goNims from '../fixtures/records/go-nims-sparse.json'
 import mars2020Navcam from '../fixtures/records/mars2020-navcam.json'
@@ -75,6 +77,33 @@ test.describe('resolvePresentation', () => {
         expect(atlas.caption.startsWith('Navcam Right')).toBe(false)
         expect(raws.tiles.length).toBe(6)
         expect(raws.tiles.length).toBeLessThan(atlas.tiles.length)
+    })
+
+    test('artemis ii leads with flight day and names the mission', () => {
+        const p = resolvePresentation(artemis2Crew)
+        expect(labels(p).slice(0, 4)).toEqual([
+            'Mission',
+            'Instrument',
+            'Flight Day',
+            'Product type',
+        ])
+        expect(valueOf(p, 'Mission')).toBe('Artemis II')
+        expect(valueOf(p, 'Flight Day')).toBe('6')
+        expect(labels(p)).not.toContain('Spacecraft')
+        expect(p.captionTitle).toBe('nikon_z9, Flight Day 6')
+        expect(p.shortCaption).toBe('nikon_z9, FD 6')
+        expect(p.caption).toBe(
+            'Imaged by nikon_z9 on Artemis II, on flight day 6, at 2026-04-07 00:35:27Z'
+        )
+        expect(p.citation.startsWith('NASA, Artemis II, nikon_z9')).toBe(true)
+    })
+
+    test('artemis ii orion cameras use the same profile', () => {
+        const p = resolvePresentation(artemis2Orion)
+        expect(valueOf(p, 'Instrument')).toBe('saw')
+        expect(valueOf(p, 'Collection')).toBe('data_raw_image')
+        expect(p.description).toContain('Raw product from the saw camera on Artemis II.')
+        expect(p.description).toContain('It was taken on flight day 6')
     })
 
     test('mgs orbiter uses orbit and drops the N/A filter', () => {

@@ -1,0 +1,75 @@
+{
+    "match": {
+        "mission": "artemis2"
+    },
+    "tiles": [
+        "gather.common.mission",
+        "gather.common.instrument",
+        "gather.flyby_missions.flight_day_number",
+        "gather.common.product_type",
+        {
+            "path": "gather.time.start_time",
+            "format": "datetime_short"
+        },
+        "gather.common.target",
+        "gather.pds_archive.bundle_id",
+        "gather.pds_archive.collection_id",
+        {
+            "path": "gather.time.product_creation_time",
+            "format": "datetime_short"
+        },
+        "gather.common.mission_phase_name",
+        "gather.pds_archive.release_id"
+    ],
+    "maxTiles": 9,
+    "priorityTiles": 6,
+    "sections": [
+        "identification",
+        "observation",
+        "content"
+    ],
+    "description": [
+        "{{gather.common.product_type}} product from the {{gather.common.instrument}} camera on {{gather.common.mission}}.",
+        "It was taken on flight day {{gather.flyby_missions.flight_day_number}} at {{gather.time.start_time}}.",
+        "It observes {{gather.common.target}}.",
+        "The product is archived in bundle {{gather.pds_archive.bundle_id}}, collection {{gather.pds_archive.collection_id}}."
+    ],
+    "captionTitle": [
+        "{{gather.common.instrument}}",
+        "Flight Day {{gather.flyby_missions.flight_day_number}}"
+    ],
+    "captionChips": [
+        "Flight Day {{gather.flyby_missions.flight_day_number}}",
+        "{{gather.common.instrument}}",
+        "{{gather.common.product_type}}",
+        "{{gather.common.target}}",
+        "{{gather.time.start_time}}"
+    ],
+    "caption": [
+        "Imaged by {{gather.common.instrument}} on {{gather.common.mission}}",
+        "on flight day {{gather.flyby_missions.flight_day_number}}",
+        "at {{gather.time.start_time}}"
+    ],
+    "separator": ", ",
+    "shortCaption": [
+        "{{gather.common.instrument}}",
+        "FD {{gather.flyby_missions.flight_day_number}}"
+    ],
+    "altText": [
+        "{{gather.common.instrument}} image",
+        "of {{gather.common.target}}",
+        "from {{gather.common.mission}} flight day {{gather.flyby_missions.flight_day_number}}"
+    ],
+    "citationAuthor": [
+        "NASA"
+    ],
+    "citation": [
+        "{{gather.common.mission}}",
+        "{{gather.common.instrument}}",
+        "{{gather.pds_archive.product_id}}",
+        "NASA Planetary Data System",
+        "{{gather.pds_archive.bundle_id}}",
+        "release {{gather.pds_archive.release_id}}"
+    ],
+    "emptyState": "no_browse_generic"
+}
