@@ -223,7 +223,7 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 'bold',
         letterSpacing: '0.5px',
         color: theme.palette.swatches.grey.grey0,
-        background: theme.palette.accent.main,
+        background: theme.palette.swatches.yellow.yellow800,
         borderRadius: '14px',
     },
     releaseVersionIcon: {
@@ -232,7 +232,7 @@ const useStyles = makeStyles((theme) => ({
     releaseDate: {
         fontSize: '16px',
         fontWeight: 'bold',
-        color: theme.palette.swatches.grey.grey700,
+        color: theme.palette.swatches.yellow.yellow800,
     },
     releaseSince: {
         fontSize: '12px',
