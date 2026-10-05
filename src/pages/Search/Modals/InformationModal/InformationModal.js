@@ -14,6 +14,7 @@ import CloseSharpIcon from '@mui/icons-material/CloseSharp'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import CardGiftcardOutlinedIcon from '@mui/icons-material/CardGiftcardOutlined'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
@@ -229,14 +230,19 @@ const useStyles = makeStyles((theme) => ({
         margin: `${theme.spacing(3)} 0px 0px 0px`,
     },
     releaseVersion: {
-        padding: '2px 12px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '2px',
+        padding: '2px 12px 2px 8px',
         fontSize: '16px',
         fontWeight: 'bold',
         letterSpacing: '0.5px',
-        color: theme.palette.swatches.grey.grey700,
-        background: theme.palette.swatches.grey.grey0,
-        border: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        color: theme.palette.swatches.grey.grey0,
+        background: theme.palette.accent.main,
         borderRadius: '14px',
+    },
+    releaseVersionIcon: {
+        fontSize: '16px',
     },
     releaseDate: {
         fontSize: '11px',
@@ -299,7 +305,10 @@ const ReleaseMarker = ({ release, previousVersion, beforeMonth }) => {
             role="separator"
             aria-label={`version ${release.version}`}
         >
-            <span className={c.releaseVersion}>v{release.version}</span>
+            <span className={c.releaseVersion}>
+                <ArrowDownwardIcon className={c.releaseVersionIcon} aria-hidden="true" />v
+                {release.version}
+            </span>
             <span className={c.releaseDate}>
                 {[date, previousVersion && `Changes since v${previousVersion}`]
                     .filter(Boolean)
