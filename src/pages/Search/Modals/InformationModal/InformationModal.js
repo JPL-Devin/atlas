@@ -212,18 +212,31 @@ const useStyles = makeStyles((theme) => ({
     },
     releaseMarker: {
         'display': 'flex',
-        'alignItems': 'center',
-        'gap': theme.spacing(1.5),
-        'margin': `${theme.spacing(1)} 0px`,
-        'fontSize': '11px',
-        'letterSpacing': '1px',
-        'color': theme.palette.swatches.grey.grey400,
-        '&::before, &::after': {
+        'alignItems': 'baseline',
+        'gap': theme.spacing(1),
+        'margin': `${theme.spacing(0.5)} 0px`,
+        '&::after': {
             content: '""',
             flex: 1,
+            alignSelf: 'center',
             height: '1px',
+            marginLeft: theme.spacing(0.5),
             background: theme.palette.swatches.grey.grey200,
         },
+    },
+    releaseMarkerBeforeMonth: {
+        margin: `${theme.spacing(3)} 0px 0px 0px`,
+    },
+    releaseVersion: {
+        fontSize: '14px',
+        fontWeight: 'bold',
+        letterSpacing: '0.5px',
+        color: theme.palette.swatches.grey.grey600,
+    },
+    releaseDate: {
+        fontSize: '11px',
+        letterSpacing: '0.5px',
+        color: theme.palette.swatches.grey.grey400,
     },
     noteCard: {
         padding: '16px 20px',
@@ -270,13 +283,19 @@ const NOTE_TYPE_LABELS = {
     fixed: 'Fixed',
 }
 
-const ReleaseMarker = ({ release }) => {
+const ReleaseMarker = ({ release, beforeMonth }) => {
     const c = useStyles()
     const date = formatReleaseDate(release.date)
     return (
-        <div className={c.releaseMarker} role="separator" aria-label={`version ${release.version}`}>
-            Version {release.version}
-            {date && ` \u00b7 ${date}`}
+        <div
+            className={[c.releaseMarker, beforeMonth && c.releaseMarkerBeforeMonth]
+                .filter(Boolean)
+                .join(' ')}
+            role="separator"
+            aria-label={`version ${release.version}`}
+        >
+            <span className={c.releaseVersion}>v{release.version}</span>
+            {date && <span className={c.releaseDate}>{date}</span>}
         </div>
     )
 }
@@ -286,6 +305,7 @@ ReleaseMarker.propTypes = {
         version: PropTypes.string.isRequired,
         date: PropTypes.string.isRequired,
     }).isRequired,
+    beforeMonth: PropTypes.bool,
 }
 
 const ReleaseNotes = ({ notes }) => {
@@ -299,7 +319,7 @@ const ReleaseNotes = ({ notes }) => {
     return groups.map((group) => (
         <Fragment key={group.key}>
             {group.releasesBefore.map((release) => (
-                <ReleaseMarker key={release.version} release={release} />
+                <ReleaseMarker key={release.version} release={release} beforeMonth />
             ))}
             <section aria-label={group.label}>
                 <Typography className={c.monthHeader} variant="h3">
