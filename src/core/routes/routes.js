@@ -11,7 +11,6 @@ import FileExplorer from '../../pages/FileExplorer/FileExplorer'
 import Cart from '../../pages/Cart/Cart'
 
 import InformationModal from '../../pages/Search/Modals/InformationModal/InformationModal'
-import FeedbackModal from '../../pages/Search/Modals/FeedbackModal/FeedbackModal'
 
 import { getPublicUrl } from '../runtimeConfig'
 import { getAppConfig } from '../appConfig'
@@ -51,7 +50,6 @@ export const AppRoutes = () => {
                 </div>
             </Router>
             <InformationModal />
-            <FeedbackModal />
             <SnackBar />
         </div>
     )

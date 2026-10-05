@@ -28,26 +28,19 @@ test.describe('Search - Modals', () => {
         await expect(dialog).toBeHidden()
     })
 
-    test('Information modal exposes a "give feedback" link that opens Feedback modal', async ({
-        page,
-    }) => {
+    test('Information modal exposes a "give feedback" mailto link', async ({ page }) => {
         await navigateToSearch(page)
 
         await page.getByRole('button', { name: 'info button' }).click()
         const infoDialog = page.getByRole('dialog')
         await expect(infoDialog).toBeVisible()
 
-        // The "give feedback" affordance is an <a> without an href, so
-        // it doesn't expose the implicit `link` role. Match by
-        // aria-label directly.
-        const feedback = infoDialog.getByLabel('give feedback')
+        const feedback = infoDialog.getByRole('link', { name: 'give feedback' })
         await expect(feedback).toBeVisible()
-
-        await feedback.click()
-        // Feedback modal renders its own dialog; assert that some dialog is
-        // still visible after the click (could be either, depending on
-        // implementation).
-        await expect(page.getByRole('dialog')).toBeVisible()
+        await expect(feedback).toHaveAttribute(
+            'href',
+            'mailto:pds.img.help@jpl.nasa.gov?subject=PDS%20Imaging%20Node%20%E2%80%94%20Atlas%20Feedback'
+        )
 
         await page.keyboard.press('Escape')
     })

@@ -169,13 +169,13 @@ is a results view. Don't select on those labels.
 
 ### Modals (Redux `modal` slice)
 
-All 9 modals live in `src/pages/Search/Modals/*` (with cart-specific
+All 8 modals live in `src/pages/Search/Modals/*` (with cart-specific
 ones in `src/pages/Cart/Modals/*`). They're opened via
 `dispatch(setModal(<key>))` and rendered conditionally based on the
 `modal` slice. Closing typically dispatches `setModal(null)`.
 
 Modal keys: `information`, `addFilter`, `editColumns`, `advancedFilter`,
-`advancedFilterReturn`, `feedback`, `removeFromCart`, `regex` (in FileX),
+`advancedFilterReturn`, `removeFromCart`, `regex` (in FileX),
 `emptyCart` (cart). All except `regex` originate in the search/cart UIs.
 
 ### URL state quirks
