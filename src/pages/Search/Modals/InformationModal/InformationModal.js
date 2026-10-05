@@ -24,6 +24,7 @@ import { getPublicUrl } from '../../../../core/runtimeConfig'
 import { getAppConfig } from '../../../../core/appConfig'
 import {
     getAppVersion,
+    getAppVersionDate,
     groupReleaseNotesByMonth,
     useReleaseNotes,
 } from '../../../../core/releaseNotes'
@@ -437,6 +438,9 @@ const InformationModal = () => {
                             <Typography>
                                 Clearance Number: {import.meta.env.REACT_APP_CLEARANCE_NUMBER}
                             </Typography>
+                            {getAppVersionDate() && (
+                                <Typography>Last Updated: {getAppVersionDate()}</Typography>
+                            )}
                         </div>
                     </div>
                 </DialogContent>

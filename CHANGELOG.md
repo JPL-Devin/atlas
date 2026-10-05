@@ -18,8 +18,8 @@ All notable changes to Atlas are recorded here, newest first and grouped by mont
 - The app version now comes from `package.json` and is bumped automatically on every
   pull request into `main` or `develop-raws` (`MAJOR.MINOR.PATCH-YYYYMMDD`, as in MMGIS),
   replacing the hand-maintained `REACT_APP_VERSION`. Versioning starts at `4.2.0`.
-  `REACT_APP_LAST_UPDATED` and the About modal's "Last Updated" line are removed, since
-  the version carries the date.
+  `REACT_APP_LAST_UPDATED` is removed; the About modal's "Last Updated" line is now read
+  from the version's date suffix.
 - Artemis II record detail profile: Overview title, description and at-a-glance layout
   tailored to Artemis II products ([JPL-Devin/atlas#62](https://github.com/JPL-Devin/atlas/pull/62)).
 

@@ -77,6 +77,30 @@ export const isNewerVersion = (version, seenVersion) =>
 
 export const getAppVersion = () => buildEnv.APP_VERSION
 
+/**
+ * Formats the `-YYYYMMDD` suffix of a version (e.g. `4.2.0-20261005` -> `October 5, 2026`).
+ * @return {string|null} null when the version has no valid date suffix
+ */
+export const formatVersionDate = (version) => {
+    const match = String(version ?? '').match(/-(\d{4})(\d{2})(\d{2})$/)
+    if (!match) {
+        return null
+    }
+    const [year, month, day] = match.slice(1).map(Number)
+    const date = new Date(Date.UTC(year, month - 1, day))
+    if (date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+        return null
+    }
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: 'UTC',
+    })
+}
+
+export const getAppVersionDate = () => formatVersionDate(getAppVersion())
+
 export const getReleaseNotesSeenVersion = () => {
     if (typeof window === 'undefined' || !window.localStorage) {
         return null
