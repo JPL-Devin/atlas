@@ -25,6 +25,7 @@ import { getAppConfig } from '../../../../core/appConfig'
 import {
     formatReleaseDate,
     getAppVersion,
+    getReleases,
     getAppVersionDate,
     groupReleaseNotesByMonth,
     placeReleaseMarkers,
@@ -212,8 +213,8 @@ const useStyles = makeStyles((theme) => ({
     },
     releaseMarker: {
         'display': 'flex',
-        'alignItems': 'baseline',
-        'gap': theme.spacing(1),
+        'alignItems': 'center',
+        'gap': theme.spacing(1.5),
         'margin': `${theme.spacing(0.5)} 0px`,
         '&::after': {
             content: '""',
@@ -228,10 +229,14 @@ const useStyles = makeStyles((theme) => ({
         margin: `${theme.spacing(3)} 0px 0px 0px`,
     },
     releaseVersion: {
-        fontSize: '14px',
+        padding: '2px 12px',
+        fontSize: '16px',
         fontWeight: 'bold',
         letterSpacing: '0.5px',
-        color: theme.palette.swatches.grey.grey600,
+        color: theme.palette.swatches.grey.grey700,
+        background: theme.palette.swatches.grey.grey0,
+        border: `1px solid ${theme.palette.swatches.grey.grey200}`,
+        borderRadius: '14px',
     },
     releaseDate: {
         fontSize: '11px',
@@ -283,7 +288,7 @@ const NOTE_TYPE_LABELS = {
     fixed: 'Fixed',
 }
 
-const ReleaseMarker = ({ release, beforeMonth }) => {
+const ReleaseMarker = ({ release, previousVersion, beforeMonth }) => {
     const c = useStyles()
     const date = formatReleaseDate(release.date)
     return (
@@ -295,7 +300,11 @@ const ReleaseMarker = ({ release, beforeMonth }) => {
             aria-label={`version ${release.version}`}
         >
             <span className={c.releaseVersion}>v{release.version}</span>
-            {date && <span className={c.releaseDate}>{date}</span>}
+            <span className={c.releaseDate}>
+                {[date, previousVersion && `Changes since v${previousVersion}`]
+                    .filter(Boolean)
+                    .join(' \u00b7 ')}
+            </span>
         </div>
     )
 }
@@ -305,12 +314,15 @@ ReleaseMarker.propTypes = {
         version: PropTypes.string.isRequired,
         date: PropTypes.string.isRequired,
     }).isRequired,
+    previousVersion: PropTypes.string,
     beforeMonth: PropTypes.bool,
 }
 
 const ReleaseNotes = ({ notes }) => {
     const c = useStyles()
-    const groups = placeReleaseMarkers(groupReleaseNotesByMonth(notes))
+    const releases = getReleases()
+    const groups = placeReleaseMarkers(groupReleaseNotesByMonth(notes), releases)
+    const previousVersion = (release) => releases[releases.indexOf(release) + 1]?.version
 
     if (groups.length === 0) {
         return <Typography className={c.notesEmpty}>No release notes yet.</Typography>
@@ -319,7 +331,12 @@ const ReleaseNotes = ({ notes }) => {
     return groups.map((group) => (
         <Fragment key={group.key}>
             {group.releasesBefore.map((release) => (
-                <ReleaseMarker key={release.version} release={release} beforeMonth />
+                <ReleaseMarker
+                    key={release.version}
+                    release={release}
+                    previousVersion={previousVersion(release)}
+                    beforeMonth
+                />
             ))}
             <section aria-label={group.label}>
                 <Typography className={c.monthHeader} variant="h3">
@@ -328,7 +345,11 @@ const ReleaseNotes = ({ notes }) => {
                 <div className={c.monthCards}>
                     {group.items.map(({ note, release }) =>
                         release ? (
-                            <ReleaseMarker key={release.version} release={release} />
+                            <ReleaseMarker
+                                key={release.version}
+                                release={release}
+                                previousVersion={previousVersion(release)}
+                            />
                         ) : (
                             <article key={note.id} className={c.noteCard}>
                                 <Typography className={c.noteType}>
