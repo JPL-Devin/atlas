@@ -199,7 +199,7 @@ const useStyles = makeStyles((theme) => ({
     },
     infoBadge: {
         '& .MuiBadge-badge': {
-            background: theme.palette.swatches.green.green500,
+            background: theme.palette.accent.main,
             border: `1px solid ${theme.palette.swatches.grey.grey100}`,
             width: 10,
             height: 10,
