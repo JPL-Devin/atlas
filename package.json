@@ -1,6 +1,6 @@
 {
   "name": "atlas",
-  "version": "1.0.0",
+  "version": "1.0.1-20261005",
   "private": true,
   "homepage": "/",
   "packageManager": "npm@10.9.4",
