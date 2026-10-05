@@ -68,7 +68,7 @@ export const palette = {
             yellow500: '#f2d897',
             yellow600: '#e3c51c',
             yellow700: '#FBC02D',
-            yellow800: 'darkgoldenrod',
+            yellow800: '#8B6508',
         },
         orange: {
             orange500: '#EA6F24',

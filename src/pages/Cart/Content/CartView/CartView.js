@@ -166,7 +166,7 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         textAlign: 'center',
         fontWeight: 'bold',
-        color: 'darkgoldenrod',
+        color: theme.palette.swatches.yellow.yellow800,
     },
     info: {
         color: theme.palette.text.secondary,

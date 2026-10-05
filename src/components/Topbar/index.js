@@ -118,7 +118,7 @@ const useStyles = makeStyles((theme) => ({
             textDecoration: 'none !important',
             fontWeight: 'bold',
             marginRight: '3px',
-            color: 'darkgoldenrod !important',
+            color: `${theme.palette.swatches.yellow.yellow800} !important`,
         },
         '& > div > a:last-child': {
             textDecoration: 'none !important',
@@ -148,7 +148,7 @@ const useStyles = makeStyles((theme) => ({
         lineHeight: '22px',
     },
     appPage: {
-        color: 'darkgoldenrod',
+        color: theme.palette.swatches.yellow.yellow800,
         fontSize: 14,
         letterSpacing: '1px',
         margin: 0,
