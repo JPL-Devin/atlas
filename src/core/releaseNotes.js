@@ -57,8 +57,8 @@ export const getReleases = (list = releases) =>
     [...list].sort((a, b) => b.date.localeCompare(a.date))
 
 /**
- * Places each release marker above the newest note dated on or before it. A release from a
- * later month than a group goes above that group's header.
+ * Places each release marker above the newest note dated on or before it. A release that covers
+ * every note in a month goes above that month's header.
  * @param {{ key: string, label: string, notes: Object[] }[]} groups - from groupReleaseNotesByMonth
  * @param {{ version: string, date: string }[]} releaseList - newest first
  * @return {{ key: string, label: string, releasesBefore: Object[], items: ({ note: Object }|{ release: Object })[] }[]}
@@ -67,7 +67,7 @@ export const placeReleaseMarkers = (groups, releaseList = getReleases()) => {
     const pending = [...releaseList]
     const placed = groups.map((group) => {
         const releasesBefore = []
-        while (pending.length > 0 && pending[0].date.slice(0, 7) > group.key) {
+        while (pending.length > 0 && pending[0].date >= group.notes[0].date) {
             releasesBefore.push(pending.shift())
         }
         const items = []
