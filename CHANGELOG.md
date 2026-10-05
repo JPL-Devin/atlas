@@ -12,7 +12,7 @@ All notable changes to Atlas are recorded here, newest first and grouped by mont
 ## 2026-10
 
 ### Added
-- Release Notes view in the About modal, grouped by month, with a green badge on the
+- Release Notes view in the About modal, grouped by month, with a blue badge on the
   Topbar info button when the app version is newer than the one the user last viewed
   release notes on.
 - Artemis II record detail profile: Overview title, description and at-a-glance layout
