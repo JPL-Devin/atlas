@@ -75,7 +75,7 @@ export const compareVersions = (a, b) => {
 export const isNewerVersion = (version, seenVersion) =>
     Boolean(version) && (seenVersion == null || compareVersions(version, seenVersion) > 0)
 
-export const getAppVersion = () => buildEnv.REACT_APP_VERSION
+export const getAppVersion = () => buildEnv.APP_VERSION
 
 export const getReleaseNotesSeenVersion = () => {
     if (typeof window === 'undefined' || !window.localStorage) {

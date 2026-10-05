@@ -37,6 +37,8 @@ test.describe('release notes', () => {
         expect(compareVersions('v1.10.0', 'v1.9.2')).toBeGreaterThan(0)
         expect(compareVersions('1.0', 'v1.0.0')).toBe(0)
         expect(compareVersions('v1.0.0', 'v1.0.1')).toBeLessThan(0)
+        expect(compareVersions('1.0.2-20261005', '1.0.1-20261001')).toBeGreaterThan(0)
+        expect(compareVersions('1.0.1-20261001', 'v1.0.0')).toBeGreaterThan(0)
     })
 
     test('a newer app version than the last viewed one is an update', () => {

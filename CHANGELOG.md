@@ -15,6 +15,9 @@ All notable changes to Atlas are recorded here, newest first and grouped by mont
 - Release Notes view in the About modal, grouped by month, with a blue badge on the
   Topbar info button when the app version is newer than the one the user last viewed
   release notes on.
+- The app version now comes from `package.json` and is bumped automatically on every
+  pull request into `main` or `develop-raws` (`MAJOR.MINOR.PATCH-YYYYMMDD`, as in MMGIS),
+  replacing the hand-maintained `REACT_APP_VERSION`.
 - Artemis II record detail profile: Overview title, description and at-a-glance layout
   tailored to Artemis II products ([JPL-Devin/atlas#62](https://github.com/JPL-Devin/atlas/pull/62)).
 

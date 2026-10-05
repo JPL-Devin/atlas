@@ -22,7 +22,11 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import NASALogoPath from '../../../../media/images/nasa-logo.svg'
 import { getPublicUrl } from '../../../../core/runtimeConfig'
 import { getAppConfig } from '../../../../core/appConfig'
-import { groupReleaseNotesByMonth, useReleaseNotes } from '../../../../core/releaseNotes'
+import {
+    getAppVersion,
+    groupReleaseNotesByMonth,
+    useReleaseNotes,
+} from '../../../../core/releaseNotes'
 
 // Construct runtime-aware logo URL
 const getNASALogoUrl = () => {
@@ -429,9 +433,7 @@ const InformationModal = () => {
                             </Typography>
                         </div>
                         <div className={c.metadata}>
-                            <Typography>
-                                Version Number: {import.meta.env.REACT_APP_VERSION}
-                            </Typography>
+                            <Typography>Version Number: {getAppVersion()}</Typography>
                             <Typography>
                                 Clearance Number: {import.meta.env.REACT_APP_CLEARANCE_NUMBER}
                             </Typography>
