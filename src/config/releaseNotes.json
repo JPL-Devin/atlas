@@ -1,12 +1,5 @@
 [
   {
-    "id": "2026-10-release-notes",
-    "date": "2026-10-01",
-    "type": "new",
-    "title": "Release Notes",
-    "description": "See what has changed right here in the About window. A blue dot on the info button lets you know when there is something new."
-  },
-  {
     "id": "2026-09-quick-links",
     "date": "2026-09-28",
     "type": "new",
@@ -31,8 +24,8 @@
     "id": "2026-09-ae-icons-media",
     "date": "2026-09-30",
     "type": "improved",
-    "title": "Archive Explorer icons and playback",
-    "description": "Archive Explorer shows an icon for each file type, and audio and video files play right in the Preview panel.",
+    "title": "File previews in Archive Explorer",
+    "description": "The same file-type icons appear in the Archive Explorer, and its Preview panel plays audio and video.",
     "apps": ["atlas"]
   },
   {
@@ -41,14 +34,6 @@
     "type": "new",
     "title": "Open in Archive Explorer",
     "description": "Jump from a search result, record or cart item straight to its location in the Archive Explorer.",
-    "apps": ["atlas"]
-  },
-  {
-    "id": "2026-09-cart-bundles",
-    "date": "2026-09-29",
-    "type": "fixed",
-    "title": "Adding bundles from Preview",
-    "description": "The Archive Explorer Preview panel's Add to cart button now works for whole bundles and volumes.",
     "apps": ["atlas"]
   },
   {
@@ -81,13 +66,6 @@
     "apps": ["atlas"]
   },
   {
-    "id": "2026-09-scalpss",
-    "date": "2026-09-17",
-    "type": "new",
-    "title": "SCALPSS (Blue Ghost Mission 1)",
-    "description": "Firefly Blue Ghost Mission 1 SCALPSS products have readable names and filename breakdowns."
-  },
-  {
     "id": "2026-08-record-redesign",
     "date": "2026-08-27",
     "type": "new",
@@ -99,7 +77,7 @@
     "date": "2026-08-27",
     "type": "new",
     "title": "Filename breakdowns",
-    "description": "Record pages explain each part of a product's filename for MSL, MER, InSight, Phoenix, Pathfinder, MRO, MESSENGER, MGS MOC, Cassini ISS, Odyssey THEMIS, Clementine, M3, JunoCam, LCROSS, Galileo SSI, LRO LAMP and Lunar Orbiter."
+    "description": "Record pages explain each part of a product's filename for 18 missions, including MSL, Cassini, LRO and Firefly Blue Ghost SCALPSS."
   },
   {
     "id": "2026-08-layout",
@@ -137,7 +115,7 @@
     "date": "2026-03-19",
     "type": "new",
     "title": "Add whole bundles to your cart",
-    "description": "Add an entire bundle or volume to your cart from the Archive Explorer in one click.",
+    "description": "Add an entire bundle or volume to your cart from the Archive Explorer, from its row or the Preview panel.",
     "apps": ["atlas"]
   },
   {
