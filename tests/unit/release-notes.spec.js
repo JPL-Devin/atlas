@@ -1,11 +1,14 @@
 import { test, expect } from '@playwright/test'
 
 import releaseNotes from '../../src/config/releaseNotes.json'
+import releases from '../../src/config/releases.json'
 import {
     getReleaseNotes,
     groupReleaseNotesByMonth,
     compareVersions,
     formatVersionDate,
+    formatReleaseDate,
+    placeReleaseMarkers,
     isNewerVersion,
 } from '../../src/core/releaseNotes'
 
@@ -40,6 +43,34 @@ test.describe('release notes', () => {
         expect(compareVersions('v1.0.0', 'v1.0.1')).toBeLessThan(0)
         expect(compareVersions('1.0.2-20261005', '1.0.1-20261001')).toBeGreaterThan(0)
         expect(compareVersions('1.0.1-20261001', 'v1.0.0')).toBeGreaterThan(0)
+    })
+
+    test('places release markers above the newest note on or before their date', () => {
+        const groups = groupReleaseNotesByMonth(getReleaseNotes(notes, { app: 'atlas' }))
+        const placed = placeReleaseMarkers(groups, [
+            { version: '4.3', date: '2026-10-05' },
+            { version: '4.2', date: '2026-09-10' },
+            { version: '4.1', date: '2026-08-15' },
+            { version: '4.0', date: '2025-01-01' },
+        ])
+        const layout = placed.map((g) => [
+            g.key,
+            g.releasesBefore.map((r) => r.version),
+            g.items.map((item) => (item.release ? item.release.version : item.note.id)),
+        ])
+        expect(layout).toEqual([
+            ['2026-09', ['4.3'], ['4.2', 'b', 'c']],
+            ['2026-08', [], ['4.1', 'a']],
+            ['2025-09', [], ['d', '4.0']],
+        ])
+        expect(formatReleaseDate('2026-10-05')).toBe('October 5, 2026')
+    })
+
+    test('shipped releases are well formed', () => {
+        releases.forEach((release) => {
+            expect(release.version).toMatch(/^\d+\.\d+$/)
+            expect(release.date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+        })
     })
 
     test('formats the date suffix of a version', () => {

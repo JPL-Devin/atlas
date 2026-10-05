@@ -8,13 +8,15 @@ All notable changes to Atlas are recorded here, newest first and grouped by mont
 - Routine Dependabot bumps are summarized per month rather than listed individually.
 - The user-facing summary shown in the app's **About → Release Notes** view lives in
   `src/config/releaseNotes.json`; add an entry there for any change users should notice.
+  When the minor version goes up, add `{ version, date }` to `src/config/releases.json` to
+  draw a release line in that view.
 
 ## 2026-10
 
 ### Added
 - Release Notes view in the About modal, grouped by month, with a blue badge on the
   Topbar info button when the app version is newer than the one the user last viewed
-  release notes on.
+  release notes on. Faint lines mark minor-version releases (`src/config/releases.json`).
 - The app version now comes from `package.json` and is bumped automatically on every
   pull request into `main` or `develop-raws` (`MAJOR.MINOR.PATCH-YYYYMMDD`, as in MMGIS),
   replacing the hand-maintained `REACT_APP_VERSION`. Versioning starts at `4.2.0`.

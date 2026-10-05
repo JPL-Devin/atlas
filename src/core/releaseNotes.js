@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import releaseNotes from '../config/releaseNotes.json'
+import releases from '../config/releases.json'
 import { getAppInstanceKey } from './appConfig'
 import { localStorageReleaseNotesSeen } from './constants'
 import { buildEnv } from './runtimeConfig'
@@ -48,6 +49,64 @@ export const groupReleaseNotesByMonth = (notes) => {
     return groups
 }
 
+/**
+ * Minor-version releases, newest first.
+ * @return {{ version: string, date: string }[]}
+ */
+export const getReleases = (list = releases) =>
+    [...list].sort((a, b) => b.date.localeCompare(a.date))
+
+/**
+ * Places each release marker above the newest note dated on or before it. A release from a
+ * later month than a group goes above that group's header.
+ * @param {{ key: string, label: string, notes: Object[] }[]} groups - from groupReleaseNotesByMonth
+ * @param {{ version: string, date: string }[]} releaseList - newest first
+ * @return {{ key: string, label: string, releasesBefore: Object[], items: ({ note: Object }|{ release: Object })[] }[]}
+ */
+export const placeReleaseMarkers = (groups, releaseList = getReleases()) => {
+    const pending = [...releaseList]
+    const placed = groups.map((group) => {
+        const releasesBefore = []
+        while (pending.length > 0 && pending[0].date.slice(0, 7) > group.key) {
+            releasesBefore.push(pending.shift())
+        }
+        const items = []
+        group.notes.forEach((note) => {
+            while (pending.length > 0 && pending[0].date >= note.date) {
+                items.push({ release: pending.shift() })
+            }
+            items.push({ note })
+        })
+        return { ...group, releasesBefore, items }
+    })
+    if (placed.length > 0) {
+        placed[placed.length - 1].items.push(...pending.map((release) => ({ release })))
+    }
+    return placed
+}
+
+const formatUtcDate = (year, month, day) => {
+    const date = new Date(Date.UTC(year, month - 1, day))
+    if (date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+        return null
+    }
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: 'UTC',
+    })
+}
+
+/**
+ * @param {string} date - `YYYY-MM-DD`
+ * @return {string|null} e.g. `October 5, 2026`
+ */
+export const formatReleaseDate = (date) => {
+    const match = String(date ?? '').match(/^(\d{4})-(\d{2})-(\d{2})$/)
+    return match ? formatUtcDate(...match.slice(1).map(Number)) : null
+}
+
 const parseVersion = (version) => (String(version).match(/\d+/g) || []).map(Number)
 
 /**
@@ -86,17 +145,7 @@ export const formatVersionDate = (version) => {
     if (!match) {
         return null
     }
-    const [year, month, day] = match.slice(1).map(Number)
-    const date = new Date(Date.UTC(year, month - 1, day))
-    if (date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
-        return null
-    }
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        timeZone: 'UTC',
-    })
+    return formatUtcDate(...match.slice(1).map(Number))
 }
 
 export const getAppVersionDate = () => formatVersionDate(getAppVersion())

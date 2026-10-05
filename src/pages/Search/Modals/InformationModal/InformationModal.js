@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -23,9 +23,11 @@ import NASALogoPath from '../../../../media/images/nasa-logo.svg'
 import { getPublicUrl } from '../../../../core/runtimeConfig'
 import { getAppConfig } from '../../../../core/appConfig'
 import {
+    formatReleaseDate,
     getAppVersion,
     getAppVersionDate,
     groupReleaseNotesByMonth,
+    placeReleaseMarkers,
     useReleaseNotes,
 } from '../../../../core/releaseNotes'
 
@@ -208,6 +210,21 @@ const useStyles = makeStyles((theme) => ({
         flexFlow: 'column',
         gap: theme.spacing(1.5),
     },
+    releaseMarker: {
+        'display': 'flex',
+        'alignItems': 'center',
+        'gap': theme.spacing(1.5),
+        'margin': `${theme.spacing(1)} 0px`,
+        'fontSize': '11px',
+        'letterSpacing': '1px',
+        'color': theme.palette.swatches.grey.grey400,
+        '&::before, &::after': {
+            content: '""',
+            flex: 1,
+            height: '1px',
+            background: theme.palette.swatches.grey.grey200,
+        },
+    },
     noteCard: {
         padding: '16px 20px',
         background: theme.palette.swatches.grey.grey0,
@@ -253,33 +270,62 @@ const NOTE_TYPE_LABELS = {
     fixed: 'Fixed',
 }
 
+const ReleaseMarker = ({ release }) => {
+    const c = useStyles()
+    const date = formatReleaseDate(release.date)
+    return (
+        <div className={c.releaseMarker} role="separator" aria-label={`version ${release.version}`}>
+            Version {release.version}
+            {date && ` \u00b7 ${date}`}
+        </div>
+    )
+}
+
+ReleaseMarker.propTypes = {
+    release: PropTypes.shape({
+        version: PropTypes.string.isRequired,
+        date: PropTypes.string.isRequired,
+    }).isRequired,
+}
+
 const ReleaseNotes = ({ notes }) => {
     const c = useStyles()
-    const groups = groupReleaseNotesByMonth(notes)
+    const groups = placeReleaseMarkers(groupReleaseNotesByMonth(notes))
 
     if (groups.length === 0) {
         return <Typography className={c.notesEmpty}>No release notes yet.</Typography>
     }
 
     return groups.map((group) => (
-        <section key={group.key} aria-label={group.label}>
-            <Typography className={c.monthHeader} variant="h3">
-                {group.label}
-            </Typography>
-            <div className={c.monthCards}>
-                {group.notes.map((note) => (
-                    <article key={note.id} className={c.noteCard}>
-                        <Typography className={c.noteType}>
-                            {NOTE_TYPE_LABELS[note.type] || NOTE_TYPE_LABELS.new}
-                        </Typography>
-                        <Typography className={c.noteTitle} variant="h4">
-                            {note.title}
-                        </Typography>
-                        <Typography className={c.noteDescription}>{note.description}</Typography>
-                    </article>
-                ))}
-            </div>
-        </section>
+        <Fragment key={group.key}>
+            {group.releasesBefore.map((release) => (
+                <ReleaseMarker key={release.version} release={release} />
+            ))}
+            <section aria-label={group.label}>
+                <Typography className={c.monthHeader} variant="h3">
+                    {group.label}
+                </Typography>
+                <div className={c.monthCards}>
+                    {group.items.map(({ note, release }) =>
+                        release ? (
+                            <ReleaseMarker key={release.version} release={release} />
+                        ) : (
+                            <article key={note.id} className={c.noteCard}>
+                                <Typography className={c.noteType}>
+                                    {NOTE_TYPE_LABELS[note.type] || NOTE_TYPE_LABELS.new}
+                                </Typography>
+                                <Typography className={c.noteTitle} variant="h4">
+                                    {note.title}
+                                </Typography>
+                                <Typography className={c.noteDescription}>
+                                    {note.description}
+                                </Typography>
+                            </article>
+                        )
+                    )}
+                </div>
+            </section>
+        </Fragment>
     ))
 }
 
