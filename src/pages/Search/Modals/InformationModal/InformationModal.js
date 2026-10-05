@@ -309,10 +309,6 @@ const InformationModal = () => {
         dispatch(setModal(false))
     }
 
-    const openFeedback = () => {
-        dispatch(setModal('feedback'))
-    }
-
     return (
         <Dialog
             className={c.InformationModal}
@@ -420,25 +416,15 @@ const InformationModal = () => {
                         <div className={c.message}>
                             <Typography>
                                 If you have questions, want to share feedback, or need support,{' '}
-                                {getAppConfig().aboutContactUrl ? (
-                                    <a
-                                        className={c.aLink}
-                                        aria-label="contact us"
-                                        href={getAppConfig().aboutContactUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        please contact us
-                                    </a>
-                                ) : (
-                                    <a
-                                        className={c.aLink}
-                                        aria-label="give feedback"
-                                        onClick={openFeedback}
-                                    >
-                                        please send us a message
-                                    </a>
-                                )}
+                                <a
+                                    className={c.aLink}
+                                    aria-label="give feedback"
+                                    href={`mailto:${getAppConfig().feedbackEmail}?subject=${encodeURIComponent(
+                                        `PDS Imaging Node \u2014 ${getAppConfig().appTitle} Feedback`
+                                    )}`}
+                                >
+                                    please send us a message
+                                </a>
                                 .
                             </Typography>
                         </div>

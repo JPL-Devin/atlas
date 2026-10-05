@@ -73,7 +73,7 @@ export const ES_PATHS = {
         'confidence',
     ],
     supplemental: ['gather', 'pds_archive', 'related', 'supplemental'],
-    groups_related: ['groups', 'gather', 'groups', 'pds_archive', 'groups', 'related', 'groups'],
+    groups_related: ['groups', 'pds_archive', 'groups', 'related', 'groups'],
     browse: ['gather', 'pds_archive', 'related', 'browse', 'uri'],
     thumb: ['gather', 'pds_archive', 'related', 'browse', 'uri'],
     label: ['gather', 'pds_archive', 'related', 'label', 'uri'],
