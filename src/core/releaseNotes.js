@@ -25,31 +25,6 @@ export const getReleaseNotes = (notes = releaseNotes, { app = getAppInstanceKey(
         .map(({ note }) => note)
 
 /**
- * Groups date-sorted notes into consecutive months.
- * @param {Object[]} notes
- * @return {{ key: string, label: string, notes: Object[] }[]}
- */
-export const groupReleaseNotesByMonth = (notes) => {
-    const groups = []
-    notes.forEach((note) => {
-        const key = note.date.slice(0, 7)
-        let group = groups[groups.length - 1]
-        if (group == null || group.key !== key) {
-            const [year, month] = key.split('-').map(Number)
-            const label = new Date(Date.UTC(year, month - 1, 1)).toLocaleString('en-US', {
-                month: 'long',
-                year: 'numeric',
-                timeZone: 'UTC',
-            })
-            group = { key, label, notes: [] }
-            groups.push(group)
-        }
-        group.notes.push(note)
-    })
-    return groups
-}
-
-/**
  * Minor-version releases, newest first.
  * @return {{ version: string, date: string }[]}
  */
@@ -57,32 +32,23 @@ export const getReleases = (list = releases) =>
     [...list].sort((a, b) => b.date.localeCompare(a.date))
 
 /**
- * Places each release marker above the newest note dated on or before it. A release that covers
- * every note in a month goes above that month's header.
- * @param {{ key: string, label: string, notes: Object[] }[]} groups - from groupReleaseNotesByMonth
+ * Groups notes by the minor release that shipped them: each note belongs to the oldest release
+ * dated on or after it. Notes newer than every release come first, with a null `release`.
+ * @param {Object[]} notes - newest first
  * @param {{ version: string, date: string }[]} releaseList - newest first
- * @return {{ key: string, label: string, releasesBefore: Object[], items: ({ note: Object }|{ release: Object })[] }[]}
+ * @return {{ release: Object|null, previous: Object|null, notes: Object[] }[]} empty groups omitted
  */
-export const placeReleaseMarkers = (groups, releaseList = getReleases()) => {
-    const pending = [...releaseList]
-    const placed = groups.map((group) => {
-        const releasesBefore = []
-        while (pending.length > 0 && pending[0].date >= group.notes[0].date) {
-            releasesBefore.push(pending.shift())
-        }
-        const items = []
-        group.notes.forEach((note) => {
-            while (pending.length > 0 && pending[0].date >= note.date) {
-                items.push({ release: pending.shift() })
-            }
-            items.push({ note })
-        })
-        return { ...group, releasesBefore, items }
+export const groupReleaseNotesByRelease = (notes, releaseList = getReleases()) => {
+    const groups = [null, ...releaseList].map((release, i) => ({
+        release,
+        previous: releaseList[i] ?? null,
+        notes: [],
+    }))
+    notes.forEach((note) => {
+        const index = releaseList.filter((release) => release.date >= note.date).length
+        groups[index].notes.push(note)
     })
-    if (placed.length > 0) {
-        placed[placed.length - 1].items.push(...pending.map((release) => ({ release })))
-    }
-    return placed
+    return groups.filter((group) => group.notes.length > 0)
 }
 
 const formatUtcDate = (year, month, day) => {
@@ -102,7 +68,7 @@ const formatUtcDate = (year, month, day) => {
  * @param {string} date - `YYYY-MM-DD`
  * @return {string|null} e.g. `October 5, 2026`
  */
-export const formatReleaseDate = (date) => {
+export const formatDate = (date) => {
     const match = String(date ?? '').match(/^(\d{4})-(\d{2})-(\d{2})$/)
     return match ? formatUtcDate(...match.slice(1).map(Number)) : null
 }

@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -24,12 +24,10 @@ import NASALogoPath from '../../../../media/images/nasa-logo.svg'
 import { getPublicUrl } from '../../../../core/runtimeConfig'
 import { getAppConfig } from '../../../../core/appConfig'
 import {
-    formatReleaseDate,
+    formatDate,
     getAppVersion,
-    getReleases,
     getAppVersionDate,
-    groupReleaseNotesByMonth,
-    placeReleaseMarkers,
+    groupReleaseNotesByRelease,
     useReleaseNotes,
 } from '../../../../core/releaseNotes'
 
@@ -195,39 +193,26 @@ const useStyles = makeStyles((theme) => ({
             padding: '8px 12px 24px 12px',
         },
     },
-    monthHeader: {
-        margin: `${theme.spacing(3)} 0px ${theme.spacing(1.5)} 0px`,
-        fontSize: '14px',
-        fontWeight: 'bold',
-        letterSpacing: '1px',
-        textTransform: 'uppercase',
-        color: theme.palette.swatches.yellow.yellow800,
-    },
     notesColumn: {
         maxWidth: '720px',
         margin: '0px auto',
     },
-    monthCards: {
-        display: 'flex',
-        flexFlow: 'column',
-        gap: theme.spacing(1.5),
-    },
-    releaseMarker: {
+    releaseHeader: {
         'display': 'flex',
         'alignItems': 'center',
         'gap': theme.spacing(1.5),
-        'margin': `${theme.spacing(0.5)} 0px`,
+        'margin': `${theme.spacing(3.5)} 0px ${theme.spacing(1.5)} 0px`,
         '&::after': {
             content: '""',
             flex: 1,
-            alignSelf: 'center',
             height: '1px',
-            marginLeft: theme.spacing(0.5),
             background: theme.palette.swatches.grey.grey200,
         },
     },
-    releaseMarkerBeforeMonth: {
-        margin: `${theme.spacing(3)} 0px 0px 0px`,
+    releaseCards: {
+        display: 'flex',
+        flexFlow: 'column',
+        gap: theme.spacing(1.5),
     },
     releaseVersion: {
         display: 'inline-flex',
@@ -245,6 +230,23 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '16px',
     },
     releaseDate: {
+        fontSize: '16px',
+        fontWeight: 'bold',
+        color: theme.palette.swatches.grey.grey700,
+    },
+    releaseSince: {
+        fontSize: '12px',
+        letterSpacing: '0.5px',
+        color: theme.palette.swatches.grey.grey400,
+    },
+    noteMeta: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'baseline',
+        gap: theme.spacing(2),
+        marginBottom: theme.spacing(0.5),
+    },
+    noteDate: {
         fontSize: '11px',
         letterSpacing: '0.5px',
         color: theme.palette.swatches.grey.grey400,
@@ -256,7 +258,6 @@ const useStyles = makeStyles((theme) => ({
         borderRadius: '4px',
     },
     noteType: {
-        marginBottom: theme.spacing(0.5),
         fontSize: '11px',
         fontWeight: 'bold',
         letterSpacing: '1px',
@@ -294,88 +295,65 @@ const NOTE_TYPE_LABELS = {
     fixed: 'Fixed',
 }
 
-const ReleaseMarker = ({ release, previousVersion, beforeMonth }) => {
+const ReleaseHeader = ({ release, previous }) => {
     const c = useStyles()
-    const date = formatReleaseDate(release.date)
     return (
-        <div
-            className={[c.releaseMarker, beforeMonth && c.releaseMarkerBeforeMonth]
-                .filter(Boolean)
-                .join(' ')}
-            role="separator"
-            aria-label={`version ${release.version}`}
-        >
+        <div className={c.releaseHeader}>
             <span className={c.releaseVersion}>
-                <ArrowDownwardIcon className={c.releaseVersionIcon} aria-hidden="true" />v
-                {release.version}
+                <ArrowDownwardIcon className={c.releaseVersionIcon} aria-hidden="true" />
+                {release ? `v${release.version}` : 'Latest'}
             </span>
-            <span className={c.releaseDate}>
-                {[date, previousVersion && `Changes since v${previousVersion}`]
-                    .filter(Boolean)
-                    .join(' \u00b7 ')}
-            </span>
+            {release && (
+                <Typography className={c.releaseDate} variant="h3" component="span">
+                    {formatDate(release.date)}
+                </Typography>
+            )}
+            {previous && <span className={c.releaseSince}>Changes since v{previous.version}</span>}
         </div>
     )
 }
 
-ReleaseMarker.propTypes = {
-    release: PropTypes.shape({
-        version: PropTypes.string.isRequired,
-        date: PropTypes.string.isRequired,
-    }).isRequired,
-    previousVersion: PropTypes.string,
-    beforeMonth: PropTypes.bool,
+const releaseShape = PropTypes.shape({
+    version: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+})
+
+ReleaseHeader.propTypes = {
+    release: releaseShape,
+    previous: releaseShape,
 }
 
 const ReleaseNotes = ({ notes }) => {
     const c = useStyles()
-    const releases = getReleases()
-    const groups = placeReleaseMarkers(groupReleaseNotesByMonth(notes), releases)
-    const previousVersion = (release) => releases[releases.indexOf(release) + 1]?.version
+    const groups = groupReleaseNotesByRelease(notes)
 
     if (groups.length === 0) {
         return <Typography className={c.notesEmpty}>No release notes yet.</Typography>
     }
 
-    return groups.map((group) => (
-        <Fragment key={group.key}>
-            {group.releasesBefore.map((release) => (
-                <ReleaseMarker
-                    key={release.version}
-                    release={release}
-                    previousVersion={previousVersion(release)}
-                    beforeMonth
-                />
-            ))}
-            <section aria-label={group.label}>
-                <Typography className={c.monthHeader} variant="h3">
-                    {group.label}
-                </Typography>
-                <div className={c.monthCards}>
-                    {group.items.map(({ note, release }) =>
-                        release ? (
-                            <ReleaseMarker
-                                key={release.version}
-                                release={release}
-                                previousVersion={previousVersion(release)}
-                            />
-                        ) : (
-                            <article key={note.id} className={c.noteCard}>
-                                <Typography className={c.noteType}>
-                                    {NOTE_TYPE_LABELS[note.type] || NOTE_TYPE_LABELS.new}
-                                </Typography>
-                                <Typography className={c.noteTitle} variant="h4">
-                                    {note.title}
-                                </Typography>
-                                <Typography className={c.noteDescription}>
-                                    {note.description}
-                                </Typography>
-                            </article>
-                        )
-                    )}
-                </div>
-            </section>
-        </Fragment>
+    return groups.map(({ release, previous, notes: releaseNotes }) => (
+        <section
+            key={release?.version ?? 'latest'}
+            aria-label={release ? `Version ${release.version}` : 'Latest changes'}
+        >
+            <ReleaseHeader release={release} previous={previous} />
+            <div className={c.releaseCards}>
+                {releaseNotes.map((note) => (
+                    <article key={note.id} className={c.noteCard}>
+                        <div className={c.noteMeta}>
+                            <Typography className={c.noteType}>
+                                {NOTE_TYPE_LABELS[note.type] || NOTE_TYPE_LABELS.new}
+                            </Typography>
+                            <Typography className={c.noteDate}>{formatDate(note.date)}</Typography>
+                        </div>
+                        <Typography className={c.noteTitle} variant="h4">
+                            {note.title}
+                        </Typography>
+                        <Typography className={c.noteDescription}>{note.description}</Typography>
+                    </article>
+                ))}
+            </div>
+        </section>
     ))
 }
 
@@ -508,7 +486,7 @@ const InformationModal = () => {
                                     </span>
                                     <br />
                                     <span className={c.releaseNotesStripSubtitle}>
-                                        Recent features, improvements and fixes, month by month
+                                        Recent features, improvements and fixes, version by version
                                     </span>
                                 </span>
                                 <ChevronRightIcon />

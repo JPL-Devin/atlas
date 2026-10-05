@@ -4,11 +4,10 @@ import releaseNotes from '../../src/config/releaseNotes.json'
 import releases from '../../src/config/releases.json'
 import {
     getReleaseNotes,
-    groupReleaseNotesByMonth,
+    groupReleaseNotesByRelease,
     compareVersions,
     formatVersionDate,
-    formatReleaseDate,
-    placeReleaseMarkers,
+    formatDate,
     isNewerVersion,
 } from '../../src/core/releaseNotes'
 
@@ -28,15 +27,6 @@ test.describe('release notes', () => {
         expect(rawsIds).toEqual(['b', 'e', 'a', 'd'])
     })
 
-    test('groups consecutive notes under month labels', () => {
-        const groups = groupReleaseNotesByMonth(getReleaseNotes(notes, { app: 'atlas' }))
-        expect(groups.map((g) => [g.key, g.label, g.notes.length])).toEqual([
-            ['2026-09', 'September 2026', 2],
-            ['2026-08', 'August 2026', 1],
-            ['2025-09', 'September 2025', 1],
-        ])
-    })
-
     test('compares app versions numerically', () => {
         expect(compareVersions('v1.10.0', 'v1.9.2')).toBeGreaterThan(0)
         expect(compareVersions('1.0', 'v1.0.0')).toBe(0)
@@ -45,39 +35,27 @@ test.describe('release notes', () => {
         expect(compareVersions('1.0.1-20261001', 'v1.0.0')).toBeGreaterThan(0)
     })
 
-    test('places release markers above the newest note on or before their date', () => {
-        const groups = groupReleaseNotesByMonth(getReleaseNotes(notes, { app: 'atlas' }))
-        const placed = placeReleaseMarkers(groups, [
-            { version: '4.3', date: '2026-10-05' },
+    test('groups notes under the release that shipped them', () => {
+        const groups = groupReleaseNotesByRelease(getReleaseNotes(notes, { app: 'atlas' }), [
             { version: '4.2', date: '2026-09-05' },
-            { version: '4.1', date: '2026-08-15' },
+            { version: '4.1', date: '2025-12-01' },
             { version: '4.0', date: '2025-01-01' },
         ])
-        const layout = placed.map((g) => [
-            g.key,
-            g.releasesBefore.map((r) => r.version),
-            g.items.map((item) => (item.release ? item.release.version : item.note.id)),
+        expect(
+            groups.map((g) => [
+                g.release?.version ?? null,
+                g.previous?.version ?? null,
+                g.notes.map((n) => n.id),
+            ])
+        ).toEqual([
+            [null, '4.2', ['b', 'c']],
+            ['4.2', '4.1', ['a']],
+            ['4.1', '4.0', ['d']],
         ])
-        expect(layout).toEqual([
-            ['2026-09', ['4.3'], ['b', 'c']],
-            ['2026-08', ['4.2', '4.1'], ['a']],
-            ['2025-09', [], ['d', '4.0']],
+        expect(groupReleaseNotesByRelease([{ id: 'x', date: '2026-01-01' }], [])).toEqual([
+            { release: null, previous: null, notes: [{ id: 'x', date: '2026-01-01' }] },
         ])
-
-        const [midMonth] = placeReleaseMarkers(
-            groupReleaseNotesByMonth([
-                { id: 'x', date: '2026-09-20' },
-                { id: 'y', date: '2026-09-05' },
-            ]),
-            [{ version: '4.2', date: '2026-09-10' }]
-        )
-        expect(midMonth.releasesBefore).toEqual([])
-        expect(midMonth.items.map((item) => item.note?.id ?? item.release.version)).toEqual([
-            'x',
-            '4.2',
-            'y',
-        ])
-        expect(formatReleaseDate('2026-10-05')).toBe('October 5, 2026')
+        expect(formatDate('2026-10-05')).toBe('October 5, 2026')
     })
 
     test('shipped releases are well formed', () => {
