@@ -437,9 +437,6 @@ const InformationModal = () => {
                             <Typography>
                                 Clearance Number: {import.meta.env.REACT_APP_CLEARANCE_NUMBER}
                             </Typography>
-                            <Typography>
-                                Last Updated: {import.meta.env.REACT_APP_LAST_UPDATED}
-                            </Typography>
                         </div>
                     </div>
                 </DialogContent>
