@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
@@ -27,6 +28,10 @@ const APP_ENV_KEYS = [
     'REACT_APP_APP_INSTANCE',
 ]
 
+const APP_VERSION = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf8')
+).version
+
 export default defineConfig(({ mode }) => {
     // Vite's automatic .env loading only populates `import.meta.env` for
     // client code — it does NOT merge `.env` into this file's `process.env`
@@ -41,9 +46,12 @@ export default defineConfig(({ mode }) => {
     const shouldAnalyze = configEnv.ANALYZE === 'true'
     const shouldSourceMap = configEnv.GENERATE_SOURCEMAP !== 'false'
     const clientEnv = loadEnv(mode, process.cwd(), ENV_PREFIX)
-    const appEnv = Object.fromEntries(
-        APP_ENV_KEYS.filter((key) => key in clientEnv).map((key) => [key, clientEnv[key]])
-    )
+    const appEnv = {
+        ...Object.fromEntries(
+            APP_ENV_KEYS.filter((key) => key in clientEnv).map((key) => [key, clientEnv[key]])
+        ),
+        APP_VERSION,
+    }
 
     return {
         plugins: [

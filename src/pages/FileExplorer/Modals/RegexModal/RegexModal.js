@@ -110,7 +110,7 @@ const useStyles = makeStyles((theme) => ({
         'lineHeight': '40px',
         'fontFamily': 'monospace',
         '& span:first-child': {
-            color: 'darkgoldenrod',
+            color: theme.palette.swatches.yellow.yellow800,
             fontSize: '12px',
             fontWeight: 500,
             textTransform: 'uppercase',
@@ -200,7 +200,7 @@ const useStyles = makeStyles((theme) => ({
             marginBottom: '5px',
         },
         '& h2': {
-            color: 'darkgoldenrod',
+            color: theme.palette.swatches.yellow.yellow800,
         },
         '& h4 > code': {
             fontSize: '20px',

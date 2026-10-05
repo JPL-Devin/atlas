@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { setModal } from '../../../../core/redux/actions/actions.js'
@@ -10,6 +11,10 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import IconButton from '@mui/material/IconButton'
 import CloseSharpIcon from '@mui/icons-material/CloseSharp'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import CardGiftcardOutlinedIcon from '@mui/icons-material/CardGiftcardOutlined'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
@@ -18,8 +23,13 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import NASALogoPath from '../../../../media/images/nasa-logo.svg'
 import { getPublicUrl } from '../../../../core/runtimeConfig'
 import { getAppConfig } from '../../../../core/appConfig'
-
-import { publicUrl } from '../../../../core/constants'
+import {
+    formatDate,
+    getAppVersion,
+    getAppVersionDate,
+    groupReleaseNotesByRelease,
+    useReleaseNotes,
+} from '../../../../core/releaseNotes'
 
 // Construct runtime-aware logo URL
 const getNASALogoUrl = () => {
@@ -49,11 +59,6 @@ const useStyles = makeStyles((theme) => ({
         padding: '20px 40px 8px 40px',
         height: `calc(100% - ${theme.headHeights[2]}px)`,
         textAlign: 'center',
-    },
-    closeIcon: {
-        padding: theme.spacing(1.5),
-        height: '100%',
-        margin: '4px 0px',
     },
     flexBetween: {
         display: 'flex',
@@ -125,6 +130,155 @@ const useStyles = makeStyles((theme) => ({
             fontFamily: 'monospace',
         },
     },
+    releaseNotesStrip: {
+        'display': 'flex',
+        'alignItems': 'center',
+        'gap': theme.spacing(1.5),
+        'width': '100%',
+        'margin': `${theme.spacing(3)} 0px 0px 0px`,
+        'padding': '12px 16px',
+        'border': `1px solid ${theme.palette.swatches.grey.grey200}`,
+        'borderRadius': '4px',
+        'background': theme.palette.swatches.grey.grey100,
+        'color': theme.palette.swatches.grey.grey800,
+        'font': 'inherit',
+        'textAlign': 'left',
+        'cursor': 'pointer',
+        '&:hover': {
+            background: theme.palette.swatches.grey.grey150,
+        },
+    },
+    releaseNotesStripText: {
+        flex: 1,
+    },
+    releaseNotesStripTitle: {
+        fontSize: '15px',
+        fontWeight: 'bold',
+    },
+    releaseNotesStripSubtitle: {
+        fontSize: '13px',
+        color: theme.palette.swatches.grey.grey500,
+    },
+    notesContent: {
+        padding: '0px',
+        height: `calc(100% - ${theme.headHeights[2]}px)`,
+        display: 'flex',
+        flexFlow: 'column',
+        textAlign: 'left',
+    },
+    notesHeader: {
+        display: 'flex',
+        alignItems: 'center',
+        padding: '12px 56px 12px 12px',
+        borderBottom: `1px solid ${theme.palette.swatches.grey.grey150}`,
+    },
+    notesBack: {
+        marginRight: theme.spacing(1),
+    },
+    notesTitle: {
+        fontSize: '22px',
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+    },
+    notesSubtitle: {
+        fontSize: '13px',
+        color: theme.palette.swatches.grey.grey500,
+    },
+    notesBody: {
+        flex: 1,
+        overflowY: 'auto',
+        padding: '8px 40px 24px 40px',
+        background: theme.palette.swatches.grey.grey100,
+        [theme.breakpoints.down('sm')]: {
+            padding: '8px 12px 24px 12px',
+        },
+    },
+    notesColumn: {
+        maxWidth: '720px',
+        margin: '0px auto',
+    },
+    releaseHeader: {
+        'display': 'flex',
+        'alignItems': 'center',
+        'gap': theme.spacing(1.5),
+        'margin': `${theme.spacing(3.5)} 0px ${theme.spacing(1.5)} 0px`,
+        '&::after': {
+            content: '""',
+            flex: 1,
+            height: '1px',
+            background: theme.palette.swatches.grey.grey200,
+        },
+    },
+    releaseCards: {
+        display: 'flex',
+        flexFlow: 'column',
+        gap: theme.spacing(1.5),
+    },
+    releaseVersion: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '2px',
+        padding: '2px 12px 2px 8px',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        letterSpacing: '0.5px',
+        color: theme.palette.swatches.grey.grey0,
+        background: theme.palette.swatches.yellow.yellow800,
+        borderRadius: '14px',
+    },
+    releaseVersionIcon: {
+        fontSize: '16px',
+    },
+    releaseDate: {
+        fontSize: '16px',
+        fontWeight: 'bold',
+        color: theme.palette.swatches.yellow.yellow800,
+    },
+    releaseSince: {
+        fontSize: '12px',
+        letterSpacing: '0.5px',
+        color: theme.palette.swatches.grey.grey400,
+    },
+    noteMeta: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'baseline',
+        gap: theme.spacing(2),
+        marginBottom: theme.spacing(0.5),
+    },
+    noteDate: {
+        fontSize: '11px',
+        letterSpacing: '0.5px',
+        color: theme.palette.swatches.grey.grey400,
+    },
+    noteCard: {
+        padding: '16px 20px',
+        background: theme.palette.swatches.grey.grey0,
+        border: `1px solid ${theme.palette.swatches.grey.grey150}`,
+        borderRadius: '4px',
+    },
+    noteType: {
+        fontSize: '11px',
+        fontWeight: 'bold',
+        letterSpacing: '1px',
+        textTransform: 'uppercase',
+        color: theme.palette.swatches.grey.grey400,
+    },
+    noteTitle: {
+        fontSize: '16px',
+        fontWeight: 'bold',
+        lineHeight: '20px',
+        marginBottom: theme.spacing(0.5),
+    },
+    noteDescription: {
+        fontSize: '14px',
+        color: theme.palette.swatches.grey.grey600,
+    },
+    notesEmpty: {
+        padding: theme.spacing(4),
+        textAlign: 'center',
+        color: theme.palette.swatches.grey.grey500,
+    },
     footer: {
         'backgroundColor': 'rgba(0,0,0,0)',
         'display': 'flex',
@@ -135,8 +289,79 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const InformationModal = (props) => {
-    const {} = props
+const NOTE_TYPE_LABELS = {
+    new: 'New',
+    improved: 'Improved',
+    fixed: 'Fixed',
+}
+
+const ReleaseHeader = ({ release, previous }) => {
+    const c = useStyles()
+    return (
+        <div className={c.releaseHeader}>
+            <span className={c.releaseVersion}>
+                <ArrowDownwardIcon className={c.releaseVersionIcon} aria-hidden="true" />
+                {release ? `v${release.version}` : 'Latest'}
+            </span>
+            {release && (
+                <Typography className={c.releaseDate} variant="h3" component="span">
+                    {formatDate(release.date)}
+                </Typography>
+            )}
+            {previous && <span className={c.releaseSince}>Changes since v{previous.version}</span>}
+        </div>
+    )
+}
+
+const releaseShape = PropTypes.shape({
+    version: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+})
+
+ReleaseHeader.propTypes = {
+    release: releaseShape,
+    previous: releaseShape,
+}
+
+const ReleaseNotes = ({ notes }) => {
+    const c = useStyles()
+    const groups = groupReleaseNotesByRelease(notes)
+
+    if (groups.length === 0) {
+        return <Typography className={c.notesEmpty}>No release notes yet.</Typography>
+    }
+
+    return groups.map(({ release, previous, notes: releaseNotes }) => (
+        <section
+            key={release?.version ?? 'latest'}
+            aria-label={release ? `Version ${release.version}` : 'Latest changes'}
+        >
+            <ReleaseHeader release={release} previous={previous} />
+            <div className={c.releaseCards}>
+                {releaseNotes.map((note) => (
+                    <article key={note.id} className={c.noteCard}>
+                        <div className={c.noteMeta}>
+                            <Typography className={c.noteType}>
+                                {NOTE_TYPE_LABELS[note.type] || NOTE_TYPE_LABELS.new}
+                            </Typography>
+                            <Typography className={c.noteDate}>{formatDate(note.date)}</Typography>
+                        </div>
+                        <Typography className={c.noteTitle} variant="h4">
+                            {note.title}
+                        </Typography>
+                        <Typography className={c.noteDescription}>{note.description}</Typography>
+                    </article>
+                ))}
+            </div>
+        </section>
+    ))
+}
+
+ReleaseNotes.propTypes = {
+    notes: PropTypes.arrayOf(PropTypes.object).isRequired,
+}
+
+const InformationModal = () => {
     const c = useStyles()
 
     const theme = useTheme()
@@ -149,12 +374,19 @@ const InformationModal = (props) => {
         return m
     })
     const open = modal !== false
+
+    const { notes, markSeen } = useReleaseNotes()
+    const [view, setView] = useState('about')
+
+    const openReleaseNotes = () => {
+        setView('releaseNotes')
+        markSeen()
+    }
+
     const handleClose = () => {
         // close modal
         dispatch(setModal(false))
     }
-
-    const newsPath = `https://pds-imaging.jpl.nasa.gov/`
 
     return (
         <Dialog
@@ -166,67 +398,134 @@ const InformationModal = (props) => {
             PaperProps={{
                 className: isMobile ? c.contentsMobile : c.contents,
             }}
+            TransitionProps={{ onExited: () => setView('about') }}
         >
-            <DialogContent className={c.content}>
-                <div className={c.top}>
-                    <div className={c.head}>
-                        <div className={c.logo}>
-                            <img src={getNASALogoUrl()} alt={'NASA Logo'} />
-                        </div>
-                        <div className={c.pdsAndNode}>
-                            <Typography className={c.pds} variant="h3">
-                                Planetary Data System
-                            </Typography>
-                            <Typography className={c.node} variant="h3">
-                                Cartography and Imaging Sciences
-                            </Typography>
-                        </div>
-                    </div>
-                    <Typography className={c.title} variant="h2">
-                        {getAppConfig().aboutTitle}
-                    </Typography>
-                    <IconButton
-                        className={c.closeIcon}
-                        title="Close"
-                        aria-label="close"
-                        onClick={handleClose}
-                        size="large"
-                    >
-                        <CloseSharpIcon fontSize="inherit" />
-                    </IconButton>
-                </div>
-                <div className={c.bottom}>
-                    <div className={c.description}>
-                        <Typography>{getAppConfig().aboutDescription}</Typography>
-                    </div>
-                    <div className={c.message}>
-                        <Typography>
-                            If you have questions, want to share feedback, or need support,{' '}
-                            <a
-                                className={c.aLink}
-                                aria-label="give feedback"
-                                href={`mailto:${getAppConfig().feedbackEmail}?subject=${encodeURIComponent(
-                                    `PDS Imaging Node \u2014 ${getAppConfig().appTitle} Feedback`
-                                )}`}
+            {view === 'releaseNotes' ? (
+                <DialogContent className={c.notesContent}>
+                    <div className={c.notesHeader}>
+                        <IconButton
+                            className={c.notesBack}
+                            title="Back to About"
+                            aria-label="back to about"
+                            onClick={() => setView('about')}
+                        >
+                            <ArrowBackIcon />
+                        </IconButton>
+                        <div>
+                            <Typography
+                                className={c.notesTitle}
+                                variant="h2"
+                                id="responsive-dialog-title"
                             >
-                                please send us a message
-                            </a>
-                            .
-                        </Typography>
+                                Release Notes
+                            </Typography>
+                            <Typography className={c.notesSubtitle}>
+                                What&apos;s changed in {getAppConfig().appTitle}
+                            </Typography>
+                        </div>
+                        <IconButton
+                            className={c.closeIcon}
+                            title="Close"
+                            aria-label="close"
+                            onClick={handleClose}
+                            size="large"
+                        >
+                            <CloseSharpIcon fontSize="inherit" />
+                        </IconButton>
                     </div>
-                    <div className={c.metadata}>
-                        <Typography>Version Number: {import.meta.env.REACT_APP_VERSION}</Typography>
-                        <Typography>
-                            Clearance Number: {import.meta.env.REACT_APP_CLEARANCE_NUMBER}
-                        </Typography>
-                        <Typography>
-                            Last Updated: {import.meta.env.REACT_APP_LAST_UPDATED}
-                        </Typography>
+                    <div className={c.notesBody}>
+                        <div className={c.notesColumn}>
+                            <ReleaseNotes notes={notes} />
+                        </div>
                     </div>
-                </div>
-            </DialogContent>
+                </DialogContent>
+            ) : (
+                <DialogContent className={c.content}>
+                    <div className={c.top}>
+                        <div className={c.head}>
+                            <div className={c.logo}>
+                                <img src={getNASALogoUrl()} alt={'NASA Logo'} />
+                            </div>
+                            <div className={c.pdsAndNode}>
+                                <Typography className={c.pds} variant="h3">
+                                    Planetary Data System
+                                </Typography>
+                                <Typography className={c.node} variant="h3">
+                                    Cartography and Imaging Sciences
+                                </Typography>
+                            </div>
+                        </div>
+                        <Typography className={c.title} variant="h2">
+                            {getAppConfig().aboutTitle}
+                        </Typography>
+                        <IconButton
+                            className={c.closeIcon}
+                            title="Close"
+                            aria-label="close"
+                            onClick={handleClose}
+                            size="large"
+                        >
+                            <CloseSharpIcon fontSize="inherit" />
+                        </IconButton>
+                    </div>
+                    <div className={c.bottom}>
+                        <div className={c.description}>
+                            <Typography>{getAppConfig().aboutDescription}</Typography>
+                        </div>
+                        {notes.length > 0 && (
+                            <button
+                                type="button"
+                                className={c.releaseNotesStrip}
+                                aria-label="view release notes"
+                                onClick={openReleaseNotes}
+                            >
+                                <CardGiftcardOutlinedIcon />
+                                <span className={c.releaseNotesStripText}>
+                                    <span className={c.releaseNotesStripTitle}>
+                                        What&apos;s new in {getAppConfig().appTitle}
+                                    </span>
+                                    <br />
+                                    <span className={c.releaseNotesStripSubtitle}>
+                                        Recent features, improvements and fixes, version by version
+                                    </span>
+                                </span>
+                                <ChevronRightIcon />
+                            </button>
+                        )}
+                        <div className={c.message}>
+                            <Typography>
+                                If you have questions, want to share feedback, or need support,{' '}
+                                <a
+                                    className={c.aLink}
+                                    aria-label="give feedback"
+                                    href={`mailto:${getAppConfig().feedbackEmail}?subject=${encodeURIComponent(
+                                        `PDS Imaging Node \u2014 ${getAppConfig().appTitle} Feedback`
+                                    )}`}
+                                >
+                                    please send us a message
+                                </a>
+                                .
+                            </Typography>
+                        </div>
+                        <div className={c.metadata}>
+                            <Typography>Version Number: {getAppVersion()}</Typography>
+                            <Typography>
+                                Clearance Number: {import.meta.env.REACT_APP_CLEARANCE_NUMBER}
+                            </Typography>
+                            {getAppVersionDate() && (
+                                <Typography>Last Updated: {getAppVersionDate()}</Typography>
+                            )}
+                        </div>
+                    </div>
+                </DialogContent>
+            )}
             <DialogActions className={c.footer}>
                 <div className={c.footerLeft}>
+                    {view === 'releaseNotes' && (
+                        <Button aria-label="back to about" onClick={() => setView('about')}>
+                            Back
+                        </Button>
+                    )}
                     <Button href="https://www.jpl.nasa.gov/jpl-image-use-policy">
                         Image Use Policy
                     </Button>
