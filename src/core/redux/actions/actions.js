@@ -9,6 +9,7 @@ import {
     resultsStatuses,
     ES_PATHS,
     HASH_PATHS,
+    SEARCH_CACHE_QUERY,
 } from '../../constants'
 import { getAppConfig } from '../../appConfig'
 import {
@@ -1173,7 +1174,7 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
         }
 
         axios
-            .post(`${domain}${endpoints.search}`, dsl, getHeader())
+            .post(`${domain}${endpoints.search}?${SEARCH_CACHE_QUERY}`, dsl, getHeader())
             .then((response) => {
                 const cacheableData = isCacheableSearchResponse(response)
                     ? structuredClone(response.data)
@@ -2084,7 +2085,11 @@ export const queryFilexColumn = (columnId, isLast, cb) => {
         ].join(',')}`
 
         axios
-            .post(`${domain}${endpoints.archive}?${filter_path}`, dsl, getHeader())
+            .post(
+                `${domain}${endpoints.archive}?${SEARCH_CACHE_QUERY}&${filter_path}`,
+                dsl,
+                getHeader()
+            )
             .then((response) => {
                 let results = []
                 if (column.type === 'directory')
