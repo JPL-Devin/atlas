@@ -32,6 +32,7 @@ const instances = {
         defaultFilterValues: {},
         drawerOrder: 0,
         drawerLabel: 'Atlas',
+        showInDrawer: true,
         baseUrl: '',
         dataEndpoint: '/data',
         searchEndpoint: '/search/atlas/_search',
@@ -69,6 +70,8 @@ const instances = {
         },
         drawerOrder: 1,
         drawerLabel: 'Planetary Raws',
+        // Temporarily hidden from other instances' navigation drawers. Set to true to re-enable.
+        showInDrawer: false,
         baseUrl: '',
         dataEndpoint: '/data',
         searchEndpoint: '/search/atlas/_search',

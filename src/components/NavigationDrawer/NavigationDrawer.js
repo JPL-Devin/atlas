@@ -149,6 +149,8 @@ const buildDrawerItems = () => {
         const instance = allInstances[instanceKey]
         const isCurrent = instanceKey === currentInstanceKey
 
+        if (instance.showInDrawer === false && !isCurrent) return
+
         items.push({ name: instance.drawerLabel, isHeader: true })
 
         if (isCurrent) items.push({ name: 'Search Images', path: '/search', isAtlas: true })
