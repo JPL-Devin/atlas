@@ -284,8 +284,19 @@ const useStyles = makeStyles((theme) => ({
     facetsStatusText: {
         flex: 1,
     },
-    facetsSpinner: {
+    expandIconSlot: {
+        position: 'relative',
         display: 'flex',
+    },
+    expandIconHidden: {
+        visibility: 'hidden',
+    },
+    facetsSpinner: {
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     facetsRetry: {
         'minWidth': 'unset',
@@ -555,17 +566,13 @@ const Filter = (props) => {
                     className={clsx(c.accordionHead, {
                         [c.accordionHeadOpen]: expanded && isFilterDownOpen,
                     })}
-                    expandIcon={<ExpandMoreIcon />}
-                    onClick={onExpand}
-                    role=""
-                >
-                    <div className={c.header}>
-                        <Badge className={c.countBadge} badgeContent={count}>
-                            <Tooltip title={filterKey} arrow placement="right">
-                                <Typography className={c.title}>{friendlyFilterName}</Typography>
-                            </Tooltip>
-                        </Badge>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    expandIcon={
+                        <div className={c.expandIconSlot}>
+                            <ExpandMoreIcon
+                                className={clsx({
+                                    [c.expandIconHidden]: facetsStatus === facetsStatuses.LOADING,
+                                })}
+                            />
                             {facetsStatus === facetsStatuses.LOADING && (
                                 <Tooltip title="Loading values…" arrow>
                                     <div className={c.facetsSpinner} role="status">
@@ -576,8 +583,19 @@ const Filter = (props) => {
                                     </div>
                                 </Tooltip>
                             )}
-                            <div className={c.headerButtons}>
-                                {/*
+                        </div>
+                    }
+                    onClick={onExpand}
+                    role=""
+                >
+                    <div className={c.header}>
+                        <Badge className={c.countBadge} badgeContent={count}>
+                            <Tooltip title={filterKey} arrow placement="right">
+                                <Typography className={c.title}>{friendlyFilterName}</Typography>
+                            </Tooltip>
+                        </Badge>
+                        <div className={c.headerButtons}>
+                            {/*
                             {expanded && (
                                 <Tooltip title="Settings" arrow>
                                     <IconButton
@@ -593,55 +611,54 @@ const Filter = (props) => {
                                 </Tooltip>
                             )}
                             */}
-                                {expanded && isListFilter && (
-                                    <Tooltip title="Search" arrow>
-                                        <IconButton
-                                            className={clsx(c.settingsButton, {
-                                                [c.settingsButtonActive]: isFilterDownOpen,
-                                            })}
-                                            aria-label={`search ${filterName} options`}
-                                            size="small"
-                                            onClick={handleFilterDown}
-                                        >
-                                            <SearchIcon fontSize="inherit" />
-                                        </IconButton>
-                                    </Tooltip>
-                                )}
-                                <Tooltip title="Info" arrow>
+                            {expanded && isListFilter && (
+                                <Tooltip title="Search" arrow>
                                     <IconButton
-                                        className={c.infoButton}
-                                        aria-label={`information about ${filterName} filter`}
+                                        className={clsx(c.settingsButton, {
+                                            [c.settingsButtonActive]: isFilterDownOpen,
+                                        })}
+                                        aria-label={`search ${filterName} options`}
                                         size="small"
-                                        onClick={handleInfo}
+                                        onClick={handleFilterDown}
                                     >
-                                        <InfoOutlinedIcon fontSize="inherit" />
+                                        <SearchIcon fontSize="inherit" />
                                     </IconButton>
                                 </Tooltip>
-                                {count > 0 && (
-                                    <Tooltip title="Clear All Selections" arrow>
-                                        <IconButton
-                                            className={c.clearButton}
-                                            aria-label={`clear all selections in ${filterName} filter`}
-                                            size="small"
-                                            onClick={handleClearSelections}
-                                        >
-                                            <ClearAllIcon fontSize="inherit" />
-                                        </IconButton>
-                                    </Tooltip>
-                                )}
-                                {!permanent ? (
-                                    <Tooltip title="Remove" arrow>
-                                        <IconButton
-                                            className={c.removeButton}
-                                            aria-label={`remove ${filterName} filter`}
-                                            size="small"
-                                            onClick={handleRemove}
-                                        >
-                                            <DeleteOutlinedIcon fontSize="inherit" />
-                                        </IconButton>
-                                    </Tooltip>
-                                ) : null}
-                            </div>
+                            )}
+                            <Tooltip title="Info" arrow>
+                                <IconButton
+                                    className={c.infoButton}
+                                    aria-label={`information about ${filterName} filter`}
+                                    size="small"
+                                    onClick={handleInfo}
+                                >
+                                    <InfoOutlinedIcon fontSize="inherit" />
+                                </IconButton>
+                            </Tooltip>
+                            {count > 0 && (
+                                <Tooltip title="Clear All Selections" arrow>
+                                    <IconButton
+                                        className={c.clearButton}
+                                        aria-label={`clear all selections in ${filterName} filter`}
+                                        size="small"
+                                        onClick={handleClearSelections}
+                                    >
+                                        <ClearAllIcon fontSize="inherit" />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
+                            {!permanent ? (
+                                <Tooltip title="Remove" arrow>
+                                    <IconButton
+                                        className={c.removeButton}
+                                        aria-label={`remove ${filterName} filter`}
+                                        size="small"
+                                        onClick={handleRemove}
+                                    >
+                                        <DeleteOutlinedIcon fontSize="inherit" />
+                                    </IconButton>
+                                </Tooltip>
+                            ) : null}
                         </div>
                     </div>
                     {expanded && isFilterDownOpen && (
