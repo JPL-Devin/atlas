@@ -21,6 +21,9 @@ const reducerFuncs = {
     CLEAR_ACTIVE_FILTERS: clearActiveFilters,
     UPDATE_ACTIVE_MISSIONS: updateActiveMissions,
     UPDATE_GEO_GRID: updateGeoGrid,
+    SET_EXPANDED_FILTER: setExpandedFilter,
+    RESET_FACETS_STATUS: resetFacetsStatus,
+    SET_FACETS_STATUS: setFacetsStatus,
     SET_FIELD_STATE: setFieldState,
     SET_ADVANCED_FILTERS: setAdvancedFilters,
     SET_ADVANCED_FILTERS_EXPRESSION: setAdvancedFiltersExpression,
@@ -174,12 +177,12 @@ function addActiveFilters(state, payload) {
 function updateActiveFilters(state, payload) {
     let nextActiveFilters = state.get('activeFilters').toJS()
     nextActiveFilters = { ...nextActiveFilters, ...payload.filters }
-    
+
     // Ensure proper order values are maintained
     Object.keys(nextActiveFilters).forEach((key) => {
         nextActiveFilters[key].order = getFilterOrderValue(key)
     })
-    
+
     return state.setIn(['activeFilters'], fromJS(nextActiveFilters))
 }
 
@@ -235,6 +238,23 @@ function updateActiveMissions(state, payload) {
  */
 function updateGeoGrid(state, payload) {
     return state.setIn(['geoGrid'], fromJS(payload.buckets || []))
+}
+
+function setExpandedFilter(state, payload) {
+    return state.setIn(['expandedFilter'], payload.filterKey)
+}
+
+function resetFacetsStatus(state) {
+    return state.setIn(['facetsStatus'], fromJS({}))
+}
+
+function setFacetsStatus(state, payload) {
+    return state.updateIn(['facetsStatus'], (facetsStatus) =>
+        payload.filterKeys.reduce(
+            (acc, key) => (payload.status == null ? acc.delete(key) : acc.set(key, payload.status)),
+            facetsStatus
+        )
+    )
 }
 
 /**

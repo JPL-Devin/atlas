@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { makeStyles, withStyles } from '@mui/styles'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
@@ -10,7 +10,9 @@ import {
     clearResults,
     search,
     setFieldState,
+    loadFilterFacets,
 } from '../../core/redux/actions/actions.js'
+import { facetsStatuses } from '../../core/constants.js'
 
 import MuiAccordion from '@mui/material/Accordion'
 import MuiAccordionSummary from '@mui/material/AccordionSummary'
@@ -18,6 +20,8 @@ import MuiAccordionDetails from '@mui/material/AccordionDetails'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
+import LinearProgress from '@mui/material/LinearProgress'
+import Button from '@mui/material/Button'
 import Badge from '@mui/material/Badge'
 import TextField from '@mui/material/TextField'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -260,6 +264,35 @@ const useStyles = makeStyles((theme) => ({
             transition: 'unset',
         },
     },
+    facetsStatus: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: theme.spacing(1),
+        minHeight: '24px',
+        padding: `0px ${theme.spacing(2)} ${theme.spacing(1)}`,
+        fontSize: '12px',
+        color: theme.palette.swatches.grey.grey600,
+    },
+    facetsStatusWarning: {
+        color: theme.palette.swatches.red.red500,
+    },
+    facetsStatusText: {
+        flex: 1,
+    },
+    facetsProgress: {
+        height: '2px',
+        margin: `0px ${theme.spacing(2)} ${theme.spacing(1)}`,
+    },
+    facetsRetry: {
+        'minWidth': 'unset',
+        'padding': '0px 6px',
+        'fontSize': '12px',
+        'textTransform': 'none',
+        'color': theme.palette.swatches.blue.blue900,
+        '&:hover': {
+            textDecoration: 'underline',
+        },
+    },
     accordionHeadOpen: {
         'height': '80px',
         '& > div:first-child': {
@@ -352,6 +385,43 @@ const getSubFilters = (filter, filterKey, settingsActive) => {
     return subFilters
 }
 
+const FacetsStatus = ({ status, c }) => {
+    const dispatch = useDispatch()
+
+    if (status === facetsStatuses.LOADING) {
+        return (
+            <div role="status" aria-label="Loading filter values">
+                <div className={c.facetsStatus}>
+                    <span className={c.facetsStatusText}>Loading values…</span>
+                </div>
+                <LinearProgress className={c.facetsProgress} />
+            </div>
+        )
+    }
+
+    if (status !== facetsStatuses.TIMED_OUT && status !== facetsStatuses.ERROR) {
+        return null
+    }
+
+    const message =
+        status === facetsStatuses.TIMED_OUT
+            ? 'Search timed out. Counts may be incomplete.'
+            : "Couldn't load values for this filter."
+    return (
+        <div className={clsx(c.facetsStatus, c.facetsStatusWarning)} role="status">
+            <span className={c.facetsStatusText}>{message}</span>
+            <Button className={c.facetsRetry} onClick={() => dispatch(loadFilterFacets(true))}>
+                Retry
+            </Button>
+        </div>
+    )
+}
+
+FacetsStatus.propTypes = {
+    status: PropTypes.string,
+    c: PropTypes.object.isRequired,
+}
+
 const Filter = (props) => {
     const { filterKey, filter, onExpand, expanded } = props
     const c = useStyles()
@@ -364,6 +434,7 @@ const Filter = (props) => {
     const [maxFieldsCount, setMaxFieldsCount] = useState(0)
 
     const subFilters = getSubFilters(filter, filterKey, settingsActive)
+    const facetsStatus = useSelector((state) => state.getIn(['facetsStatus', filterKey]))
 
     // Track the maximum number of fields seen for this facet
     useEffect(() => {
@@ -620,7 +691,10 @@ const Filter = (props) => {
                         </div>
                     )}
                 </AccordionSummary>
-                <AccordionDetails>{subFilters}</AccordionDetails>
+                <AccordionDetails>
+                    <FacetsStatus status={facetsStatus} c={c} />
+                    {subFilters}
+                </AccordionDetails>
             </Accordion>
         </div>
     )

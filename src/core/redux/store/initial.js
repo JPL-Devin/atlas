@@ -66,6 +66,8 @@ export const INITIAL = (() => {
         activeMissions: [],
         // agg buckets for a geo grid heatmap on the map
         geoGrid: [],
+        expandedFilter: '_text',
+        facetsStatus: {},
         // Full string in the Advanced Filters editor.
         advancedFilters: null,
         // Parsed advancedFilters query (or error if invalid)
