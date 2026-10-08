@@ -17,7 +17,7 @@ const hitsResponse = () => ({
 
 const MAPPING_URL = 'https://pds-imaging.jpl.nasa.gov/api/search/atlas/_mapping'
 
-const routeSearch = async (page, { failFilterAggs = false } = {}) => {
+const routeSearch = async (page, { failFilterAggs = false, filterAggDelay = 0 } = {}) => {
     // Filters come from the live mapping; proxied so a REACT_APP_DOMAIN without CORS still works
     await page.route(/_mapping/, async (route) => {
         const response = await route.fetch({ url: MAPPING_URL })
@@ -31,6 +31,9 @@ const routeSearch = async (page, { failFilterAggs = false } = {}) => {
         const body = JSON.parse(route.request().postData() || '{}')
         requests.push(body)
         const aggKeys = Object.keys(body.aggs || {})
+        if (filterAggDelay && aggKeys.includes(MISSION)) {
+            await new Promise((resolve) => setTimeout(resolve, filterAggDelay))
+        }
         if (failFilterAggs && aggKeys.includes(MISSION)) {
             await route.fulfill({
                 status: 504,
@@ -75,6 +78,30 @@ test.describe('Search - lazy filter aggs', () => {
         expect(aggRequests).toHaveLength(1)
         expect(aggRequests[0].size).toBe(0)
         expect(Object.keys(aggRequests[0].aggs)).toEqual([MISSION])
+    })
+
+    test('an expanded filter opens once its values load, or after a short wait', async ({
+        page,
+    }) => {
+        await routeSearch(page, { filterAggDelay: 3_000 })
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+        await expect(page.getByText('No Records Found')).toBeVisible({ timeout: 30_000 })
+
+        const summary = page
+            .locator('[aria-expanded]')
+            .filter({ has: page.getByText('mission', { exact: true }) })
+        await page.getByText('mission', { exact: true }).first().click()
+
+        await expect(page.getByRole('progressbar', { name: 'Loading filter values' })).toBeVisible()
+        await expect(summary).toHaveAttribute('aria-expanded', 'false')
+        // Opens with placeholder rows when the values take too long
+        await expect(summary).toHaveAttribute('aria-expanded', 'true', { timeout: 2_000 })
+        await expect(page.getByText('Mars 2020')).toBeVisible({ timeout: 15_000 })
+        await expect(page.getByRole('progressbar', { name: 'Loading filter values' })).toHaveCount(
+            0
+        )
     })
 
     test('a removed and re-added filter loads its values again', async ({ page }) => {

@@ -6,6 +6,7 @@ import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
 import Checkbox from '@mui/material/Checkbox'
+import Skeleton from '@mui/material/Skeleton'
 
 import { setFieldState } from '../../../../core/redux/actions/actions.js'
 import { getDisplayName, getShortDisplayName, facetsStatuses } from '../../../../core/constants.js'
@@ -37,6 +38,16 @@ const useStyles = makeStyles((theme) => ({
     listStale: {
         opacity: 0.5,
         transition: 'opacity 0.2s ease-out',
+    },
+    placeholderItem: {
+        padding: `0px ${theme.spacing(2)}`,
+        display: 'flex',
+        alignItems: 'center',
+        gap: theme.spacing(1),
+        height: '24px',
+    },
+    placeholderText: {
+        flex: 1,
     },
     listItemZero: {
         opacity: 0.4,
@@ -79,6 +90,9 @@ const useStyles = makeStyles((theme) => ({
         padding: '4px 0px',
     },
 }))
+
+// Shown while a filter's first values load
+const PLACEHOLDER_WIDTHS = ['60%', '45%', '70%', '50%', '40%']
 
 const ListFilter = (props) => {
     const { filterKey, facetId } = props
@@ -141,7 +155,15 @@ const ListFilter = (props) => {
                               </li>
                           )
                       })
-                    : emptyMessage && <li className={c.noData}>{emptyMessage}</li>}
+                    : facetsStatus === facetsStatuses.LOADING
+                      ? PLACEHOLDER_WIDTHS.map((width, idx) => (
+                            <li className={c.placeholderItem} key={idx} aria-hidden="true">
+                                <Skeleton variant="rectangular" width={18} height={18} />
+                                <Skeleton className={c.placeholderText} sx={{ maxWidth: width }} />
+                                <Skeleton width={24} />
+                            </li>
+                        ))
+                      : emptyMessage && <li className={c.noData}>{emptyMessage}</li>}
                 {facet?.fields?.length >= 500 && (
                     <li className={c.moreResults}>Only showing the first 500 results.</li>
                 )}

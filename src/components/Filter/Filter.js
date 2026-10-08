@@ -428,6 +428,9 @@ FacetsStatus.propTypes = {
     c: PropTypes.object.isRequired,
 }
 
+// Longest a newly expanded filter stays closed waiting for its values
+const OPEN_WAIT_MS = 1000
+
 const Filter = (props) => {
     const { filterKey, filter, onExpand, expanded } = props
     const c = useStyles()
@@ -441,6 +444,26 @@ const Filter = (props) => {
 
     const subFilters = getSubFilters(filter, filterKey, settingsActive)
     const facetsStatus = useSelector((state) => state.getIn(['facetsStatus', filterKey]))
+    const facetsLoading = facetsStatus === facetsStatuses.LOADING
+
+    // A newly expanded filter waits (briefly) for its values so it opens once at its full height
+    const [prevExpanded, setPrevExpanded] = useState(expanded)
+    const [waitingToOpen, setWaitingToOpen] = useState(false)
+    if (expanded !== prevExpanded) {
+        setPrevExpanded(expanded)
+        setWaitingToOpen(expanded)
+    }
+    if (waitingToOpen && !facetsLoading) {
+        setWaitingToOpen(false)
+    }
+    useEffect(() => {
+        if (!waitingToOpen || !facetsLoading) {
+            return
+        }
+        const timeout = setTimeout(() => setWaitingToOpen(false), OPEN_WAIT_MS)
+        return () => clearTimeout(timeout)
+    }, [waitingToOpen, facetsLoading])
+    const open = expanded && !(waitingToOpen && facetsLoading)
 
     // Track the maximum number of fields seen for this facet
     useEffect(() => {
@@ -561,7 +584,7 @@ const Filter = (props) => {
 
     return (
         <div className={c.Filter}>
-            <Accordion expanded={expanded}>
+            <Accordion expanded={open}>
                 <AccordionSummary
                     className={clsx(c.accordionHead, {
                         [c.accordionHeadOpen]: expanded && isFilterDownOpen,
@@ -570,10 +593,10 @@ const Filter = (props) => {
                         <div className={c.expandIconSlot}>
                             <ExpandMoreIcon
                                 className={clsx({
-                                    [c.expandIconHidden]: facetsStatus === facetsStatuses.LOADING,
+                                    [c.expandIconHidden]: facetsLoading,
                                 })}
                             />
-                            {facetsStatus === facetsStatuses.LOADING && (
+                            {facetsLoading && (
                                 <Tooltip title="Loading values…" arrow>
                                     <div className={c.facetsSpinner} role="status">
                                         <CircularProgress
