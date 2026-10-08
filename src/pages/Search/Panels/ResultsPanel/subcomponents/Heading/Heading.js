@@ -11,6 +11,7 @@ import { makeStyles } from '@mui/styles'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
+import CircularProgress from '@mui/material/CircularProgress'
 
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import RotateRightIcon from '@mui/icons-material/RotateRight'
@@ -32,6 +33,7 @@ import {
     setSnackBarText,
 } from '../../../../../../core/redux/actions/actions.js'
 import { getAppConfig } from '../../../../../../core/appConfig'
+import { resultsStatuses } from '../../../../../../core/constants'
 
 const useStyles = makeStyles((theme) => ({
     Heading: {
@@ -55,8 +57,12 @@ const useStyles = makeStyles((theme) => ({
     left: {
         display: 'flex',
         alignItems: 'center',
+        gap: theme.spacing(1),
         flexShrink: 0,
         minWidth: 0,
+    },
+    loadingSpinner: {
+        display: 'flex',
     },
     middle: {
         flex: 1,
@@ -140,6 +146,9 @@ const Heading = (props) => {
 
     const filterType = useSelector((state) => state.getIn(['filterType']))
     const gridSize = useSelector((state) => state.getIn(['gridSize']))
+    const loadingMore = useSelector(
+        (state) => state.getIn(['resultsStatus', 'status']) === resultsStatuses.LOADING
+    )
 
     const resultKeysChecked = useSelector((state) => state.getIn(['resultKeysChecked'])).toJS()
 
@@ -167,6 +176,13 @@ const Heading = (props) => {
         <div className={c.Heading}>
             <div className={c.left}>
                 <div className={c.title}>Results</div>
+                {loadingMore && (
+                    <Tooltip title="Loading more results" arrow>
+                        <div className={c.loadingSpinner} role="status">
+                            <CircularProgress size={16} aria-label="Loading more results" />
+                        </div>
+                    </Tooltip>
+                )}
             </div>
             <div className={c.middle}>{filterType === 'basic' && <ChippedFilters />}</div>
             <div className={c.right}>

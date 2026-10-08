@@ -90,6 +90,16 @@ test.describe('Search - lazy filter aggs', () => {
         await page.getByRole('button', { name: 'remove mission filter' }).click()
         await expect(page.getByText('Mars 2020')).toHaveCount(0)
 
+        // Re-adding is served from the cache, so the searching overlay should never appear
+        await page.evaluate(() => {
+            window.__sawSearching = false
+            new MutationObserver(() => {
+                if (document.body.textContent.includes('Searching')) {
+                    window.__sawSearching = true
+                }
+            }).observe(document.body, { childList: true, subtree: true, characterData: true })
+        })
+
         await page.getByRole('button', { name: 'add filter' }).click()
         const dialog = page.getByRole('dialog')
         await page.getByPlaceholder('Find Filter').fill('mission')
@@ -105,6 +115,7 @@ test.describe('Search - lazy filter aggs', () => {
         await expect(page.getByText('Mars 2020')).toBeVisible({ timeout: 15_000 })
         // Same query and agg, so the values come from the search cache
         expect(filterAggRequests(requests)).toHaveLength(1)
+        expect(await page.evaluate(() => window.__sawSearching)).toBe(false)
     })
 
     test('a failed filter agg shows a retry without failing the search', async ({ page }) => {

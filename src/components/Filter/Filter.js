@@ -20,7 +20,7 @@ import MuiAccordionDetails from '@mui/material/AccordionDetails'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
-import LinearProgress from '@mui/material/LinearProgress'
+import CircularProgress from '@mui/material/CircularProgress'
 import Button from '@mui/material/Button'
 import Badge from '@mui/material/Badge'
 import TextField from '@mui/material/TextField'
@@ -284,9 +284,8 @@ const useStyles = makeStyles((theme) => ({
     facetsStatusText: {
         flex: 1,
     },
-    facetsProgress: {
-        height: '2px',
-        margin: `0px ${theme.spacing(2)} ${theme.spacing(1)}`,
+    facetsSpinner: {
+        display: 'flex',
     },
     facetsRetry: {
         'minWidth': 'unset',
@@ -394,17 +393,6 @@ const getSubFilters = (filter, filterKey, settingsActive) => {
 
 const FacetsStatus = ({ status, c }) => {
     const dispatch = useDispatch()
-
-    if (status === facetsStatuses.LOADING) {
-        return (
-            <div role="status" aria-label="Loading filter values">
-                <div className={c.facetsStatus}>
-                    <span className={c.facetsStatusText}>Loading values…</span>
-                </div>
-                <LinearProgress className={c.facetsProgress} />
-            </div>
-        )
-    }
 
     if (status !== facetsStatuses.TIMED_OUT && status !== facetsStatuses.ERROR) {
         return null
@@ -578,6 +566,16 @@ const Filter = (props) => {
                             </Tooltip>
                         </Badge>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {facetsStatus === facetsStatuses.LOADING && (
+                                <Tooltip title="Loading values…" arrow>
+                                    <div className={c.facetsSpinner} role="status">
+                                        <CircularProgress
+                                            size={14}
+                                            aria-label="Loading filter values"
+                                        />
+                                    </div>
+                                </Tooltip>
+                            )}
                             <div className={c.headerButtons}>
                                 {/*
                             {expanded && (

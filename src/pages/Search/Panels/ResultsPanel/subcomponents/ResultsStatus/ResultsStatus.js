@@ -13,7 +13,6 @@ import { makeStyles } from '@mui/styles'
 
 import Paper from '@mui/material/Paper'
 import CircularProgress from '@mui/material/CircularProgress'
-import LinearProgress from '@mui/material/LinearProgress'
 import Tooltip from '@mui/material/Tooltip'
 
 import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined'
@@ -88,22 +87,6 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '16px',
         textTransform: 'uppercase',
     },
-    loading: {
-        position: 'absolute',
-        top: `-${theme.headHeights[1] * 2 + 1}px`,
-        width: '100%',
-    },
-    loadingProgress: {
-        'width': '100%',
-        'height': '2px',
-        'overflow': 'hidden',
-        '& .MuiLinearProgress-colorPrimary': {
-            background: 'transparent',
-        },
-        '& .MuiLinearProgress-barColorPrimary': {
-            background: theme.palette.accent.main,
-        },
-    },
     none: {
         background: theme.palette.swatches.yellow.yellow700,
         fontSize: '16px',
@@ -156,7 +139,6 @@ const ResultsStatus = (props) => {
     }).toJS()
 
     let inner = null
-    let outer = null
     let isHidden = false
 
     switch (resultsStatus.status) {
@@ -184,13 +166,8 @@ const ResultsStatus = (props) => {
             )
             break
         case resultsStatuses.LOADING:
-            outer = (
-                <div className={c.loading}>
-                    <div className={c.loadingProgress}>
-                        <LinearProgress />
-                    </div>
-                </div>
-            )
+            // Shown as a spinner in the results Heading
+            isHidden = true
             break
         case resultsStatuses.NONE:
             inner = (
@@ -231,7 +208,6 @@ const ResultsStatus = (props) => {
 
     return (
         <div className={clsx(c.ResultsStatus, { [c.hidden]: isHidden })}>
-            {outer}
             <Paper className={c.paper} elevation={2}>
                 {inner}
             </Paper>

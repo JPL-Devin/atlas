@@ -1298,9 +1298,6 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
 
         const resultsTable = state.getIn(['resultsTable']).toJS()
 
-        if (page > 0) dispatch(setResultsStatus(resultsStatuses.LOADING))
-        else dispatch(setResultsStatus(resultsStatuses.SEARCHING))
-
         page = page || 0
         let from = page
         from *= resultsPerPage
@@ -1394,6 +1391,13 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                 }
             }, 0)
             return
+        }
+
+        // Only after the cache miss so cached replays don't flash the searching overlay
+        if (page > 0) {
+            dispatch(setResultsStatus(resultsStatuses.LOADING))
+        } else {
+            dispatch(setResultsStatus(resultsStatuses.SEARCHING))
         }
 
         axios
