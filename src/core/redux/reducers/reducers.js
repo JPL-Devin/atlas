@@ -24,6 +24,7 @@ const reducerFuncs = {
     SET_EXPANDED_FILTER: setExpandedFilter,
     RESET_FACETS_STATUS: resetFacetsStatus,
     SET_FACETS_STATUS: setFacetsStatus,
+    SET_MAP_VISIBLE: setMapVisible,
     SET_FIELD_STATE: setFieldState,
     SET_ADVANCED_FILTERS: setAdvancedFilters,
     SET_ADVANCED_FILTERS_EXPRESSION: setAdvancedFiltersExpression,
@@ -245,6 +246,10 @@ function updateGeoGrid(state, payload) {
 
 function setExpandedFilter(state, payload) {
     return state.setIn(['expandedFilter'], payload.filterKey)
+}
+
+function setMapVisible(state, payload) {
+    return state.setIn(['mapVisible'], payload.visible)
 }
 
 function resetFacetsStatus(state) {

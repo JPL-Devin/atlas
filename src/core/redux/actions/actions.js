@@ -95,6 +95,7 @@ let flatActions = [
     'SET_EXPANDED_FILTER',
     'RESET_FACETS_STATUS',
     'SET_FACETS_STATUS',
+    'SET_MAP_VISIBLE',
     'SET_FIELD_STATE',
     'SET_ADVANCED_FILTERS',
     'SET_ADVANCED_FILTERS_EXPRESSION',
@@ -706,6 +707,8 @@ const FACETS_ES_TIMEOUT = '20s'
 let currentFacetsQuery = null
 let currentFacetsQueryKey = null
 const facetsRequests = { secondary: null, filter: null }
+// The query the mission and map aggs were last requested for
+let secondaryQueryKey = null
 
 const abortFacetsRequest = (dispatch, slot) => {
     const request = facetsRequests[slot]
@@ -732,14 +735,19 @@ const requestFacets = (dispatch, getState, slot, aggs, filterKeys) => {
     }
     const cacheKey = JSON.stringify(dsl)
 
+    // A filter removed while its request was in flight must not come back already loaded
+    const getActiveFilterKeys = () =>
+        filterKeys.filter((key) => getState().getIn(['activeFilters', key]) != null)
+
     const applyData = (data) => {
         applyFacetsResponse(dispatch, getState, data.aggregations || {}, filterKeys)
-        if (filterKeys.length > 0) {
+        const activeFilterKeys = getActiveFilterKeys()
+        if (activeFilterKeys.length > 0) {
             // ES returns what it gathered so far when it hits its timeout
             const partial = data.timed_out === true || data._shards?.failed > 0
             dispatch(
                 setFacetsStatus(
-                    filterKeys,
+                    activeFilterKeys,
                     partial ? facetsStatuses.TIMED_OUT : facetsStatuses.LOADED
                 )
             )
@@ -748,9 +756,12 @@ const requestFacets = (dispatch, getState, slot, aggs, filterKeys) => {
     const dispatchFacetsError = (err) => {
         console.error('Failed to load filter aggregations', err)
         if (filterKeys.length > 0) {
-            dispatch(setFacetsStatus(filterKeys, facetsStatuses.ERROR))
-        } else if (getAppConfig().enableMap) {
-            dispatch(updateGeoGrid([]))
+            dispatch(setFacetsStatus(getActiveFilterKeys(), facetsStatuses.ERROR))
+        } else {
+            secondaryQueryKey = null
+            if (getAppConfig().enableMap) {
+                dispatch(updateGeoGrid([]))
+            }
         }
     }
 
@@ -819,8 +830,8 @@ const loadExpandedFilterFacets = (dispatch, getState, filterAggs, force) => {
 }
 
 /**
- * Loads the aggs a search needs. A new query reloads the mission and map aggs and
- * invalidates every filter's aggs; only the expanded filter's agg is then requested.
+ * Loads the aggs a search needs. A new query invalidates the mission and map aggs and
+ * every filter's aggs; only those for the open map and the expanded filter are requested.
  */
 const loadFacets = (dispatch, getState, query, filterAggs) => {
     const queryKey = JSON.stringify(query)
@@ -829,9 +840,44 @@ const loadFacets = (dispatch, getState, query, filterAggs) => {
         currentFacetsQuery = query
         currentFacetsQueryKey = queryKey
         dispatch({ type: ACTIONS.RESET_FACETS_STATUS, payload: {} })
-        requestFacets(dispatch, getState, 'secondary', getSecondaryAggs(), [])
+        if (!getState().get('mapVisible')) {
+            // Hidden until the map opens, which then loads the new grid
+            dispatch(updateGeoGrid([]))
+        }
     }
+    loadSecondaryFacets(dispatch, getState)
     loadExpandedFilterFacets(dispatch, getState, filterAggs)
+}
+
+/**
+ * Loads the mission and map aggs for the current query. Only the map uses them,
+ * so they wait until it's open.
+ */
+const loadSecondaryFacets = (dispatch, getState) => {
+    if (
+        currentFacetsQuery == null ||
+        !getState().get('mapVisible') ||
+        secondaryQueryKey === currentFacetsQueryKey
+    ) {
+        return
+    }
+    secondaryQueryKey = currentFacetsQueryKey
+    requestFacets(dispatch, getState, 'secondary', getSecondaryAggs(), [])
+}
+
+/**
+ * Sets whether the map is open, loading its aggs when it opens
+ *
+ * @param {boolean} visible
+ */
+export const setMapVisible = (visible) => {
+    return (dispatch, getState) => {
+        if (getState().get('mapVisible') === visible) {
+            return
+        }
+        dispatch({ type: ACTIONS.SET_MAP_VISIBLE, payload: { visible } })
+        loadSecondaryFacets(dispatch, getState)
+    }
 }
 
 /**

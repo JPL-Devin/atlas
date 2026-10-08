@@ -60,6 +60,23 @@ const routeSearch = async (page, { failFilterAggs = false, filterAggDelay = 0 } 
 const filterAggRequests = (requests) =>
     requests.filter((r) => Object.keys(r.aggs || {}).some((key) => key[0] !== '_'))
 
+const secondaryAggRequests = (requests) =>
+    requests.filter((r) => Object.keys(r.aggs || {}).includes('_activeMissions'))
+
+const readdMissionFilter = async (page) => {
+    await page.getByRole('button', { name: 'add filter' }).click()
+    const dialog = page.getByRole('dialog')
+    await page.getByPlaceholder('Find Filter').fill('mission')
+    await dialog.getByRole('treeitem', { name: 'Common' }).click()
+    await dialog
+        .getByRole('treeitem', { name: /info mission$/ })
+        .getByRole('checkbox')
+        .click()
+    await expect(dialog.getByText('1 new filter selected')).toBeVisible()
+    await page.getByRole('button', { name: /add selected filters/i }).click()
+    await expect(dialog).not.toBeVisible({ timeout: 5_000 })
+}
+
 test.describe('Search - lazy filter aggs', () => {
     test('results never carry aggs and a filter loads its agg when expanded', async ({ page }) => {
         const requests = await routeSearch(page)
@@ -127,22 +144,56 @@ test.describe('Search - lazy filter aggs', () => {
             }).observe(document.body, { childList: true, subtree: true, characterData: true })
         })
 
-        await page.getByRole('button', { name: 'add filter' }).click()
-        const dialog = page.getByRole('dialog')
-        await page.getByPlaceholder('Find Filter').fill('mission')
-        await dialog.getByRole('treeitem', { name: 'Common' }).click()
-        await dialog
-            .getByRole('treeitem', { name: /info mission$/ })
-            .getByRole('checkbox')
-            .click()
-        await expect(dialog.getByText('1 new filter selected')).toBeVisible()
-        await page.getByRole('button', { name: /add selected filters/i }).click()
-        await expect(dialog).not.toBeVisible({ timeout: 5_000 })
+        await readdMissionFilter(page)
 
         await expect(page.getByText('Mars 2020')).toBeVisible({ timeout: 15_000 })
         // Same query and agg, so the values come from the search cache
         expect(filterAggRequests(requests)).toHaveLength(1)
         expect(await page.evaluate(() => window.__sawSearching)).toBe(false)
+    })
+
+    test('a filter removed while loading loads its values again when re-added', async ({
+        page,
+    }) => {
+        await routeSearch(page, { filterAggDelay: 2_000 })
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+        await expect(page.getByText('No Records Found')).toBeVisible({ timeout: 30_000 })
+
+        await page.getByText('mission', { exact: true }).first().click()
+        await expect(page.getByRole('progressbar', { name: 'Loading filter values' })).toBeVisible()
+        await page.getByRole('button', { name: 'remove mission filter' }).click()
+        // Let the removed filter's response arrive
+        await page.waitForTimeout(2_500)
+
+        await readdMissionFilter(page)
+        const summary = page
+            .locator('[aria-expanded]')
+            .filter({ has: page.getByText('mission', { exact: true }) })
+        if ((await summary.getAttribute('aria-expanded')) !== 'true') {
+            await page.getByText('mission', { exact: true }).first().click()
+        }
+        await expect(page.getByText('Mars 2020')).toBeVisible({ timeout: 15_000 })
+    })
+
+    test('mission and map aggs are only requested while the map is open', async ({ page }) => {
+        const requests = await routeSearch(page)
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+        await expect(page.getByText('No Records Found')).toBeVisible({ timeout: 30_000 })
+        expect(secondaryAggRequests(requests)).toEqual([])
+
+        await page.getByRole('tab', { name: 'Map', exact: true }).click()
+        await expect.poll(() => secondaryAggRequests(requests).length).toBe(1)
+        expect(secondaryAggRequests(requests)[0].size).toBe(0)
+
+        // Same query, so reopening the map doesn't request them again
+        await page.getByRole('tab', { name: 'Grid', exact: true }).click()
+        await page.getByRole('tab', { name: 'Map', exact: true }).click()
+        await page.waitForTimeout(500)
+        expect(secondaryAggRequests(requests)).toHaveLength(1)
     })
 
     test('a failed filter agg shows a retry without failing the search', async ({ page }) => {
