@@ -201,7 +201,10 @@ function removeActiveFilters(state, payload) {
         if (nextActiveFilters[id] != null) delete nextActiveFilters[id]
         else console.warn(`Tried to delete an active filter that does not exist: ${id}`)
     })
-    return state.setIn(['activeFilters'], fromJS(nextActiveFilters))
+    // A re-added filter starts without fields, so its aggs must be reloaded
+    return state
+        .setIn(['activeFilters'], fromJS(nextActiveFilters))
+        .updateIn(['facetsStatus'], (facetsStatus) => facetsStatus.deleteAll(ids))
 }
 
 /**

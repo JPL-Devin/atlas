@@ -77,6 +77,36 @@ test.describe('Search - lazy filter aggs', () => {
         expect(Object.keys(aggRequests[0].aggs)).toEqual([MISSION])
     })
 
+    test('a removed and re-added filter loads its values again', async ({ page }) => {
+        const requests = await routeSearch(page)
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+        await expect(page.getByText('No Records Found')).toBeVisible({ timeout: 30_000 })
+
+        await page.getByText('mission', { exact: true }).first().click()
+        await expect(page.getByText('Mars 2020')).toBeVisible({ timeout: 15_000 })
+
+        await page.getByRole('button', { name: 'remove mission filter' }).click()
+        await expect(page.getByText('Mars 2020')).toHaveCount(0)
+
+        await page.getByRole('button', { name: 'add filter' }).click()
+        const dialog = page.getByRole('dialog')
+        await page.getByPlaceholder('Find Filter').fill('mission')
+        await dialog.getByRole('treeitem', { name: 'Common' }).click()
+        await dialog
+            .getByRole('treeitem', { name: /info mission$/ })
+            .getByRole('checkbox')
+            .click()
+        await expect(dialog.getByText('1 new filter selected')).toBeVisible()
+        await page.getByRole('button', { name: /add selected filters/i }).click()
+        await expect(dialog).not.toBeVisible({ timeout: 5_000 })
+
+        await expect(page.getByText('Mars 2020')).toBeVisible({ timeout: 15_000 })
+        // Same query and agg, so the values come from the search cache
+        expect(filterAggRequests(requests)).toHaveLength(1)
+    })
+
     test('a failed filter agg shows a retry without failing the search', async ({ page }) => {
         await routeSearch(page, { failFilterAggs: true })
 

@@ -527,6 +527,9 @@ const applyFacetsResponse = (dispatch, getState, aggs, filterKeys) => {
             .sort((a, b) => parseFloat(a.min) - parseFloat(b.max))
         aggs['bounding_box'] = geoLngLatBuckets
         dispatch(updateGeoGrid(geoGrid))
+    } else if (filterKeys.length === 0 && getAppConfig().enableMap) {
+        // Don't keep showing a previous query's heatmap
+        dispatch(updateGeoGrid([]))
     }
 
     // Update Filters
@@ -746,6 +749,8 @@ const requestFacets = (dispatch, getState, slot, aggs, filterKeys) => {
         console.error('Failed to load filter aggregations', err)
         if (filterKeys.length > 0) {
             dispatch(setFacetsStatus(filterKeys, facetsStatuses.ERROR))
+        } else if (getAppConfig().enableMap) {
+            dispatch(updateGeoGrid([]))
         }
     }
 
