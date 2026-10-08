@@ -274,7 +274,12 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.swatches.grey.grey600,
     },
     facetsStatusWarning: {
-        color: theme.palette.swatches.red.red500,
+        margin: `0px ${theme.spacing(2)} ${theme.spacing(1)}`,
+        padding: `${theme.spacing(0.5)} ${theme.spacing(1)}`,
+        borderRadius: '2px',
+        background: theme.palette.swatches.yellow.yellow700,
+        color: theme.palette.swatches.grey.grey900,
+        fontWeight: 500,
     },
     facetsStatusText: {
         flex: 1,
@@ -288,9 +293,11 @@ const useStyles = makeStyles((theme) => ({
         'padding': '0px 6px',
         'fontSize': '12px',
         'textTransform': 'none',
-        'color': theme.palette.swatches.blue.blue900,
+        'color': 'inherit',
+        'fontWeight': 600,
+        'textDecoration': 'underline',
         '&:hover': {
-            textDecoration: 'underline',
+            background: 'rgba(0, 0, 0, 0.08)',
         },
     },
     accordionHeadOpen: {
