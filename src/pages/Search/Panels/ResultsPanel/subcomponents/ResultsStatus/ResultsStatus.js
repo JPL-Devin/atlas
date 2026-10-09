@@ -153,6 +153,8 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
+const LOADING_MORE_DELAY_MS = 1500
+
 const ResultsStatus = (props) => {
     const c = useStyles()
     const dispatch = useDispatch()
@@ -245,7 +247,12 @@ const ResultsStatus = (props) => {
                     {inner}
                 </Paper>
             </div>
-            <Fade in={isLoadingMore} timeout={200}>
+            {/* Fast pages finish within the delay and never show the box */}
+            <Fade
+                in={isLoadingMore}
+                timeout={200}
+                style={{ transitionDelay: isLoadingMore ? `${LOADING_MORE_DELAY_MS}ms` : '0ms' }}
+            >
                 <div
                     className={clsx(
                         c.loadingMore,

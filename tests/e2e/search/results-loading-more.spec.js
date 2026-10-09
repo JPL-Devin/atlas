@@ -53,27 +53,53 @@ const routeSearch = async (page, nextPageDelay) => {
     })
 }
 
+const scrollToNextPage = async (page) => {
+    await page.goto('/search', { waitUntil: 'domcontentloaded' })
+    await waitForAppReady(page)
+    await page.getByRole('tab', { name: 'List', exact: true }).click()
+    await expect(page.locator('[result-id]').first()).toBeVisible({ timeout: 30_000 })
+
+    const loading = page.getByRole('status', { name: 'Loading more results' })
+    await expect(loading).toHaveCount(0)
+
+    // Track the box's highest opacity so a brief flash can't slip between assertions
+    await page.evaluate(() => {
+        window.__maxLoadingOpacity = 0
+        const sample = () => {
+            const el = document.querySelector('[aria-label="Loading more results"]')
+            if (el) {
+                window.__maxLoadingOpacity = Math.max(
+                    window.__maxLoadingOpacity,
+                    Number(getComputedStyle(el).opacity)
+                )
+            }
+            requestAnimationFrame(sample)
+        }
+        requestAnimationFrame(sample)
+    })
+
+    // The virtualized list grows as it renders, so keep scrolling until the next page is asked for
+    await expect(async () => {
+        await page.locator('#ListViewContent').evaluate((el) => {
+            el.scrollTop = el.scrollHeight
+        })
+        await expect(loading).toBeVisible({ timeout: 300 })
+    }).toPass({ timeout: 10_000 })
+    return loading
+}
+
+const maxLoadingOpacity = (page) => page.evaluate(() => window.__maxLoadingOpacity)
+
 test.describe('Search - loading more results', () => {
-    test('the next page shows a loading box at the bottom-right of the results', async ({
+    test('a slow next page fades in a loading box at the bottom-right after 1.5s', async ({
         page,
     }) => {
-        await routeSearch(page, 2_000)
-        await page.goto('/search', { waitUntil: 'domcontentloaded' })
-        await waitForAppReady(page)
-        await page.getByRole('tab', { name: 'List', exact: true }).click()
+        await routeSearch(page, 3_500)
+        const loading = await scrollToNextPage(page)
 
-        const views = page.locator('[result-id]').first()
-        await expect(views).toBeVisible({ timeout: 30_000 })
-        const loading = page.getByRole('status', { name: 'Loading more results' })
-        await expect(loading).toHaveCount(0)
-
-        // The virtualized list grows as it renders, so keep scrolling until the next page is asked for
-        await expect(async () => {
-            await page.locator('#ListViewContent').evaluate((el) => {
-                el.scrollTop = el.scrollHeight
-            })
-            await expect(loading).toBeVisible({ timeout: 300 })
-        }).toPass({ timeout: 10_000 })
+        await page.waitForTimeout(1_000)
+        expect(await maxLoadingOpacity(page)).toBe(0)
+        await expect(loading).toHaveCSS('opacity', '1', { timeout: 2_000 })
 
         const box = await loading.boundingBox()
         const viewport = page.viewportSize()
@@ -82,5 +108,14 @@ test.describe('Search - loading more results', () => {
         await expect(page.getByText('Searching')).toHaveCount(0)
 
         await expect(loading).toHaveCount(0, { timeout: 10_000 })
+    })
+
+    test('a fast next page never shows the loading box', async ({ page }) => {
+        await routeSearch(page, 500)
+        const loading = await scrollToNextPage(page)
+
+        await expect(loading).toHaveCount(0, { timeout: 5_000 })
+        await page.waitForTimeout(300)
+        expect(await maxLoadingOpacity(page)).toBe(0)
     })
 })
