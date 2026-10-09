@@ -842,6 +842,7 @@ const loadFacets = (dispatch, getState, query, filterAggs) => {
         dispatch({ type: ACTIONS.RESET_FACETS_STATUS, payload: {} })
         if (!getState().get('mapVisible')) {
             // Hidden until the map opens, which then loads the new grid
+            secondaryQueryKey = null
             dispatch(updateGeoGrid([]))
         }
     }

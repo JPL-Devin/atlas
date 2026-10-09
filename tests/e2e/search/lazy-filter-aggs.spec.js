@@ -17,7 +17,10 @@ const hitsResponse = () => ({
 
 const MAPPING_URL = 'https://pds-imaging.jpl.nasa.gov/api/search/atlas/_mapping'
 
-const routeSearch = async (page, { failFilterAggs = false, filterAggDelay = 0 } = {}) => {
+const routeSearch = async (
+    page,
+    { failFilterAggs = false, filterAggDelay = 0, geoGrid = [] } = {}
+) => {
     // Filters come from the live mapping; proxied so a REACT_APP_DOMAIN without CORS still works
     await page.route(/_mapping/, async (route) => {
         const response = await route.fetch({ url: MAPPING_URL })
@@ -45,7 +48,12 @@ const routeSearch = async (page, { failFilterAggs = false, filterAggDelay = 0 } 
         const aggregations = {}
         aggKeys.forEach((key) => {
             aggregations[key] = {
-                buckets: key === '_geoGrid' ? [] : [{ key: 'Mars 2020', doc_count: 5 }],
+                buckets:
+                    key === '_geoGrid'
+                        ? geoGrid
+                        : key === '_activeMissions'
+                          ? []
+                          : [{ key: 'Mars 2020', doc_count: 5 }],
             }
         })
         await route.fulfill({
@@ -194,6 +202,33 @@ test.describe('Search - lazy filter aggs', () => {
         await page.getByRole('tab', { name: 'Map', exact: true }).click()
         await page.waitForTimeout(500)
         expect(secondaryAggRequests(requests)).toHaveLength(1)
+    })
+
+    test('reopening the map after returning to an earlier query shows its heatmap', async ({
+        page,
+    }) => {
+        await routeSearch(page, { geoGrid: [{ key: '9q', doc_count: 5 }] })
+        const heatmapCells = () => page.evaluate(() => window.geoGridLayer?.getLayers().length ?? 0)
+
+        await page.goto('/search', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+        await expect(page.getByText('No Records Found')).toBeVisible({ timeout: 30_000 })
+        await page.getByRole('tab', { name: 'Map', exact: true }).click()
+        // The map is only created once a body is picked
+        await page.getByText('Target Bodies', { exact: true }).click()
+        await page.getByRole('option', { name: 'Mars', exact: true }).click()
+        await expect(page.locator('.leaflet-container').first()).toBeVisible()
+
+        // Close the map, change the query, then return to the first query
+        await page.getByRole('tab', { name: 'Grid', exact: true }).click()
+        await page.getByText('mission', { exact: true }).first().click()
+        const mars = page.getByText('Mars 2020', { exact: true })
+        await mars.click()
+        await expect(page.getByRole('button', { name: /clear/i }).first()).toBeVisible()
+        await mars.click()
+
+        await page.getByRole('tab', { name: 'Map', exact: true }).click()
+        await expect.poll(heatmapCells).toBe(1)
     })
 
     test('a failed filter agg shows a retry without failing the search', async ({ page }) => {
