@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -13,6 +13,7 @@ import { makeStyles } from '@mui/styles'
 
 import Paper from '@mui/material/Paper'
 import CircularProgress from '@mui/material/CircularProgress'
+import Fade from '@mui/material/Fade'
 import Tooltip from '@mui/material/Tooltip'
 
 import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined'
@@ -161,7 +162,7 @@ const ResultsStatus = (props) => {
     }).toJS()
 
     let inner = null
-    let loadingMore = null
+    let isLoadingMore = false
     let isHidden = false
 
     switch (resultsStatus.status) {
@@ -191,20 +192,7 @@ const ResultsStatus = (props) => {
         case resultsStatuses.LOADING:
             // Next page: a small box at the scroll edge being loaded, instead of the overlay
             isHidden = true
-            loadingMore = (
-                <div
-                    className={clsx(
-                        c.loadingMore,
-                        resultsStatus.message?.direction === 'up'
-                            ? c.loadingMoreTop
-                            : c.loadingMoreBottom
-                    )}
-                    role="status"
-                    aria-label="Loading more results"
-                >
-                    <CircularProgress size={20} />
-                </div>
-            )
+            isLoadingMore = true
             break
         case resultsStatuses.NONE:
             inner = (
@@ -243,6 +231,13 @@ const ResultsStatus = (props) => {
             break
     }
 
+    // Kept after loading ends so the box fades out in the corner it appeared in
+    const direction = resultsStatus.message?.direction
+    const [loadingMoreDirection, setLoadingMoreDirection] = useState(direction)
+    if (isLoadingMore && direction && direction !== loadingMoreDirection) {
+        setLoadingMoreDirection(direction)
+    }
+
     return (
         <>
             <div className={clsx(c.ResultsStatus, { [c.hidden]: isHidden })}>
@@ -250,7 +245,18 @@ const ResultsStatus = (props) => {
                     {inner}
                 </Paper>
             </div>
-            {loadingMore}
+            <Fade in={isLoadingMore} timeout={200}>
+                <div
+                    className={clsx(
+                        c.loadingMore,
+                        loadingMoreDirection === 'up' ? c.loadingMoreTop : c.loadingMoreBottom
+                    )}
+                    role="status"
+                    aria-label="Loading more results"
+                >
+                    <CircularProgress size={20} />
+                </div>
+            </Fade>
         </>
     )
 }
