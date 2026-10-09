@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 
@@ -13,7 +13,7 @@ import { makeStyles } from '@mui/styles'
 
 import Paper from '@mui/material/Paper'
 import CircularProgress from '@mui/material/CircularProgress'
-import LinearProgress from '@mui/material/LinearProgress'
+import Fade from '@mui/material/Fade'
 import Tooltip from '@mui/material/Tooltip'
 
 import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined'
@@ -88,21 +88,27 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '16px',
         textTransform: 'uppercase',
     },
-    loading: {
-        position: 'absolute',
-        top: `-${theme.headHeights[1] * 2 + 1}px`,
-        width: '100%',
+    loadingMore: {
+        'position': 'absolute',
+        'right': theme.spacing(3),
+        'width': '40px',
+        'height': '40px',
+        'display': 'flex',
+        'alignItems': 'center',
+        'justifyContent': 'center',
+        'borderRadius': '6px',
+        'background': theme.palette.accent.main,
+        'boxShadow': theme.shadows[2],
+        'pointerEvents': 'none',
+        '& .MuiCircularProgress-colorPrimary': {
+            color: theme.palette.text.secondary,
+        },
     },
-    loadingProgress: {
-        'width': '100%',
-        'height': '2px',
-        'overflow': 'hidden',
-        '& .MuiLinearProgress-colorPrimary': {
-            background: 'transparent',
-        },
-        '& .MuiLinearProgress-barColorPrimary': {
-            background: theme.palette.accent.main,
-        },
+    loadingMoreTop: {
+        top: theme.spacing(1.5),
+    },
+    loadingMoreBottom: {
+        bottom: theme.spacing(1.5),
     },
     none: {
         background: theme.palette.swatches.yellow.yellow700,
@@ -147,6 +153,8 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
+const LOADING_MORE_DELAY_MS = 1500
+
 const ResultsStatus = (props) => {
     const c = useStyles()
     const dispatch = useDispatch()
@@ -156,7 +164,7 @@ const ResultsStatus = (props) => {
     }).toJS()
 
     let inner = null
-    let outer = null
+    let isLoadingMore = false
     let isHidden = false
 
     switch (resultsStatus.status) {
@@ -184,13 +192,9 @@ const ResultsStatus = (props) => {
             )
             break
         case resultsStatuses.LOADING:
-            outer = (
-                <div className={c.loading}>
-                    <div className={c.loadingProgress}>
-                        <LinearProgress />
-                    </div>
-                </div>
-            )
+            // Next page: a small box at the scroll edge being loaded, instead of the overlay
+            isHidden = true
+            isLoadingMore = true
             break
         case resultsStatuses.NONE:
             inner = (
@@ -229,13 +233,38 @@ const ResultsStatus = (props) => {
             break
     }
 
+    // Kept after loading ends so the box fades out in the corner it appeared in
+    const direction = resultsStatus.message?.direction
+    const [loadingMoreDirection, setLoadingMoreDirection] = useState(direction)
+    if (isLoadingMore && direction && direction !== loadingMoreDirection) {
+        setLoadingMoreDirection(direction)
+    }
+
     return (
-        <div className={clsx(c.ResultsStatus, { [c.hidden]: isHidden })}>
-            {outer}
-            <Paper className={c.paper} elevation={2}>
-                {inner}
-            </Paper>
-        </div>
+        <>
+            <div className={clsx(c.ResultsStatus, { [c.hidden]: isHidden })}>
+                <Paper className={c.paper} elevation={2}>
+                    {inner}
+                </Paper>
+            </div>
+            {/* Fast pages finish within the delay and never show the box */}
+            <Fade
+                in={isLoadingMore}
+                timeout={200}
+                style={{ transitionDelay: isLoadingMore ? `${LOADING_MORE_DELAY_MS}ms` : '0ms' }}
+            >
+                <div
+                    className={clsx(
+                        c.loadingMore,
+                        loadingMoreDirection === 'up' ? c.loadingMoreTop : c.loadingMoreBottom
+                    )}
+                    role="status"
+                    aria-label="Loading more results"
+                >
+                    <CircularProgress size={20} />
+                </div>
+            </Fade>
+        </>
     )
 }
 

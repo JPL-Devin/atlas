@@ -7,6 +7,7 @@ import {
     domain,
     endpoints,
     resultsStatuses,
+    facetsStatuses,
     ES_PATHS,
     HASH_PATHS,
 } from '../../constants'
@@ -34,6 +35,7 @@ const searchCache = new Map()
 let pendingCachedReplay = null
 // Everything but `from`, so in-flight page loads of the current search still apply
 let currentSearchSignature = null
+let resultsAbortController = null
 const getSearchSignature = (dsl) => JSON.stringify({ ...dsl, from: undefined })
 
 const getCachedSearch = (key) => {
@@ -90,6 +92,10 @@ let flatActions = [
     'CLEAR_ACTIVE_FILTERS',
     'UPDATE_ACTIVE_MISSIONS',
     'UPDATE_GEO_GRID',
+    'SET_EXPANDED_FILTER',
+    'RESET_FACETS_STATUS',
+    'SET_FACETS_STATUS',
+    'SET_MAP_VISIBLE',
     'SET_FIELD_STATE',
     'SET_ADVANCED_FILTERS',
     'SET_ADVANCED_FILTERS_EXPRESSION',
@@ -402,54 +408,71 @@ export const updateGeoGrid = (buckets) => {
 }
 
 /**
- * Applies a search response (network or cached) to the store
+ * Applies a results response (network or cached) to the store
  *
  * @param {function} dispatch - redux dispatch
  * @param {Object} response - object with the elasticsearch response body under `data`
- * @param {Object} options - the originating search's page, filtersNeedUpdate,
- *   pageNeedsUpdate, url, dsl, atlasMapping and activeFilters
+ * @param {Object} options - the originating search's page, filtersNeedUpdate, pageNeedsUpdate and dsl
  */
 const handleSearchResponse = (
     dispatch,
     response,
-    { page, filtersNeedUpdate, pageNeedsUpdate, url, dsl, atlasMapping, activeFilters }
+    { page, filtersNeedUpdate, pageNeedsUpdate, dsl }
 ) => {
-    const aggs = response.data.aggregations || {}
-    const urlHasQuery = url != null ? Object.keys(url.query).length > 0 : false
-    if (!urlHasQuery) {
-        let cartImages = []
-        for (let i = 0; i < 4 && i < response.data.hits.hits.length; i++) {
-            const release_id = getIn(response.data.hits.hits[i]._source, ES_PATHS.release_id)
-            cartImages.push(
-                `${getIn(response.data.hits.hits[i]._source, ES_PATHS.thumb)}${
-                    release_id != null && release_id != 0 ? `::${release_id}` : ''
-                }`
-            )
-        }
-
-        const resultsTotal = getIn(response, 'data.hits.total.value')
-        dispatch({
-            type: ACTIONS.SET_LAST_QUERY,
-            payload: {
-                total: resultsTotal,
-                images: cartImages.reverse(),
-                query: dsl.query,
-            },
-        })
-
-        // Update Results
-        dispatch({
-            type: ACTIONS.ADD_RESULTS,
-            payload: {
-                results: response.data.hits.hits,
-                total: resultsTotal,
-                page: page,
-            },
-        })
-
-        if (resultsTotal === 0) dispatch(setResultsStatus(resultsStatuses.NONE))
-        else dispatch(setResultsStatus(resultsStatuses.SUCCESSFUL))
+    let cartImages = []
+    for (let i = 0; i < 4 && i < response.data.hits.hits.length; i++) {
+        const release_id = getIn(response.data.hits.hits[i]._source, ES_PATHS.release_id)
+        cartImages.push(
+            `${getIn(response.data.hits.hits[i]._source, ES_PATHS.thumb)}${
+                release_id != null && release_id != 0 ? `::${release_id}` : ''
+            }`
+        )
     }
+
+    const resultsTotal = getIn(response, 'data.hits.total.value')
+    dispatch({
+        type: ACTIONS.SET_LAST_QUERY,
+        payload: {
+            total: resultsTotal,
+            images: cartImages.reverse(),
+            query: dsl.query,
+        },
+    })
+
+    // Update Results
+    dispatch({
+        type: ACTIONS.ADD_RESULTS,
+        payload: {
+            results: response.data.hits.hits,
+            total: resultsTotal,
+            page: page,
+        },
+    })
+
+    if (resultsTotal === 0) dispatch(setResultsStatus(resultsStatuses.NONE))
+    else dispatch(setResultsStatus(resultsStatuses.SUCCESSFUL))
+
+    if (filtersNeedUpdate) {
+        dispatch(checkItemInResults('clear'))
+    }
+
+    if (pageNeedsUpdate) {
+        dispatch({
+            type: ACTIONS.SET_RESULTS_PAGE,
+            payload: { page },
+        })
+    }
+}
+
+/**
+ * Applies an aggs-only response to the active missions, geo grid and filter fields
+ *
+ * @param {function} dispatch - redux dispatch
+ * @param {function} getState - redux getState
+ * @param {Object} aggs - elasticsearch aggregations
+ * @param {string[]} filterKeys - active filters the aggs were requested for
+ */
+const applyFacetsResponse = (dispatch, getState, aggs, filterKeys) => {
     // Set Active Missions list
     if (aggs._activeMissions?.buckets) {
         const nextActiveMissions = []
@@ -505,157 +528,791 @@ const handleSearchResponse = (
             .sort((a, b) => parseFloat(a.min) - parseFloat(b.max))
         aggs['bounding_box'] = geoLngLatBuckets
         dispatch(updateGeoGrid(geoGrid))
-    } else {
+    } else if (filterKeys.length === 0 && getAppConfig().enableMap) {
+        // Don't keep showing a previous query's heatmap
         dispatch(updateGeoGrid([]))
     }
 
     // Update Filters
-    let nextActiveFilters = activeFilters
-    if (filtersNeedUpdate) {
-        Object.keys(nextActiveFilters).forEach((filter) => {
-            if (filter[0] !== '_' && aggs[filter])
-                nextActiveFilters[filter].facets.forEach((facet, i) => {
-                    if (facet.type == 'keyword') {
-                        let buckets = aggs[filter].buckets
+    const activeFilters = getState().get('activeFilters').toJS()
+    const updatedFilters = {}
+    const keysToUpdate = aggs.bounding_box ? [...filterKeys, 'bounding_box'] : filterKeys
+    keysToUpdate.forEach((filter) => {
+        if (filter[0] === '_' || !aggs[filter] || activeFilters[filter] == null) {
+            return
+        }
+        activeFilters[filter].facets.forEach((facet, i) => {
+            if (facet.type == 'keyword') {
+                let buckets = aggs[filter].buckets
 
-                        // Since we'ew filtering, clear the existing bucket aggs
-                        if (facet?.state?.__filter != null && facet?.state?.__filter != '')
-                            nextActiveFilters[filter].facets[i].fields = []
+                // Since we'ew filtering, clear the existing bucket aggs
+                if (facet?.state?.__filter != null && facet?.state?.__filter != '')
+                    activeFilters[filter].facets[i].fields = []
 
-                        // Account for nested buckets
-                        if (aggs[filter].nested) {
-                            buckets = []
-                            aggs[filter].nested.buckets.forEach((b) => {
-                                const newBucket = {
-                                    key: b.key,
-                                    doc_count: b.reverse_nested
-                                        ? b.reverse_nested.doc_count
-                                        : b.doc_count,
-                                }
-                                buckets.push(newBucket)
-                            })
+                // Account for nested buckets
+                if (aggs[filter].nested) {
+                    buckets = []
+                    aggs[filter].nested.buckets.forEach((b) => {
+                        const newBucket = {
+                            key: b.key,
+                            doc_count: b.reverse_nested ? b.reverse_nested.doc_count : b.doc_count,
                         }
-                        // We merge on keywords so that users can always see the full list
-                        nextActiveFilters[filter].facets[i].fields = mergeFields(
-                            nextActiveFilters[filter].facets[i].fields,
-                            buckets
-                        )
-                    } else if (facet.type == 'geo_bounding_box') {
-                        if (geoLngLatBuckets != null)
-                            if (facet.term == 'lat') {
-                                nextActiveFilters[filter].facets[i].fields = geoLngLatBuckets.lat
-                            }
-                        if (facet.term == 'lon') {
-                            nextActiveFilters[filter].facets[i].fields = geoLngLatBuckets.lng
-                        }
-                    } else {
-                        let buckets = aggs[filter].buckets
-
-                        // Account for nested buckets
-                        if (aggs[filter].nested) {
-                            buckets = []
-                            aggs[filter].nested.buckets.forEach((b) => {
-                                const newBucket = {
-                                    key: b.key,
-                                    doc_count: b.reverse_nested
-                                        ? b.reverse_nested.doc_count
-                                        : b.doc_count,
-                                }
-                                if (b.min != null) newBucket.min = b.min
-                                if (b.max != null) newBucket.max = b.max
-                                buckets.push(newBucket)
-                            })
-                        }
-
-                        // Sort buckets numerically, else case-insensitively
-                        buckets.sort((a, b) =>
-                            typeof a.key === 'number' && typeof b.key === 'number'
-                                ? a.key - b.key
-                                : String(a.key).localeCompare(String(b.key), undefined, {
-                                      sensitivity: 'base',
-                                  })
-                        )
-
-                        nextActiveFilters[filter].facets[i].fields = buckets
-                    }
-                })
-        })
-        dispatch(updateActiveFilters(nextActiveFilters))
-        dispatch(checkItemInResults('clear'))
-    }
-
-    if (pageNeedsUpdate) {
-        dispatch({
-            type: ACTIONS.SET_RESULTS_PAGE,
-            payload: { page },
-        })
-    }
-
-    // If this search is capturing state from the url...
-    // We need to do this after the main first query to retain all the match_all aggs
-    if (urlHasQuery) {
-        let isAdvancedFilter = false
-        Object.keys(url.query).forEach((q) => {
-            // In case coming from record page
-            if (q === 'id') return
-            // skip the rest if the url is advanced
-            if (isAdvancedFilter) return
-            if (q === '_adv') {
-                isAdvancedFilter = true
-                dispatch(setAdvancedFilters(decodeURI(url.query[q]), true))
-                dispatch(setFilterType('advanced'))
-            } else {
-                let qSplit = q.split('.')
-                const q2 = qSplit[qSplit.length - 1].split('-')
-                const qMain = q
-                const qIdx = parseInt(q2[1] || '0')
-                qSplit = qSplit.join('..groups..').split('..')
-                if (qSplit.length === 2) qSplit.unshift('default')
-                const addFilter = getIn(atlasMapping.groups, qSplit) || {}
-
-                let filterState = {}
-                if (q[0] === '_') {
-                    filterState.input = url.query[q]
-                } else {
-                    url.query[q].split(',').forEach((v) => {
-                        // Check if this is a range parameter (contains _to_)
-                        if (v.includes('_to_')) {
-                            const [min, max] = v.split('_to_').map(decodeURI)
-                            const filter = nextActiveFilters?.[qMain] || addFilter
-                            const facet = filter?.facets?.[qIdx]
-
-                            if (facet?.component === 'date_range') {
-                                // Date range format
-                                filterState.daterange = {
-                                    start: min || '',
-                                    end: max || '',
-                                }
-                            } else if (
-                                facet?.component === 'input_range' ||
-                                facet?.component === 'slider_range'
-                            ) {
-                                // Numeric range format
-                                filterState.range = [
-                                    min !== '' ? parseFloat(min) : null,
-                                    max !== '' ? parseFloat(max) : null,
-                                ]
-                            }
-                        } else {
-                            // Regular keyword filter
-                            filterState[v] = true
-                        }
+                        buckets.push(newBucket)
                     })
                 }
-                if (nextActiveFilters[qMain] == null && addFilter?.facets?.[qIdx] != null) {
-                    addFilter.facets[qIdx].state = filterState
-                    nextActiveFilters[qMain] = addFilter
-                } else if (nextActiveFilters?.[qMain]?.facets?.[qIdx] != null) {
-                    nextActiveFilters[qMain].facets[qIdx].state = filterState
+                // We merge on keywords so that users can always see the full list
+                activeFilters[filter].facets[i].fields = mergeFields(
+                    activeFilters[filter].facets[i].fields,
+                    buckets
+                )
+            } else if (facet.type == 'geo_bounding_box') {
+                if (geoLngLatBuckets != null)
+                    if (facet.term == 'lat') {
+                        activeFilters[filter].facets[i].fields = geoLngLatBuckets.lat
+                    }
+                if (facet.term == 'lon') {
+                    activeFilters[filter].facets[i].fields = geoLngLatBuckets.lng
                 }
+            } else {
+                let buckets = aggs[filter].buckets
+
+                // Account for nested buckets
+                if (aggs[filter].nested) {
+                    buckets = []
+                    aggs[filter].nested.buckets.forEach((b) => {
+                        const newBucket = {
+                            key: b.key,
+                            doc_count: b.reverse_nested ? b.reverse_nested.doc_count : b.doc_count,
+                        }
+                        if (b.min != null) newBucket.min = b.min
+                        if (b.max != null) newBucket.max = b.max
+                        buckets.push(newBucket)
+                    })
+                }
+
+                // Sort buckets numerically, else case-insensitively
+                buckets.sort((a, b) =>
+                    typeof a.key === 'number' && typeof b.key === 'number'
+                        ? a.key - b.key
+                        : String(a.key).localeCompare(String(b.key), undefined, {
+                              sensitivity: 'base',
+                          })
+                )
+
+                activeFilters[filter].facets[i].fields = buckets
             }
         })
-        dispatch(search(null, true, null, null, nextActiveFilters))
+        updatedFilters[filter] = activeFilters[filter]
+    })
+    if (Object.keys(updatedFilters).length > 0) {
+        dispatch(updateActiveFilters(updatedFilters))
     }
+}
+
+/**
+ * Applies a search url's query (filter states, advanced query) to the active filters
+ *
+ * @param {function} dispatch - redux dispatch
+ * @param {Object} url - parsed url
+ * @param {Object} nextActiveFilters - active filters to apply the url to (mutated)
+ * @param {Object} atlasMapping - atlas mappings
+ * @return {Object} nextActiveFilters
+ */
+const applyUrlQuery = (dispatch, url, nextActiveFilters, atlasMapping) => {
+    let isAdvancedFilter = false
+    Object.keys(url.query).forEach((q) => {
+        // In case coming from record page
+        if (q === 'id') return
+        // skip the rest if the url is advanced
+        if (isAdvancedFilter) return
+        if (q === '_adv') {
+            isAdvancedFilter = true
+            dispatch(setAdvancedFilters(decodeURI(url.query[q]), true))
+            dispatch(setFilterType('advanced'))
+        } else {
+            let qSplit = q.split('.')
+            const q2 = qSplit[qSplit.length - 1].split('-')
+            const qMain = q
+            const qIdx = parseInt(q2[1] || '0')
+            qSplit = qSplit.join('..groups..').split('..')
+            if (qSplit.length === 2) qSplit.unshift('default')
+            const addFilter = getIn(atlasMapping.groups, qSplit) || {}
+
+            let filterState = {}
+            if (q[0] === '_') {
+                filterState.input = url.query[q]
+            } else {
+                url.query[q].split(',').forEach((v) => {
+                    // Check if this is a range parameter (contains _to_)
+                    if (v.includes('_to_')) {
+                        const [min, max] = v.split('_to_').map(decodeURI)
+                        const filter = nextActiveFilters?.[qMain] || addFilter
+                        const facet = filter?.facets?.[qIdx]
+
+                        if (facet?.component === 'date_range') {
+                            // Date range format
+                            filterState.daterange = {
+                                start: min || '',
+                                end: max || '',
+                            }
+                        } else if (
+                            facet?.component === 'input_range' ||
+                            facet?.component === 'slider_range'
+                        ) {
+                            // Numeric range format
+                            filterState.range = [
+                                min !== '' ? parseFloat(min) : null,
+                                max !== '' ? parseFloat(max) : null,
+                            ]
+                        }
+                    } else {
+                        // Regular keyword filter
+                        filterState[v] = true
+                    }
+                })
+            }
+            if (nextActiveFilters[qMain] == null && addFilter?.facets?.[qIdx] != null) {
+                addFilter.facets[qIdx].state = filterState
+                nextActiveFilters[qMain] = addFilter
+            } else if (nextActiveFilters?.[qMain]?.facets?.[qIdx] != null) {
+                nextActiveFilters[qMain].facets[qIdx].state = filterState
+            }
+        }
+    })
+    return nextActiveFilters
+}
+
+const getSecondaryAggs = () => {
+    // Always include a mission agg so that other components can know
+    // what the active missions are
+    const aggs = {
+        _activeMissions: {
+            terms: { field: ES_PATHS.mission.join('.'), size: 500, order: { _key: 'asc' } },
+        },
+    }
+    if (getAppConfig().enableMap) {
+        aggs._geoGrid = {
+            geohash_grid: {
+                field: ES_PATHS.geo_location.join('.'),
+                precision: 2,
+            },
+        }
+    }
+    return aggs
+}
+
+// Aggs are sent as separate size: 0 searches so slow aggs can't delay or fail the results.
+// The `secondary` request holds the mission and map aggs, `filter` the expanded filter's agg.
+const FACETS_ES_TIMEOUT = '20s'
+let currentFacetsQuery = null
+let currentFacetsQueryKey = null
+const facetsRequests = { secondary: null, filter: null }
+// The query the mission and map aggs were last requested for
+let secondaryQueryKey = null
+
+const abortFacetsRequest = (dispatch, slot) => {
+    const request = facetsRequests[slot]
+    if (request == null) {
+        return
+    }
+    facetsRequests[slot] = null
+    request.controller.abort()
+    // Lets an interrupted filter load again the next time it's expanded
+    if (request.queryKey === currentFacetsQueryKey && request.filterKeys.length > 0) {
+        dispatch(setFacetsStatus(request.filterKeys, null))
+    }
+}
+
+const requestFacets = (dispatch, getState, slot, aggs, filterKeys) => {
+    abortFacetsRequest(dispatch, slot)
+
+    const dsl = {
+        query: currentFacetsQuery,
+        size: 0,
+        track_total_hits: false,
+        timeout: FACETS_ES_TIMEOUT,
+        aggs,
+    }
+    const cacheKey = JSON.stringify(dsl)
+
+    // A filter removed while its request was in flight must not come back already loaded
+    const getActiveFilterKeys = () =>
+        filterKeys.filter((key) => getState().getIn(['activeFilters', key]) != null)
+
+    const applyData = (data) => {
+        applyFacetsResponse(dispatch, getState, data.aggregations || {}, filterKeys)
+        const activeFilterKeys = getActiveFilterKeys()
+        if (activeFilterKeys.length > 0) {
+            // ES returns what it gathered so far when it hits its timeout
+            const partial = data.timed_out === true || data._shards?.failed > 0
+            dispatch(
+                setFacetsStatus(
+                    activeFilterKeys,
+                    partial ? facetsStatuses.TIMED_OUT : facetsStatuses.LOADED
+                )
+            )
+        }
+    }
+    const dispatchFacetsError = (err) => {
+        console.error('Failed to load filter aggregations', err)
+        if (filterKeys.length > 0) {
+            dispatch(setFacetsStatus(getActiveFilterKeys(), facetsStatuses.ERROR))
+        } else {
+            secondaryQueryKey = null
+            if (getAppConfig().enableMap) {
+                dispatch(updateGeoGrid([]))
+            }
+        }
+    }
+
+    const cachedData = getCachedSearch(cacheKey)
+    if (cachedData != null) {
+        try {
+            applyData(cachedData)
+        } catch (err) {
+            searchCache.delete(cacheKey)
+            dispatchFacetsError(err)
+        }
+        return
+    }
+
+    const request = {
+        controller: new AbortController(),
+        queryKey: currentFacetsQueryKey,
+        filterKeys,
+    }
+    facetsRequests[slot] = request
+    if (filterKeys.length > 0) {
+        dispatch(setFacetsStatus(filterKeys, facetsStatuses.LOADING))
+    }
+
+    axios
+        .post(`${domain}${endpoints.search}`, dsl, {
+            ...getHeader(),
+            signal: request.controller.signal,
+        })
+        .then((response) => {
+            if (request.controller.signal.aborted) {
+                return
+            }
+            facetsRequests[slot] = null
+            if (response.status < 200 || response.status >= 300) {
+                throw new Error(response.data?.message || `Request failed (${response.status})`)
+            }
+            if (isCacheableSearchResponse(response)) {
+                setCachedSearch(cacheKey, structuredClone(response.data))
+            }
+            applyData(response.data)
+        })
+        .catch((err) => {
+            if (request.controller.signal.aborted) {
+                return
+            }
+            if (facetsRequests[slot] === request) {
+                facetsRequests[slot] = null
+            }
+            searchCache.delete(cacheKey)
+            dispatchFacetsError(err)
+        })
+}
+
+const loadExpandedFilterFacets = (dispatch, getState, filterAggs, force) => {
+    const state = getState()
+    const filterKey = state.get('expandedFilter')
+    if (filterKey == null || filterAggs[filterKey] == null) {
+        return
+    }
+    const status = state.getIn(['facetsStatus', filterKey])
+    if (!force && status != null && status !== facetsStatuses.ERROR) {
+        return
+    }
+    requestFacets(dispatch, getState, 'filter', { [filterKey]: filterAggs[filterKey] }, [filterKey])
+}
+
+/**
+ * Loads the aggs a search needs. A new query invalidates the mission and map aggs and
+ * every filter's aggs; only those for the open map and the expanded filter are requested.
+ */
+const loadFacets = (dispatch, getState, query, filterAggs) => {
+    const queryKey = JSON.stringify(query)
+    if (queryKey !== currentFacetsQueryKey) {
+        Object.keys(facetsRequests).forEach((slot) => abortFacetsRequest(dispatch, slot))
+        currentFacetsQuery = query
+        currentFacetsQueryKey = queryKey
+        dispatch({ type: ACTIONS.RESET_FACETS_STATUS, payload: {} })
+        if (!getState().get('mapVisible')) {
+            // Hidden until the map opens, which then loads the new grid
+            secondaryQueryKey = null
+            dispatch(updateGeoGrid([]))
+        }
+    }
+    loadSecondaryFacets(dispatch, getState)
+    loadExpandedFilterFacets(dispatch, getState, filterAggs)
+}
+
+/**
+ * Loads the mission and map aggs for the current query. Only the map uses them,
+ * so they wait until it's open.
+ */
+const loadSecondaryFacets = (dispatch, getState) => {
+    if (
+        currentFacetsQuery == null ||
+        !getState().get('mapVisible') ||
+        secondaryQueryKey === currentFacetsQueryKey
+    ) {
+        return
+    }
+    secondaryQueryKey = currentFacetsQueryKey
+    requestFacets(dispatch, getState, 'secondary', getSecondaryAggs(), [])
+}
+
+/**
+ * Sets whether the map is open, loading its aggs when it opens
+ *
+ * @param {boolean} visible
+ */
+export const setMapVisible = (visible) => {
+    return (dispatch, getState) => {
+        if (getState().get('mapVisible') === visible) {
+            return
+        }
+        dispatch({ type: ACTIONS.SET_MAP_VISIBLE, payload: { visible } })
+        loadSecondaryFacets(dispatch, getState)
+    }
+}
+
+/**
+ * Sets the aggs status of filters
+ *
+ * @param {string[]} filterKeys
+ * @param {string|null} status - one of facetsStatuses, or null to mark as not loaded
+ */
+export const setFacetsStatus = (filterKeys, status) => ({
+    type: ACTIONS.SET_FACETS_STATUS,
+    payload: { filterKeys, status },
+})
+
+/**
+ * Sets which filter is expanded and lazily loads its aggs
+ *
+ * @param {string|null} filterKey
+ */
+export const setExpandedFilter = (filterKey) => {
+    return (dispatch) => {
+        dispatch({ type: ACTIONS.SET_EXPANDED_FILTER, payload: { filterKey } })
+        dispatch(loadFilterFacets())
+    }
+}
+
+/**
+ * Loads the expanded filter's aggs for the current search if they aren't loaded yet
+ *
+ * @param {boolean} force (opt) - reload even if loaded (e.g. to retry a timed out agg)
+ */
+export const loadFilterFacets = (force) => {
+    return (dispatch, getState) => {
+        // The first search hasn't run yet and will load them itself
+        if (currentFacetsQuery == null) {
+            return
+        }
+        const state = getState()
+        const { aggs } = buildSearchQuery(state, state.get('activeFilters').toJS())
+        loadExpandedFilterFacets(dispatch, getState, aggs, force)
+    }
+}
+
+/**
+ * Builds the search query and the per filter aggs for the active filters
+ *
+ * @param {Object} state - redux state
+ * @param {Object} activeFilters
+ * @return {{query: Object, aggs: Object}}
+ */
+const buildSearchQuery = (state, activeFilters) => {
+    const filterType = state.getIn(['filterType'])
+
+    // Make aggs from filter.field and filter.props.fields
+    let aggs = {}
+
+    // Make query
+    let query = {}
+    let hasAdvancedQuery = false
+    if (filterType === 'advanced') {
+        const trimmedQuery = removeComments(state.getIn(['advancedFilters']))
+
+        if (trimmedQuery) {
+            query.bool = {
+                must: [
+                    {
+                        query_string: {
+                            query: `_exists_:gather.uri AND (${trimmedQuery})`,
+                        },
+                    },
+                ],
+            }
+            hasAdvancedQuery = true
+        }
+    } else {
+        Object.keys(activeFilters).forEach((filter) => {
+            let geo_bounding_boxContinuity = -1
+
+            let toAddToMust = []
+            let filterConditions = [] // For __filter (AND logic)
+            let checkedItems = [] // For checked items (OR logic within AND)
+
+            activeFilters[filter].facets.forEach((facet, idx) => {
+                let field = facet.field
+
+                if (filter[0] !== '_' && facet.type != 'geo_bounding_box') {
+                    switch (facet.type) {
+                        case 'input_range':
+                            if (facet.nestedPath) {
+                                aggs[filter] = {
+                                    nested: {
+                                        path: facet.nestedPath,
+                                    },
+                                    aggs: {
+                                        nested: {
+                                            variable_width_histogram: {
+                                                field: field,
+                                                buckets: 64,
+                                            },
+                                            aggs: {
+                                                reverse_nested: {
+                                                    reverse_nested: {},
+                                                },
+                                            },
+                                        },
+                                    },
+                                }
+                            } else {
+                                aggs[filter] = {
+                                    variable_width_histogram: {
+                                        field: field,
+                                        buckets: 64,
+                                    },
+                                }
+                            }
+                            break
+                        case 'date_range':
+                            aggs[filter] = {
+                                date_histogram: {
+                                    field: field,
+                                    fixed_interval: '30d',
+                                    order: { _key: 'asc' },
+                                },
+                            }
+                            break
+                        case 'geo_bounding_box':
+                            break
+                        default:
+                            if (facet.nestedPath) {
+                                aggs[filter] = {
+                                    nested: {
+                                        path: facet.nestedPath,
+                                    },
+                                    aggs: {
+                                        nested: {
+                                            terms: {
+                                                field: field,
+                                                size: 500,
+                                                order: { _key: 'asc' },
+                                            },
+                                            aggs: {
+                                                reverse_nested: {
+                                                    reverse_nested: {},
+                                                },
+                                            },
+                                        },
+                                    },
+                                }
+                            } else {
+                                aggs[filter] = {
+                                    terms: {
+                                        field: field,
+                                        size: 500,
+                                        order: { _key: 'asc' },
+                                    },
+                                }
+                            }
+                            break
+                    }
+                }
+
+                if (facet.state) {
+                    switch (facet.type) {
+                        case 'query_string':
+                            if (facet.state.input != null && facet.state.input.length > 0) {
+                                query.bool = query.bool || {
+                                    must: [],
+                                }
+
+                                let qs_input = '.*' + facet.state.input + '.*'
+                                toAddToMust.push({
+                                    regexp: {
+                                        uri: {
+                                            value: qs_input,
+                                            case_insensitive: true,
+                                        },
+                                    },
+                                })
+                            }
+                            break
+                        case 'text':
+                        case 'number':
+                            if (facet.state.input != null) {
+                                query.bool = query.bool || {
+                                    must: [],
+                                }
+                                toAddToMust.push({
+                                    match: {
+                                        [field]: facet.state.input,
+                                    },
+                                })
+                            }
+                        case 'input_range':
+                        case 'slider_range':
+                            if (
+                                facet.state.range != null &&
+                                facet.state.range.length == 2 &&
+                                facet.state.range[0] != null &&
+                                facet.state.range[1] != null
+                            ) {
+                                query.bool = query.bool || {
+                                    must: [],
+                                }
+
+                                if (facet.nestedPath) {
+                                    toAddToMust.push({
+                                        nested: {
+                                            path: facet.nestedPath,
+                                            query: {
+                                                bool: {
+                                                    must: [
+                                                        {
+                                                            range: {
+                                                                [field]: {
+                                                                    gte: facet.state.range[0],
+                                                                    lte: facet.state.range[1],
+                                                                },
+                                                            },
+                                                        },
+                                                    ],
+                                                },
+                                            },
+                                        },
+                                    })
+                                } else {
+                                    toAddToMust.push({
+                                        range: {
+                                            [field]: {
+                                                gte: facet.state.range[0],
+                                                lte: facet.state.range[1],
+                                            },
+                                        },
+                                    })
+                                }
+                            }
+                            break
+                        case 'date_range':
+                            if (
+                                facet.state.daterange != null &&
+                                (facet.state.daterange.start != null ||
+                                    facet.state.daterange.end != null)
+                            ) {
+                                query.bool = query.bool || {
+                                    must: [],
+                                }
+                                toAddToMust.push({
+                                    range: {
+                                        [field]: {
+                                            gte:
+                                                facet.state.daterange.start ||
+                                                '0001-01-01T00:00:00.000Z',
+                                            lte:
+                                                facet.state.daterange.end ||
+                                                '9999-01-01T00:00:00.000Z',
+                                        },
+                                    },
+                                })
+                            }
+                            break
+                        case 'geo_bounding_box':
+                            if (facet.state.range != null && facet.state.range.length > 0) {
+                                query.bool = query.bool || {
+                                    must: [],
+                                }
+                                // Combines separate facets into one
+                                if (geo_bounding_boxContinuity >= 0) {
+                                    if (
+                                        query.bool.must.length > 0 &&
+                                        query.bool.must[query.bool.must.length - 1]
+                                            .geo_bounding_box != null
+                                    ) {
+                                        geo_bounding_boxContinuity = null
+                                        switch (facet.term) {
+                                            case 'lon':
+                                                query.bool.must[
+                                                    query.bool.must.length - 1
+                                                ].geo_bounding_box[field].top_left.lon =
+                                                    facet.state.range[0]
+                                                query.bool.must[
+                                                    query.bool.must.length - 1
+                                                ].geo_bounding_box[field].bottom_right.lon =
+                                                    facet.state.range[1]
+                                                break
+                                            case 'lat':
+                                                query.bool.must[
+                                                    query.bool.must.length - 1
+                                                ].geo_bounding_box[field].top_left.lat =
+                                                    facet.state.range[1]
+                                                query.bool.must[
+                                                    query.bool.must.length - 1
+                                                ].geo_bounding_box[field].bottom_right.lat =
+                                                    facet.state.range[0]
+                                                break
+                                            default:
+                                        }
+                                    }
+                                } else {
+                                    toAddToMust.push({
+                                        geo_bounding_box: {
+                                            [field]: {
+                                                top_left: {
+                                                    lat:
+                                                        facet.term === 'lat'
+                                                            ? facet.state.range[1]
+                                                            : 90,
+                                                    lon:
+                                                        facet.term === 'lon'
+                                                            ? facet.state.range[0]
+                                                            : -180,
+                                                },
+                                                bottom_right: {
+                                                    lat:
+                                                        facet.term === 'lat'
+                                                            ? facet.state.range[0]
+                                                            : -90,
+                                                    lon:
+                                                        facet.term === 'lon'
+                                                            ? facet.state.range[1]
+                                                            : 180,
+                                                },
+                                            },
+                                        },
+                                    })
+                                    geo_bounding_boxContinuity = idx
+                                }
+                            }
+                            break
+                        default:
+                            Object.keys(facet.state).forEach((value) => {
+                                if (value === 'exclude' && Array.isArray(facet.state[value])) {
+                                    query.bool = query.bool || { must: [] }
+                                    query.bool.must_not = query.bool.must_not || []
+                                    facet.state[value].forEach((excludeVal) => {
+                                        query.bool.must_not.push({
+                                            match: { [field]: excludeVal },
+                                        })
+                                    })
+                                } else if (
+                                    value === '__filter' &&
+                                    facet.state[value] != null &&
+                                    facet.state[value] != ''
+                                ) {
+                                    query.bool = query.bool || {
+                                        must: [],
+                                    }
+                                    let qs_input = '.*' + facet.state[value] + '.*'
+                                    filterConditions.push({
+                                        regexp: {
+                                            [field]: {
+                                                value: qs_input,
+                                                case_insensitive: true,
+                                            },
+                                        },
+                                    })
+                                } else if (facet.state[value]) {
+                                    query.bool = query.bool || {
+                                        must: [],
+                                    }
+                                    if (facet.nestedPath) {
+                                        checkedItems.push({
+                                            nested: {
+                                                path: facet.nestedPath,
+                                                query: {
+                                                    bool: {
+                                                        must: [
+                                                            {
+                                                                match: {
+                                                                    [field]: value,
+                                                                },
+                                                            },
+                                                        ],
+                                                    },
+                                                },
+                                            },
+                                        })
+                                    } else {
+                                        checkedItems.push({
+                                            match: {
+                                                [field]: value,
+                                            },
+                                        })
+                                    }
+                                }
+                            })
+                    }
+                }
+            })
+
+            // Add filter conditions directly to must clause (AND logic)
+            filterConditions.forEach((condition) => {
+                query.bool.must.push(condition)
+            })
+
+            // Add checked items as should clause (OR logic within the AND)
+            if (checkedItems.length > 0) {
+                query.bool.must.push({
+                    bool: {
+                        should: checkedItems,
+                    },
+                })
+            }
+
+            // Legacy support: if no separate arrays were used, fall back to original logic
+            if (toAddToMust.length > 0) {
+                query.bool.must.push({
+                    bool: {
+                        should: toAddToMust,
+                    },
+                })
+            }
+        })
+    }
+
+    // Default to searching everything with a gather
+    if (!hasAdvancedQuery) {
+        query.bool = query.bool || {}
+        query.bool.must = query.bool.must || []
+        query.bool.must.push({ exists: { field: 'gather.uri' } })
+    }
+
+    // Always filter out deprecated products in search
+    query.bool = query.bool || {}
+    query.bool.must_not = query.bool.must_not || []
+    query.bool.must_not.push({
+        wildcard: {
+            'gather.pds_archive.bundle_id': '*deprecated*',
+        },
+    })
+    query.bool.must_not.push({
+        wildcard: {
+            'gather.pds_archive.volume_id': '*deprecated*',
+        },
+    })
+
+    return { query, aggs }
 }
 
 /**
@@ -667,419 +1324,32 @@ const handleSearchResponse = (
  */
 export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiveFilters) => {
     return (dispatch, getState) => {
+        // Capture a search url's state into the filters first so that one search covers it
+        if (url != null && Object.keys(url.query).length > 0) {
+            const urlState = getState()
+            const nextActiveFilters = applyUrlQuery(
+                dispatch,
+                url,
+                forceActiveFilters || urlState.get('activeFilters').toJS(),
+                urlState.getIn(['mappings', 'atlas'])
+            )
+            dispatch(updateActiveFilters(nextActiveFilters))
+            dispatch(search(page, filtersNeedUpdate, pageNeedsUpdate))
+            return
+        }
+
         const state = getState()
         const activeFilters = forceActiveFilters || state.get('activeFilters').toJS()
         const resultsPerPage = state.getIn(['resultsPaging', 'resultsPerPage'])
         const resultSorting = state.getIn(['resultSorting']).toJS()
-        const filterType = state.getIn(['filterType'])
-        const atlasMapping = state.getIn(['mappings', 'atlas'])
 
         const resultsTable = state.getIn(['resultsTable']).toJS()
-
-        if (page > 0) dispatch(setResultsStatus(resultsStatuses.LOADING))
-        else dispatch(setResultsStatus(resultsStatuses.SEARCHING))
 
         page = page || 0
         let from = page
         from *= resultsPerPage
 
-        let hasGeoBoundingBox = true //false
-
-        // Make aggs from filter.field and filter.props.fields
-        let aggs = {}
-
-        // Make query
-        let query = {}
-        let hasAdvancedQuery = false
-        if (filterType === 'advanced') {
-            const trimmedQuery = removeComments(state.getIn(['advancedFilters']))
-
-            if (trimmedQuery) {
-                query.bool = {
-                    must: [
-                        {
-                            query_string: {
-                                query: `_exists_:gather.uri AND (${trimmedQuery})`,
-                            },
-                        },
-                    ],
-                }
-                hasAdvancedQuery = true
-            }
-        } else {
-            Object.keys(activeFilters).forEach((filter) => {
-                let geo_bounding_boxContinuity = -1
-
-                let toAddToMust = []
-                let filterConditions = [] // For __filter (AND logic)
-                let checkedItems = [] // For checked items (OR logic within AND)
-
-                activeFilters[filter].facets.forEach((facet, idx) => {
-                    let field = facet.field
-
-                    if (filter[0] !== '_' && facet.type != 'geo_bounding_box') {
-                        switch (facet.type) {
-                            case 'input_range':
-                                if (facet.nestedPath) {
-                                    aggs[filter] = {
-                                        nested: {
-                                            path: facet.nestedPath,
-                                        },
-                                        aggs: {
-                                            nested: {
-                                                variable_width_histogram: {
-                                                    field: field,
-                                                    buckets: 64,
-                                                },
-                                                aggs: {
-                                                    reverse_nested: {
-                                                        reverse_nested: {},
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    }
-                                } else {
-                                    aggs[filter] = {
-                                        variable_width_histogram: {
-                                            field: field,
-                                            buckets: 64,
-                                        },
-                                    }
-                                }
-                                break
-                            case 'date_range':
-                                aggs[filter] = {
-                                    date_histogram: {
-                                        field: field,
-                                        fixed_interval: '30d',
-                                        order: { _key: 'asc' },
-                                    },
-                                }
-                                break
-                            case 'geo_bounding_box':
-                                break
-                            default:
-                                if (facet.nestedPath) {
-                                    aggs[filter] = {
-                                        nested: {
-                                            path: facet.nestedPath,
-                                        },
-                                        aggs: {
-                                            nested: {
-                                                terms: {
-                                                    field: field,
-                                                    size: 500,
-                                                    order: { _key: 'asc' },
-                                                },
-                                                aggs: {
-                                                    reverse_nested: {
-                                                        reverse_nested: {},
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    }
-                                } else {
-                                    aggs[filter] = {
-                                        terms: {
-                                            field: field,
-                                            size: 500,
-                                            order: { _key: 'asc' },
-                                        },
-                                    }
-                                }
-                                break
-                        }
-                    }
-
-                    if (facet.state) {
-                        switch (facet.type) {
-                            case 'query_string':
-                                if (facet.state.input != null && facet.state.input.length > 0) {
-                                    query.bool = query.bool || {
-                                        must: [],
-                                    }
-
-                                    let qs_input = '.*' + facet.state.input + '.*'
-                                    toAddToMust.push({
-                                        regexp: {
-                                            uri: {
-                                                value: qs_input,
-                                                case_insensitive: true,
-                                            },
-                                        },
-                                    })
-                                }
-                                break
-                            case 'text':
-                            case 'number':
-                                if (facet.state.input != null) {
-                                    query.bool = query.bool || {
-                                        must: [],
-                                    }
-                                    toAddToMust.push({
-                                        match: {
-                                            [field]: facet.state.input,
-                                        },
-                                    })
-                                }
-                            case 'input_range':
-                            case 'slider_range':
-                                if (
-                                    facet.state.range != null &&
-                                    facet.state.range.length == 2 &&
-                                    facet.state.range[0] != null &&
-                                    facet.state.range[1] != null
-                                ) {
-                                    query.bool = query.bool || {
-                                        must: [],
-                                    }
-
-                                    if (facet.nestedPath) {
-                                        toAddToMust.push({
-                                            nested: {
-                                                path: facet.nestedPath,
-                                                query: {
-                                                    bool: {
-                                                        must: [
-                                                            {
-                                                                range: {
-                                                                    [field]: {
-                                                                        gte: facet.state.range[0],
-                                                                        lte: facet.state.range[1],
-                                                                    },
-                                                                },
-                                                            },
-                                                        ],
-                                                    },
-                                                },
-                                            },
-                                        })
-                                    } else {
-                                        toAddToMust.push({
-                                            range: {
-                                                [field]: {
-                                                    gte: facet.state.range[0],
-                                                    lte: facet.state.range[1],
-                                                },
-                                            },
-                                        })
-                                    }
-                                }
-                                break
-                            case 'date_range':
-                                if (
-                                    facet.state.daterange != null &&
-                                    (facet.state.daterange.start != null ||
-                                        facet.state.daterange.end != null)
-                                ) {
-                                    query.bool = query.bool || {
-                                        must: [],
-                                    }
-                                    toAddToMust.push({
-                                        range: {
-                                            [field]: {
-                                                gte:
-                                                    facet.state.daterange.start ||
-                                                    '0001-01-01T00:00:00.000Z',
-                                                lte:
-                                                    facet.state.daterange.end ||
-                                                    '9999-01-01T00:00:00.000Z',
-                                            },
-                                        },
-                                    })
-                                }
-                                break
-                            case 'geo_bounding_box':
-                                if (facet.state.range != null && facet.state.range.length > 0) {
-                                    hasGeoBoundingBox = true
-                                    query.bool = query.bool || {
-                                        must: [],
-                                    }
-                                    // Combines separate facets into one
-                                    if (geo_bounding_boxContinuity >= 0) {
-                                        if (
-                                            query.bool.must.length > 0 &&
-                                            query.bool.must[query.bool.must.length - 1]
-                                                .geo_bounding_box != null
-                                        ) {
-                                            geo_bounding_boxContinuity = null
-                                            switch (facet.term) {
-                                                case 'lon':
-                                                    query.bool.must[
-                                                        query.bool.must.length - 1
-                                                    ].geo_bounding_box[field].top_left.lon =
-                                                        facet.state.range[0]
-                                                    query.bool.must[
-                                                        query.bool.must.length - 1
-                                                    ].geo_bounding_box[field].bottom_right.lon =
-                                                        facet.state.range[1]
-                                                    break
-                                                case 'lat':
-                                                    query.bool.must[
-                                                        query.bool.must.length - 1
-                                                    ].geo_bounding_box[field].top_left.lat =
-                                                        facet.state.range[1]
-                                                    query.bool.must[
-                                                        query.bool.must.length - 1
-                                                    ].geo_bounding_box[field].bottom_right.lat =
-                                                        facet.state.range[0]
-                                                    break
-                                                default:
-                                            }
-                                        }
-                                    } else {
-                                        toAddToMust.push({
-                                            geo_bounding_box: {
-                                                [field]: {
-                                                    top_left: {
-                                                        lat:
-                                                            facet.term === 'lat'
-                                                                ? facet.state.range[1]
-                                                                : 90,
-                                                        lon:
-                                                            facet.term === 'lon'
-                                                                ? facet.state.range[0]
-                                                                : -180,
-                                                    },
-                                                    bottom_right: {
-                                                        lat:
-                                                            facet.term === 'lat'
-                                                                ? facet.state.range[0]
-                                                                : -90,
-                                                        lon:
-                                                            facet.term === 'lon'
-                                                                ? facet.state.range[1]
-                                                                : 180,
-                                                    },
-                                                },
-                                            },
-                                        })
-                                        geo_bounding_boxContinuity = idx
-                                    }
-                                }
-                                break
-                            default:
-                                Object.keys(facet.state).forEach((value) => {
-                                    if (value === 'exclude' && Array.isArray(facet.state[value])) {
-                                        query.bool = query.bool || { must: [] }
-                                        query.bool.must_not = query.bool.must_not || []
-                                        facet.state[value].forEach((excludeVal) => {
-                                            query.bool.must_not.push({
-                                                match: { [field]: excludeVal },
-                                            })
-                                        })
-                                    } else if (
-                                        value === '__filter' &&
-                                        facet.state[value] != null &&
-                                        facet.state[value] != ''
-                                    ) {
-                                        query.bool = query.bool || {
-                                            must: [],
-                                        }
-                                        let qs_input = '.*' + facet.state[value] + '.*'
-                                        filterConditions.push({
-                                            regexp: {
-                                                [field]: {
-                                                    value: qs_input,
-                                                    case_insensitive: true,
-                                                },
-                                            },
-                                        })
-                                    } else if (facet.state[value]) {
-                                        query.bool = query.bool || {
-                                            must: [],
-                                        }
-                                        if (facet.nestedPath) {
-                                            checkedItems.push({
-                                                nested: {
-                                                    path: facet.nestedPath,
-                                                    query: {
-                                                        bool: {
-                                                            must: [
-                                                                {
-                                                                    match: {
-                                                                        [field]: value,
-                                                                    },
-                                                                },
-                                                            ],
-                                                        },
-                                                    },
-                                                },
-                                            })
-                                        } else {
-                                            checkedItems.push({
-                                                match: {
-                                                    [field]: value,
-                                                },
-                                            })
-                                        }
-                                    }
-                                })
-                        }
-                    }
-                })
-
-                // Add filter conditions directly to must clause (AND logic)
-                filterConditions.forEach((condition) => {
-                    query.bool.must.push(condition)
-                })
-
-                // Add checked items as should clause (OR logic within the AND)
-                if (checkedItems.length > 0) {
-                    query.bool.must.push({
-                        bool: {
-                            should: checkedItems,
-                        },
-                    })
-                }
-
-                // Legacy support: if no separate arrays were used, fall back to original logic
-                if (toAddToMust.length > 0) {
-                    query.bool.must.push({
-                        bool: {
-                            should: toAddToMust,
-                        },
-                    })
-                }
-            })
-        }
-
-        // Default to searching everything with a gather
-        if (!hasAdvancedQuery) {
-            query.bool = query.bool || {}
-            query.bool.must = query.bool.must || []
-            query.bool.must.push({ exists: { field: 'gather.uri' } })
-        }
-
-        // Always filter out deprecated products in search
-        query.bool = query.bool || {}
-        query.bool.must_not = query.bool.must_not || []
-        query.bool.must_not.push({
-            wildcard: {
-                'gather.pds_archive.bundle_id': '*deprecated*',
-            },
-        })
-        query.bool.must_not.push({
-            wildcard: {
-                'gather.pds_archive.volume_id': '*deprecated*',
-            },
-        })
-
-        // === Secondary aggs
-        // Always include a mission agg so that other components can know
-        // what the active missions are
-        aggs._activeMissions = {
-            terms: { field: ES_PATHS.mission.join('.'), size: 500, order: { _key: 'asc' } },
-        }
-        if (hasGeoBoundingBox)
-            aggs._geoGrid = {
-                geohash_grid: {
-                    field: ES_PATHS.geo_location.join('.'),
-                    precision: 2,
-                },
-            }
+        const { query, aggs } = buildSearchQuery(state, activeFilters)
 
         let source = [
             ES_PATHS.uri.join('.'),
@@ -1123,7 +1393,6 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                     [ES_PATHS.release_id.join('.')]: 'desc',
                 },
             ],
-            aggs,
             collapse: {
                 field: 'uri',
             },
@@ -1135,17 +1404,14 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
 
         const cacheKey = JSON.stringify(dsl)
         const signature = getSearchSignature(dsl)
+        if (signature !== currentSearchSignature) {
+            resultsAbortController?.abort()
+            resultsAbortController = new AbortController()
+        }
+        const { signal } = resultsAbortController
         currentSearchSignature = signature
         const isSuperseded = () => currentSearchSignature !== signature
-        const responseOptions = {
-            page,
-            filtersNeedUpdate,
-            pageNeedsUpdate,
-            url,
-            dsl,
-            atlasMapping,
-            activeFilters,
-        }
+        const responseOptions = { page, filtersNeedUpdate, pageNeedsUpdate, dsl }
         const dispatchSearchError = (err) => {
             dispatch(
                 setResultsStatus(resultsStatuses.ERROR, { error: err == null ? '' : err + '' })
@@ -1155,6 +1421,8 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
         // A newer search supersedes any cached replay that hasn't been applied yet
         clearTimeout(pendingCachedReplay)
         pendingCachedReplay = null
+
+        loadFacets(dispatch, getState, query, aggs)
 
         const cachedData = getCachedSearch(cacheKey)
         if (cachedData != null) {
@@ -1172,13 +1440,22 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
             return
         }
 
+        // Only after the cache miss so cached replays don't flash the searching overlay
+        if (page > 0) {
+            const activePages = getState().getIn(['resultsPaging', 'activePages']).toJS()
+            const direction = activePages.includes(page + 1) ? 'up' : 'down'
+            dispatch(setResultsStatus(resultsStatuses.LOADING, { direction }))
+        } else {
+            dispatch(setResultsStatus(resultsStatuses.SEARCHING))
+        }
+
         axios
-            .post(`${domain}${endpoints.search}`, dsl, getHeader())
+            .post(`${domain}${endpoints.search}`, dsl, { ...getHeader(), signal })
             .then((response) => {
                 const cacheableData = isCacheableSearchResponse(response)
                     ? structuredClone(response.data)
                     : null
-                // Cached before handling so a URL-driven follow-up with the same DSL can reuse it
+                // Cached before handling so a repeat of this search can reuse it
                 if (cacheableData != null) setCachedSearch(cacheKey, cacheableData)
                 // A response for a search the user has since moved away from must not overwrite it
                 if (isSuperseded()) return

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { makeStyles, withStyles } from '@mui/styles'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
@@ -10,7 +10,9 @@ import {
     clearResults,
     search,
     setFieldState,
+    loadFilterFacets,
 } from '../../core/redux/actions/actions.js'
+import { facetsStatuses } from '../../core/constants.js'
 
 import MuiAccordion from '@mui/material/Accordion'
 import MuiAccordionSummary from '@mui/material/AccordionSummary'
@@ -18,6 +20,8 @@ import MuiAccordionDetails from '@mui/material/AccordionDetails'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
+import CircularProgress from '@mui/material/CircularProgress'
+import Button from '@mui/material/Button'
 import Badge from '@mui/material/Badge'
 import TextField from '@mui/material/TextField'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -260,6 +264,52 @@ const useStyles = makeStyles((theme) => ({
             transition: 'unset',
         },
     },
+    facetsStatus: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: theme.spacing(1),
+        minHeight: '24px',
+        padding: `0px ${theme.spacing(2)} ${theme.spacing(1)}`,
+        fontSize: '12px',
+        color: theme.palette.swatches.grey.grey600,
+    },
+    facetsStatusWarning: {
+        margin: `0px ${theme.spacing(2)} ${theme.spacing(1)}`,
+        padding: `${theme.spacing(0.5)} ${theme.spacing(1)}`,
+        borderRadius: '2px',
+        background: theme.palette.swatches.yellow.yellow700,
+        color: theme.palette.swatches.grey.grey900,
+        fontWeight: 500,
+    },
+    facetsStatusText: {
+        flex: 1,
+    },
+    expandIconSlot: {
+        position: 'relative',
+        display: 'flex',
+    },
+    expandIconHidden: {
+        visibility: 'hidden',
+    },
+    facetsSpinner: {
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    facetsRetry: {
+        'minWidth': 'unset',
+        'padding': '0px 6px',
+        'fontSize': '12px',
+        'textTransform': 'none',
+        'color': 'inherit',
+        'fontWeight': 600,
+        'textDecoration': 'underline',
+        '&:hover': {
+            background: 'rgba(0, 0, 0, 0.08)',
+        },
+    },
     accordionHeadOpen: {
         'height': '80px',
         '& > div:first-child': {
@@ -352,6 +402,35 @@ const getSubFilters = (filter, filterKey, settingsActive) => {
     return subFilters
 }
 
+const FacetsStatus = ({ status, c }) => {
+    const dispatch = useDispatch()
+
+    if (status !== facetsStatuses.TIMED_OUT && status !== facetsStatuses.ERROR) {
+        return null
+    }
+
+    const message =
+        status === facetsStatuses.TIMED_OUT
+            ? 'Search timed out. Counts may be incomplete.'
+            : "Couldn't load values for this filter."
+    return (
+        <div className={clsx(c.facetsStatus, c.facetsStatusWarning)} role="status">
+            <span className={c.facetsStatusText}>{message}</span>
+            <Button className={c.facetsRetry} onClick={() => dispatch(loadFilterFacets(true))}>
+                Retry
+            </Button>
+        </div>
+    )
+}
+
+FacetsStatus.propTypes = {
+    status: PropTypes.string,
+    c: PropTypes.object.isRequired,
+}
+
+// Longest a newly expanded filter stays closed waiting for its values
+const OPEN_WAIT_MS = 1000
+
 const Filter = (props) => {
     const { filterKey, filter, onExpand, expanded } = props
     const c = useStyles()
@@ -364,6 +443,27 @@ const Filter = (props) => {
     const [maxFieldsCount, setMaxFieldsCount] = useState(0)
 
     const subFilters = getSubFilters(filter, filterKey, settingsActive)
+    const facetsStatus = useSelector((state) => state.getIn(['facetsStatus', filterKey]))
+    const facetsLoading = facetsStatus === facetsStatuses.LOADING
+
+    // A newly expanded filter waits (briefly) for its values so it opens once at its full height
+    const [prevExpanded, setPrevExpanded] = useState(expanded)
+    const [waitingToOpen, setWaitingToOpen] = useState(false)
+    if (expanded !== prevExpanded) {
+        setPrevExpanded(expanded)
+        setWaitingToOpen(expanded)
+    }
+    if (waitingToOpen && !facetsLoading) {
+        setWaitingToOpen(false)
+    }
+    useEffect(() => {
+        if (!waitingToOpen || !facetsLoading) {
+            return
+        }
+        const timeout = setTimeout(() => setWaitingToOpen(false), OPEN_WAIT_MS)
+        return () => clearTimeout(timeout)
+    }, [waitingToOpen, facetsLoading])
+    const open = expanded && !(waitingToOpen && facetsLoading)
 
     // Track the maximum number of fields seen for this facet
     useEffect(() => {
@@ -484,12 +584,30 @@ const Filter = (props) => {
 
     return (
         <div className={c.Filter}>
-            <Accordion expanded={expanded}>
+            <Accordion expanded={open}>
                 <AccordionSummary
                     className={clsx(c.accordionHead, {
                         [c.accordionHeadOpen]: expanded && isFilterDownOpen,
                     })}
-                    expandIcon={<ExpandMoreIcon />}
+                    expandIcon={
+                        <div className={c.expandIconSlot}>
+                            <ExpandMoreIcon
+                                className={clsx({
+                                    [c.expandIconHidden]: facetsLoading,
+                                })}
+                            />
+                            {facetsLoading && (
+                                <Tooltip title="Loading values…" arrow>
+                                    <div className={c.facetsSpinner} role="status">
+                                        <CircularProgress
+                                            size={14}
+                                            aria-label="Loading filter values"
+                                        />
+                                    </div>
+                                </Tooltip>
+                            )}
+                        </div>
+                    }
                     onClick={onExpand}
                     role=""
                 >
@@ -499,9 +617,8 @@ const Filter = (props) => {
                                 <Typography className={c.title}>{friendlyFilterName}</Typography>
                             </Tooltip>
                         </Badge>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div className={c.headerButtons}>
-                                {/*
+                        <div className={c.headerButtons}>
+                            {/*
                             {expanded && (
                                 <Tooltip title="Settings" arrow>
                                     <IconButton
@@ -517,55 +634,54 @@ const Filter = (props) => {
                                 </Tooltip>
                             )}
                             */}
-                                {expanded && isListFilter && (
-                                    <Tooltip title="Search" arrow>
-                                        <IconButton
-                                            className={clsx(c.settingsButton, {
-                                                [c.settingsButtonActive]: isFilterDownOpen,
-                                            })}
-                                            aria-label={`search ${filterName} options`}
-                                            size="small"
-                                            onClick={handleFilterDown}
-                                        >
-                                            <SearchIcon fontSize="inherit" />
-                                        </IconButton>
-                                    </Tooltip>
-                                )}
-                                <Tooltip title="Info" arrow>
+                            {expanded && isListFilter && (
+                                <Tooltip title="Search" arrow>
                                     <IconButton
-                                        className={c.infoButton}
-                                        aria-label={`information about ${filterName} filter`}
+                                        className={clsx(c.settingsButton, {
+                                            [c.settingsButtonActive]: isFilterDownOpen,
+                                        })}
+                                        aria-label={`search ${filterName} options`}
                                         size="small"
-                                        onClick={handleInfo}
+                                        onClick={handleFilterDown}
                                     >
-                                        <InfoOutlinedIcon fontSize="inherit" />
+                                        <SearchIcon fontSize="inherit" />
                                     </IconButton>
                                 </Tooltip>
-                                {count > 0 && (
-                                    <Tooltip title="Clear All Selections" arrow>
-                                        <IconButton
-                                            className={c.clearButton}
-                                            aria-label={`clear all selections in ${filterName} filter`}
-                                            size="small"
-                                            onClick={handleClearSelections}
-                                        >
-                                            <ClearAllIcon fontSize="inherit" />
-                                        </IconButton>
-                                    </Tooltip>
-                                )}
-                                {!permanent ? (
-                                    <Tooltip title="Remove" arrow>
-                                        <IconButton
-                                            className={c.removeButton}
-                                            aria-label={`remove ${filterName} filter`}
-                                            size="small"
-                                            onClick={handleRemove}
-                                        >
-                                            <DeleteOutlinedIcon fontSize="inherit" />
-                                        </IconButton>
-                                    </Tooltip>
-                                ) : null}
-                            </div>
+                            )}
+                            <Tooltip title="Info" arrow>
+                                <IconButton
+                                    className={c.infoButton}
+                                    aria-label={`information about ${filterName} filter`}
+                                    size="small"
+                                    onClick={handleInfo}
+                                >
+                                    <InfoOutlinedIcon fontSize="inherit" />
+                                </IconButton>
+                            </Tooltip>
+                            {count > 0 && (
+                                <Tooltip title="Clear All Selections" arrow>
+                                    <IconButton
+                                        className={c.clearButton}
+                                        aria-label={`clear all selections in ${filterName} filter`}
+                                        size="small"
+                                        onClick={handleClearSelections}
+                                    >
+                                        <ClearAllIcon fontSize="inherit" />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
+                            {!permanent ? (
+                                <Tooltip title="Remove" arrow>
+                                    <IconButton
+                                        className={c.removeButton}
+                                        aria-label={`remove ${filterName} filter`}
+                                        size="small"
+                                        onClick={handleRemove}
+                                    >
+                                        <DeleteOutlinedIcon fontSize="inherit" />
+                                    </IconButton>
+                                </Tooltip>
+                            ) : null}
                         </div>
                     </div>
                     {expanded && isFilterDownOpen && (
@@ -620,7 +736,10 @@ const Filter = (props) => {
                         </div>
                     )}
                 </AccordionSummary>
-                <AccordionDetails>{subFilters}</AccordionDetails>
+                <AccordionDetails>
+                    <FacetsStatus status={facetsStatus} c={c} />
+                    {subFilters}
+                </AccordionDetails>
             </Accordion>
         </div>
     )
