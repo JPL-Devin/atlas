@@ -1442,7 +1442,9 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
 
         // Only after the cache miss so cached replays don't flash the searching overlay
         if (page > 0) {
-            dispatch(setResultsStatus(resultsStatuses.LOADING))
+            const activePages = getState().getIn(['resultsPaging', 'activePages']).toJS()
+            const direction = activePages.includes(page + 1) ? 'up' : 'down'
+            dispatch(setResultsStatus(resultsStatuses.LOADING, { direction }))
         } else {
             dispatch(setResultsStatus(resultsStatuses.SEARCHING))
         }

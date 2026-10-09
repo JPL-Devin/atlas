@@ -87,6 +87,28 @@ const useStyles = makeStyles((theme) => ({
         fontSize: '16px',
         textTransform: 'uppercase',
     },
+    loadingMore: {
+        'position': 'absolute',
+        'right': theme.spacing(3),
+        'width': '40px',
+        'height': '40px',
+        'display': 'flex',
+        'alignItems': 'center',
+        'justifyContent': 'center',
+        'borderRadius': '6px',
+        'background': theme.palette.accent.main,
+        'boxShadow': theme.shadows[2],
+        'pointerEvents': 'none',
+        '& .MuiCircularProgress-colorPrimary': {
+            color: theme.palette.text.secondary,
+        },
+    },
+    loadingMoreTop: {
+        top: theme.spacing(1.5),
+    },
+    loadingMoreBottom: {
+        bottom: theme.spacing(1.5),
+    },
     none: {
         background: theme.palette.swatches.yellow.yellow700,
         fontSize: '16px',
@@ -139,6 +161,7 @@ const ResultsStatus = (props) => {
     }).toJS()
 
     let inner = null
+    let loadingMore = null
     let isHidden = false
 
     switch (resultsStatus.status) {
@@ -166,8 +189,22 @@ const ResultsStatus = (props) => {
             )
             break
         case resultsStatuses.LOADING:
-            // Shown as a spinner in the results Heading
+            // Next page: a small box at the scroll edge being loaded, instead of the overlay
             isHidden = true
+            loadingMore = (
+                <div
+                    className={clsx(
+                        c.loadingMore,
+                        resultsStatus.message?.direction === 'up'
+                            ? c.loadingMoreTop
+                            : c.loadingMoreBottom
+                    )}
+                    role="status"
+                    aria-label="Loading more results"
+                >
+                    <CircularProgress size={20} />
+                </div>
+            )
             break
         case resultsStatuses.NONE:
             inner = (
@@ -207,11 +244,14 @@ const ResultsStatus = (props) => {
     }
 
     return (
-        <div className={clsx(c.ResultsStatus, { [c.hidden]: isHidden })}>
-            <Paper className={c.paper} elevation={2}>
-                {inner}
-            </Paper>
-        </div>
+        <>
+            <div className={clsx(c.ResultsStatus, { [c.hidden]: isHidden })}>
+                <Paper className={c.paper} elevation={2}>
+                    {inner}
+                </Paper>
+            </div>
+            {loadingMore}
+        </>
     )
 }
 
