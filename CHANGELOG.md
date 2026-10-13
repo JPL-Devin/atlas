@@ -26,6 +26,8 @@ All notable changes to Atlas are recorded here, newest first and grouped by mont
   tailored to Artemis II products ([JPL-Devin/atlas#62](https://github.com/JPL-Devin/atlas/pull/62)).
 
 ### Changed
+- Search and Archive Explorer column queries now send `request_cache=true&preference=atlas`
+  so repeated searches are served from the OpenSearch shard request cache.
 - Added top spacing above the General Fields filter on the record details page
   ([JPL-Devin/atlas#63](https://github.com/JPL-Devin/atlas/pull/63)).
 

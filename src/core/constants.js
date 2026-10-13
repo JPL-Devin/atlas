@@ -39,6 +39,9 @@ export const endpoints = {
         'https://pds.nasa.gov/services/search/search?fq=product-class%3AProduct_Attribute_Definition&fq=attribute_name%3A{field}&wt=json',
 }
 
+// Opt searches into the shard request cache and pin them to the same shard copies so repeats hit it
+export const SEARCH_CACHE_QUERY = 'request_cache=true&preference=atlas'
+
 // HASH_PATHS now use simple relative paths
 // BrowserRouter's basename prop handles the PUBLIC_URL prefix automatically
 export const HASH_PATHS = {
