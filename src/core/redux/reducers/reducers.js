@@ -21,6 +21,10 @@ const reducerFuncs = {
     CLEAR_ACTIVE_FILTERS: clearActiveFilters,
     UPDATE_ACTIVE_MISSIONS: updateActiveMissions,
     UPDATE_GEO_GRID: updateGeoGrid,
+    SET_EXPANDED_FILTER: setExpandedFilter,
+    RESET_FACETS_STATUS: resetFacetsStatus,
+    SET_FACETS_STATUS: setFacetsStatus,
+    SET_MAP_VISIBLE: setMapVisible,
     SET_FIELD_STATE: setFieldState,
     SET_ADVANCED_FILTERS: setAdvancedFilters,
     SET_ADVANCED_FILTERS_EXPRESSION: setAdvancedFiltersExpression,
@@ -174,12 +178,12 @@ function addActiveFilters(state, payload) {
 function updateActiveFilters(state, payload) {
     let nextActiveFilters = state.get('activeFilters').toJS()
     nextActiveFilters = { ...nextActiveFilters, ...payload.filters }
-    
+
     // Ensure proper order values are maintained
     Object.keys(nextActiveFilters).forEach((key) => {
         nextActiveFilters[key].order = getFilterOrderValue(key)
     })
-    
+
     return state.setIn(['activeFilters'], fromJS(nextActiveFilters))
 }
 
@@ -198,7 +202,10 @@ function removeActiveFilters(state, payload) {
         if (nextActiveFilters[id] != null) delete nextActiveFilters[id]
         else console.warn(`Tried to delete an active filter that does not exist: ${id}`)
     })
-    return state.setIn(['activeFilters'], fromJS(nextActiveFilters))
+    // A re-added filter starts without fields, so its aggs must be reloaded
+    return state
+        .setIn(['activeFilters'], fromJS(nextActiveFilters))
+        .updateIn(['facetsStatus'], (facetsStatus) => facetsStatus.deleteAll(ids))
 }
 
 /**
@@ -235,6 +242,27 @@ function updateActiveMissions(state, payload) {
  */
 function updateGeoGrid(state, payload) {
     return state.setIn(['geoGrid'], fromJS(payload.buckets || []))
+}
+
+function setExpandedFilter(state, payload) {
+    return state.setIn(['expandedFilter'], payload.filterKey)
+}
+
+function setMapVisible(state, payload) {
+    return state.setIn(['mapVisible'], payload.visible)
+}
+
+function resetFacetsStatus(state) {
+    return state.setIn(['facetsStatus'], fromJS({}))
+}
+
+function setFacetsStatus(state, payload) {
+    return state.updateIn(['facetsStatus'], (facetsStatus) =>
+        payload.filterKeys.reduce(
+            (acc, key) => (payload.status == null ? acc.delete(key) : acc.set(key, payload.status)),
+            facetsStatus
+        )
+    )
 }
 
 /**

@@ -139,6 +139,14 @@ export const resultsStatuses = {
     ERROR: 'error',
 }
 
+// Load state of a filter's aggs. No status means not loaded for the current query.
+export const facetsStatuses = {
+    LOADING: 'loading',
+    LOADED: 'loaded',
+    TIMED_OUT: 'timed_out',
+    ERROR: 'error',
+}
+
 export const AVAILABLE_URI_SIZES = { xs: 'xs', sm: 'sm', md: 'md', lg: 'lg' }
 
 export const IMAGE_EXTENSIONS = [

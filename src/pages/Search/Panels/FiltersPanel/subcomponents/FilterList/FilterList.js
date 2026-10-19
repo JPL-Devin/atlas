@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import React, { useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 import Url from 'url-parse'
 
 import Filter from '../../../../../../components/Filter/Filter'
 import { HASH_PATHS } from '../../../../../../core/constants'
+import { setExpandedFilter } from '../../../../../../core/redux/actions/actions'
 import { makeStyles } from '@mui/styles'
 
 const useStyles = makeStyles((theme) => ({
@@ -119,7 +120,8 @@ const FilterList = (props) => {
 
     const navigate = useNavigate()
 
-    const [expandedFilter, setExpandedFilter] = useState('_text')
+    const dispatch = useDispatch()
+    const expandedFilter = useSelector((state) => state.get('expandedFilter'))
     const activeFilters = useSelector((state) => {
         return state.getIn(['activeFilters'])
     }).toJS()
@@ -161,7 +163,7 @@ const FilterList = (props) => {
             filter={activeFilters[filterKey]}
             expanded={expandedFilter === filterKey}
             onExpand={() => {
-                setExpandedFilter(expandedFilter === filterKey ? null : filterKey)
+                dispatch(setExpandedFilter(expandedFilter === filterKey ? null : filterKey))
             }}
         />
     )

@@ -1,5 +1,8 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
+
+import { setMapVisible } from '../../../../core/redux/actions/actions'
 
 import CartoCosmos from '../../../../CartoCosmos/CartoCosmos'
 
@@ -40,6 +43,7 @@ const SecondaryPanel = (props) => {
     const { width } = props
     const c = useStyles()
 
+    const dispatch = useDispatch()
     const mainRef = useRef()
     const [firstOpen, setFirstOpen] = useState(false)
 
@@ -50,9 +54,15 @@ const SecondaryPanel = (props) => {
     }
 
     // This is so that the map never loads in the background on start up
-    if (width !== 0 && firstOpen === false) 
+    const visible = width !== 0
+    if (visible && firstOpen === false) {
         setFirstOpen(true)
-    
+    }
+
+    useEffect(() => {
+        dispatch(setMapVisible(visible))
+    }, [dispatch, visible])
+    useEffect(() => () => dispatch(setMapVisible(false)), [dispatch])
 
     return (
         <div className={c.SecondaryPanel} style={style} ref={mainRef}>
