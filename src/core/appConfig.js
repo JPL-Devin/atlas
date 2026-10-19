@@ -34,6 +34,7 @@ const instances = {
         drawerLabel: 'Atlas',
         showInDrawer: true,
         baseUrl: '',
+        indexName: 'atlas',
         dataEndpoint: '/data',
         searchEndpoint: '/search/atlas/_search',
         pitEndpoint: '/search/atlas/_pit',
@@ -73,11 +74,18 @@ const instances = {
         // Temporarily hidden from other instances' navigation drawers. Set to true to re-enable.
         showInDrawer: false,
         baseUrl: '',
+        indexName: 'raws-test',
         dataEndpoint: '/data',
-        searchEndpoint: '/search/atlas/_search',
-        pitEndpoint: '/search/atlas/_pit',
+        searchEndpoint: '/search/raws-test/_search',
+        pitEndpoint: '/search/raws-test/_pit',
         scrollEndpoint: '/search/_search/scroll',
-        archiveEndpoint: '/search/atlas/_search',
+        archiveEndpoint: '/search/raws-test/_search',
+        // Raws top-level `uri` is the product URN; gather.uri is the urn:raws file URI that
+        // records, links and the data endpoint use.
+        esPaths: {
+            source: ['gather', 'uri'],
+            uri: ['gather', 'uri'],
+        },
     },
 }
 
