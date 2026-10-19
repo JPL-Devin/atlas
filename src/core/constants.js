@@ -114,6 +114,7 @@ export const ES_PATHS = {
         _self: ['pds4_label'],
         lidvid: ['pds4_label', 'lidvid'],
     },
+    ...appConfig.esPaths,
 }
 
 export const RELATED_MAPPINGS = {

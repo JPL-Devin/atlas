@@ -10,7 +10,8 @@ export const formatMappings = (schema) => {
     // Organize pds4_label into folders split on the field's first :
     // disp:Color_Display_Settings/disp:blue_channel_band => disp: { disp:Color_Display_Settings/disp:blue_channel_band: {}, ... }
     const organizedProps_pds4_label = {}
-    Object.keys(schema.mappings.properties.pds4_label.properties).forEach((p) => {
+    const pds4Props = schema.mappings.properties.pds4_label?.properties
+    Object.keys(pds4Props || {}).forEach((p) => {
         if (p.indexOf(':') > -1) {
             const dir = p.split(':')[0]
             organizedProps_pds4_label[dir] = organizedProps_pds4_label[dir] || { properties: {} }
@@ -24,7 +25,9 @@ export const formatMappings = (schema) => {
                 schema.mappings.properties.pds4_label.properties[p]
         }
     })
-    schema.mappings.properties.pds4_label.properties = organizedProps_pds4_label
+    if (pds4Props) {
+        schema.mappings.properties.pds4_label.properties = organizedProps_pds4_label
+    }
 
     const mappingDepthTraversal = (properties, depth, path, pathRaw, nestedPath) => {
         // Bubbles groups (i.e. those with "properties" objects to the top)
