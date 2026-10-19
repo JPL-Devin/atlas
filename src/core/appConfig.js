@@ -80,7 +80,7 @@ const instances = {
         pitEndpoint: '/search/raws-test/_pit',
         scrollEndpoint: '/search/_search/scroll',
         archiveEndpoint: '/search/raws-test/_search',
-        // Raws top-level `uri` is a product URN; gather.uri is the atlas:raws file URI that
+        // Raws top-level `uri` is the product URN; gather.uri is the urn:raws file URI that
         // records, links and the data endpoint use.
         esPaths: {
             source: ['gather', 'uri'],
