@@ -1056,7 +1056,7 @@ const buildSearchQuery = (state, activeFilters) => {
                                 let qs_input = '.*' + facet.state.input + '.*'
                                 toAddToMust.push({
                                     regexp: {
-                                        uri: {
+                                        [ES_PATHS.uri.join('.')]: {
                                             value: qs_input,
                                             case_insensitive: true,
                                         },
