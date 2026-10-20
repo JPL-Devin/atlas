@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -17,6 +17,8 @@ import { getVersionQuery, getVersionOptions } from '../../core/recordVersions'
 
 import Content from './Content/Content'
 import Footer from './Footer/Footer'
+import { ResultNavMockupProvider, readResultNavParams } from './Content/ResultNav/ResultNavMockup'
+import ResultNavMockupSwitcher from './Content/ResultNav/ResultNavMockupSwitcher'
 
 const useStyles = makeStyles((theme) => ({
     Record: {
@@ -41,6 +43,7 @@ const Record = (props) => {
     const [versions, setVersions] = useState([])
     const [activeVersion, setActiveVersion] = useState(null)
     const [loading, setLoading] = useState(true)
+    const resultNavMockup = useMemo(() => readResultNavParams(location.search), [location.search])
 
     const recordData = useSelector((state) => {
         return state.get('recordData')
@@ -103,15 +106,18 @@ const Record = (props) => {
     }, [JSON.stringify(recordData)])
 
     return (
-        <div className={c.Record}>
-            <Content
-                recordData={recordData}
-                versions={versions}
-                activeVersion={activeVersion}
-                loading={loading}
-            />
-            {/*<Footer />*/}
-        </div>
+        <ResultNavMockupProvider initial={resultNavMockup}>
+            <div className={c.Record}>
+                <Content
+                    recordData={recordData}
+                    versions={versions}
+                    activeVersion={activeVersion}
+                    loading={loading}
+                />
+                {/*<Footer />*/}
+                <ResultNavMockupSwitcher />
+            </div>
+        </ResultNavMockupProvider>
     )
 }
 
