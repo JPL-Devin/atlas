@@ -22,6 +22,14 @@ test.describe('getRawLabel', () => {
         expect(getRawLabel(record)).toEqual({ PRODUCT_ID: 'x' })
     })
 
+    test('a raws record yields its raws_label branch', () => {
+        const record = {
+            gather: { pds_archive: { pds_standard: 'raws' } },
+            raws_label: { camera_name: 'NAVCAM' },
+        }
+        expect(getRawLabel(record)).toEqual({ camera_name: 'NAVCAM' })
+    })
+
     test('a record with no label branch has no raw label', () => {
         const record = { gather: { pds_archive: { pds_standard: 'pds3' } } }
         expect(getRawLabel(record)).toEqual({})

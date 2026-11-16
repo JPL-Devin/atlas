@@ -12,14 +12,15 @@ export const withoutLabelBranches = (recordData) =>
             return obj
         }, {})
 
+const LABEL_PATHS = {
+    pds4: ES_PATHS.pds4_label._self,
+    raws: ES_PATHS.raws_label,
+}
+
 // A record only carries the label branch for its own PDS standard.
 export const getRawLabel = (recordData) => {
     const pdsStandard = getIn(recordData, ES_PATHS.pds_standard)
-    const label = getIn(
-        recordData,
-        pdsStandard === 'pds4' ? ES_PATHS.pds4_label._self : ES_PATHS.pds3_label,
-        {}
-    )
+    const label = getIn(recordData, LABEL_PATHS[pdsStandard] || ES_PATHS.pds3_label, {})
     return isObject(label) ? label : {}
 }
 

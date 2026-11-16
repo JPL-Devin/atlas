@@ -188,10 +188,16 @@ export const loadMappings = (indexName) => {
             return
         }
 
+        // 'atlas' is the state key for the instance's primary index, whatever its real name.
+        const esIndex = indexName === 'atlas' ? getAppConfig().indexName : indexName
         axios
-            .get(`${domain}/search/${indexName}/_mapping`, getHeader())
+            .get(`${domain}/search/${esIndex}/_mapping`, getHeader())
             .then((response) => {
-                dispatch(setMappings(indexName, getIn(response, `data.${indexName}`, null)))
+                // An alias's mapping comes back keyed by its backing index.
+                const indices = response?.data || {}
+                const keys = Object.keys(indices)
+                const mapping = indices[esIndex] ?? (keys.length === 1 ? indices[keys[0]] : null)
+                dispatch(setMappings(indexName, mapping))
             })
             .catch((err) => {
                 console.log(err)
@@ -1050,7 +1056,7 @@ const buildSearchQuery = (state, activeFilters) => {
                                 let qs_input = '.*' + facet.state.input + '.*'
                                 toAddToMust.push({
                                     regexp: {
-                                        uri: {
+                                        [ES_PATHS.uri.join('.')]: {
                                             value: qs_input,
                                             case_insensitive: true,
                                         },
@@ -1394,7 +1400,7 @@ export const search = (page, filtersNeedUpdate, pageNeedsUpdate, url, forceActiv
                 },
             ],
             collapse: {
-                field: 'uri',
+                field: ES_PATHS.uri.join('.'),
             },
             track_total_hits: true,
             _source: [...new Set(source)],
@@ -1489,7 +1495,7 @@ export const searchRecordByURI = (uri) => {
             bool: {
                 must: [
                     {
-                        match: { uri: uri },
+                        match: { [ES_PATHS.uri.join('.')]: uri },
                     },
                 ],
             },
@@ -1499,7 +1505,7 @@ export const searchRecordByURI = (uri) => {
             query,
             sort: [{ [ES_PATHS.release_id.join('.')]: 'desc' }],
             collapse: {
-                field: 'uri',
+                field: ES_PATHS.uri.join('.'),
             },
             from: 0,
             size: 1,
