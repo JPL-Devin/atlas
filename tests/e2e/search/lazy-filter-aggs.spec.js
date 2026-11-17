@@ -86,6 +86,34 @@ const readdMissionFilter = async (page) => {
 }
 
 test.describe('Search - lazy filter aggs', () => {
+    test('baseline values arrive independently and zero rows remain selectable and removable', async ({ page }) => {
+        await routeSearch(page)
+        const requests = []
+        await page.route(/_search/, async (route) => {
+            const body = route.request().postDataJSON()
+            requests.push(body)
+            const isBaseline = body.size === 0 && body.query.bool.must.length === 1
+            if (isBaseline) await new Promise((resolve) => setTimeout(resolve, 1200))
+            const buckets = isBaseline
+                ? [{ key: 'Cassini', doc_count: 10 }, { key: 'Mars 2020', doc_count: 5 }]
+                : [{ key: 'Mars 2020', doc_count: 5 }]
+            await route.fulfill({ json: { ...hitsResponse(), aggregations: body.aggs ? { [MISSION]: { buckets } } : undefined } })
+        })
+        await page.goto('/search?gather.common.mission=Mars%202020&gather.common.target=Mars', { waitUntil: 'domcontentloaded' })
+        await waitForAppReady(page)
+        await page.getByText('mission', { exact: true }).first().click()
+        const cassini = page.locator('li').filter({ has: page.getByText('Cassini', { exact: true }) })
+        await expect(cassini).toContainText('(0)')
+        await expect(cassini).toHaveCSS('opacity', '0.4')
+        await cassini.click()
+        await expect(cassini.getByRole('checkbox')).toBeChecked()
+        await cassini.click()
+        await expect(cassini.getByRole('checkbox')).not.toBeChecked()
+        const facetRequests = filterAggRequests(requests)
+        expect(facetRequests.every((request) => !JSON.stringify(request.query).includes('"gather.common.mission"'))).toBe(true)
+        expect(requests.some((request) => request.size > 0 && JSON.stringify(request.query).includes('Cassini'))).toBe(true)
+    })
+
     test('results never carry aggs and a filter loads its agg when expanded', async ({ page }) => {
         const requests = await routeSearch(page)
 
@@ -100,7 +128,7 @@ test.describe('Search - lazy filter aggs', () => {
 
         await expect(page.getByText('Mars 2020')).toBeVisible({ timeout: 15_000 })
         const aggRequests = filterAggRequests(requests)
-        expect(aggRequests).toHaveLength(1)
+        await expect.poll(() => filterAggRequests(requests).length).toBe(2)
         expect(aggRequests[0].size).toBe(0)
         expect(Object.keys(aggRequests[0].aggs)).toEqual([MISSION])
     })
@@ -156,7 +184,7 @@ test.describe('Search - lazy filter aggs', () => {
 
         await expect(page.getByText('Mars 2020')).toBeVisible({ timeout: 15_000 })
         // Same query and agg, so the values come from the search cache
-        expect(filterAggRequests(requests)).toHaveLength(1)
+        expect(filterAggRequests(requests)).toHaveLength(2)
         expect(await page.evaluate(() => window.__sawSearching)).toBe(false)
     })
 
