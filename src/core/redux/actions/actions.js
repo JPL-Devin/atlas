@@ -277,9 +277,6 @@ export const setModal = (modal, content) => {
  * @return {Object} redux action
  */
 export const setFilterType = (type, dontSearch) => {
-    if (!getAppConfig().enableAdvancedFilters) {
-        type = 'basic'
-    }
     return (dispatch, getState) => {
         dispatch({
             type: ACTIONS.SET_FILTER_TYPE,
@@ -941,7 +938,7 @@ export const loadFilterFacets = (force) => {
  * @return {{query: Object, aggs: Object}}
  */
 const buildSearchQuery = (state, activeFilters) => {
-    const filterType = getAppConfig().enableAdvancedFilters ? state.getIn(['filterType']) : 'basic'
+    const filterType = state.getIn(['filterType'])
 
     // Make aggs from filter.field and filter.props.fields
     let aggs = {}

@@ -56,8 +56,8 @@ const Search = () => {
             <AddFilterModal />
             <FilterHelpModal />
             <EditColumnsModal />
-            {getAppConfig().enableAdvancedFilters && <AdvancedFilterModal />}
-            {getAppConfig().enableAdvancedFilters && <AdvancedFilterReturnModal />}
+            <AdvancedFilterModal />
+            <AdvancedFilterReturnModal />
         </div>
     )
 }

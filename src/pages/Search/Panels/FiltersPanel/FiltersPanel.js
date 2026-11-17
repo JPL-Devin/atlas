@@ -130,16 +130,9 @@ const FiltersPanel = (props) => {
     }).toJS()
 
     // 'basic' || 'advanced
-    const storedFilterType = useSelector((state) => {
+    const filterType = useSelector((state) => {
         return state.getIn(['filterType'])
     })
-    const filterType = enableAdvancedFilters ? storedFilterType : 'basic'
-
-    useEffect(() => {
-        if (!enableAdvancedFilters && storedFilterType !== 'basic') {
-            dispatch(setFilterType('basic', true))
-        }
-    }, [dispatch, enableAdvancedFilters, storedFilterType])
 
     const handleMenuChange = (option) => {
         switch (option) {
@@ -213,23 +206,25 @@ const FiltersPanel = (props) => {
                                 Add
                             </Button>
                         )}
-                        {enableAdvancedFilters && <div className={c.buttonMore}>
-                            <MenuButton
-                                options={[
-                                    FILTER_TYPES.basic,
-                                    FILTER_TYPES.advanced,
-                                    '-',
-                                    'Copy Query',
-                                    'Copy Python Command',
-                                    'Copy CURL Command',
-                                    'Copy Node Fetch Command',
-                                ]}
-                                checkboxIndices={[0, 1]}
-                                active={FILTER_TYPES[filterType]}
-                                buttonComponent={<MoreVertIcon fontSize="inherit" />}
-                                onChange={handleMenuChange}
-                            />
-                        </div>}
+                        {enableAdvancedFilters && (
+                            <div className={c.buttonMore}>
+                                <MenuButton
+                                    options={[
+                                        FILTER_TYPES.basic,
+                                        FILTER_TYPES.advanced,
+                                        '-',
+                                        'Copy Query',
+                                        'Copy Python Command',
+                                        'Copy CURL Command',
+                                        'Copy Node Fetch Command',
+                                    ]}
+                                    checkboxIndices={[0, 1]}
+                                    active={FILTER_TYPES[filterType]}
+                                    buttonComponent={<MoreVertIcon fontSize="inherit" />}
+                                    onChange={handleMenuChange}
+                                />
+                            </div>
+                        )}
                         {mobile && (
                             <IconButton
                                 aria-label="close filters"
