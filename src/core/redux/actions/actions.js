@@ -18,13 +18,13 @@ import {
     getPDSUrl,
     splitUri,
     mergeFields,
+    mergeKeywordValues,
     removeComments,
     copyToClipboard,
 } from '../../utils'
 import { getSortField } from '../../sortFields'
 
 import { formatMappings, getInitialActiveFilters } from '../../../facets/FacetBuilder'
-import { mergeKeywordValues } from '../../../facets/keywordValues'
 
 // Just a quick way to remember
 let lastDSL = {}

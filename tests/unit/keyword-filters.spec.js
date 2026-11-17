@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { fromJS } from 'immutable'
 import { buildSearchQuery } from '../../src/core/redux/actions/actions'
-import { mergeKeywordValues } from '../../src/facets/keywordValues'
+import { mergeKeywordValues } from '../../src/core/utils'
 
 const state = fromJS({ filterType: 'basic' })
 const keyword = (field, selection, nestedPath = false) => ({
