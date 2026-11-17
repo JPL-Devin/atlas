@@ -1,4 +1,5 @@
 import { INITIAL } from '../store/initial'
+import { getAppConfig } from '../../appConfig'
 import { fromJS } from 'immutable'
 import { getIn } from '../../utils'
 import { localStorageCart, ES_PATHS } from '../../constants'
@@ -108,9 +109,12 @@ function setMappings(state, payload) {
  * @return {Object} new state
  */
 function setModal(state, payload) {
+    const advancedDisabled =
+        !getAppConfig().enableAdvancedFilters &&
+        ['advancedFilter', 'advancedFilterReturn'].includes(payload.modal)
     let nextModals = state.get('modals').toJS()
     for (let key in nextModals)
-        nextModals[key] = key === payload.modal ? payload.content || true : false
+        nextModals[key] = !advancedDisabled && key === payload.modal ? payload.content || true : false
     return state.setIn(['modals'], fromJS(nextModals))
 }
 
@@ -124,6 +128,9 @@ function setModal(state, payload) {
  */
 function setFilterType(state, payload) {
     let type = payload.type
+    if (!getAppConfig().enableAdvancedFilters) {
+        type = 'basic'
+    }
     if (!['basic', 'advanced'].includes(type)) type = 'basic'
     return state.setIn(['filterType'], type)
 }

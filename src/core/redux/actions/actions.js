@@ -277,6 +277,9 @@ export const setModal = (modal, content) => {
  * @return {Object} redux action
  */
 export const setFilterType = (type, dontSearch) => {
+    if (!getAppConfig().enableAdvancedFilters) {
+        type = 'basic'
+    }
     return (dispatch, getState) => {
         dispatch({
             type: ACTIONS.SET_FILTER_TYPE,
@@ -632,6 +635,9 @@ const applyUrlQuery = (dispatch, url, nextActiveFilters, atlasMapping) => {
         // skip the rest if the url is advanced
         if (isAdvancedFilter) return
         if (q === '_adv') {
+            if (!getAppConfig().enableAdvancedFilters) {
+                return
+            }
             isAdvancedFilter = true
             dispatch(setAdvancedFilters(decodeURI(url.query[q]), true))
             dispatch(setFilterType('advanced'))
@@ -935,7 +941,7 @@ export const loadFilterFacets = (force) => {
  * @return {{query: Object, aggs: Object}}
  */
 const buildSearchQuery = (state, activeFilters) => {
-    const filterType = state.getIn(['filterType'])
+    const filterType = getAppConfig().enableAdvancedFilters ? state.getIn(['filterType']) : 'basic'
 
     // Make aggs from filter.field and filter.props.fields
     let aggs = {}

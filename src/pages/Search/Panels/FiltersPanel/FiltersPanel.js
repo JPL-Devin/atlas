@@ -123,15 +123,23 @@ const FiltersPanel = (props) => {
     const { mobile } = props
     const c = useStyles()
     const dispatch = useDispatch()
+    const { enableAdvancedFilters } = getAppConfig()
 
     const w = useSelector((state) => {
         return state.getIn(['workspace', 'main'])
     }).toJS()
 
     // 'basic' || 'advanced
-    const filterType = useSelector((state) => {
+    const storedFilterType = useSelector((state) => {
         return state.getIn(['filterType'])
     })
+    const filterType = enableAdvancedFilters ? storedFilterType : 'basic'
+
+    useEffect(() => {
+        if (!enableAdvancedFilters && storedFilterType !== 'basic') {
+            dispatch(setFilterType('basic', true))
+        }
+    }, [dispatch, enableAdvancedFilters, storedFilterType])
 
     const handleMenuChange = (option) => {
         switch (option) {
@@ -205,7 +213,7 @@ const FiltersPanel = (props) => {
                                 Add
                             </Button>
                         )}
-                        <div className={c.buttonMore}>
+                        {enableAdvancedFilters && <div className={c.buttonMore}>
                             <MenuButton
                                 options={[
                                     FILTER_TYPES.basic,
@@ -221,7 +229,7 @@ const FiltersPanel = (props) => {
                                 buttonComponent={<MoreVertIcon fontSize="inherit" />}
                                 onChange={handleMenuChange}
                             />
-                        </div>
+                        </div>}
                         {mobile && (
                             <IconButton
                                 aria-label="close filters"
