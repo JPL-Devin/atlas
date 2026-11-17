@@ -24,6 +24,7 @@ import {
 import { getSortField } from '../../sortFields'
 
 import { formatMappings, getInitialActiveFilters } from '../../../facets/FacetBuilder'
+import { mergeKeywordValues } from '../../../facets/keywordValues'
 
 // Just a quick way to remember
 let lastDSL = {}
@@ -566,11 +567,16 @@ const applyFacetsResponse = (dispatch, getState, aggs, filterKeys) => {
                         buckets.push(newBucket)
                     })
                 }
-                // We merge on keywords so that users can always see the full list
-                activeFilters[filter].facets[i].fields = mergeFields(
-                    activeFilters[filter].facets[i].fields,
-                    buckets
-                )
+                if (facet.component === 'list' && getState().get('filterType') !== 'advanced') {
+                    keywordCounts.set(filter, { queryKey: currentFacetsQueryKey, buckets })
+                    activeFilters[filter].facets[i].fields = mergeKeywordValues(
+                        keywordBaselines.get(filter)?.values || [], buckets, facet.state
+                    )
+                } else {
+                    activeFilters[filter].facets[i].fields = mergeFields(
+                        activeFilters[filter].facets[i].fields, buckets
+                    )
+                }
             } else if (facet.type == 'geo_bounding_box') {
                 if (geoLngLatBuckets != null)
                     if (facet.term == 'lat') {
@@ -713,6 +719,8 @@ const FACETS_ES_TIMEOUT = '20s'
 let currentFacetsQuery = null
 let currentFacetsQueryKey = null
 const facetsRequests = { secondary: null, filter: null }
+const keywordBaselines = new Map()
+const keywordCounts = new Map()
 // The query the mission and map aggs were last requested for
 let secondaryQueryKey = null
 
@@ -729,11 +737,11 @@ const abortFacetsRequest = (dispatch, slot) => {
     }
 }
 
-const requestFacets = (dispatch, getState, slot, aggs, filterKeys) => {
+const requestFacets = (dispatch, getState, slot, aggs, filterKeys, query = currentFacetsQuery) => {
     abortFacetsRequest(dispatch, slot)
 
     const dsl = {
-        query: currentFacetsQuery,
+        query,
         size: 0,
         track_total_hits: false,
         timeout: FACETS_ES_TIMEOUT,
@@ -832,7 +840,52 @@ const loadExpandedFilterFacets = (dispatch, getState, filterAggs, force) => {
     if (!force && status != null && status !== facetsStatuses.ERROR) {
         return
     }
-    requestFacets(dispatch, getState, 'filter', { [filterKey]: filterAggs[filterKey] }, [filterKey])
+    const filter = state.getIn(['activeFilters', filterKey]).toJS()
+    const isKeywordList = filter.facets.some((facet) => facet.type === 'keyword' && facet.component === 'list')
+    const query = isKeywordList && state.get('filterType') !== 'advanced'
+        ? buildSearchQuery(state, state.get('activeFilters').toJS(), { skipCheckedFilter: filterKey }).query
+        : currentFacetsQuery
+    requestFacets(dispatch, getState, 'filter', { [filterKey]: filterAggs[filterKey] }, [filterKey], query)
+    if (isKeywordList && state.get('filterType') !== 'advanced') {
+        loadKeywordBaseline(dispatch, getState, filterKey, filterAggs[filterKey])
+    }
+}
+
+const loadKeywordBaseline = (dispatch, getState, filterKey, agg) => {
+    if (keywordBaselines.has(filterKey)) {
+        return
+    }
+    const baseline = { values: [] }
+    keywordBaselines.set(filterKey, baseline)
+    const dsl = {
+        query: buildSearchQuery(getState(), {}).query,
+        size: 0,
+        track_total_hits: false,
+        timeout: FACETS_ES_TIMEOUT,
+        aggs: { [filterKey]: agg },
+    }
+    axios.post(`${domain}${endpoints.search}`, dsl, getHeader()).then((response) => {
+        if (!isCacheableSearchResponse(response)) {
+            throw new Error('Incomplete filter baseline')
+        }
+        const result = response.data.aggregations?.[filterKey]
+        baseline.values = result?.nested
+            ? result.nested.buckets.map((bucket) => ({ key: bucket.key, doc_count: bucket.reverse_nested?.doc_count ?? bucket.doc_count }))
+            : result?.buckets || []
+        const counts = keywordCounts.get(filterKey)
+        const filter = getState().getIn(['activeFilters', filterKey])?.toJS()
+        if (!filter || counts?.queryKey !== currentFacetsQueryKey || getState().get('filterType') === 'advanced') {
+            return
+        }
+        filter.facets.forEach((facet) => {
+            if (facet.type === 'keyword' && facet.component === 'list') {
+                facet.fields = mergeKeywordValues(baseline.values, counts.buckets, facet.state)
+            }
+        })
+        dispatch(updateActiveFilters({ [filterKey]: filter }))
+    }).catch(() => {
+        keywordBaselines.delete(filterKey)
+    })
 }
 
 /**
@@ -934,7 +987,7 @@ export const loadFilterFacets = (force) => {
  * @param {Object} activeFilters
  * @return {{query: Object, aggs: Object}}
  */
-const buildSearchQuery = (state, activeFilters) => {
+export const buildSearchQuery = (state, activeFilters, { skipCheckedFilter } = {}) => {
     const filterType = state.getIn(['filterType'])
 
     // Make aggs from filter.field and filter.props.fields
@@ -1238,7 +1291,9 @@ const buildSearchQuery = (state, activeFilters) => {
                                             },
                                         },
                                     })
-                                } else if (facet.state[value]) {
+                                } else if (facet.state[value] && !(
+                                    filter === skipCheckedFilter && facet.type === 'keyword' && facet.component === 'list'
+                                )) {
                                     query.bool = query.bool || {
                                         must: [],
                                     }

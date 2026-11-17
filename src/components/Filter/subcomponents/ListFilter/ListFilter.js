@@ -105,7 +105,7 @@ const ListFilter = (props) => {
     facet = facet ? facet.toJS() : {}
     const facetsStatus = useSelector((state) => state.getIn(['facetsStatus', filterKey]))
 
-    const visibleFields = (facet.fields || []).filter((field) => field.doc_count > 0)
+    const visibleFields = facet.fields || []
     // Values from a previous search are shown dimmed until this search's counts arrive
     const isStale = facetsStatus == null || facetsStatus === facetsStatuses.LOADING
 
@@ -124,7 +124,9 @@ const ListFilter = (props) => {
                           const long = getDisplayName(field.key)
                           return (
                               <li
-                                  className={c.listItem}
+                                  className={clsx(c.listItem, {
+                                      [c.listItemZero]: field.doc_count === 0,
+                                  })}
                                   key={idx}
                                   onClick={() => {
                                       dispatch(
