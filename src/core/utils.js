@@ -202,7 +202,7 @@ export const mergeKeywordValues = (baseline, counts, state = {}) => {
     let matches = () => true
     if (state.__filter) {
         try {
-            const expression = new RegExp(state.__filter, 'i')
+            const expression = new RegExp('^(?:.*' + state.__filter + '.*)$', 'i')
             matches = (key) => expression.test(String(key))
         } catch {
             matches = () => false

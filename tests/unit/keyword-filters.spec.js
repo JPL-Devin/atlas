@@ -47,4 +47,7 @@ test('baseline merge filters case-insensitively, keeps selected missing values, 
         { key: 'Cassini', doc_count: 0 }, { key: 'Mars 2020', doc_count: 0 },
     ])
     expect(mergeKeywordValues(baseline, [], { __filter: '[' })).toEqual([])
+    expect(mergeKeywordValues(baseline, [], { __filter: 'mars|cas' })).toEqual([
+        { key: 'Cassini', doc_count: 0 },
+    ])
 })
