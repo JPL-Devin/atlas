@@ -34,15 +34,14 @@ An MSL file can be looked up with the same field:
 ## Look up a product
 
 The top-level `uri` is a product URN, whereas `gather.uri` is the file URI used
-for data access. These product and file examples are independent lookups, not
-necessarily the same record.
+for data access. Replace `<product_id>` with the mission product identifier.
 
 ```json title="Query body"
 {
   "size": 1,
   "query": {
     "term": {
-      "uri": "urn:raws:m20:NLG_1932_0838463126_112ECM_N0894246NCAM00500_00_2I4J"
+      "uri": "urn:raws:m20:<product_id>"
     }
   }
 }
@@ -51,5 +50,5 @@ necessarily the same record.
 The same product URN can be looked up by `_id` using an `ids` query:
 
 ```json
-{"query":{"ids":{"values":["urn:raws:m20:NLG_1932_0838463126_112ECM_N0894246NCAM00500_00_2I4J"]}},"size":1}
+{"query":{"ids":{"values":["urn:raws:m20:<product_id>"]}},"size":1}
 ```

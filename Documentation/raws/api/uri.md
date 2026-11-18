@@ -35,18 +35,4 @@ urn:raws:<mission>:<product_id>
 The top-level `uri` and `_id` identify the product document, not a file path.
 Use [Search](./search) to find a product and its file URI.
 
-```text title="Example document URIs"
-urn:raws:m20:NLG_1932_0838463126_112ECM_N0894246NCAM00500_00_2I4J
-urn:raws:msl:NLB_780000000EDR_F0000000NCAM00500M1
-urn:raws:insight:D000M0010_597602286EDR_F0000_0461M_
-urn:raws:cassini:W1234567890_1
-urn:raws:psyche:psy_mi_a_0001
-```
-
-MSL mosaics use `urn:raws:msl:mosaic:<product_id>`:
-
-```text
-urn:raws:msl:mosaic:N_A000A0060XILT005CYLTSG0104_DRIVEM1
-```
-
 Raws does not use releases. Do not append `::release_id` to either URI format.
