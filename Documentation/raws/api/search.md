@@ -39,9 +39,3 @@ The same product URN can be looked up by `_id` using an `ids` query:
 ```json
 {"query":{"ids":{"values":["urn:raws:m20:<product_id>"]}},"size":1}
 ```
-
-:::note Live index availability
-The live endpoint returned `"Index raws-test not available"` during verification.
-A real product response could not be retrieved; the queries above describe the
-identifier fields, not a verified live result.
-:::
