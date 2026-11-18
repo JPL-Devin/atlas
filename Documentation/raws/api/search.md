@@ -15,20 +15,34 @@ https://pds-imaging.jpl.nasa.gov/api/search/raws-test/_search
 ```sh
 curl 'https://pds-imaging.jpl.nasa.gov/api/search/raws-test/_search' \
   -H 'Content-Type: application/json' \
-  --data-raw '{"query":{"term":{"gather.uri":"urn:raws:m20:perseverance:/sol01729/ZR0_1729_0820448000_519EBY_N0830000ZCAM00091_1100LMJ01.png"}},"size":1}'
+  --data-raw '{"query":{"term":{"gather.uri":"urn:raws:m20:perseverance:/sol02007/WSM_2007_0845129080_000ECM_N0911496MEDA00000_0000LUJ01.png"}},"size":1}'
 ```
 
-## Look up a product
-
-Replace `<product_id>` with the mission product identifier. The top-level `uri`
-is a product URN, whereas `gather.uri` is the file URI used for data access.
+An MSL file can be looked up with the same field:
 
 ```json title="Query body"
 {
   "size": 1,
   "query": {
     "term": {
-      "uri": "urn:raws:m20:<product_id>"
+      "gather.uri": "urn:raws:msl:curiosity:/sol05043/CR0_845178861EDR_F1251194CCAM01043M_.JPG"
+    }
+  }
+}
+```
+
+## Look up a product
+
+The top-level `uri` is a product URN, whereas `gather.uri` is the file URI used
+for data access. These product and file examples are independent lookups, not
+necessarily the same record.
+
+```json title="Query body"
+{
+  "size": 1,
+  "query": {
+    "term": {
+      "uri": "urn:raws:m20:NLG_1932_0838463126_112ECM_N0894246NCAM00500_00_2I4J"
     }
   }
 }
@@ -37,5 +51,5 @@ is a product URN, whereas `gather.uri` is the file URI used for data access.
 The same product URN can be looked up by `_id` using an `ids` query:
 
 ```json
-{"query":{"ids":{"values":["urn:raws:m20:<product_id>"]}},"size":1}
+{"query":{"ids":{"values":["urn:raws:m20:NLG_1932_0838463126_112ECM_N0894246NCAM00500_00_2I4J"]}},"size":1}
 ```

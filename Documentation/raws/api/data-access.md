@@ -18,6 +18,7 @@ https://pds-imaging.jpl.nasa.gov/api/data/{uri}{:resize?}
 
 Raws has no release suffix.
 
-```text title="Example URL"
-https://pds-imaging.jpl.nasa.gov/api/data/urn:raws:m20:perseverance:/sol01729/ZR0_1729_0820448000_519EBY_N0830000ZCAM00091_1100LMJ01.png:md
+```text title="Example URLs"
+https://pds-imaging.jpl.nasa.gov/api/data/urn:raws:m20:perseverance:/sol02007/WSM_2007_0845129080_000ECM_N0911496MEDA00000_0000LUJ01.png:md
+https://pds-imaging.jpl.nasa.gov/api/data/urn:raws:msl:curiosity:/sol05043/CR0_845178861EDR_F1251194CCAM01043M_.JPG
 ```
