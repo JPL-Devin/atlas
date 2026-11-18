@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import Heading from "@theme/Heading";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import styles from "./styles.module.css";
 
 const FeatureList = [
@@ -37,11 +38,15 @@ function Feature({ title, description }) {
 }
 
 export default function HomepageFeatures() {
+  const { siteConfig } = useDocusaurusContext();
+  const features = siteConfig.customFields.instance === 'raws'
+    ? FeatureList.filter(feature => feature.title !== 'Traverse')
+    : FeatureList;
   return (
     <section className={styles.features}>
       <div className="container">
         <div className="row">
-          {FeatureList.map((props, idx) => (
+          {features.map((props, idx) => (
             <Feature key={idx} {...props} />
           ))}
         </div>

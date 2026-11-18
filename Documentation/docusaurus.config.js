@@ -6,9 +6,15 @@
 
 import { themes as prismThemes } from 'prism-react-renderer'
 
+const instance = process.env.DOCS_INSTANCE || 'atlas'
+if (!['atlas', 'raws'].includes(instance)) throw new Error(`Unknown docs instance: ${instance}`)
+const isRaws = instance === 'raws'
+const appTitle = isRaws ? 'Planetary Raws' : 'Atlas'
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-    title: 'API Documentation | PDS-IMG',
+    title: `${appTitle} API Documentation | PDS-IMG`,
+    customFields: { instance },
     tagline: 'Technical Documentation',
     favicon: 'img/favicon.png',
 
@@ -41,6 +47,7 @@ const config = {
             /** @type {import('@docusaurus/preset-classic').Options} */
             ({
                 docs: {
+                    path: instance,
                     sidebarPath: './sidebars.js',
                 },
                 theme: {
@@ -56,7 +63,7 @@ const config = {
             // Replace with your project's social card
             image: 'img/docusaurus-social-card.jpg',
             navbar: {
-                title: 'PDSIMG',
+                title: appTitle,
                 logo: {
                     alt: 'PDSIMG Logo',
                     src: 'img/nasa-logo.svg',
@@ -89,13 +96,13 @@ const config = {
                                 href: 'https://pds-imaging.jpl.nasa.gov',
                             },
                             {
-                                label: 'Atlas Search',
-                                href: 'https://pds-imaging.jpl.nasa.gov/atlas/search',
+                                label: `${appTitle} Search`,
+                                href: isRaws ? 'pathname:///search' : 'https://pds-imaging.jpl.nasa.gov/atlas/search',
                             },
-                            {
+                            ...(!isRaws ? [{
                                 label: 'Atlas Archive Explorer',
                                 href: 'https://pds-imaging.jpl.nasa.gov/atlas/archive-explorer',
-                            },
+                            }] : []),
                         ],
                     },
                 ],

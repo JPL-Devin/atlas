@@ -232,9 +232,11 @@ const docBasePath = runtimeConfig.PUBLIC_URL
     : '/documentation'
 
 // Resolve docBuild once at startup for path traversal checks
+const instanceDocBuild = path.join(paths.docBuild, currentInstance === instanceConfigs.raws ? 'raws' : 'atlas')
+const docBuild = fs.existsSync(instanceDocBuild) ? instanceDocBuild : path.join(paths.docBuild, 'atlas')
 let docBuildReal = null
 try {
-    docBuildReal = fs.realpathSync(paths.docBuild)
+    docBuildReal = fs.realpathSync(docBuild)
 } catch (_e) {
     // docBuild directory may not exist (e.g. docs not built); skip middleware
 }
@@ -292,7 +294,7 @@ if (runtimeConfig.PUBLIC_URL && docBuildReal) {
     })
 }
 
-app.use([docBasePath], express.static(paths.docBuild))
+app.use([docBasePath], express.static(docBuild))
 
 app.use((err, _req, res, _next) =>
     res.status(404).json({
