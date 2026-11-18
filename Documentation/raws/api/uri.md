@@ -22,7 +22,7 @@ urn:raws:insight:insight:/sol01316/D000M1316_713370223EDR_F0000_0817M_.JPG
 ```
 
 Where present in these paths, the sol directory is `sol` plus a five-digit,
-zero-padded number, such as `sol02007`.
+zero-padded number, such as `sol02007`. Cassini and Psyche paths have no sol directory.
 
 Mission and spacecraft names are lowercase; see [Missions and Spacecraft](../standards/missions-and-spacecraft).
 
