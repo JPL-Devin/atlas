@@ -243,7 +243,9 @@ const makeTree = (
 
             // After flattening gather, add 'gather.' prefix to its former children
             // to maintain filter key compatibility (e.g., 'gather.common.mission')
-            const topLevelNonGatherGroups = ['archive', 'pds4_label', 'groups', 'facets']
+            const topLevelNonGatherGroups = [
+                'archive', 'pds4_label', 'raws_label', 'related', 'groups', 'facets',
+            ]
             const pathParts = nextPath.split('.')
             if (pathParts.length > 0 && !topLevelNonGatherGroups.includes(pathParts[0])) {
                 // This is a former gather child that needs the prefix

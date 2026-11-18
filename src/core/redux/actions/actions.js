@@ -632,6 +632,9 @@ const applyUrlQuery = (dispatch, url, nextActiveFilters, atlasMapping) => {
         // skip the rest if the url is advanced
         if (isAdvancedFilter) return
         if (q === '_adv') {
+            if (!getAppConfig().enableAdvancedFilters) {
+                return
+            }
             isAdvancedFilter = true
             dispatch(setAdvancedFilters(decodeURI(url.query[q]), true))
             dispatch(setFilterType('advanced'))
