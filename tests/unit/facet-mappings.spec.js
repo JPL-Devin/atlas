@@ -8,7 +8,12 @@ test.describe('formatMappings', () => {
         const atlasMapping = formatMappings({
             mappings: {
                 properties: {
-                    gather: { properties: { uri: { type: 'keyword' } } },
+                    gather: {
+                        properties: {
+                            uri: { type: 'keyword' },
+                            common: { properties: { mission: { type: 'keyword' } } },
+                        },
+                    },
                     raws_label: { properties: { foo: { type: 'keyword' } } },
                     related: { properties: { uri: { type: 'keyword' } } },
                 },
