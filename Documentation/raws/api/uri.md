@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # URI
 
-Planetary Raws distinguishes file identifiers from product (document) identifiers.
+Planetary Raws identifies files using URIs.
 
 ## File URIs
 
@@ -26,13 +26,4 @@ zero-padded number, such as `sol02007`. Cassini and Psyche paths have no sol dir
 
 Mission and spacecraft names are lowercase; see [Missions and Spacecraft](../standards/missions-and-spacecraft).
 
-## Product / document URIs
-
-```text
-urn:raws:<mission>:<product_id>
-```
-
-The top-level `uri` and `_id` identify the product document, not a file path.
-Use [Search](./search) to find a product and its file URI.
-
-Raws does not use releases. Do not append `::release_id` to either URI format.
+Raws does not use releases. Do not append `::release_id` to the URI.

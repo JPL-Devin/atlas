@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Search
 
-Raws products are queried using Elasticsearch DSL at:
+Raws files are queried using Elasticsearch DSL at:
 
 ```text
 https://pds-imaging.jpl.nasa.gov/api/search/raws-test/_search
@@ -29,26 +29,4 @@ An MSL file can be looked up with the same field:
     }
   }
 }
-```
-
-## Look up a product
-
-The top-level `uri` is a product URN, whereas `gather.uri` is the file URI used
-for data access. Replace `<product_id>` with the mission product identifier.
-
-```json title="Query body"
-{
-  "size": 1,
-  "query": {
-    "term": {
-      "uri": "urn:raws:m20:<product_id>"
-    }
-  }
-}
-```
-
-The same product URN can be looked up by `_id` using an `ids` query:
-
-```json
-{"query":{"ids":{"values":["urn:raws:m20:<product_id>"]}},"size":1}
 ```

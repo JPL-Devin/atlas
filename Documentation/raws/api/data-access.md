@@ -12,7 +12,7 @@ The Data Access API maps a Raws file [URI](./uri) to its data location.
 https://pds-imaging.jpl.nasa.gov/api/data/{uri}{:resize?}
 ```
 
-- **uri:** The file URI from `gather.uri` or `related[].uri`, not the product URI.
+- **uri:** The file URI from `gather.uri` or `related[].uri`.
 - **resize:** Optional image resize suffix: `:xs` (128x128), `:sm` (256x256),
   `:md` (512x512), or `:lg` (1024x1024). Resized images are returned as WebP.
 
