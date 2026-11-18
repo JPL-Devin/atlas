@@ -105,6 +105,10 @@ const useStyles = makeStyles((theme) => ({
             marginLeft: '3px',
         },
     },
+    addFilterText: {
+        color: theme.palette.primary.light,
+        padding: '4px 6px',
+    },
     buttonMore: {
         '& .MuiIconButton-root': {
             color: theme.palette.swatches.grey.grey600,
@@ -123,7 +127,8 @@ const FiltersPanel = (props) => {
     const { mobile } = props
     const c = useStyles()
     const dispatch = useDispatch()
-    const { enableAdvancedFilters } = getAppConfig()
+    const { enableAdvancedFilters, addFilterButtonVariant } = getAppConfig()
+    const textAddFilter = addFilterButtonVariant === 'text'
 
     const w = useSelector((state) => {
         return state.getIn(['workspace', 'main'])
@@ -196,14 +201,15 @@ const FiltersPanel = (props) => {
                     <div className={c.right}>
                         {filterType === 'basic' && getAppConfig().enableAddFilters && (
                             <Button
-                                className={c.addFilter}
+                                className={clsx(c.addFilter, { [c.addFilterText]: textAddFilter })}
                                 aria-label="add filter"
                                 size="small"
                                 onClick={() => dispatch(setModal('addFilter'))}
-                                variant="contained"
-                                endIcon={<AddIcon />}
+                                variant={addFilterButtonVariant}
+                                startIcon={textAddFilter ? <AddIcon fontSize="small" /> : undefined}
+                                endIcon={textAddFilter ? undefined : <AddIcon />}
                             >
-                                Add
+                                {textAddFilter ? 'Add filter' : 'Add'}
                             </Button>
                         )}
                         {enableAdvancedFilters && (

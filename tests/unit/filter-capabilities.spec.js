@@ -8,6 +8,9 @@ for (const instance of ['atlas', 'raws']) {
         try {
             expect(getAppConfig().enableAddFilters).toBe(true)
             expect(getAppConfig().enableAdvancedFilters).toBe(instance === 'atlas')
+            expect(getAppConfig().addFilterButtonVariant).toBe(
+                instance === 'atlas' ? 'contained' : 'text'
+            )
         } finally {
             if (previousWindow === undefined) {
                 delete global.window
