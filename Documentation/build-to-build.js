@@ -9,7 +9,7 @@ for (const instance of ['atlas', 'raws']) {
         path.resolve(__dirname, '../build/documentation', instance),
     ], {
         cwd: __dirname,
-        env: { ...process.env, DOCS_INSTANCE: instance, PUBLIC_URL: '' },
+        env: { ...process.env, DOCS_INSTANCE: instance },
         stdio: 'inherit',
     })
     if (result.error) throw result.error
