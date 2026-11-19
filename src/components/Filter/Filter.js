@@ -627,7 +627,7 @@ const Filter = (props) => {
                             </Tooltip>
                         </Badge>
                         {presetTag && <Box component="span" sx={{
-                            ml: count ? '14px' : '6px', mr: 'auto', alignSelf: 'center', flexShrink: 0, px: 0.5, fontSize: 10,
+                            ml: count ? '22px' : '6px', mr: 'auto', alignSelf: 'center', flexShrink: 0, px: 0.5, fontSize: 10,
                             borderRadius: 0.5, bgcolor: presetTag === 'In preset' ? '#e8f0fd' : '#fff1d6',
                             color: presetTag === 'In preset' ? '#2053a2' : '#725013',
                         }}>{presetTag}</Box>}
