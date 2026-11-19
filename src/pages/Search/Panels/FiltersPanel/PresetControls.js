@@ -60,7 +60,11 @@ export const PresetIndicator = () => {
     const current = active.toJS()
     const modified = preset && !sameFilterLayout(current, makePresetFilters(mapping, preset))
     const activeId = presetId || 'all'
-    const label = `Preset: ${preset?.label || 'All Atlas'}${modified ? ' (modified)' : ''}`
+    const label = <>
+        <Box component="span" sx={{ color: '#465671', fontWeight: 400 }}>Preset:</Box>{' '}
+        <Box component="span" sx={{ color: '#1559bf', fontWeight: 700 }}>{preset?.label || 'All Atlas'}</Box>
+        {modified && <>{' '}<Box component="span" sx={{ color: '#725013', fontSize: 11, fontWeight: 500 }}>(modified)</Box></>}
+    </>
     const getPreview = (item) => getPresetPreview(current, makePresetFilters(mapping, item), item.id === activeId)
 
     return (
@@ -73,7 +77,7 @@ export const PresetIndicator = () => {
                         sx={{
                             minHeight: { xs: 40, md: 34 }, minWidth: 0, gap: 1.5, px: 2,
                             justifyContent: 'space-between', textAlign: 'left', textTransform: 'none',
-                            fontSize: 13, fontWeight: 650, color: '#1559bf', borderColor: '#81a5dd',
+                            fontSize: 13, color: '#1559bf', borderColor: '#81a5dd',
                             bgcolor: anchor ? '#dae9ff' : '#fff',
                             '&:hover': { bgcolor: '#e1edfc' },
                         }}
@@ -81,7 +85,7 @@ export const PresetIndicator = () => {
                         <Box component="span" sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>{label}</Box>
                         <ExpandMoreIcon sx={{ fontSize: 16, flexShrink: 0 }} />
                     </Button>
-                ) : <Typography variant="body2" sx={{ fontWeight: 650 }}>{label}</Typography>}
+                ) : <Typography variant="body2" sx={{ fontSize: 13 }}>{label}</Typography>}
             </Box>
             {anchor && <PresetPicker id={pickerId} anchor={anchor} presets={presets} activeId={activeId}
                 getPreview={getPreview}

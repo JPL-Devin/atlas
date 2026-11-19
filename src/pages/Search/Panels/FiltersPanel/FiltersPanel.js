@@ -70,6 +70,10 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         justifyContent: 'space-between',
     },
+    titleGroup: {
+        display: 'flex',
+        alignItems: 'center',
+    },
     title: {
         margin: 0,
         paddingLeft: '12px',
@@ -78,6 +82,15 @@ const useStyles = makeStyles((theme) => ({
         lineHeight: '34px',
         color: theme.palette.text.primary,
         whiteSpace: 'nowrap',
+        [theme.breakpoints.down('md')]: {
+            paddingLeft: 0,
+        },
+    },
+    close: {
+        width: 40,
+        height: 40,
+        margin: '0 4px',
+        fontSize: '20px',
     },
     right: {
         display: 'flex',
@@ -179,7 +192,18 @@ const FiltersPanel = (props) => {
             <div className={c.contents}>
                 <div className={c.heading} role="group" aria-label="Filter controls">
                     <div className={c.headingRow}>
-                        <h2 className={c.title}>{filterType === 'basic' ? 'Filters' : FILTER_TYPES[filterType]}</h2>
+                        <div className={c.titleGroup}>
+                            {mobile && (
+                                <IconButton
+                                    className={c.close}
+                                    aria-label="close filters"
+                                    onClick={() => dispatch(setWorkspace({ ...w, mobileFilters: false }))}
+                                >
+                                    <CloseIcon fontSize="inherit" />
+                                </IconButton>
+                            )}
+                            <h2 className={c.title}>{filterType === 'basic' ? 'Filters' : FILTER_TYPES[filterType]}</h2>
+                        </div>
                         <div className={c.right}>
                             <PresetReset disabled={!ready} />
                             {filterType === 'basic' && getAppConfig().enableAddFilters && (
@@ -211,15 +235,6 @@ const FiltersPanel = (props) => {
                                     onChange={handleMenuChange}
                                 />
                             </div>
-                            {mobile && (
-                                <IconButton
-                                    aria-label="close filters"
-                                    size="small"
-                                    onClick={() => dispatch(setWorkspace({ ...w, mobileFilters: false }))}
-                                >
-                                    <CloseIcon fontSize="inherit" />
-                                </IconButton>
-                            )}
                         </div>
                     </div>
                     {ready && filterType === 'basic' && <PresetIndicator />}

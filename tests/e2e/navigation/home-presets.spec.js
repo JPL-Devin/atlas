@@ -54,6 +54,11 @@ const expectStackedHeader = async (header, mobile = false) => {
         await expect(action).toBeVisible()
         const box = await action.boundingBox()
         expect(Math.abs(box.y + box.height / 2 - titleBox.y - titleBox.height / 2)).toBeLessThan(2)
+        if (name === 'close filters') {
+            expect(box.width).toBeGreaterThanOrEqual(40)
+            expect(box.height).toBeGreaterThanOrEqual(40)
+            expect(box.x + box.width).toBeLessThan(titleBox.x)
+        }
     }
     expect(subtitleBox.y).toBeGreaterThan(titleBox.y + titleBox.height / 2)
 }
@@ -80,7 +85,7 @@ test('Atlas homepage repeatedly opens distinct Search and Archive Explorer entri
     const presetButton = page.getByRole('button', { name: 'Preset: Mars 2020', exact: true })
     await expect(presetButton).toHaveText('Preset: Mars 2020')
     await expect(page.getByText('Controls shown in Basic Filters.', { exact: true })).toHaveCount(0)
-    await capture(page, 'filters-header')
+    await capture(page, 'filters-header-unmodified')
     await expect(page.getByRole('button', { name: /quick links/i })).toBeVisible()
     await expect.poll(() => requests.some(({ query }) => JSON.stringify(query || {}).includes('"mars_2020"'))).toBe(true)
     await home()
@@ -111,6 +116,10 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     const trigger = header.getByRole('button', { name: 'Preset: Artemis II (modified)' })
     await expectStackedHeader(header)
     await expect(trigger).toHaveText('Preset: Artemis II (modified)')
+    await expect(trigger.getByText('Preset:', { exact: true })).toHaveCSS('font-weight', '400')
+    await expect(trigger.getByText('Artemis II', { exact: true })).toHaveCSS('font-weight', '700')
+    await expect(trigger.getByText('(modified)', { exact: true })).toHaveCSS('font-size', '11px')
+    await capture(page, 'filters-header')
     await capture(page, 'filters-header-modified')
     await capture(page, 'header-stacked')
     await capture(page, 'layout-header')
@@ -254,6 +263,9 @@ test('Atlas preset picker stays usable on a narrow screen without the side previ
     await expect(page.getByRole('dialog')).not.toBeVisible()
     await expect(page).toHaveURL(/_preset=planetary-imaging.*mission=artemis2/)
     await page.getByRole('button', { name: 'Undo' }).click()
+    await expect(page).toHaveURL(/_preset=artemis-ii.*mission=artemis2/)
+    await header.getByRole('button', { name: 'close filters', exact: true }).click()
+    await expect(header).toHaveCount(0)
     await expect(page).toHaveURL(/_preset=artemis-ii.*mission=artemis2/)
 })
 
