@@ -11,7 +11,7 @@ export const getPresetFilterSummary = (preset, defaults = getAppConfig().default
     return {
         featured: highlighted.filter((key) => defaultKeys.has(key)),
         added: highlighted.filter((key) => !defaultKeys.has(key)),
-        hiddenCount: [...defaultKeys].filter((key) => !presetKeys.has(key)).length,
+        hidden: [...defaultKeys].filter((key) => !presetKeys.has(key)),
     }
 }
 

@@ -57,9 +57,9 @@ test('preset descriptions and summaries distinguish featured fields from new and
     expect([...atlas, ...raws].every(({ description }) => Boolean(description.trim()))).toBe(true)
     expect(getPresetFilterSummary(atlas.find(({ id }) => id === 'artemis-ii'), [
         FLIGHT_DAY, MISSION, 'archive.bundle_id',
-    ])).toEqual({ featured: [FLIGHT_DAY], added: [], hiddenCount: 1 })
+    ])).toEqual({ featured: [FLIGHT_DAY], added: [], hidden: ['archive.bundle_id'] })
     expect(getPresetFilterSummary(raws[0], [MISSION, 'gather.common.spacecraft'])).toEqual({
-        featured: [], added: ['gather.landed_missions.planet_day_number'], hiddenCount: 1,
+        featured: [], added: ['gather.landed_missions.planet_day_number'], hidden: ['gather.common.spacecraft'],
     })
 })
 
@@ -83,6 +83,10 @@ test('deep links add mapped non-default fields and preset switching never discar
     expect(plan.added).toEqual(['archive.bundle_id'])
     expect(plan.removed).toEqual(['_text'])
     expect(plan.kept).toEqual([FLIGHT_DAY, PHASE])
+    expect(Object.keys(plan.filters)).toEqual([MISSION, 'archive.bundle_id', FLIGHT_DAY, PHASE])
     expect(plan.filters[MISSION].facets[0].state).toEqual({ artemis2: true })
+    expect(plan.filters[FLIGHT_DAY].facets[0].state).toEqual({ range: [4, 6] })
+    expect(plan.filters[PHASE].facets[0].state).toEqual({ FLYBY: true })
+    expect(current).toHaveProperty(['_text'])
     expect(sameFilterLayout(plan.filters, next)).toBe(false)
 })

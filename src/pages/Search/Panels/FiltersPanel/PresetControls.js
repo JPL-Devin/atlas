@@ -2,14 +2,13 @@ import React, { useId, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-    Alert, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
-    IconButton, Menu, MenuItem, Snackbar, Tooltip, Typography,
+    Box, Button, Chip, IconButton, Menu, MenuItem, Snackbar, Tooltip, Typography,
 } from '@mui/material'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import TuneIcon from '@mui/icons-material/Tune'
 
 import { getFilterPreset, getFilterPresets } from '../../../../config/filterPresets'
-import PresetPicker, { fieldLabel } from './PresetPicker'
+import PresetPicker from './PresetPicker'
 import { getAppConfig } from '../../../../core/appConfig'
 import { getPresetFilterKeys, makePresetFilters, planPresetSwitch, sameFilterLayout } from '../../../../core/searchPresetState'
 import { changeSearchPreset, dismissSearchPresetChange, resetFilters, undoSearchPresetChange } from '../../../../core/redux/actions/actions'
@@ -63,7 +62,6 @@ export const PresetIndicator = () => {
     const pickerId = useId()
     const presetRow = useRef(null)
     const [anchor, setAnchor] = useState(null)
-    const [pending, setPending] = useState(null)
     const presets = getFilterPresets()
     const preset = getFilterPreset(presetId)
     const selectable = presets.length > 1
@@ -73,8 +71,11 @@ export const PresetIndicator = () => {
 
     const current = active.toJS()
     const modified = preset && !sameFilterLayout(current, makePresetFilters(mapping, preset))
-    const plan = pending && planPresetSwitch(current, makePresetFilters(mapping, pending))
-    const changes = plan && [['Added', plan.added], ['Removed (empty filters only)', plan.removed], ['Kept · has value', plan.kept]]
+    const activeId = presetId || 'all'
+    const getPreview = (item) => {
+        const { filters, kept } = planPresetSwitch(current, makePresetFilters(mapping, item))
+        return { filters: item.id === activeId ? current : filters, kept }
+    }
 
     return (
         <>
@@ -95,38 +96,16 @@ export const PresetIndicator = () => {
                     {preset && <Button size="small" color="inherit" onClick={() => dispatch(changeSearchPreset(null))}>Clear preset</Button>}
                 </Box>
             </Box>
-            {anchor && <PresetPicker id={pickerId} anchor={anchor} presets={presets} activeId={presetId || 'all'}
+            {anchor && <PresetPicker id={pickerId} anchor={anchor} presets={presets} activeId={activeId}
+                getPreview={getPreview}
                 onClose={() => setAnchor(null)}
                 onSelect={(item) => {
                     setAnchor(null)
-                    if (item.id !== (presetId || 'all')) {
-                        setPending(item)
+                    if (item.id !== activeId) {
+                        dispatch(changeSearchPreset(item.id))
                     }
                 }}
             />}
-            <Dialog open={Boolean(pending)} onClose={() => setPending(null)} fullWidth maxWidth="sm" aria-labelledby="switch-preset-title">
-                <DialogTitle id="switch-preset-title">Switch to {pending?.label} preset?</DialogTitle>
-                <DialogContent dividers>
-                    <Typography>This changes which filters are shown. Your selected values still apply.</Typography>
-                    <Alert severity="warning" sx={{ my: 1.5 }}>
-                        Switching presets does not change the selected mission or other criteria.
-                    </Alert>
-                    {changes?.map(([label, keys]) => (
-                        <Box key={label} sx={{ py: 0.75, display: 'grid', gridTemplateColumns: '155px 1fr', gap: 1,
-                            borderBottom: '1px solid', borderColor: 'divider' }}>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>{label}</Typography>
-                            <Typography variant="body2">{keys.map(fieldLabel).join(', ') || 'None'}</Typography>
-                        </Box>
-                    ))}
-                </DialogContent>
-                <DialogActions>
-                    <Button color="secondary" onClick={() => setPending(null)}>Cancel</Button>
-                    <Button variant="contained" sx={{ bgcolor: '#1c67e3', color: '#fff', '&:hover': { bgcolor: '#1459c7' } }} onClick={() => {
-                        dispatch(changeSearchPreset(pending.id))
-                        setPending(null)
-                    }}>Switch preset</Button>
-                </DialogActions>
-            </Dialog>
         </>
     )
 }
