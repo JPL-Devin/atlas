@@ -36,8 +36,9 @@ const mockAtlas = async (page) => {
 }
 
 const capture = async (page, name) => {
-    if (process.env.ATLAS_SCREENSHOT_DIR)
+    if (process.env.ATLAS_SCREENSHOT_DIR) {
         await page.screenshot({ path: path.join(process.env.ATLAS_SCREENSHOT_DIR, name + '.png'), animations: 'disabled' })
+    }
 }
 
 test.use({ viewport: { width: 1440, height: 900 } })
@@ -124,9 +125,12 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
 })
 
 test('Planetary Raws home opens its curated preset without exposing Atlas-only actions', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1440 })
     await mockAtlas(page)
     await page.route('**/', async (route) => {
-        if (route.request().resourceType() !== 'document') return route.continue()
+        if (route.request().resourceType() !== 'document') {
+            return route.continue()
+        }
         const response = await route.fetch()
         const body = (await response.text()).replace(/"APP_INSTANCE"\s*:\s*"atlas"/, '"APP_INSTANCE":"raws"')
         await route.fulfill({ response, body })
@@ -136,6 +140,20 @@ test('Planetary Raws home opens its curated preset without exposing Atlas-only a
     await expect(page.getByRole('heading', { name: 'Explore Missions' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Browse Planetary Raws', exact: true })).toHaveAttribute('href', '/search')
     await expect(page.getByRole('link', { name: /Archive Explorer/ })).toHaveCount(0)
+    for (const [title, id] of [
+        ['Mars 2020 · Perseverance', 'mars_2020'],
+        ['Mars Science Laboratory · Curiosity', 'msl'],
+        ['InSight', 'nsyt'],
+        ['Cassini', 'cas'],
+        ['Psyche', 'psyche'],
+    ]) {
+        const card = page.getByRole('article').filter({ has: page.getByRole('heading', { name: title, exact: true }) })
+        const href = new RegExp(`[?&]gather\\.common\\.mission=${id}$`)
+        await expect(card.getByRole('link', { name: title, exact: true })).toHaveAttribute('href', href)
+        await expect(card.getByRole('link', { name: `Browse ${title} using the mission image` })).toHaveAttribute('href', href)
+        await expect(card.getByRole('link', { name: `Browse ${title}`, exact: true })).toHaveAttribute('href', href)
+    }
+    await expect(page.getByRole('article')).toHaveCount(5)
     await capture(page, 'raws-home')
     await page.getByRole('link', { name: 'Browse Mars 2020 · Perseverance', exact: true }).click()
     await expect(page).toHaveURL(/_preset=mars-2020.*mission=mars_2020/)

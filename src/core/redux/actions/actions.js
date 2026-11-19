@@ -91,6 +91,7 @@ let flatActions = [
     'ADD_ACTIVE_FILTERS',
     'UPDATE_ACTIVE_FILTERS',
     'SET_SEARCH_PRESET_STATE',
+    'SET_INITIALIZED_SEARCH_ENTRY',
     'DISMISS_SEARCH_PRESET_CHANGE',
     'REMOVE_ACTIVE_FILTERS',
     'CLEAR_ACTIVE_FILTERS',
@@ -395,10 +396,15 @@ export const resetFilters = () => {
 
 const setPresetState = (payload) => ({ type: ACTIONS.SET_SEARCH_PRESET_STATE, payload })
 
-export const initializeSearchEntry = (query, curated) => (dispatch, getState) => {
-    const mapping = getState().getIn(['mappings', 'atlas'])
+export const initializeSearchEntry = ({ key, query, fromHome }) => (dispatch, getState) => {
+    const state = getState()
+    const initialized = state.get('initializedSearchEntry')
+    if (initialized != null && (!fromHome || initialized === key)) {
+        return
+    }
+    const mapping = state.getIn(['mappings', 'atlas'])
     const preset = getFilterPreset(query[PRESET_PARAM])
-    if (curated || Object.hasOwn(query, PRESET_PARAM)) {
+    if (fromHome || Object.hasOwn(query, PRESET_PARAM)) {
         const presetId = preset && preset.id !== 'all' ? preset.id : null
         const defaults = makePresetFilters(mapping, preset)
         const filters = query._adv ? defaults : applyBasicSearchParams(query, defaults, mapping)
@@ -411,9 +417,10 @@ export const initializeSearchEntry = (query, curated) => (dispatch, getState) =>
             notification: null,
         }))
         dispatch(search(0, true))
-        return
+    } else {
+        dispatch(search(0, true, null, { query }))
     }
-    dispatch(search(0, true, null, { query }))
+    dispatch({ type: ACTIONS.SET_INITIALIZED_SEARCH_ENTRY, payload: key })
 }
 
 export const changeSearchPreset = (id, reset = false) => (dispatch, getState) => {

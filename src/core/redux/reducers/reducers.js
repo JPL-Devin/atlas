@@ -18,6 +18,7 @@ const reducerFuncs = {
     ADD_ACTIVE_FILTERS: addActiveFilters,
     UPDATE_ACTIVE_FILTERS: updateActiveFilters,
     SET_SEARCH_PRESET_STATE: setSearchPresetState,
+    SET_INITIALIZED_SEARCH_ENTRY: (state, key) => state.set('initializedSearchEntry', key),
     DISMISS_SEARCH_PRESET_CHANGE: dismissSearchPresetChange,
     REMOVE_ACTIVE_FILTERS: removeActiveFilters,
     CLEAR_ACTIVE_FILTERS: clearActiveFilters,

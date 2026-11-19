@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 import {
     Alert, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
@@ -51,6 +52,11 @@ export const PresetReset = ({ basic, disabled }) => {
     )
 }
 
+PresetReset.propTypes = {
+    basic: PropTypes.bool,
+    disabled: PropTypes.bool,
+}
+
 export const PresetIndicator = () => {
     const dispatch = useDispatch()
     const presetId = useSelector((state) => state.get('searchPresetId'))
@@ -61,7 +67,9 @@ export const PresetIndicator = () => {
     const presets = getFilterPresets()
     const preset = getFilterPreset(presetId)
     const selectable = presets.length > 1
-    if (!preset && !selectable) return null
+    if (!preset && !selectable) {
+        return null
+    }
 
     const current = active.toJS()
     const modified = preset && !sameFilterLayout(current, makePresetFilters(mapping, preset))
@@ -90,7 +98,9 @@ export const PresetIndicator = () => {
                 {presets.map((item) => (
                     <MenuItem key={item.id} selected={item.id === (presetId || 'all')} onClick={() => {
                         setAnchor(null)
-                        if (item.id !== (presetId || 'all')) setPending(item)
+                        if (item.id !== (presetId || 'all')) {
+                            setPending(item)
+                        }
                     }}>{item.label}</MenuItem>
                 ))}
             </Menu>
@@ -125,7 +135,11 @@ export const PresetNotification = () => {
     const dispatch = useDispatch()
     const message = useSelector((state) => state.get('searchPresetNotification'))
     return <Snackbar open={Boolean(message)} message={message} autoHideDuration={6500}
-        onClose={(_, reason) => { if (reason !== 'clickaway') dispatch(dismissSearchPresetChange()) }}
+        onClose={(_, reason) => {
+            if (reason !== 'clickaway') {
+                dispatch(dismissSearchPresetChange())
+            }
+        }}
         action={<Button size="small" sx={{ color: '#b6d2ff' }}
             onClick={() => dispatch(undoSearchPresetChange())}>Undo</Button>} />
 }

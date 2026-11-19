@@ -9,6 +9,11 @@ const atlasMission = (id, title, target, description, photo, preset = 'planetary
     query: { [MISSION]: [id] },
     destinations: { search: {}, archive: { query: { mission: [id] } } },
 })
+const rawsMission = (id, title, target, description, photo, preset) => ({
+    id, title, target, description, image: photo, preset,
+    query: { [MISSION]: [id] },
+    destinations: { search: {} },
+})
 
 const home = {
     atlas: {
@@ -50,16 +55,23 @@ const home = {
             cardSearch: 'Browse',
             searchAll: 'Browse all missions',
         },
-        cards: [{
-            id: 'mars_2020',
-            title: 'Mars 2020 · Perseverance',
-            target: 'Mars',
-            description: 'Browse raw rover images from the drive across Jezero Crater.',
-            image: image('perseverance', 'Panorama of the terrain at Jezero Crater', '68% 52%'),
-            query: { [MISSION]: ['mars_2020'] },
-            preset: 'mars-2020',
-            destinations: { search: {} },
-        }],
+        cards: [
+            rawsMission('mars_2020', 'Mars 2020 · Perseverance', 'Mars',
+                'Browse raw rover images from the drive across Jezero Crater.',
+                image('rover', 'Perseverance on a rocky Martian slope', '68% 52%'), 'mars-2020'),
+            rawsMission('msl', 'Mars Science Laboratory · Curiosity', 'Mars',
+                'Look through raw images from Curiosity’s traverse across Gale Crater and up Mount Sharp.',
+                image('curiosity', 'Curiosity on the surface of Mars', '50% 51%')),
+            rawsMission('nsyt', 'InSight', 'Mars',
+                'See raw views of the lander’s deck, instruments, and landing site on Elysium Planitia.',
+                image('insight', 'Illustration of InSight on Elysium Planitia', '50% 52%')),
+            rawsMission('cas', 'Cassini', 'Saturn',
+                'Explore raw images from Cassini’s passes by Saturn, its rings, and its moons.',
+                image('saturn', 'Backlit Saturn and its rings', '50% 50%', 'NASA/JPL-Caltech/Space Science Institute')),
+            rawsMission('psyche', 'Psyche', 'Asteroid belt',
+                'Find raw imagery from NASA’s mission to study the metal-rich asteroid Psyche.',
+                image('psyche', 'Illustration of the asteroid Psyche', '50% 49%')),
+        ],
     },
 }
 

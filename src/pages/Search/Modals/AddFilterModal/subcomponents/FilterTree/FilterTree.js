@@ -258,7 +258,9 @@ const makeTree = (
             }
 
             if (node[iter[i]].facets != null) {
-                if (excluded.has(nextPath)) continue
+                if (excluded.has(nextPath)) {
+                    continue
+                }
                 keyI++
                 tree.push(
                     <StyledTreeItem
@@ -429,7 +431,9 @@ const FilterTree = (props) => {
     const renderSection = (title, ids) => {
         const rows = ids.filter((key) => featured[key] &&
             `${fields[key]?.label || featured[key].display_name} ${key}`.toLowerCase().includes(filterString.toLowerCase()))
-        if (rows.length === 0) return null
+        if (rows.length === 0) {
+            return null
+        }
         return (
             <Box sx={{ px: 1.5, py: 0.75 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{title}</Typography>
@@ -550,6 +554,8 @@ const FilterTree = (props) => {
     )
 }
 
-FilterTree.propTypes = {}
+FilterTree.propTypes = {
+    activeFilterIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+}
 
 export default FilterTree

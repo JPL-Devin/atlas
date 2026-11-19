@@ -19,9 +19,6 @@ import AdvancedFilterReturnModal from './Modals/AdvancedFilterReturnModal/Advanc
 import { getAppConfig } from '../../core/appConfig'
 import { initializeSearchEntry } from '../../core/redux/actions/actions'
 
-let initialized = false
-const handledHomeEntries = new Set()
-
 const useStyles = makeStyles((theme) => ({
     Search: {
         width: '100%',
@@ -48,23 +45,18 @@ const Search = () => {
     const location = useLocation()
     const dispatch = useDispatch()
     const mappingReady = useSelector((state) => Boolean(state.getIn(['mappings', 'atlas'])?.groups))
+    const initializedEntry = useSelector((state) => state.get('initializedSearchEntry'))
     const [entry] = useState(() => ({
         key: location.key,
         query: Object.fromEntries(new URLSearchParams(location.search)),
         fromHome: location.state?.fromHome === true,
     }))
-    const [ready, setReady] = useState(() =>
-        initialized && (!entry.fromHome || handledHomeEntries.has(entry.key))
-    )
+    const ready = initializedEntry != null && (!entry.fromHome || initializedEntry === entry.key)
 
     useEffect(() => {
-        if (!mappingReady || ready) return
-        if (!initialized || (entry.fromHome && !handledHomeEntries.has(entry.key))) {
-            initialized = true
-            if (entry.fromHome) handledHomeEntries.add(entry.key)
-            dispatch(initializeSearchEntry(entry.query, entry.fromHome))
+        if (mappingReady && !ready) {
+            dispatch(initializeSearchEntry(entry))
         }
-        setReady(true)
     }, [dispatch, entry, mappingReady, ready])
 
     useEffect(() => {

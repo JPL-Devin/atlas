@@ -258,6 +258,7 @@ const FiltersPanel = (props) => {
 
 FiltersPanel.propTypes = {
     mobile: PropTypes.bool,
+    ready: PropTypes.bool,
 }
 
 export default FiltersPanel

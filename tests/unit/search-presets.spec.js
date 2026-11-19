@@ -20,13 +20,21 @@ test('home defines valid instance-local preset IDs and destination-specific quer
         const presets = getFilterPresets(instance)
         for (const card of getHomeConfig(instance).cards) {
             const search = new URL(getHomeDestination('search', card), 'http://localhost')
-            expect(search.searchParams.get('_preset')).toBe(card.preset)
+            expect(search.searchParams.get('_preset')).toBe(card.preset ?? null)
             expect(search.searchParams.get(MISSION)).toBe(card.id)
-            expect(presets.some(({ id }) => id === card.preset)).toBe(true)
-            if (instance === 'raws') expect(getHomeDestination('archive', card)).toBeNull()
-            else expect(getHomeDestination('archive', card)).toBe(`/archive-explorer?mission=${card.id}`)
+            if (card.preset) {
+                expect(presets.some(({ id }) => id === card.preset)).toBe(true)
+            }
+            if (instance === 'raws') {
+                expect(getHomeDestination('archive', card)).toBeNull()
+            } else {
+                expect(getHomeDestination('archive', card)).toBe(`/archive-explorer?mission=${card.id}`)
+            }
         }
     }
+    expect(getHomeConfig('raws').cards.map(({ id }) => id)).toEqual([
+        'mars_2020', 'msl', 'nsyt', 'cas', 'psyche',
+    ])
     expect(getHomeDestination('search', {
         query: { 'gather.common.target': ['Mars & Phobos', 'Deimos'] },
         destinations: { search: {} },

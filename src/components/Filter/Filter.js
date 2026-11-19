@@ -518,8 +518,11 @@ const Filter = (props) => {
 
     const handleRemove = (e) => {
         e.stopPropagation()
-        if (hasFilterValue(filter)) setConfirmRemove(true)
-        else remove()
+        if (hasFilterValue(filter)) {
+            setConfirmRemove(true)
+        } else {
+            remove()
+        }
     }
 
     const handleClearSelections = (e) => {

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import Box from '@mui/material/Box'
@@ -23,7 +24,9 @@ const HomeAction = ({ destination, to, label, card, secondary }) => {
             state={destination === 'search' ? fromHome : undefined}
             onClick={destination === 'archive' ? (event) => {
                 if (!event.defaultPrevented && event.button === 0 && !event.metaKey &&
-                    !event.ctrlKey && !event.shiftKey && !event.altKey) dispatch(resetArchiveExplorer())
+                    !event.ctrlKey && !event.shiftKey && !event.altKey) {
+                    dispatch(resetArchiveExplorer())
+                }
             } : undefined}
             variant={secondary ? 'outlined' : 'contained'}
             disableElevation
@@ -34,6 +37,14 @@ const HomeAction = ({ destination, to, label, card, secondary }) => {
             {label}
         </Button>
     )
+}
+
+HomeAction.propTypes = {
+    destination: PropTypes.string.isRequired,
+    to: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    card: PropTypes.shape({ title: PropTypes.string.isRequired }),
+    secondary: PropTypes.bool,
 }
 
 const CuratedCard = ({ card, labels, archiveEnabled }) => {
@@ -58,6 +69,25 @@ const CuratedCard = ({ card, labels, archiveEnabled }) => {
             </div>
         </article>
     )
+}
+
+CuratedCard.propTypes = {
+    card: PropTypes.shape({
+        title: PropTypes.string.isRequired,
+        target: PropTypes.string.isRequired,
+        description: PropTypes.string.isRequired,
+        image: PropTypes.shape({
+            file: PropTypes.string.isRequired,
+            alt: PropTypes.string.isRequired,
+            credit: PropTypes.string.isRequired,
+            position: PropTypes.string,
+        }).isRequired,
+    }).isRequired,
+    labels: PropTypes.shape({
+        cardSearch: PropTypes.string.isRequired,
+        cardArchive: PropTypes.string,
+    }).isRequired,
+    archiveEnabled: PropTypes.bool,
 }
 
 const Home = () => {

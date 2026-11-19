@@ -152,7 +152,9 @@ const buildDrawerItems = () => {
         if (instance.showInDrawer === false && !isCurrent) return
 
         items.push({ name: instance.drawerLabel, isHeader: true })
-        if (isCurrent) items.push({ name: `${instance.appTitle} Home`, path: HASH_PATHS.root, isAtlas: true })
+        if (isCurrent) {
+            items.push({ name: `${instance.appTitle} Home`, path: HASH_PATHS.root, isAtlas: true })
+        }
 
         if (isCurrent) items.push({ name: 'Search Images', path: '/search', isAtlas: true })
         else
