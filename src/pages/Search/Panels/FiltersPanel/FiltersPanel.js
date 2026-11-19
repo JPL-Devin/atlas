@@ -89,6 +89,10 @@ const useStyles = makeStyles((theme) => ({
         'lineHeight': '11px',
         'padding': '4px 0px',
         'margin': '7px',
+        [theme.breakpoints.down('md')]: {
+            minHeight: 40,
+            margin: '0 7px',
+        },
         '& .MuiButton-endIcon': {
             marginTop: '-2px',
             marginLeft: '3px',

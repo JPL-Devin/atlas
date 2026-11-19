@@ -6,7 +6,6 @@ import {
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import TuneIcon from '@mui/icons-material/Tune'
 
 import { getFilterPreset, getFilterPresets } from '../../../../config/filterPresets'
 import PresetPicker from './PresetPicker'
@@ -15,9 +14,13 @@ import { changeSearchPreset, dismissSearchPresetChange, resetFilters, undoSearch
 
 export const PresetReset = ({ disabled }) => {
     const dispatch = useDispatch()
+    const restoresEntry = useSelector((state) => {
+        const id = state.get('searchPresetId')
+        return state.get('filterType') === 'basic' && Boolean(id) && state.get('searchPresetEntry')?.presetId === id
+    })
 
     return (
-        <Tooltip title="Reset Filters" arrow>
+        <Tooltip title={restoresEntry ? 'Restore starting filters and values' : 'Restore default filters and values'} describeChild arrow>
             <span>
                 <IconButton
                     aria-label="reset filters" disabled={disabled}
@@ -54,36 +57,42 @@ export const PresetIndicator = () => {
     const modified = preset && !sameFilterLayout(current, makePresetFilters(mapping, preset))
     const activeId = presetId || 'all'
     const label = preset?.label || 'All Atlas'
-    const subtitle = <>
-        <TuneIcon sx={{ fontSize: 16, flexShrink: 0 }} />
-        <Typography component="span" sx={{ fontSize: 13, fontWeight: 650, overflowWrap: 'anywhere' }}>{label}</Typography>
-    </>
     const getPreview = (item) => {
-        const { filters, kept } = planPresetSwitch(current, makePresetFilters(mapping, item))
-        return { filters: item.id === activeId ? current : filters, kept }
+        const plan = planPresetSwitch(current, makePresetFilters(mapping, item))
+        const isActive = item.id === activeId
+        return {
+            isActive, filters: isActive ? current : plan.filters, kept: plan.kept,
+            added: isActive ? [] : plan.added.map((key) => ({ key, displayName: plan.filters[key].display_name })),
+            removed: isActive ? [] : plan.removed.map((key) => ({ key, displayName: current[key].display_name })),
+        }
     }
 
     return (
         <>
-            <Box ref={presetRow} role="group" aria-label="Filter preset" sx={{
-                display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px 8px', px: 3, pb: 1.5,
-            }}>
+            <Box ref={presetRow} role="group" aria-label="Filter layout" sx={{ px: 3, pb: 2, minWidth: 0 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px 8px', mb: 1 }}>
+                    <Typography component="span" sx={{ fontSize: 12, fontWeight: 700 }}>Filter layout</Typography>
+                    {modified && <Chip id={`${pickerId}-modified`} label="Layout modified" size="small" color="info"
+                        variant="outlined" sx={{ height: 19 }} />}
+                </Box>
                 {selectable ? (
-                    <Button size="small" aria-label={`Change filter preset: ${label}`}
+                    <Button size="small" variant="outlined" fullWidth aria-label={`Change filter layout: ${label}`}
                         onClick={() => setAnchor(presetRow.current)} aria-haspopup="dialog"
                         aria-expanded={Boolean(anchor)} aria-controls={anchor ? pickerId : undefined}
+                        aria-describedby={modified ? `${pickerId}-modified` : undefined}
                         sx={{
-                            minHeight: 27, minWidth: 0, gap: 1.5, px: 1, ml: -1,
-                            justifyContent: 'flex-start', textAlign: 'left', textTransform: 'none',
-                            color: '#1559bf', bgcolor: anchor ? '#dae9ff' : undefined,
+                            minHeight: { xs: 40, md: 34 }, minWidth: 0, gap: 1.5, px: 2,
+                            justifyContent: 'space-between', textAlign: 'left', textTransform: 'none',
+                            fontSize: 13, fontWeight: 650, color: '#1559bf', borderColor: '#81a5dd',
+                            bgcolor: anchor ? '#dae9ff' : '#fff',
                             '&:hover': { bgcolor: '#e1edfc' },
                         }}
                     >
-                        {subtitle}
+                        <Box component="span" sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>{label}</Box>
                         <ExpandMoreIcon sx={{ fontSize: 16, flexShrink: 0 }} />
                     </Button>
-                ) : <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minHeight: 27 }}>{subtitle}</Box>}
-                {modified && <Chip label="Modified" size="small" color="info" variant="outlined" sx={{ height: 19 }} />}
+                ) : <Typography variant="body2" sx={{ fontWeight: 650 }}>{label}</Typography>}
+                {selectable && <Typography sx={{ mt: 1, fontSize: 11, color: '#465671' }}>Controls shown in Basic Filters.</Typography>}
             </Box>
             {anchor && <PresetPicker id={pickerId} anchor={anchor} presets={presets} activeId={activeId}
                 getPreview={getPreview}

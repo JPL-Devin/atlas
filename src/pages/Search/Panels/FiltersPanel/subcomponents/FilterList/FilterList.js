@@ -165,7 +165,7 @@ const FilterList = (props) => {
             key={filterKey}
             filterKey={filterKey}
             filter={activeFilters[filterKey]}
-            presetTag={preset?.add.includes(filterKey) ? 'In preset' :
+            presetTag={preset?.add.includes(filterKey) ? 'In layout' :
                 preset && !presetKeys.includes(filterKey) && hasFilterValue(activeFilters[filterKey]) ? 'Kept · has value' : undefined}
             expanded={expandedFilter === filterKey}
             onExpand={() => {
