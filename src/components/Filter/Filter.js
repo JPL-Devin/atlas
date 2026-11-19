@@ -26,7 +26,7 @@ import Button from '@mui/material/Button'
 import Badge from '@mui/material/Badge'
 import TextField from '@mui/material/TextField'
 import InputAdornment from '@mui/material/InputAdornment'
-import { Box, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material'
+import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -434,7 +434,7 @@ FacetsStatus.propTypes = {
 const OPEN_WAIT_MS = 1000
 
 const Filter = (props) => {
-    const { filterKey, filter, onExpand, expanded, presetTag } = props
+    const { filterKey, filter, onExpand, expanded } = props
     const c = useStyles()
 
     const dispatch = useDispatch()
@@ -599,7 +599,6 @@ const Filter = (props) => {
                     className={clsx(c.accordionHead, {
                         [c.accordionHeadOpen]: expanded && isFilterDownOpen,
                     })}
-                    sx={presetTag ? { '& .MuiAccordionSummary-content': { minWidth: 0 } } : undefined}
                     expandIcon={
                         <div className={c.expandIconSlot}>
                             <ExpandMoreIcon
@@ -622,19 +621,13 @@ const Filter = (props) => {
                     onClick={onExpand}
                     role=""
                 >
-                    <div className={c.header} style={presetTag ? { minWidth: 0 } : undefined}>
-                        <Badge className={c.countBadge} badgeContent={count}
-                            sx={presetTag ? { minWidth: 0, alignItems: 'center' } : undefined}>
-                            <Tooltip title={presetTag ? friendlyFilterName : filterKey} arrow placement="right">
+                    <div className={c.header}>
+                        <Badge className={c.countBadge} badgeContent={count}>
+                            <Tooltip title={filterKey} arrow placement="right">
                                 <Typography className={c.title}>{friendlyFilterName}</Typography>
                             </Tooltip>
                         </Badge>
-                        {presetTag && <Box component="span" sx={{
-                            ml: count ? '22px' : '6px', mr: 'auto', alignSelf: 'center', flexShrink: 0, px: 0.5, fontSize: 10,
-                            borderRadius: 0.5, bgcolor: presetTag === 'In layout' ? '#e8f0fd' : '#fff1d6',
-                            color: presetTag === 'In layout' ? '#2053a2' : '#725013',
-                        }}>{presetTag}</Box>}
-                        <div className={c.headerButtons} style={presetTag ? { flexShrink: 0, display: 'flex' } : undefined}>
+                        <div className={c.headerButtons}>
                             {/*
                             {expanded && (
                                 <Tooltip title="Settings" arrow>
@@ -775,7 +768,6 @@ Filter.propTypes = {
     filterKey: PropTypes.string.isRequired,
     onExpand: PropTypes.func.isRequired,
     expanded: PropTypes.bool,
-    presetTag: PropTypes.string,
 }
 
 export default Filter

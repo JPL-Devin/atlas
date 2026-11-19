@@ -24,7 +24,7 @@ test.describe('Search - Filters Panel', () => {
         await expect(reset).toHaveText('')
 
         const resetBox = await reset.boundingBox()
-        const titleBox = await page.getByText('Basic Filters', { exact: true }).boundingBox()
+        const titleBox = await page.getByRole('heading', { name: 'Filters', exact: true }).boundingBox()
         expect(resetBox.x).toBeGreaterThan(titleBox.x)
     })
 })

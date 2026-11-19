@@ -436,8 +436,8 @@ export const changeSearchPreset = (id, reset = false) => (dispatch, getState) =>
         : planPresetSwitch(current, defaults).filters
     const label = preset?.label || getAppConfig().appTitle
     const notification = reset
-        ? (entry?.presetId === presetId ? `Restored starting filters and values for ${label}` : `Restored default filters and values for ${label}`)
-        : `Switched to ${label} filter layout`
+        ? (entry?.presetId === presetId ? `Restored preset filters and starting values for ${label}` : `Restored preset filters and default values for ${label}`)
+        : `Switched to ${label} preset`
     dispatch(setPresetState({
         filters, presetId, entry, notification,
         undo: { filters: current, presetId: state.get('searchPresetId') || null },

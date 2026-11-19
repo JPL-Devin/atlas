@@ -15,7 +15,7 @@ All notable changes to Atlas are recorded here, newest first and grouped by mont
 
 ### Added
 - Atlas and Planetary Raws homepages with curated entry points into Search and, in Atlas, Archive Explorer.
-- Search filter layouts that choose the starting controls independently of the search criteria and preview which filters will be added or removed.
+- Search filter presets that choose the starting controls independently of the search criteria and preview which filters will be added or removed.
 
 ## 2026-10
 

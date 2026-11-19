@@ -173,7 +173,7 @@ const FiltersPanel = (props) => {
             <div className={c.contents}>
                 <div className={c.heading} role="group" aria-label="Filter controls">
                     <div className={c.headingRow}>
-                        <h2 className={c.title}>{FILTER_TYPES[filterType]}</h2>
+                        <h2 className={c.title}>{filterType === 'basic' ? 'Filters' : FILTER_TYPES[filterType]}</h2>
                         <div className={c.right}>
                             <PresetReset disabled={!ready} />
                             {filterType === 'basic' && getAppConfig().enableAddFilters && (

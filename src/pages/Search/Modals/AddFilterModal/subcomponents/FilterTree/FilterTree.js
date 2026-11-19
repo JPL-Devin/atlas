@@ -514,8 +514,8 @@ const FilterTree = (props) => {
                     </Button>
                 </div>
                 {preset && <>
-                    {renderSection('In this layout', keys)}
-                    {renderSection(`Recommended for the ${preset.label} layout`, recommended)}
+                    {renderSection('In this preset', keys)}
+                    {renderSection(`Recommended for the ${preset.label} preset`, recommended)}
                     <Typography variant="subtitle2" sx={{ px: 1.5, py: 0.75, fontWeight: 700 }}>All fields</Typography>
                 </>}
                 <SimpleTreeView className={c.tree} expanded={finalExpandeds}>

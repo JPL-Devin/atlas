@@ -29,7 +29,7 @@ const getPresetChips = (preset) => {
 
 const chipStyle = { borderRadius: '4px', px: 0.625, py: 0.25, fontSize: 10, fontWeight: 650 }
 const warningStyle = { color: '#614307', bgcolor: '#fff4da', fontSize: 12, alignItems: 'center' }
-const missionWarning = 'Changing the filter layout does not change the selected mission or other criteria.'
+const missionWarning = 'Changing the preset does not change the selected mission or other criteria.'
 const pickerInset = 8
 const diffStyles = {
     added: { symbol: '+', label: 'Added', countLabel: 'added', color: '#165839', bgcolor: '#e7f4eb' },
@@ -105,9 +105,9 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
             <Box sx={{ px: 1.75, pt: 1.5, pb: 1.25, borderBottom: '1px solid #dde5ef' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
                     <Typography id={`${id}-title`} component="h2" sx={{ fontSize: 16, fontWeight: 700 }}>
-                        Compare filter layouts
+                        Compare presets
                     </Typography>
-                    <ButtonBase onClick={onClose} aria-label="Close filter layout picker" sx={{
+                    <ButtonBase onClick={onClose} aria-label="Close preset picker" sx={{
                         color: '#56667a', bgcolor: '#f6f8fc', border: '1px solid #dde5ef',
                         borderRadius: '4px', px: 0.75, fontSize: 11,
                         '&.Mui-focusVisible': { outline: '2px solid #1559bf' },
@@ -115,7 +115,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                 </Box>
                 <Typography component="p" sx={{ mt: 0.25, mb: 1.25, fontSize: 12, color: '#4c5b70' }}>
                     Chips compare with Atlas defaults.<Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>
-                        {' '}Hover or focus a layout to preview changes from your current filters.
+                        {' '}Hover or focus a preset to preview changes from your current filters.
                     </Box>
                 </Typography>
                 <TextField
@@ -130,8 +130,8 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                         setPreviewId(null)
                     }}
                     onKeyDown={handleSearchKeys}
-                    placeholder="Search filter layouts…"
-                    inputProps={{ 'aria-label': 'Search filter layouts' }}
+                    placeholder="Search presets…"
+                    inputProps={{ 'aria-label': 'Search presets' }}
                     InputProps={{
                         startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 18 }} /></InputAdornment>,
                     }}
@@ -183,20 +183,20 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                                 </Box> : <Typography component="span" sx={{ display: 'block', mt: 0.5, fontSize: 11, fontWeight: 600, color: '#285885' }}>
                                     Instance defaults
                                 </Typography>}
-                                {selected && <CheckIcon titleAccess="Active layout" sx={{ position: 'absolute', top: 8, right: 8, fontSize: 16, color: '#1559bf' }} />}
+                                {selected && <CheckIcon titleAccess="Active preset" sx={{ position: 'absolute', top: 8, right: 8, fontSize: 16, color: '#1559bf' }} />}
                             </ButtonBase>
                         )
                     })}
                     {!matches.length && <Typography role="status" sx={{ px: 1.125, py: 2.5, fontSize: 13, color: '#4c5b70' }}>
-                        No matching filter layouts
+                        No matching presets
                     </Typography>}
                 </Box>
-                <Box component="aside" aria-label="Resulting filter layout" sx={{
+                <Box component="aside" aria-label="Preset preview" sx={{
                     display: { xs: 'none', md: 'block' }, overflowY: 'auto', p: 2,
                     bgcolor: '#f6f9fe', borderLeft: '1px solid #dde5ef',
                 }}>
                     <Typography sx={{ fontSize: 10, fontWeight: 750, letterSpacing: '.1em', color: '#436282' }}>
-                        RESULTING LAYOUT
+                        PRESET PREVIEW
                     </Typography>
                     {layout ? <>
                         <Typography component="h3" sx={{ fontSize: 19, fontWeight: 700, my: 0.5 }}>{preview.label}</Typography>
@@ -235,7 +235,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                                 )
                             })}
                         </Box>
-                    </> : <Typography sx={{ mt: 1, fontSize: 12, color: '#4c5b70' }}>No layout to preview.</Typography>}
+                    </> : <Typography sx={{ mt: 1, fontSize: 12, color: '#4c5b70' }}>No preset to preview.</Typography>}
                 </Box>
             </Box>
             <Box sx={{

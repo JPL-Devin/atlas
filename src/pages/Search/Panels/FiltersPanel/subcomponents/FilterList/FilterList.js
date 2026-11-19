@@ -6,9 +6,7 @@ import Filter from '../../../../../../components/Filter/Filter'
 import { HASH_PATHS } from '../../../../../../core/constants'
 import { setExpandedFilter } from '../../../../../../core/redux/actions/actions'
 import { PRESET_PARAM } from '../../../../../../config/filterPresets'
-import { hasFilterValue } from '../../../../../../core/searchPresetState'
 import { getFilterDisplayGroups } from '../../../../../../facets/filterDisplayOrder'
-import { usePresetFilterKeys } from '../../PresetControls'
 import { makeStyles } from '@mui/styles'
 
 const useStyles = makeStyles((theme) => ({
@@ -107,7 +105,6 @@ const FilterList = (props) => {
 
     const dispatch = useDispatch()
     const presetId = useSelector((state) => state.get('searchPresetId'))
-    const { preset, keys: presetKeys } = usePresetFilterKeys()
     const expandedFilter = useSelector((state) => state.get('expandedFilter'))
     const activeFilters = useSelector((state) => {
         return state.getIn(['activeFilters'])
@@ -126,8 +123,6 @@ const FilterList = (props) => {
             key={filterKey}
             filterKey={filterKey}
             filter={activeFilters[filterKey]}
-            presetTag={preset?.add.includes(filterKey) ? 'In layout' :
-                preset && !presetKeys.includes(filterKey) && hasFilterValue(activeFilters[filterKey]) ? 'Kept · has value' : undefined}
             expanded={expandedFilter === filterKey}
             onExpand={() => {
                 dispatch(setExpandedFilter(expandedFilter === filterKey ? null : filterKey))

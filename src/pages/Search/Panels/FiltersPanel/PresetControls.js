@@ -2,7 +2,7 @@ import React, { useId, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-    Box, Button, Chip, IconButton, Snackbar, Tooltip, Typography,
+    Box, Button, IconButton, Snackbar, Tooltip, Typography,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import RefreshIcon from '@mui/icons-material/Refresh'
@@ -14,13 +14,17 @@ import { changeSearchPreset, dismissSearchPresetChange, resetFilters, undoSearch
 
 export const PresetReset = ({ disabled }) => {
     const dispatch = useDispatch()
-    const restoresEntry = useSelector((state) => {
+    const resetTitle = useSelector((state) => {
         const id = state.get('searchPresetId')
-        return state.get('filterType') === 'basic' && Boolean(id) && state.get('searchPresetEntry')?.presetId === id
+        if (state.get('filterType') !== 'basic' || !id) {
+            return 'Restore default filters and values'
+        }
+        return state.get('searchPresetEntry')?.presetId === id
+            ? 'Restore preset filters and starting values' : 'Restore preset filters and default values'
     })
 
     return (
-        <Tooltip title={restoresEntry ? 'Restore starting filters and values' : 'Restore default filters and values'} describeChild arrow>
+        <Tooltip title={resetTitle} describeChild arrow>
             <span>
                 <IconButton
                     aria-label="reset filters" disabled={disabled}
@@ -56,22 +60,16 @@ export const PresetIndicator = () => {
     const current = active.toJS()
     const modified = preset && !sameFilterLayout(current, makePresetFilters(mapping, preset))
     const activeId = presetId || 'all'
-    const label = preset?.label || 'All Atlas'
+    const label = `Preset: ${preset?.label || 'All Atlas'}${modified ? ' (modified)' : ''}`
     const getPreview = (item) => getPresetPreview(current, makePresetFilters(mapping, item), item.id === activeId)
 
     return (
         <>
-            <Box ref={presetRow} role="group" aria-label="Filter layout" sx={{ px: 3, pb: 2, minWidth: 0 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px 8px', mb: 1 }}>
-                    <Typography component="span" sx={{ fontSize: 12, fontWeight: 700 }}>Filter layout</Typography>
-                    {modified && <Chip id={`${pickerId}-modified`} label="Layout modified" size="small" color="info"
-                        variant="outlined" sx={{ height: 19 }} />}
-                </Box>
+            <Box ref={presetRow} role="group" aria-label="Filter preset" sx={{ px: 3, pb: 2, minWidth: 0 }}>
                 {selectable ? (
-                    <Button size="small" variant="outlined" fullWidth aria-label={`Change filter layout: ${label}`}
+                    <Button size="small" variant="outlined" fullWidth
                         onClick={() => setAnchor(presetRow.current)} aria-haspopup="dialog"
                         aria-expanded={Boolean(anchor)} aria-controls={anchor ? pickerId : undefined}
-                        aria-describedby={modified ? `${pickerId}-modified` : undefined}
                         sx={{
                             minHeight: { xs: 40, md: 34 }, minWidth: 0, gap: 1.5, px: 2,
                             justifyContent: 'space-between', textAlign: 'left', textTransform: 'none',
@@ -84,7 +82,6 @@ export const PresetIndicator = () => {
                         <ExpandMoreIcon sx={{ fontSize: 16, flexShrink: 0 }} />
                     </Button>
                 ) : <Typography variant="body2" sx={{ fontWeight: 650 }}>{label}</Typography>}
-                {selectable && <Typography sx={{ mt: 1, fontSize: 11, color: '#465671' }}>Controls shown in Basic Filters.</Typography>}
             </Box>
             {anchor && <PresetPicker id={pickerId} anchor={anchor} presets={presets} activeId={activeId}
                 getPreview={getPreview}

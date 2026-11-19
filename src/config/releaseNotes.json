@@ -3,8 +3,8 @@
     "id": "2026-11-home-and-presets",
     "date": "2026-11-19",
     "type": "new",
-    "title": "Curated homepages and Search filter layouts",
-    "description": "Open a featured mission from the homepage to start with relevant filters. In Atlas Search, preview which filters a layout adds or removes, then switch layouts without losing your selected values."
+    "title": "Curated homepages and Search filter presets",
+    "description": "Open a featured mission from the homepage to start with relevant filters. In Atlas Search, preview which filters a preset adds or removes, then switch presets without losing your selected values."
   },
   {
     "id": "2026-09-quick-links",
