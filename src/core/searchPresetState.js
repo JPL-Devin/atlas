@@ -4,6 +4,17 @@ import { getInitialActiveFilters, getMappedFilter } from '../facets/FacetBuilder
 export const getPresetFilterKeys = (preset, defaults = getAppConfig().defaultFilters) =>
     [...new Set([...defaults.filter((key) => !preset?.remove.includes(key)), ...(preset?.add || [])])]
 
+export const getPresetFilterSummary = (preset, defaults = getAppConfig().defaultFilters) => {
+    const defaultKeys = new Set(defaults)
+    const presetKeys = new Set(getPresetFilterKeys(preset, defaults))
+    const highlighted = [...new Set(preset.add)]
+    return {
+        featured: highlighted.filter((key) => defaultKeys.has(key)),
+        added: highlighted.filter((key) => !defaultKeys.has(key)),
+        hiddenCount: [...defaultKeys].filter((key) => !presetKeys.has(key)).length,
+    }
+}
+
 export const makePresetFilters = (mapping, preset, defaultValues = getAppConfig().defaultFilterValues) => {
     const filters = structuredClone(getInitialActiveFilters(mapping, getPresetFilterKeys(preset)))
     Object.entries(defaultValues || {}).forEach(([key, values]) => {

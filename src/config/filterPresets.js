@@ -10,10 +10,18 @@ const BUNDLE = 'archive.bundle_id'
 
 const presets = {
     atlas: [
-        { id: 'all', label: 'All Atlas', add: [], remove: [], recommended: [] },
+        {
+            id: 'all',
+            label: 'All Atlas',
+            description: 'Show the full set of standard Atlas filters.',
+            add: [],
+            remove: [],
+            recommended: [],
+        },
         {
             id: 'artemis-ii',
             label: 'Artemis II',
+            description: 'Explore Artemis II by flight day.',
             add: [FLIGHT_DAY],
             remove: [SPACECRAFT, KIND, BUNDLE, ML_CLASS, ML_CONFIDENCE],
             recommended: [SPACECRAFT, BUNDLE],
@@ -21,6 +29,7 @@ const presets = {
         {
             id: 'ml',
             label: 'ML-classified datasets',
+            description: 'Focus on ML Class and Confidence Score.',
             add: [ML_CLASS, ML_CONFIDENCE],
             remove: [SPACECRAFT, KIND, FLIGHT_DAY, BUNDLE],
             recommended: [BUNDLE],
@@ -28,6 +37,7 @@ const presets = {
         {
             id: 'mars-2020',
             label: 'Mars 2020',
+            description: 'Focus on rover instruments and products.',
             add: [],
             remove: [SPACECRAFT, FLIGHT_DAY, ML_CLASS, ML_CONFIDENCE],
             recommended: [SPACECRAFT, 'gather.landed_missions.planet_day_number'],
@@ -35,6 +45,7 @@ const presets = {
         {
             id: 'planetary-imaging',
             label: 'Planetary imaging',
+            description: 'Show imaging filters without Flight Day or ML.',
             add: [],
             remove: [FLIGHT_DAY, ML_CLASS, ML_CONFIDENCE],
             recommended: [],
@@ -44,6 +55,7 @@ const presets = {
         {
             id: 'mars-2020',
             label: 'Mars 2020',
+            description: 'Explore Perseverance images by Martian day.',
             add: ['gather.landed_missions.planet_day_number'],
             remove: [SPACECRAFT],
             recommended: [],

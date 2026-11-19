@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useId, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 import {
@@ -9,12 +9,10 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import TuneIcon from '@mui/icons-material/Tune'
 
 import { getFilterPreset, getFilterPresets } from '../../../../config/filterPresets'
-import fields from '../../../../config/fields.json'
+import PresetPicker, { fieldLabel } from './PresetPicker'
 import { getAppConfig } from '../../../../core/appConfig'
 import { getPresetFilterKeys, makePresetFilters, planPresetSwitch, sameFilterLayout } from '../../../../core/searchPresetState'
 import { changeSearchPreset, dismissSearchPresetChange, resetFilters, undoSearchPresetChange } from '../../../../core/redux/actions/actions'
-
-const fieldLabel = (key) => fields[key]?.label || key.split('.').at(-1).replaceAll('_', ' ')
 
 export const PresetReset = ({ basic, disabled }) => {
     const dispatch = useDispatch()
@@ -62,6 +60,8 @@ export const PresetIndicator = () => {
     const presetId = useSelector((state) => state.get('searchPresetId'))
     const mapping = useSelector((state) => state.getIn(['mappings', 'atlas']))
     const active = useSelector((state) => state.get('activeFilters'))
+    const pickerId = useId()
+    const presetRow = useRef(null)
     const [anchor, setAnchor] = useState(null)
     const [pending, setPending] = useState(null)
     const presets = getFilterPresets()
@@ -78,7 +78,7 @@ export const PresetIndicator = () => {
 
     return (
         <>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 0.5,
+            <Box ref={presetRow} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 0.5,
                 px: 1.25, py: 0.75, borderBottom: '1px solid #c9dbfb', bgcolor: '#edf4ff' }}>
                 <Box>
                     <Typography variant="overline" component="div" sx={{ lineHeight: 1.35, color: '#425571' }}>Filter preset</Typography>
@@ -89,21 +89,21 @@ export const PresetIndicator = () => {
                     </Box>
                 </Box>
                 <Box sx={{ display: 'flex' }}>
-                    {selectable && <Button size="small" sx={{ color: '#1559bf' }}
-                        onClick={(event) => setAnchor(event.currentTarget)} aria-haspopup="menu">Change</Button>}
+                    {selectable && <Button size="small" sx={{ color: '#1559bf', bgcolor: anchor ? '#dae9ff' : undefined }}
+                        onClick={() => setAnchor(presetRow.current)} aria-haspopup="dialog"
+                        aria-expanded={Boolean(anchor)} aria-controls={anchor ? pickerId : undefined}>Change</Button>}
                     {preset && <Button size="small" color="inherit" onClick={() => dispatch(changeSearchPreset(null))}>Clear preset</Button>}
                 </Box>
             </Box>
-            <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)}>
-                {presets.map((item) => (
-                    <MenuItem key={item.id} selected={item.id === (presetId || 'all')} onClick={() => {
-                        setAnchor(null)
-                        if (item.id !== (presetId || 'all')) {
-                            setPending(item)
-                        }
-                    }}>{item.label}</MenuItem>
-                ))}
-            </Menu>
+            {anchor && <PresetPicker id={pickerId} anchor={anchor} presets={presets} activeId={presetId || 'all'}
+                onClose={() => setAnchor(null)}
+                onSelect={(item) => {
+                    setAnchor(null)
+                    if (item.id !== (presetId || 'all')) {
+                        setPending(item)
+                    }
+                }}
+            />}
             <Dialog open={Boolean(pending)} onClose={() => setPending(null)} fullWidth maxWidth="sm" aria-labelledby="switch-preset-title">
                 <DialogTitle id="switch-preset-title">Switch to {pending?.label} preset?</DialogTitle>
                 <DialogContent dividers>

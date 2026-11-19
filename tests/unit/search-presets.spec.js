@@ -3,7 +3,7 @@ import { getAppConfig } from '../../src/core/appConfig'
 import { FLIGHT_DAY, getFilterPresets } from '../../src/config/filterPresets'
 import { getHomeConfig } from '../../src/config/home'
 import { getHomeDestination } from '../../src/pages/Home/homeLinks'
-import { applyBasicSearchParams, getPresetFilterKeys, makePresetFilters, planPresetSwitch, sameFilterLayout } from '../../src/core/searchPresetState'
+import { applyBasicSearchParams, getPresetFilterKeys, getPresetFilterSummary, makePresetFilters, planPresetSwitch, sameFilterLayout } from '../../src/core/searchPresetState'
 import { formatMappings } from '../../src/facets/FacetBuilder'
 
 const MISSION = 'gather.common.mission'
@@ -49,6 +49,18 @@ test('Artemis II does not duplicate Flight Day or alter instance defaults', () =
     expect(keys.filter((key) => key === FLIGHT_DAY)).toHaveLength(1)
     expect(keys).not.toContain('archive.bundle_id')
     expect(defaults).toContain('archive.bundle_id')
+})
+
+test('preset descriptions and summaries distinguish featured fields from new and hidden controls', () => {
+    const atlas = getFilterPresets('atlas')
+    const raws = getFilterPresets('raws')
+    expect([...atlas, ...raws].every(({ description }) => Boolean(description.trim()))).toBe(true)
+    expect(getPresetFilterSummary(atlas.find(({ id }) => id === 'artemis-ii'), [
+        FLIGHT_DAY, MISSION, 'archive.bundle_id',
+    ])).toEqual({ featured: [FLIGHT_DAY], added: [], hiddenCount: 1 })
+    expect(getPresetFilterSummary(raws[0], [MISSION, 'gather.common.spacecraft'])).toEqual({
+        featured: [], added: ['gather.landed_missions.planet_day_number'], hiddenCount: 1,
+    })
 })
 
 test('deep links add mapped non-default fields and preset switching never discards chosen values', () => {
