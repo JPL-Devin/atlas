@@ -171,7 +171,7 @@ const FiltersPanel = (props) => {
                 <div className={c.heading}>
                     <div className={c.left}>
                         <div className={c.title}>{FILTER_TYPES[filterType]}</div>
-                        <PresetReset basic={filterType === 'basic'} disabled={!ready} />
+                        <PresetReset disabled={!ready} />
                     </div>
                     <div className={c.right}>
                         {filterType === 'basic' && getAppConfig().enableAddFilters && (

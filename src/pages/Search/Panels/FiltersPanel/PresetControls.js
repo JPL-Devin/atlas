@@ -2,55 +2,35 @@ import React, { useId, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-    Box, Button, Chip, IconButton, Menu, MenuItem, Snackbar, Tooltip, Typography,
+    Box, Button, Chip, IconButton, Snackbar, Tooltip, Typography,
 } from '@mui/material'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import TuneIcon from '@mui/icons-material/Tune'
 
 import { getFilterPreset, getFilterPresets } from '../../../../config/filterPresets'
 import PresetPicker from './PresetPicker'
-import { getAppConfig } from '../../../../core/appConfig'
 import { getPresetFilterKeys, makePresetFilters, planPresetSwitch, sameFilterLayout } from '../../../../core/searchPresetState'
 import { changeSearchPreset, dismissSearchPresetChange, resetFilters, undoSearchPresetChange } from '../../../../core/redux/actions/actions'
 
-export const PresetReset = ({ basic, disabled }) => {
+export const PresetReset = ({ disabled }) => {
     const dispatch = useDispatch()
-    const presetId = useSelector((state) => state.get('searchPresetId'))
-    const preset = getFilterPreset(presetId)
-    const [anchor, setAnchor] = useState(null)
-
-    const choose = (reset) => {
-        setAnchor(null)
-        dispatch(changeSearchPreset(reset ? presetId : null, reset))
-    }
 
     return (
-        <>
-            <Tooltip title="Reset Filters" arrow>
-                <span>
-                    <IconButton
-                        aria-label="reset filters" disabled={disabled}
-                        aria-haspopup={basic && preset ? 'menu' : undefined}
-                        onClick={(event) => basic && preset
-                            ? setAnchor(event.currentTarget) : dispatch(resetFilters())}
-                        sx={{ ml: 0.5, color: '#656666', '& svg': { fontSize: 18, transform: 'rotateY(180deg)' } }}
-                    >
-                        <RefreshIcon />
-                    </IconButton>
-                </span>
-            </Tooltip>
-            <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)}>
-                <MenuItem onClick={() => choose(true)}>Reset to {preset?.label} preset</MenuItem>
-                <MenuItem onClick={() => choose(false)}>
-                    Clear preset ({getAppConfig().appTitle === 'Atlas' ? 'All Atlas' : getAppConfig().appTitle} defaults)
-                </MenuItem>
-            </Menu>
-        </>
+        <Tooltip title="Reset Filters" arrow>
+            <span>
+                <IconButton
+                    aria-label="reset filters" disabled={disabled}
+                    onClick={() => dispatch(resetFilters())}
+                    sx={{ ml: 0.5, color: '#656666', '& svg': { fontSize: 18, transform: 'rotateY(180deg)' } }}
+                >
+                    <RefreshIcon />
+                </IconButton>
+            </span>
+        </Tooltip>
     )
 }
 
 PresetReset.propTypes = {
-    basic: PropTypes.bool,
     disabled: PropTypes.bool,
 }
 
@@ -89,12 +69,9 @@ export const PresetIndicator = () => {
                         {modified && <Chip label="Modified" size="small" color="info" variant="outlined" />}
                     </Box>
                 </Box>
-                <Box sx={{ display: 'flex' }}>
-                    {selectable && <Button size="small" sx={{ color: '#1559bf', bgcolor: anchor ? '#dae9ff' : undefined }}
-                        onClick={() => setAnchor(presetRow.current)} aria-haspopup="dialog"
-                        aria-expanded={Boolean(anchor)} aria-controls={anchor ? pickerId : undefined}>Change</Button>}
-                    {preset && <Button size="small" color="inherit" onClick={() => dispatch(changeSearchPreset(null))}>Clear preset</Button>}
-                </Box>
+                {selectable && <Button size="small" sx={{ color: '#1559bf', bgcolor: anchor ? '#dae9ff' : undefined }}
+                    onClick={() => setAnchor(presetRow.current)} aria-haspopup="dialog"
+                    aria-expanded={Boolean(anchor)} aria-controls={anchor ? pickerId : undefined}>Change</Button>}
             </Box>
             {anchor && <PresetPicker id={pickerId} anchor={anchor} presets={presets} activeId={activeId}
                 getPreview={getPreview}
