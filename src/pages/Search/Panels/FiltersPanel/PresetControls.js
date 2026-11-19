@@ -50,6 +50,7 @@ export const PresetIndicator = () => {
     const presetId = useSelector((state) => state.get('searchPresetId'))
     const mapping = useSelector((state) => state.getIn(['mappings', 'atlas']))
     const active = useSelector((state) => state.get('activeFilters'))
+    const retainedKeys = useSelector((state) => state.get('searchPresetRetainedKeys'))
     const pickerId = useId()
     const presetRow = useRef(null)
     const [anchor, setAnchor] = useState(null)
@@ -61,7 +62,7 @@ export const PresetIndicator = () => {
     }
 
     const current = active.toJS()
-    const modified = preset && !sameFilterLayout(current, makePresetFilters(mapping, preset))
+    const modified = preset && !sameFilterLayout(current, makePresetFilters(mapping, preset), retainedKeys)
     const activeId = presetId || 'all'
     const label = <>
         <Box component="span" sx={{ color: '#465671', fontWeight: 400 }}>Preset:</Box>{' '}
@@ -93,10 +94,10 @@ export const PresetIndicator = () => {
             {anchor && <PresetPicker id={pickerId} anchor={anchor} presets={presets} activeId={activeId}
                 getPreview={getPreview}
                 onClose={() => setAnchor(null)}
-                onSelect={(item) => {
+                onSelect={(item, clearKeys) => {
                     setAnchor(null)
                     if (item.id !== activeId) {
-                        dispatch(changeSearchPreset(item.id))
+                        dispatch(changeSearchPreset(item.id, { clearKeys }))
                     }
                 }}
             />}

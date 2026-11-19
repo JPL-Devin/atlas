@@ -41,14 +41,16 @@ export const hasFilterValue = (filter) =>
         })
     ) || false
 
-export const sameFilterLayout = (filters, defaults) =>
-    Object.keys(filters).length === Object.keys(defaults).length &&
-    Object.keys(filters).every((key) => Object.hasOwn(defaults, key))
+export const sameFilterLayout = (filters, defaults, retainedKeys = []) => {
+    const keys = Object.keys(filters).filter((key) => !retainedKeys.includes(key))
+    return keys.length === Object.keys(defaults).length &&
+        keys.every((key) => Object.hasOwn(defaults, key))
+}
 
-export const planPresetSwitch = (current, defaults) => {
+export const planPresetSwitch = (current, defaults, clearKeys = []) => {
     const added = Object.keys(defaults).filter((key) => !current[key])
     const extras = Object.keys(current).filter((key) => !defaults[key])
-    const kept = extras.filter((key) => hasFilterValue(current[key]))
+    const kept = extras.filter((key) => hasFilterValue(current[key]) && !clearKeys.includes(key))
     const removed = extras.filter((key) => !kept.includes(key))
     const filters = Object.fromEntries([
         ...Object.keys(defaults).map((key) => [key, current[key] || defaults[key]]),

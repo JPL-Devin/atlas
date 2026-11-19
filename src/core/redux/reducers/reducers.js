@@ -209,6 +209,7 @@ function removeActiveFilters(state, payload) {
     return state
         .setIn(['activeFilters'], fromJS(nextActiveFilters))
         .updateIn(['facetsStatus'], (facetsStatus) => facetsStatus.deleteAll(ids))
+        .update('searchPresetRetainedKeys', [], (keys) => keys.filter((key) => !ids.includes(key)))
 }
 
 /**
@@ -220,10 +221,10 @@ function removeActiveFilters(state, payload) {
  */
 function clearActiveFilters(state, payload) {
     const initialActiveFilters = state.get('initialActiveFilters')
-    return state.setIn(['activeFilters'], initialActiveFilters)
+    return state.setIn(['activeFilters'], initialActiveFilters).set('searchPresetRetainedKeys', [])
 }
 
-function setSearchPresetState(state, { filters, presetId, entry, undo, notification }) {
+function setSearchPresetState(state, { filters, presetId, entry, undo, notification, retainedKeys = [] }) {
     const ordered = Object.fromEntries(Object.entries(filters).map(([key, filter]) => [
         key, { ...filter, order: getFilterOrderValue(key) },
     ]))
@@ -232,6 +233,7 @@ function setSearchPresetState(state, { filters, presetId, entry, undo, notificat
         expandedFilter: ordered[state.get('expandedFilter')] ? state.get('expandedFilter') : null,
         facetsStatus: fromJS({}),
         searchPresetId: presetId,
+        searchPresetRetainedKeys: retainedKeys,
         searchPresetEntry: entry,
         searchPresetUndo: undo,
         searchPresetNotification: notification,

@@ -128,7 +128,7 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     const search = picker.getByRole('searchbox', { name: 'Search presets' })
     await expect(search).toBeFocused()
     await expect(picker.getByText('Labels under each preset describe how it differs from the standard Atlas filters.', { exact: false })).toBeVisible()
-    await expect(picker.getByText('Choose a preset to apply it immediately. You can undo it.', { exact: true })).toBeVisible()
+    await expect(picker.getByText('Choose a preset to apply it or review kept filters. You can undo it.', { exact: true })).toBeVisible()
     const active = picker.getByRole('button', { name: /^Artemis II/ })
     await expect(active).toHaveAttribute('aria-current', 'true')
     await expect(active.getByRole('img', { name: 'Active preset' })).toBeVisible()
@@ -169,12 +169,14 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await mars.press('ArrowDown')
     await expect(mars).toBeFocused()
     await mars.press('Enter')
+    await expect(mars).toHaveAttribute('aria-expanded', 'true')
+    await picker.getByRole('button', { name: 'Apply · keep 2' }).click()
     await expect(page.getByRole('dialog')).not.toBeVisible()
     await expect(page).toHaveURL(/_preset=mars-2020.*mission=artemis2/)
     await expect(page.getByText('Kept because it has a value', { exact: true })).toHaveCount(0)
     await expect(page.getByText('Preset changed to Mars 2020', { exact: true })).toBeVisible()
     await capture(page, 'preset-switched')
-    await header.getByRole('button', { name: 'Preset: Mars 2020 (modified)' }).click()
+    await header.getByRole('button', { name: 'Preset: Mars 2020', exact: true }).click()
     await picker.getByRole('button', { name: /^ML-classified datasets/ }).hover()
     await expect(preview.getByRole('listitem')).toHaveText([
         '=Text SearchUnchanged', '=MissionUnchanged', '=InstrumentUnchanged', '=TargetUnchanged',
@@ -224,6 +226,7 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await trigger.click()
     const all = picker.getByRole('button', { name: /^Standard Atlas/ })
     await all.click()
+    await picker.getByRole('button', { name: 'Apply · keep 1' }).click()
     await expect(page).not.toHaveURL(/_preset=/)
     await expect(page).toHaveURL(/mission=artemis2/)
     await expect(page.getByText('Preset changed to Standard Atlas', { exact: true })).toBeVisible()
@@ -265,6 +268,8 @@ test('Atlas preset picker stays usable on a narrow screen without the side previ
     await capture(page, 'preset-menu-mobile')
     await search.fill('planetary')
     await picker.getByRole('button', { name: /^Planetary imaging/ }).click()
+    await expect(picker.getByRole('group', { name: 'Kept filters for Planetary imaging' })).toBeVisible()
+    await picker.getByRole('button', { name: 'Apply · keep 1' }).click()
     await expect(page.getByRole('dialog')).not.toBeVisible()
     await expect(page).toHaveURL(/_preset=planetary-imaging.*mission=artemis2/)
     await page.getByRole('button', { name: 'Undo' }).click()
@@ -272,6 +277,119 @@ test('Atlas preset picker stays usable on a narrow screen without the side previ
     await header.getByRole('button', { name: 'close filters', exact: true }).click()
     await expect(header).toHaveCount(0)
     await expect(page).toHaveURL(/_preset=artemis-ii.*mission=artemis2/)
+})
+
+const keptSearch = '/search?_preset=mars-2020&gather.common.mission=artemis2&gather.flyby_missions.flight_day_number=4_to_6&gather.common.mission_phase_name=FLYBY'
+
+test('Atlas chooses kept filters in a pinned preview and undoes each switch', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await mockAtlas(page)
+    await page.goto(keptSearch)
+    const trigger = page.getByRole('button', { name: 'Preset: Mars 2020 (modified)', exact: true })
+    const picker = page.getByRole('dialog', { name: 'Choose a filter preset' })
+    const preview = picker.getByRole('complementary', { name: 'Filter changes' })
+    const phase = preview.getByRole('group', { name: 'Keep or clear Mission Phase Name' })
+    const flight = preview.getByRole('group', { name: 'Keep or clear Flight Day Number' })
+    const ml = picker.getByRole('button', { name: /^ML-classified datasets/ })
+    const phaseControl = page.getByRole('button', { name: /remove mission.phase.name filter/i })
+    const flightControl = page.getByRole('button', { name: 'remove flight_day_number filter', exact: true })
+    for (const [keepPhase, keepFlight] of [[true, false], [true, true], [false, false]]) {
+        await trigger.click()
+        const search = picker.getByRole('searchbox', { name: 'Search presets' })
+        await expect(search).toBeFocused()
+        await page.keyboard.press('ArrowDown')
+        await page.keyboard.press('ArrowDown')
+        await page.keyboard.press('ArrowDown')
+        await expect(ml).toBeFocused()
+        await ml.press('Enter')
+        await expect(ml).toHaveAttribute('aria-expanded', 'true')
+        await expect(page).toHaveURL(/_preset=mars-2020/)
+        await ml.press('Tab')
+        await expect(phase.getByRole('button', { name: 'Keep' })).toBeFocused()
+        await expect(phase.getByRole('button', { name: 'Keep' })).toHaveAttribute('aria-pressed', 'true')
+        if (keepPhase && !keepFlight) {
+            await flight.getByRole('button', { name: 'Clear' }).click()
+            await expect(flight.getByRole('button', { name: 'Clear' })).toHaveAttribute('aria-pressed', 'true')
+        } else {
+            await picker.getByRole('button', { name: 'Clear all kept' }).click()
+            if (keepPhase) {
+                await picker.getByRole('button', { name: 'Keep all' }).click()
+            }
+        }
+        const apply = picker.getByRole('button', {
+            name: keepFlight ? 'Apply · keep 2' : keepPhase ? 'Apply · keep 1, clear 1' : 'Apply · clear 2',
+        })
+        await expect(apply).toBeVisible()
+        if (keepPhase && !keepFlight) {
+            await capture(page, 'kept-mixed')
+        }
+        await apply.click()
+        await expect(picker).not.toBeVisible()
+        await expect(page.getByRole('button', { name: 'Preset: ML-classified datasets', exact: true })).toBeVisible()
+        await expect(page).toHaveURL(/_preset=ml.*mission=artemis2/)
+        await expect(phaseControl).toHaveCount(Number(keepPhase))
+        await expect(flightControl).toHaveCount(Number(keepFlight))
+        if (keepPhase) {
+            await expect(page).toHaveURL(/mission_phase_name=FLYBY/)
+        } else {
+            await expect(page).not.toHaveURL(/mission_phase_name=/)
+        }
+        if (keepFlight) {
+            await expect(page).toHaveURL(/flight_day_number=4_to_6/)
+        } else {
+            await expect(page).not.toHaveURL(/flight_day_number=/)
+        }
+        await page.getByRole('button', { name: 'Undo' }).click()
+        await expect(trigger).toBeVisible()
+        await expect(page).toHaveURL(/_preset=mars-2020.*mission=artemis2/)
+        await expect(page).toHaveURL(/mission_phase_name=FLYBY/)
+        await expect(page).toHaveURL(/flight_day_number=4_to_6/)
+        await expect(phaseControl).toBeVisible()
+        await expect(flightControl).toBeVisible()
+    }
+    await trigger.click()
+    await ml.click()
+    await expect(ml).toHaveAttribute('aria-expanded', 'true')
+    await picker.getByRole('button', { name: /^Standard Atlas/ }).hover()
+    await expect(preview.getByRole('heading', { name: 'Standard Atlas' })).toBeVisible()
+    await preview.hover()
+    await expect(preview.getByRole('heading', { name: 'ML-classified datasets' })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(picker).not.toBeVisible()
+    await expect(trigger).toBeFocused()
+    await trigger.click()
+    await picker.getByRole('button', { name: /^Artemis II/ }).hover()
+    await expect(preview.getByRole('heading', { name: 'Artemis II' })).toBeVisible()
+    await picker.getByRole('button', { name: /^Artemis II/ }).click()
+    await picker.getByRole('button', { name: 'Apply · keep 1' }).click()
+    await expect(page.getByRole('button', { name: 'Preset: Artemis II', exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'Undo' }).click()
+    await expect(trigger).toBeVisible()
+    await page.goto('/search?_preset=mars-2020&gather.common.mission=artemis2')
+    await page.getByRole('button', { name: 'Preset: Mars 2020', exact: true }).click()
+    await ml.click()
+    await expect(picker).not.toBeVisible()
+    await expect(page).toHaveURL(/_preset=ml.*mission=artemis2/)
+})
+
+test('Atlas shows inline kept-filter choices on mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 })
+    await mockAtlas(page)
+    await page.goto(keptSearch)
+    await page.getByRole('button', { name: 'filters view', exact: true }).click()
+    await page.getByRole('button', { name: 'Preset: Mars 2020 (modified)', exact: true }).click()
+    const picker = page.getByRole('dialog', { name: 'Choose a filter preset' })
+    await picker.getByRole('searchbox').fill('ML-classified')
+    await picker.getByRole('button', { name: /^ML-classified datasets/ }).click()
+    await expect(picker.getByRole('complementary', { name: 'Filter changes' })).not.toBeVisible()
+    const inline = picker.getByRole('group', { name: 'Kept filters for ML-classified datasets' })
+    await inline.getByRole('group', { name: 'Keep or clear Flight Day Number' }).getByRole('button', { name: 'Clear' }).click()
+    await capture(page, 'kept-mixed-mobile')
+    await inline.getByRole('button', { name: 'Apply · keep 1, clear 1' }).click()
+    await expect(picker).not.toBeVisible()
+    await expect(page).toHaveURL(/_preset=ml.*mission=artemis2/)
+    await expect(page).toHaveURL(/mission_phase_name=FLYBY/)
+    await expect(page).not.toHaveURL(/flight_day_number=/)
 })
 
 test('Planetary Raws home opens its curated preset without exposing Atlas-only actions', async ({ page }) => {

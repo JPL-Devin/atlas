@@ -90,6 +90,21 @@ test('deep links add mapped non-default fields and preset switching never discar
     expect(plan.filters[PHASE].facets[0].state).toEqual({ FLYBY: true })
     expect(current).toHaveProperty(['_text'])
     expect(sameFilterLayout(plan.filters, next)).toBe(false)
+    expect(sameFilterLayout(plan.filters, next, plan.kept)).toBe(true)
+    expect(sameFilterLayout({ ...plan.filters, manual: { facets: [] } }, next, plan.kept)).toBe(false)
+    expect(sameFilterLayout({ [PHASE]: current[PHASE] }, next, plan.kept)).toBe(false)
+
+    const mixed = planPresetSwitch(current, next, [FLIGHT_DAY, MISSION])
+    expect(mixed.kept).toEqual([PHASE])
+    expect(mixed.removed).toEqual(['_text', FLIGHT_DAY])
+    expect(mixed.filters[MISSION]).toBe(current[MISSION])
+    expect(mixed.filters[PHASE]).toBe(current[PHASE])
+    expect(mixed.filters[FLIGHT_DAY]).toBeUndefined()
+    expect(current[FLIGHT_DAY].facets[0].state).toEqual({ range: [4, 6] })
+
+    const cleared = planPresetSwitch(current, next, plan.kept)
+    expect(cleared.kept).toEqual([])
+    expect(sameFilterLayout(cleared.filters, next)).toBe(true)
 })
 
 test('preview uses sidebar order, with removed filters inline and populated extras kept', () => {

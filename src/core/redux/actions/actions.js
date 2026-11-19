@@ -375,7 +375,7 @@ export const resetFilters = () => {
         const presetId = state.get('searchPresetId')
         if (presetId && state.get('filterType') === 'basic') {
             dispatch(setAdvancedFilters(null, true))
-            dispatch(changeSearchPreset(presetId, true))
+            dispatch(changeSearchPreset(presetId, { reset: true }))
             return
         }
         dispatch(clearActiveFilters())
@@ -423,7 +423,7 @@ export const initializeSearchEntry = ({ key, query, fromHome }) => (dispatch, ge
     dispatch({ type: ACTIONS.SET_INITIALIZED_SEARCH_ENTRY, payload: key })
 }
 
-export const changeSearchPreset = (id, reset = false) => (dispatch, getState) => {
+export const changeSearchPreset = (id, { reset = false, clearKeys = [] } = {}) => (dispatch, getState) => {
     const state = getState()
     const current = state.get('activeFilters').toJS()
     const mapping = state.getIn(['mappings', 'atlas'])
@@ -431,16 +431,16 @@ export const changeSearchPreset = (id, reset = false) => (dispatch, getState) =>
     const presetId = preset && preset.id !== 'all' ? preset.id : null
     const entry = state.get('searchPresetEntry')
     const defaults = makePresetFilters(mapping, preset)
-    const filters = reset
-        ? applyBasicSearchParams(entry?.presetId === presetId ? entry.query : {}, defaults, mapping)
-        : planPresetSwitch(current, defaults).filters
+    const { filters, kept: retainedKeys } = reset
+        ? { filters: applyBasicSearchParams(entry?.presetId === presetId ? entry.query : {}, defaults, mapping), kept: [] }
+        : planPresetSwitch(current, defaults, clearKeys)
     const label = preset?.label || getAppConfig().appTitle
     const notification = reset
         ? (entry?.presetId === presetId ? `Restored preset filters and starting values for ${label}` : `Restored preset filters and default values for ${label}`)
         : `Preset changed to ${label}`
     dispatch(setPresetState({
-        filters, presetId, entry, notification,
-        undo: { filters: current, presetId: state.get('searchPresetId') || null },
+        filters, presetId, entry, notification, retainedKeys,
+        undo: { filters: current, presetId: state.get('searchPresetId') || null, retainedKeys: state.get('searchPresetRetainedKeys') },
     }))
     dispatch(clearResults())
     dispatch(search(0, true))
