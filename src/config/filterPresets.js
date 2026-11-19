@@ -12,8 +12,8 @@ const presets = {
     atlas: [
         {
             id: 'all',
-            label: 'All Atlas',
-            description: 'Show the full set of standard Atlas filters.',
+            label: 'Standard Atlas',
+            description: 'Use the standard Atlas filters.',
             add: [],
             remove: [],
             recommended: [],

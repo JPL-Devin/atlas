@@ -4,7 +4,7 @@
     "date": "2026-11-19",
     "type": "new",
     "title": "Curated homepages and Search filter presets",
-    "description": "Open a featured mission from the homepage to start with relevant filters. In Atlas Search, preview which filters a preset adds or removes, then switch presets without losing your selected values."
+    "description": "Open a mission card to start with that mission selected. In Atlas Search, choose a preset to change which filters are shown without clearing your selected values. On desktop, preview the changes before choosing."
   },
   {
     "id": "2026-09-quick-links",

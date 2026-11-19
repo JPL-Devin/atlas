@@ -16,8 +16,11 @@ export const PresetReset = ({ disabled }) => {
     const dispatch = useDispatch()
     const resetTitle = useSelector((state) => {
         const id = state.get('searchPresetId')
-        if (state.get('filterType') !== 'basic' || !id) {
+        if (state.get('filterType') !== 'basic') {
             return 'Restore default filters and values'
+        }
+        if (!id) {
+            return getFilterPreset('all') ? 'Restore standard Atlas filters and default values' : 'Restore default filters and values'
         }
         return state.get('searchPresetEntry')?.presetId === id
             ? 'Restore preset filters and starting values' : 'Restore preset filters and default values'
@@ -62,7 +65,7 @@ export const PresetIndicator = () => {
     const activeId = presetId || 'all'
     const label = <>
         <Box component="span" sx={{ color: '#465671', fontWeight: 400 }}>Preset:</Box>{' '}
-        <Box component="span" sx={{ color: '#1559bf', fontWeight: 700 }}>{preset?.label || 'All Atlas'}</Box>
+        <Box component="span" sx={{ color: '#1559bf', fontWeight: 700 }}>{preset?.label || getFilterPreset('all')?.label}</Box>
         {modified && <>{' '}<Box component="span" sx={{ color: '#725013', fontSize: 11, fontWeight: 500 }}>(modified)</Box></>}
     </>
     const getPreview = (item) => getPresetPreview(current, makePresetFilters(mapping, item), item.id === activeId)

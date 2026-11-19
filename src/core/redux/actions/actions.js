@@ -437,7 +437,7 @@ export const changeSearchPreset = (id, reset = false) => (dispatch, getState) =>
     const label = preset?.label || getAppConfig().appTitle
     const notification = reset
         ? (entry?.presetId === presetId ? `Restored preset filters and starting values for ${label}` : `Restored preset filters and default values for ${label}`)
-        : `Switched to ${label} preset`
+        : `Preset changed to ${label}`
     dispatch(setPresetState({
         filters, presetId, entry, notification,
         undo: { filters: current, presetId: state.get('searchPresetId') || null },

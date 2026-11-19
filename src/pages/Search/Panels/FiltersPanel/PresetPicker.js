@@ -23,18 +23,18 @@ const getPresetChips = (preset) => {
     return [
         ...featured.map((key) => [`Features ${fieldLabel(key)}`, false]),
         ...added.map((key) => [`Adds ${fieldLabel(key)}`, false]),
-        ...hidden.map((key) => [`Hide ${fieldLabel(key)}`, true]),
+        ...hidden.map((key) => [`Hides ${fieldLabel(key)}`, true]),
     ]
 }
 
 const chipStyle = { borderRadius: '4px', px: 0.625, py: 0.25, fontSize: 10, fontWeight: 650 }
 const warningStyle = { color: '#614307', bgcolor: '#fff4da', fontSize: 12, alignItems: 'center' }
-const missionWarning = 'Changing the preset does not change the selected mission or other criteria.'
+const presetExplanation = 'Presets change which filters are shown. Switching keeps your selected values, including Mission.'
 const pickerInset = 8
 const diffStyles = {
     added: { symbol: '+', label: 'Added', countLabel: 'added', color: '#165839', bgcolor: '#e7f4eb' },
     removed: { symbol: '−', label: 'Removed', countLabel: 'removed', color: '#8a302c', bgcolor: '#faecea' },
-    kept: { symbol: '↳', label: 'Kept · has value', countLabel: 'kept', color: '#644a19', bgcolor: '#fff3d8' },
+    kept: { symbol: '↳', label: 'Kept because it has a value', countLabel: 'kept', color: '#644a19', bgcolor: '#fff3d8' },
     unchanged: { symbol: '=', label: 'Unchanged', countLabel: 'unchanged', color: '#405571', bgcolor: '#f5f8fc' },
 }
 
@@ -105,7 +105,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
             <Box sx={{ px: 1.75, pt: 1.5, pb: 1.25, borderBottom: '1px solid #dde5ef' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
                     <Typography id={`${id}-title`} component="h2" sx={{ fontSize: 16, fontWeight: 700 }}>
-                        Compare presets
+                        Choose a filter preset
                     </Typography>
                     <ButtonBase onClick={onClose} aria-label="Close preset picker" sx={{
                         color: '#56667a', bgcolor: '#f6f8fc', border: '1px solid #dde5ef',
@@ -114,7 +114,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                     }}>Esc</ButtonBase>
                 </Box>
                 <Typography component="p" sx={{ mt: 0.25, mb: 1.25, fontSize: 12, color: '#4c5b70' }}>
-                    Chips compare with Atlas defaults.<Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>
+                    Labels under each preset describe how it differs from the standard Atlas filters.<Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>
                         {' '}Hover or focus a preset to preview changes from your current filters.
                     </Box>
                 </Typography>
@@ -145,7 +145,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                 />
             </Box>
             <Alert severity="warning" role="note" sx={{ ...warningStyle, display: { xs: 'flex', md: 'none' }, borderRadius: 0 }}>
-                {missionWarning}
+                {presetExplanation}
             </Alert>
             <Box sx={{
                 display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' },
@@ -181,7 +181,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                                         ...chipStyle, bgcolor: hidden ? '#eff1f5' : '#eaf1ff', color: hidden ? '#4c5664' : '#264e83',
                                     }}>{label}</Box>)}
                                 </Box> : <Typography component="span" sx={{ display: 'block', mt: 0.5, fontSize: 11, fontWeight: 600, color: '#285885' }}>
-                                    Instance defaults
+                                    Standard Atlas filters
                                 </Typography>}
                                 {selected && <CheckIcon titleAccess="Active preset" sx={{ position: 'absolute', top: 8, right: 8, fontSize: 16, color: '#1559bf' }} />}
                             </ButtonBase>
@@ -191,12 +191,12 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                         No matching presets
                     </Typography>}
                 </Box>
-                <Box component="aside" aria-label="Preset preview" sx={{
+                <Box component="aside" aria-label="Filter changes" sx={{
                     display: { xs: 'none', md: 'block' }, overflowY: 'auto', p: 2,
                     bgcolor: '#f6f9fe', borderLeft: '1px solid #dde5ef',
                 }}>
                     <Typography sx={{ fontSize: 10, fontWeight: 750, letterSpacing: '.1em', color: '#436282' }}>
-                        PRESET PREVIEW
+                        Filter changes
                     </Typography>
                     {layout ? <>
                         <Typography component="h3" sx={{ fontSize: 19, fontWeight: 700, my: 0.5 }}>{preview.label}</Typography>
@@ -206,8 +206,8 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                         <Alert severity="info" role="note" sx={{
                             color: '#2c486c', bgcolor: '#eef3fa', fontSize: 11, alignItems: 'center', px: 1, py: 0,
                             '& .MuiAlert-icon': { color: 'inherit', opacity: 1, mr: 0.75 },
-                        }}>{missionWarning}</Alert>
-                        {layout.isActive ? <Typography sx={{ mt: 1, fontSize: 12, fontWeight: 700 }}>No changes</Typography> : (
+                        }}>{presetExplanation}</Alert>
+                        {layout.isActive ? <Typography sx={{ mt: 1, fontSize: 12, fontWeight: 700 }}>You’re already using this preset.</Typography> : (
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
                                 {Object.entries(diffStyles).map(([status, { symbol, countLabel, color, bgcolor }]) => (
                                     <Box component="span" key={status} sx={{ ...chipStyle, color, bgcolor, border: '1px solid #d6e1ef' }}>
@@ -242,7 +242,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                 display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px 10px',
                 px: 1.625, py: 1, bgcolor: '#f8fafd', borderTop: '1px solid #dde5ef', fontSize: 11, color: '#4d5f76',
             }}>
-                <span>Changes apply immediately · Undo available</span>
+                <span>Choose a preset to apply it immediately. You can undo it.</span>
                 <span><b>↑ ↓</b> Navigate · <b>Enter</b> Apply</span>
             </Box>
         </Popover>

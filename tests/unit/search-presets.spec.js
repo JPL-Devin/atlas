@@ -54,6 +54,7 @@ test('Artemis II does not duplicate Flight Day or alter instance defaults', () =
 test('preset descriptions and summaries distinguish featured fields from new and hidden controls', () => {
     const atlas = getFilterPresets('atlas')
     const raws = getFilterPresets('raws')
+    expect(atlas.find(({ id }) => id === 'all')?.label).toBe('Standard Atlas')
     expect([...atlas, ...raws].every(({ description }) => Boolean(description.trim()))).toBe(true)
     expect(getPresetFilterSummary(atlas.find(({ id }) => id === 'artemis-ii'), [
         FLIGHT_DAY, MISSION, 'archive.bundle_id',
