@@ -7,6 +7,7 @@ import { HASH_PATHS } from '../../../../../../core/constants'
 import { setExpandedFilter } from '../../../../../../core/redux/actions/actions'
 import { PRESET_PARAM } from '../../../../../../config/filterPresets'
 import { hasFilterValue } from '../../../../../../core/searchPresetState'
+import { getFilterDisplayGroups } from '../../../../../../facets/filterDisplayOrder'
 import { usePresetFilterKeys } from '../../PresetControls'
 import { makeStyles } from '@mui/styles'
 
@@ -28,13 +29,6 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const getGroupKey = (key) => {
-    if (key === '_text') return null
-    const parts = key.split('.')
-    if (parts[0] === 'gather' && parts.length > 1) return parts[1]
-    return parts[0]
-}
-
 const GROUP_DISPLAY_NAMES = {
     common: 'Common',
     archive: 'Archive',
@@ -46,18 +40,6 @@ const GROUP_DISPLAY_NAMES = {
     pds4_label: 'PDS4 Label',
     pds3_label: 'PDS3 Label',
 }
-
-const GROUP_ORDER = [
-    'common',
-    'time',
-    'flyby_missions',
-    'archive',
-    'machine_learning',
-    'ancillary',
-    'pds_archive',
-    'pds4_label',
-    'pds3_label',
-]
 
 const getSearchURL = (activeFilters, presetId) => {
     const params = presetId ? [`${PRESET_PARAM}=${encodeURIComponent(presetId)}`] : []
@@ -137,28 +119,7 @@ const FilterList = (props) => {
         }
     }, [desiredSearchUrl, location.pathname, location.search, location.state, navigate])
 
-    const sortedActiveFilterKeys = Object.keys(activeFilters).sort((a, b) => {
-        return activeFilters[a].order - activeFilters[b].order
-    })
-
-    // Separate '_text' from the rest, then bucket by group
-    const textKey = sortedActiveFilterKeys.includes('_text') ? '_text' : null
-    const groupedKeys = {}
-    sortedActiveFilterKeys.forEach((key) => {
-        if (key === '_text') return
-        const group = getGroupKey(key)
-        if (!groupedKeys[group]) groupedKeys[group] = []
-        groupedKeys[group].push(key)
-    })
-
-    const sortedGroups = Object.keys(groupedKeys).sort((a, b) => {
-        const ai = GROUP_ORDER.indexOf(a)
-        const bi = GROUP_ORDER.indexOf(b)
-        if (ai >= 0 && bi >= 0) return ai - bi
-        if (ai >= 0) return -1
-        if (bi >= 0) return 1
-        return a.localeCompare(b)
-    })
+    const groups = getFilterDisplayGroups(Object.keys(activeFilters), (key) => activeFilters[key].order)
 
     const renderFilter = (filterKey, idx) => (
         <Filter
@@ -176,13 +137,12 @@ const FilterList = (props) => {
 
     return (
         <div className={c.FilterList}>
-            {textKey && renderFilter(textKey)}
-            {sortedGroups.map((group) => (
+            {groups.map(([group, keys]) => group === null ? renderFilter('_text') : (
                 <div key={group}>
                     <div className={c.groupHeader}>
                         {GROUP_DISPLAY_NAMES[group] ?? group.replace(/_/g, ' ')}
                     </div>
-                    {groupedKeys[group].map(renderFilter)}
+                    {keys.map(renderFilter)}
                 </div>
             ))}
         </div>

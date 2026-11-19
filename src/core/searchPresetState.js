@@ -1,5 +1,8 @@
+import { Map as ImmutableMap } from 'immutable'
+
 import { getAppConfig } from './appConfig'
 import { getInitialActiveFilters, getMappedFilter } from '../facets/FacetBuilder'
+import { getFilterDisplayGroups } from '../facets/filterDisplayOrder'
 
 export const getPresetFilterKeys = (preset, defaults = getAppConfig().defaultFilters) =>
     [...new Set([...defaults.filter((key) => !preset?.remove.includes(key)), ...(preset?.add || [])])]
@@ -52,6 +55,43 @@ export const planPresetSwitch = (current, defaults) => {
         ...kept.map((key) => [key, current[key]]),
     ])
     return { added, removed, kept, filters }
+}
+
+export const getPresetPreview = (current, defaults, isActive) => {
+    const order = (keys) => getFilterDisplayGroups(keys).flatMap(([, groupedKeys]) => groupedKeys)
+    const currentKeys = order(Object.keys(current))
+    if (isActive) {
+        return {
+            isActive,
+            rows: currentKeys.map((key) => ({ key, displayName: current[key].display_name, status: 'unchanged' })),
+        }
+    }
+
+    const { filters, added, kept, removed } = planPresetSwitch(current, defaults)
+    const nextKeys = order(ImmutableMap(filters).keySeq().toArray())
+    const removedBefore = new Map()
+    let nextCurrentKey = null
+    for (const key of currentKeys.reverse()) {
+        if (Object.hasOwn(filters, key)) {
+            nextCurrentKey = key
+        } else {
+            const keys = removedBefore.get(nextCurrentKey) || []
+            keys.unshift(key)
+            removedBefore.set(nextCurrentKey, keys)
+        }
+    }
+    const displayKeys = order([
+        ...nextKeys.flatMap((key) => [...(removedBefore.get(key) || []), key]),
+        ...(removedBefore.get(null) || []),
+    ])
+    return {
+        isActive,
+        rows: displayKeys.map((key) => ({
+            key,
+            displayName: (filters[key] || current[key]).display_name,
+            status: removed.includes(key) ? 'removed' : added.includes(key) ? 'added' : kept.includes(key) ? 'kept' : 'unchanged',
+        })),
+    }
 }
 
 export const applyBasicSearchParams = (query, current, mapping) => {

@@ -3,7 +3,7 @@ import { getAppConfig } from '../../src/core/appConfig'
 import { FLIGHT_DAY, getFilterPresets } from '../../src/config/filterPresets'
 import { getHomeConfig } from '../../src/config/home'
 import { getHomeDestination } from '../../src/pages/Home/homeLinks'
-import { applyBasicSearchParams, getPresetFilterKeys, getPresetFilterSummary, makePresetFilters, planPresetSwitch, sameFilterLayout } from '../../src/core/searchPresetState'
+import { applyBasicSearchParams, getPresetFilterKeys, getPresetFilterSummary, getPresetPreview, makePresetFilters, planPresetSwitch, sameFilterLayout } from '../../src/core/searchPresetState'
 import { formatMappings } from '../../src/facets/FacetBuilder'
 
 const MISSION = 'gather.common.mission'
@@ -89,4 +89,31 @@ test('deep links add mapped non-default fields and preset switching never discar
     expect(plan.filters[PHASE].facets[0].state).toEqual({ FLYBY: true })
     expect(current).toHaveProperty(['_text'])
     expect(sameFilterLayout(plan.filters, next)).toBe(false)
+})
+
+test('preview uses sidebar order, with removed filters inline and populated extras kept', () => {
+    const kind = 'gather.common.kind'
+    const bundle = 'archive.bundle_id'
+    const ml = 'gather.machine_learning.classification.classifications.class'
+    const extra = 'gather.common.custom_filter'
+    const empty = { facets: [] }
+    const value = { facets: [{ state: { selected: true } }] }
+    const current = { [extra]: empty, [kind]: empty, [PHASE]: value, [MISSION]: value, [bundle]: empty, [FLIGHT_DAY]: value }
+    const next = { [ml]: empty, [MISSION]: empty, _text: empty }
+    expect(getPresetPreview(current, next, false).rows.map(({ key, status }) => [key, status])).toEqual([
+        ['_text', 'added'],
+        [MISSION, 'unchanged'],
+        [kind, 'removed'],
+        [extra, 'removed'],
+        [PHASE, 'kept'],
+        [FLIGHT_DAY, 'kept'],
+        [bundle, 'removed'],
+        [ml, 'added'],
+    ])
+    const active = getPresetPreview(current, next, true)
+    expect(active.isActive).toBe(true)
+    expect(active.rows.map(({ key, status }) => [key, status])).toEqual([
+        [MISSION, 'unchanged'], [kind, 'unchanged'], [extra, 'unchanged'], [PHASE, 'unchanged'],
+        [FLIGHT_DAY, 'unchanged'], [bundle, 'unchanged'],
+    ])
 })

@@ -31,6 +31,12 @@ const chipStyle = { borderRadius: '4px', px: 0.625, py: 0.25, fontSize: 10, font
 const warningStyle = { color: '#614307', bgcolor: '#fff4da', fontSize: 12, alignItems: 'center' }
 const missionWarning = 'Changing the filter layout does not change the selected mission or other criteria.'
 const pickerInset = 8
+const diffStyles = {
+    added: { symbol: '+', label: 'Added', countLabel: 'added', color: '#165839', bgcolor: '#e7f4eb' },
+    removed: { symbol: '−', label: 'Removed', countLabel: 'removed', color: '#8a302c', bgcolor: '#faecea' },
+    kept: { symbol: '↳', label: 'Kept · has value', countLabel: 'kept', color: '#644a19', bgcolor: '#fff3d8' },
+    unchanged: { symbol: '=', label: 'Unchanged', countLabel: 'unchanged', color: '#405571', bgcolor: '#f5f8fc' },
+}
 
 const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSelect }) => {
     const [search, setSearch] = useState('')
@@ -194,31 +200,40 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                     </Typography>
                     {layout ? <>
                         <Typography component="h3" sx={{ fontSize: 19, fontWeight: 700, my: 0.5 }}>{preview.label}</Typography>
-                        <Alert severity="warning" role="note" sx={warningStyle}>{missionWarning}</Alert>
-                        <Box sx={{ mt: 1, color: '#263c57' }}>
-                            {layout.isActive ? <Typography sx={{ fontSize: 12, fontWeight: 700 }}>No changes</Typography> : (
-                                [['Will be added', layout.added], ['Will be removed', layout.removed]].map(([label, fields]) => (
-                                    <Typography key={label} sx={{ fontSize: 12, mb: 0.5 }}>
-                                        <strong>{label}:</strong> {fields.map(({ key, displayName }) => fieldLabel(key, displayName)).join(', ') || 'None'}
-                                    </Typography>
-                                ))
-                            )}
-                        </Box>
-                        <Typography sx={{ mt: 1, fontSize: 12, color: '#4c5b70' }}>
-                            {Object.keys(layout.filters).length} controls · populated filters stay visible
-                        </Typography>
+                        {!layout.isActive && <Typography sx={{ mb: 0.75, fontSize: 12, color: '#405571' }}>
+                            In sidebar order. Crossed-out filters won’t appear.
+                        </Typography>}
+                        <Alert severity="info" role="note" sx={{
+                            color: '#2c486c', bgcolor: '#eef3fa', fontSize: 11, alignItems: 'center', px: 1, py: 0,
+                            '& .MuiAlert-icon': { color: 'inherit', opacity: 1, mr: 0.75 },
+                        }}>{missionWarning}</Alert>
+                        {layout.isActive ? <Typography sx={{ mt: 1, fontSize: 12, fontWeight: 700 }}>No changes</Typography> : (
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
+                                {Object.entries(diffStyles).map(([status, { symbol, countLabel, color, bgcolor }]) => (
+                                    <Box component="span" key={status} sx={{ ...chipStyle, color, bgcolor, border: '1px solid #d6e1ef' }}>
+                                        <span aria-hidden="true">{symbol}</span>{' '}
+                                        {layout.rows.filter((row) => row.status === status).length} {countLabel}
+                                    </Box>
+                                ))}
+                            </Box>
+                        )}
                         <Box component="ul" sx={{ m: 0, mt: 0.75, p: 0, borderTop: '1px solid #dde5ef', listStyle: 'none' }}>
-                            {Object.entries(layout.filters).map(([key, filter]) => (
-                                <Box component="li" key={key} sx={{
-                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    gap: 0.75, py: 0.625, fontSize: 12, borderBottom: '1px solid #dde5ef',
-                                }}>
-                                    <span>{fieldLabel(key, filter.display_name)}</span>
-                                    {layout.kept.includes(key) && <Box component="span" sx={{
-                                        ...chipStyle, bgcolor: '#fff0ce', color: '#614307',
-                                    }}>Kept · has value</Box>}
-                                </Box>
-                            ))}
+                            {layout.rows.map(({ key, displayName, status }) => {
+                                const { symbol, label, color, bgcolor } = diffStyles[status]
+                                return (
+                                    <Box component="li" key={key} sx={{
+                                        display: 'grid', gridTemplateColumns: '13px minmax(0, 1fr) auto', alignItems: 'center',
+                                        gap: 0.75, px: 0.75, py: 0.25, minHeight: 21, fontSize: 12, color, bgcolor,
+                                        borderBottom: '1px solid #dde5ef',
+                                    }}>
+                                        <Box component="span" aria-hidden="true" sx={{ textAlign: 'center', fontWeight: 800 }}>{symbol}</Box>
+                                        <Box component="span" sx={{ overflowWrap: 'anywhere', textDecoration: status === 'removed' ? 'line-through' : undefined }}>
+                                            {fieldLabel(key, displayName)}
+                                        </Box>
+                                        <Box component="span" sx={{ fontSize: 10, fontWeight: 700 }}>{label}</Box>
+                                    </Box>
+                                )
+                            })}
                         </Box>
                     </> : <Typography sx={{ mt: 1, fontSize: 12, color: '#4c5b70' }}>No layout to preview.</Typography>}
                 </Box>

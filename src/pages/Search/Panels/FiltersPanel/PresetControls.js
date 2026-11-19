@@ -9,7 +9,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 
 import { getFilterPreset, getFilterPresets } from '../../../../config/filterPresets'
 import PresetPicker from './PresetPicker'
-import { getPresetFilterKeys, makePresetFilters, planPresetSwitch, sameFilterLayout } from '../../../../core/searchPresetState'
+import { getPresetFilterKeys, getPresetPreview, makePresetFilters, sameFilterLayout } from '../../../../core/searchPresetState'
 import { changeSearchPreset, dismissSearchPresetChange, resetFilters, undoSearchPresetChange } from '../../../../core/redux/actions/actions'
 
 export const PresetReset = ({ disabled }) => {
@@ -57,15 +57,7 @@ export const PresetIndicator = () => {
     const modified = preset && !sameFilterLayout(current, makePresetFilters(mapping, preset))
     const activeId = presetId || 'all'
     const label = preset?.label || 'All Atlas'
-    const getPreview = (item) => {
-        const plan = planPresetSwitch(current, makePresetFilters(mapping, item))
-        const isActive = item.id === activeId
-        return {
-            isActive, filters: isActive ? current : plan.filters, kept: plan.kept,
-            added: isActive ? [] : plan.added.map((key) => ({ key, displayName: plan.filters[key].display_name })),
-            removed: isActive ? [] : plan.removed.map((key) => ({ key, displayName: current[key].display_name })),
-        }
-    }
+    const getPreview = (item) => getPresetPreview(current, makePresetFilters(mapping, item), item.id === activeId)
 
     return (
         <>
