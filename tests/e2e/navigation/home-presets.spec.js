@@ -54,9 +54,6 @@ const expectStackedHeader = async (header, mobile = false) => {
         await expect(action).toBeVisible()
         const box = await action.boundingBox()
         expect(Math.abs(box.y + box.height / 2 - titleBox.y - titleBox.height / 2)).toBeLessThan(2)
-        if (mobile && name === 'add filter') {
-            expect(box.height).toBeGreaterThanOrEqual(40)
-        }
     }
     expect(subtitleBox.y).toBeGreaterThan(titleBox.y + titleBox.height / 2)
 }
@@ -238,6 +235,13 @@ test('Atlas preset picker stays usable on a narrow screen without the side previ
     await capture(page, 'layout-mobile')
     await capture(page, 'filters-header-mobile')
     await capture(page, 'preset-row-mobile')
+    const addBox = await header.getByRole('button', { name: 'add filter' }).boundingBox()
+    const tapY = addBox.y + addBox.height / 2 - 19
+    expect(tapY).toBeLessThan(addBox.y)
+    await page.mouse.click(addBox.x + addBox.width / 2, tapY)
+    const addDialog = page.getByRole('dialog')
+    await expect(addDialog.getByRole('button', { name: 'Apply filters' })).toBeVisible()
+    await addDialog.getByRole('button', { name: 'close', exact: true }).click()
     await trigger.click()
     const picker = page.getByRole('dialog', { name: 'Compare presets' })
     const search = picker.getByRole('searchbox', { name: 'Search presets' })
