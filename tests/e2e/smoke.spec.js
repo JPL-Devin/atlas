@@ -15,11 +15,10 @@ test.describe('Atlas Application - Smoke Tests', () => {
         expect(body.version.atlas).toBeDefined()
     })
 
-    test('root URL redirects to /search', async ({ request }) => {
+    test('root URL serves the SPA homepage', async ({ request }) => {
         const res = await request.get('/', { maxRedirects: 0 })
-        expect([301, 302, 307, 308]).toContain(res.status())
-        const location = res.headers()['location']
-        expect(location).toContain('/search')
+        expect(res.status()).toBe(200)
+        expect(await res.text()).toContain('id="root"')
     })
 
     test('application loads without a white screen', async ({ page }) => {

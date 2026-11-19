@@ -1,5 +1,12 @@
 [
   {
+    "id": "2026-11-home-and-presets",
+    "date": "2026-11-19",
+    "type": "new",
+    "title": "Curated homepages and Search presets",
+    "description": "Open a featured mission from the homepage to start with relevant filters. In Atlas Search, you can switch presets without losing your selected values, or customize the filter list."
+  },
+  {
     "id": "2026-09-quick-links",
     "date": "2026-09-28",
     "type": "new",

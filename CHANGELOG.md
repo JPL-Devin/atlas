@@ -11,6 +11,12 @@ All notable changes to Atlas are recorded here, newest first and grouped by mont
   When the minor version goes up, add `{ version, date }` to `src/config/releases.json` to
   start a new release group in that view.
 
+## 2026-11
+
+### Added
+- Atlas and Planetary Raws homepages with curated entry points into Search and, in Atlas, Archive Explorer.
+- Search filter presets that choose the starting controls independently of the search criteria.
+
 ## 2026-10
 
 ### Added

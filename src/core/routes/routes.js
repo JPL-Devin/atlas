@@ -6,6 +6,7 @@ import Topbar from '../../components/Topbar'
 import SnackBar from '../../components/SnackBar/SnackBar'
 
 import Search from '../../pages/Search/Search'
+import Home from '../../pages/Home/Home'
 import Record from '../../pages/Record/Record'
 import FileExplorer from '../../pages/FileExplorer/FileExplorer'
 import Cart from '../../pages/Cart/Cart'
@@ -37,6 +38,7 @@ export const AppRoutes = () => {
                     <Topbar />
                     <div className="routeContent">
                         <Routes>
+                            <Route path="/" element={<Home />} />
                             <Route path="/search" element={<Search />} />
                             <Route path="/record" element={<Record />} />
                             {getAppConfig().enableCart && (

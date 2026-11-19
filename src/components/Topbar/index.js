@@ -296,7 +296,7 @@ const Topbar = () => {
                 </div>
             </div>
             <div className={c.right}>
-                {!isMobileXs && <TopbarCopyLinks />}
+                {!isMobileXs && location.pathname !== HASH_PATHS.root && <TopbarCopyLinks />}
                 <Tooltip title="API Documentation" arrow placement="bottom">
                     <IconButton
                         className={clsx(c.button)}

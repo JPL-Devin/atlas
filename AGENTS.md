@@ -48,12 +48,13 @@ crossing that line.
 
 | Route | Component | URL params |
 |---|---|---|
-| `/search` | `src/pages/Search/Search.js` | filter keys (`_text`, `mission`, `target`, etc.) — Atlas strips unknown params |
+| `/` | `src/pages/Home/Home.js` | none — instance-specific homepage |
+| `/search` | `src/pages/Search/Search.js` | filter keys (e.g. `gather.common.mission`) and optional `_preset` — Atlas strips unknown params |
 | `/record` | `src/pages/Record/*` | `uri=<lidvid>` — keys the entire view |
 | `/cart` | `src/pages/Cart/*` | none |
 | `/archive-explorer` | `src/pages/FileExplorer/*` (a.k.a. **FileX**) | column-drilling state via params like `?mission=...&bundle=...` |
 
-Root `/` 307-redirects to `/search`.
+Root `/` serves the SPA homepage.
 
 ## Build / dev / test runtime
 
