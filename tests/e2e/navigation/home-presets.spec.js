@@ -43,6 +43,21 @@ const capture = async (page, name) => {
 
 test.use({ viewport: { width: 1440, height: 900 } })
 
+const expectStackedHeader = async (header, mobile = false) => {
+    const title = header.getByRole('heading', { name: 'Basic Filters' })
+    const subtitle = header.getByRole('group', { name: 'Filter preset' })
+    await expect(subtitle).toBeVisible()
+    const titleBox = await title.boundingBox()
+    const subtitleBox = await subtitle.boundingBox()
+    for (const name of ['reset filters', 'add filter', 'menu', ...(mobile ? ['close filters'] : [])]) {
+        const action = header.getByRole('button', { name, exact: true })
+        await expect(action).toBeVisible()
+        const box = await action.boundingBox()
+        expect(Math.abs(box.y + box.height / 2 - titleBox.y - titleBox.height / 2)).toBeLessThan(2)
+    }
+    expect(subtitleBox.y).toBeGreaterThan(titleBox.y + titleBox.height / 2)
+}
+
 test('Atlas homepage repeatedly opens distinct Search and Archive Explorer entries', async ({ page }) => {
     const requests = await mockAtlas(page)
     await page.goto('/')
@@ -61,7 +76,7 @@ test('Atlas homepage repeatedly opens distinct Search and Archive Explorer entri
 
     await page.getByRole('link', { name: 'Mars 2020 · Perseverance', exact: true }).click()
     await expect(page).toHaveURL(/_preset=mars-2020.*gather\.common\.mission=mars_2020/)
-    await expect(page.getByText('Filter preset', { exact: true })).toBeVisible()
+    await expect(page.getByRole('group', { name: 'Filter preset' })).toBeVisible()
     await expect(page.getByRole('button', { name: /quick links/i })).toBeVisible()
     await expect.poll(() => requests.some(({ query }) => JSON.stringify(query || {}).includes('"mars_2020"'))).toBe(true)
     await home()
@@ -86,7 +101,10 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await expect(page).toHaveURL(/mission_phase_name=FLYBY/)
     await capture(page, 'preset-artemis')
     await capture(page, 'preset-row')
-    const trigger = page.getByRole('button', { name: 'Change', exact: true })
+    const header = page.getByRole('group', { name: 'Filter controls' })
+    const trigger = header.getByRole('button', { name: 'Change filter preset: Artemis II' })
+    await expectStackedHeader(header)
+    await capture(page, 'header-stacked')
     await trigger.click()
     const picker = page.getByRole('dialog', { name: 'Compare filter presets' })
     const search = picker.getByRole('searchbox', { name: 'Search presets' })
@@ -166,7 +184,7 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await expect(page).toHaveURL(/mission=artemis2/)
     await expect(page.getByText('Switched to All Atlas preset', { exact: true })).toBeVisible()
     await expect(bundleFilter).toBeVisible()
-    await trigger.click()
+    await header.getByRole('button', { name: 'Change filter preset: All Atlas' }).click()
     await expect(all).toHaveAttribute('aria-current', 'true')
 })
 
@@ -175,9 +193,12 @@ test('Atlas preset picker stays usable on a narrow screen without the side previ
     await mockAtlas(page)
     await page.goto('/search?_preset=artemis-ii&gather.common.mission=artemis2&gather.common.mission_phase_name=FLYBY')
     await page.getByRole('button', { name: 'filters view', exact: true }).click()
-    const trigger = page.getByRole('button', { name: 'Change', exact: true })
+    const header = page.getByRole('group', { name: 'Filter controls' })
+    const trigger = header.getByRole('button', { name: 'Change filter preset: Artemis II' })
     await expect(page.getByText('Modified', { exact: true })).toBeVisible()
     await expect(trigger).toBeVisible()
+    await expectStackedHeader(header, true)
+    await capture(page, 'header-stacked-mobile')
     await capture(page, 'preset-row-mobile')
     await trigger.click()
     const picker = page.getByRole('dialog', { name: 'Compare filter presets' })
@@ -227,8 +248,11 @@ test('Planetary Raws home opens its curated preset without exposing Atlas-only a
     await capture(page, 'raws-home')
     await page.getByRole('link', { name: 'Browse Mars 2020 · Perseverance', exact: true }).click()
     await expect(page).toHaveURL(/_preset=mars-2020.*mission=mars_2020/)
-    await expect(page.getByText('Filter preset', { exact: true })).toBeVisible()
+    const subtitle = page.getByRole('group', { name: 'Filter preset' })
+    await expect(subtitle.getByText('Mars 2020', { exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'add filter', exact: true })).toHaveCount(0)
-    await expect(page.getByRole('button', { name: 'Change', exact: true })).toHaveCount(0)
+    await expect(subtitle.getByRole('button')).toHaveCount(0)
     await capture(page, 'raws-preset')
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await capture(page, 'header-stacked-raws')
 })

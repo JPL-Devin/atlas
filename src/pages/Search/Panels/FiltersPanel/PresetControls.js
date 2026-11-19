@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
     Box, Button, Chip, IconButton, Snackbar, Tooltip, Typography,
 } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import TuneIcon from '@mui/icons-material/Tune'
 
@@ -52,6 +53,11 @@ export const PresetIndicator = () => {
     const current = active.toJS()
     const modified = preset && !sameFilterLayout(current, makePresetFilters(mapping, preset))
     const activeId = presetId || 'all'
+    const label = preset?.label || 'All Atlas'
+    const subtitle = <>
+        <TuneIcon sx={{ fontSize: 16, flexShrink: 0 }} />
+        <Typography component="span" sx={{ fontSize: 13, fontWeight: 650, overflowWrap: 'anywhere' }}>{label}</Typography>
+    </>
     const getPreview = (item) => {
         const { filters, kept } = planPresetSwitch(current, makePresetFilters(mapping, item))
         return { filters: item.id === activeId ? current : filters, kept }
@@ -59,19 +65,25 @@ export const PresetIndicator = () => {
 
     return (
         <>
-            <Box ref={presetRow} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 0.5,
-                px: 1.25, py: 0.75, borderBottom: '1px solid #c9dbfb', bgcolor: '#edf4ff' }}>
-                <Box>
-                    <Typography variant="overline" component="div" sx={{ lineHeight: 1.35, color: '#425571' }}>Filter preset</Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
-                        <TuneIcon sx={{ fontSize: 16, color: '#1559bf' }} />
-                        <Typography component="strong" variant="body2" sx={{ fontWeight: 700 }}>{preset?.label || 'All Atlas'}</Typography>
-                        {modified && <Chip label="Modified" size="small" color="info" variant="outlined" />}
-                    </Box>
-                </Box>
-                {selectable && <Button size="small" sx={{ color: '#1559bf', bgcolor: anchor ? '#dae9ff' : undefined }}
-                    onClick={() => setAnchor(presetRow.current)} aria-haspopup="dialog"
-                    aria-expanded={Boolean(anchor)} aria-controls={anchor ? pickerId : undefined}>Change</Button>}
+            <Box ref={presetRow} role="group" aria-label="Filter preset" sx={{
+                display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px 8px', px: 3, pb: 1.5,
+            }}>
+                {selectable ? (
+                    <Button size="small" aria-label={`Change filter preset: ${label}`}
+                        onClick={() => setAnchor(presetRow.current)} aria-haspopup="dialog"
+                        aria-expanded={Boolean(anchor)} aria-controls={anchor ? pickerId : undefined}
+                        sx={{
+                            minHeight: 27, minWidth: 0, gap: 1.5, px: 1, ml: -1,
+                            justifyContent: 'flex-start', textAlign: 'left', textTransform: 'none',
+                            color: '#1559bf', bgcolor: anchor ? '#dae9ff' : undefined,
+                            '&:hover': { bgcolor: '#e1edfc' },
+                        }}
+                    >
+                        {subtitle}
+                        <ExpandMoreIcon sx={{ fontSize: 16, flexShrink: 0 }} />
+                    </Button>
+                ) : <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minHeight: 27 }}>{subtitle}</Box>}
+                {modified && <Chip label="Modified" size="small" color="info" variant="outlined" sx={{ height: 19 }} />}
             </Box>
             {anchor && <PresetPicker id={pickerId} anchor={anchor} presets={presets} activeId={activeId}
                 getPreview={getPreview}

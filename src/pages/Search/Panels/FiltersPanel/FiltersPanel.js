@@ -59,22 +59,20 @@ const useStyles = makeStyles((theme) => ({
         height: 'calc(100% - 48px)',
         zIndex: theme.zIndex.drawer + 100,
     },
-    left: {
-        display: 'flex',
-        alignItems: 'center',
-        minWidth: 0,
-    },
     heading: {
-        width: '100%',
-        height: theme.headHeights[1],
-        display: 'flex',
-        justifyContent: 'space-between',
-        boxSizing: 'border-box',
         background: theme.palette.swatches.grey.grey100,
         borderBottom: `1px solid ${theme.palette.swatches.grey.grey200}`,
     },
+    headingRow: {
+        width: '100%',
+        height: theme.headHeights[1],
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
     title: {
-        padding: '4px 0px 4px 12px',
+        margin: 0,
+        paddingLeft: '12px',
         fontSize: '16px',
         fontWeight: 500,
         lineHeight: '34px',
@@ -83,6 +81,7 @@ const useStyles = makeStyles((theme) => ({
     },
     right: {
         display: 'flex',
+        alignItems: 'center',
     },
     addFilter: {
         'color': theme.palette.text.secondary,
@@ -168,53 +167,53 @@ const FiltersPanel = (props) => {
     return (
         <div className={clsx(c.FiltersPanel, { [c.sheet]: mobile })} style={style}>
             <div className={c.contents}>
-                <div className={c.heading}>
-                    <div className={c.left}>
-                        <div className={c.title}>{FILTER_TYPES[filterType]}</div>
-                        <PresetReset disabled={!ready} />
-                    </div>
-                    <div className={c.right}>
-                        {filterType === 'basic' && getAppConfig().enableAddFilters && (
-                            <Button
-                                className={c.addFilter}
-                                aria-label="add filter"
-                                size="small"
-                                onClick={() => dispatch(setModal('addFilter'))}
-                                variant="contained"
-                                endIcon={<AddIcon />}
-                            >
-                                Add
-                            </Button>
-                        )}
-                        <div className={c.buttonMore}>
-                            <MenuButton
-                                options={[
-                                    FILTER_TYPES.basic,
-                                    FILTER_TYPES.advanced,
-                                    '-',
-                                    'Copy Query',
-                                    'Copy Python Command',
-                                    'Copy CURL Command',
-                                    'Copy Node Fetch Command',
-                                ]}
-                                checkboxIndices={[0, 1]}
-                                active={FILTER_TYPES[filterType]}
-                                buttonComponent={<MoreVertIcon fontSize="inherit" />}
-                                onChange={handleMenuChange}
-                            />
+                <div className={c.heading} role="group" aria-label="Filter controls">
+                    <div className={c.headingRow}>
+                        <h2 className={c.title}>{FILTER_TYPES[filterType]}</h2>
+                        <div className={c.right}>
+                            <PresetReset disabled={!ready} />
+                            {filterType === 'basic' && getAppConfig().enableAddFilters && (
+                                <Button
+                                    className={c.addFilter}
+                                    aria-label="add filter"
+                                    size="small"
+                                    onClick={() => dispatch(setModal('addFilter'))}
+                                    variant="contained"
+                                    endIcon={<AddIcon />}
+                                >
+                                    Add
+                                </Button>
+                            )}
+                            <div className={c.buttonMore}>
+                                <MenuButton
+                                    options={[
+                                        FILTER_TYPES.basic,
+                                        FILTER_TYPES.advanced,
+                                        '-',
+                                        'Copy Query',
+                                        'Copy Python Command',
+                                        'Copy CURL Command',
+                                        'Copy Node Fetch Command',
+                                    ]}
+                                    checkboxIndices={[0, 1]}
+                                    active={FILTER_TYPES[filterType]}
+                                    buttonComponent={<MoreVertIcon fontSize="inherit" />}
+                                    onChange={handleMenuChange}
+                                />
+                            </div>
+                            {mobile && (
+                                <IconButton
+                                    aria-label="close filters"
+                                    size="small"
+                                    onClick={() => dispatch(setWorkspace({ ...w, mobileFilters: false }))}
+                                >
+                                    <CloseIcon fontSize="inherit" />
+                                </IconButton>
+                            )}
                         </div>
-                        {mobile && (
-                            <IconButton
-                                aria-label="close filters"
-                                size="small"
-                                onClick={() => dispatch(setWorkspace({ ...w, mobileFilters: false }))}
-                            >
-                                <CloseIcon fontSize="inherit" />
-                            </IconButton>
-                        )}
                     </div>
+                    {ready && filterType === 'basic' && <PresetIndicator />}
                 </div>
-                {ready && filterType === 'basic' && <PresetIndicator />}
                 <div
                     className={c.content}
                     onScroll={(e) => {
