@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import clsx from 'clsx'
-import Url from 'url-parse'
 
 import {
     setModal,
@@ -12,6 +11,7 @@ import {
     search,
 } from '../../../../../../core/redux/actions/actions.js'
 import { removeComments } from '../../../../../../core/utils.js'
+import { PRESET_PARAM } from '../../../../../../config/filterPresets'
 import {
     getAtlasMappingOptions,
     getAutocompleteValues,
@@ -204,6 +204,8 @@ const AdvancedFilter = (props) => {
     const c = useStyles()
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const location = useLocation()
+    const presetId = useSelector((state) => state.get('searchPresetId'))
 
     const activeFilters = useSelector((state) => {
         return state.getIn(['activeFilters'])
@@ -221,13 +223,13 @@ const AdvancedFilter = (props) => {
     const [parsedExpression, setParsedExpression] = useState(null)
     const [firstPass, setFirstPass] = useState(true)
 
+    const desiredSearchUrl = `?_adv=${encodeURIComponent(removeComments(advancedFilters))}` +
+        (presetId ? `&${PRESET_PARAM}=${encodeURIComponent(presetId)}` : '')
     useEffect(() => {
-        const desiredSearchUrl = `?_adv=${encodeURI(removeComments(advancedFilters))}`
-        const currentURL = new Url(window.location)
-        if (currentURL.pathname + currentURL.query !== desiredSearchUrl) {
+        if (location.search !== desiredSearchUrl) {
             navigate(desiredSearchUrl, { replace: true })
         }
-    }, [advancedFilters])
+    }, [desiredSearchUrl, location.search, navigate])
 
     useEffect(() => {
         // On Mount

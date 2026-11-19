@@ -17,6 +17,8 @@ const reducerFuncs = {
     SET_INITIAL_ACTIVE_FILTERS: setInitialActiveFilters,
     ADD_ACTIVE_FILTERS: addActiveFilters,
     UPDATE_ACTIVE_FILTERS: updateActiveFilters,
+    SET_SEARCH_PRESET_STATE: setSearchPresetState,
+    DISMISS_SEARCH_PRESET_CHANGE: dismissSearchPresetChange,
     REMOVE_ACTIVE_FILTERS: removeActiveFilters,
     CLEAR_ACTIVE_FILTERS: clearActiveFilters,
     UPDATE_ACTIVE_MISSIONS: updateActiveMissions,
@@ -218,6 +220,25 @@ function removeActiveFilters(state, payload) {
 function clearActiveFilters(state, payload) {
     const initialActiveFilters = state.get('initialActiveFilters')
     return state.setIn(['activeFilters'], initialActiveFilters)
+}
+
+function setSearchPresetState(state, { filters, presetId, entry, undo, notification }) {
+    const ordered = Object.fromEntries(Object.entries(filters).map(([key, filter]) => [
+        key, { ...filter, order: getFilterOrderValue(key) },
+    ]))
+    return state.merge({
+        activeFilters: fromJS(ordered),
+        expandedFilter: ordered[state.get('expandedFilter')] ? state.get('expandedFilter') : null,
+        facetsStatus: fromJS({}),
+        searchPresetId: presetId,
+        searchPresetEntry: entry,
+        searchPresetUndo: undo,
+        searchPresetNotification: notification,
+    })
+}
+
+function dismissSearchPresetChange(state) {
+    return state.set('searchPresetUndo', null).set('searchPresetNotification', null)
 }
 
 /**

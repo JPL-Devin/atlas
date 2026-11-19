@@ -13,6 +13,7 @@ import {
     loadFilterFacets,
 } from '../../core/redux/actions/actions.js'
 import { facetsStatuses } from '../../core/constants.js'
+import { hasFilterValue } from '../../core/searchPresetState'
 
 import MuiAccordion from '@mui/material/Accordion'
 import MuiAccordionSummary from '@mui/material/AccordionSummary'
@@ -25,6 +26,7 @@ import Button from '@mui/material/Button'
 import Badge from '@mui/material/Badge'
 import TextField from '@mui/material/TextField'
 import InputAdornment from '@mui/material/InputAdornment'
+import { Box, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -432,7 +434,7 @@ FacetsStatus.propTypes = {
 const OPEN_WAIT_MS = 1000
 
 const Filter = (props) => {
-    const { filterKey, filter, onExpand, expanded } = props
+    const { filterKey, filter, onExpand, expanded, presetTag } = props
     const c = useStyles()
 
     const dispatch = useDispatch()
@@ -441,6 +443,7 @@ const Filter = (props) => {
     const [isFilterDownOpen, setIsFilterDownOpen] = useState(false)
     const [filterDownValue, setFilterDownValue] = useState('')
     const [maxFieldsCount, setMaxFieldsCount] = useState(0)
+    const [confirmRemove, setConfirmRemove] = useState(false)
 
     const subFilters = getSubFilters(filter, filterKey, settingsActive)
     const facetsStatus = useSelector((state) => state.getIn(['facetsStatus', filterKey]))
@@ -506,13 +509,17 @@ const Filter = (props) => {
             })
         )
     }
-    const handleRemove = (e) => {
-        // stop expand/collapse
-        e.stopPropagation()
-
+    const remove = () => {
+        setConfirmRemove(false)
         dispatch(removeActiveFilters(filterKey))
         dispatch(clearResults())
         dispatch(search(0, true))
+    }
+
+    const handleRemove = (e) => {
+        e.stopPropagation()
+        if (hasFilterValue(filter)) setConfirmRemove(true)
+        else remove()
     }
 
     const handleClearSelections = (e) => {
@@ -589,6 +596,7 @@ const Filter = (props) => {
                     className={clsx(c.accordionHead, {
                         [c.accordionHeadOpen]: expanded && isFilterDownOpen,
                     })}
+                    sx={presetTag ? { '& .MuiAccordionSummary-content': { minWidth: 0 } } : undefined}
                     expandIcon={
                         <div className={c.expandIconSlot}>
                             <ExpandMoreIcon
@@ -611,13 +619,19 @@ const Filter = (props) => {
                     onClick={onExpand}
                     role=""
                 >
-                    <div className={c.header}>
-                        <Badge className={c.countBadge} badgeContent={count}>
-                            <Tooltip title={filterKey} arrow placement="right">
+                    <div className={c.header} style={presetTag ? { minWidth: 0 } : undefined}>
+                        <Badge className={c.countBadge} badgeContent={count}
+                            sx={presetTag ? { minWidth: 0, alignItems: 'center' } : undefined}>
+                            <Tooltip title={presetTag ? friendlyFilterName : filterKey} arrow placement="right">
                                 <Typography className={c.title}>{friendlyFilterName}</Typography>
                             </Tooltip>
                         </Badge>
-                        <div className={c.headerButtons}>
+                        {presetTag && <Box component="span" sx={{
+                            ml: count ? '14px' : '6px', mr: 'auto', alignSelf: 'center', flexShrink: 0, px: 0.5, fontSize: 10,
+                            borderRadius: 0.5, bgcolor: presetTag === 'In preset' ? '#e8f0fd' : '#fff1d6',
+                            color: presetTag === 'In preset' ? '#2053a2' : '#725013',
+                        }}>{presetTag}</Box>}
+                        <div className={c.headerButtons} style={presetTag ? { flexShrink: 0, display: 'flex' } : undefined}>
                             {/*
                             {expanded && (
                                 <Tooltip title="Settings" arrow>
@@ -741,6 +755,14 @@ const Filter = (props) => {
                     {subFilters}
                 </AccordionDetails>
             </Accordion>
+            {confirmRemove && <Dialog open onClose={() => setConfirmRemove(false)} aria-labelledby="remove-filter-title">
+                <DialogTitle id="remove-filter-title">Remove {friendlyFilterName}?</DialogTitle>
+                <DialogContent>This also clears its selected values from the search.</DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setConfirmRemove(false)}>Cancel</Button>
+                    <Button color="secondary" onClick={remove}>Remove filter</Button>
+                </DialogActions>
+            </Dialog>}
         </div>
     )
 }
@@ -750,6 +772,7 @@ Filter.propTypes = {
     filterKey: PropTypes.string.isRequired,
     onExpand: PropTypes.func.isRequired,
     expanded: PropTypes.bool,
+    presetTag: PropTypes.string,
 }
 
 export default Filter

@@ -244,11 +244,18 @@ export const getFilterOrderValue = (filterKey) => {
     return FILTER_ORDER_PRIORITY.length + 1000
 }
 
-export const getInitialActiveFilters = (mapping) => {
-    const initialFilters = {}
-    const config = getAppConfig()
+export const getMappedFilter = (mapping, filterKey) => {
+    const parts = filterKey.split('.')
+    if (parts[0] === 'gather') parts.shift()
+    const path = parts.flatMap((part, index) => (index === 0 ? [part] : ['groups', part]))
+    const filter = getIn(mapping?.groups, path)
+    return filter?.facets ? filter : undefined
+}
 
-    config.defaultFilters.forEach((filterKey) => {
+export const getInitialActiveFilters = (mapping, filterKeys = getAppConfig().defaultFilters) => {
+    const initialFilters = {}
+
+    filterKeys.forEach((filterKey) => {
         if (filterKey === '_text') {
             initialFilters['_text'] = {
                 display_name: 'Text Search',
@@ -266,27 +273,8 @@ export const getInitialActiveFilters = (mapping) => {
             return
         }
 
-        const parts = filterKey.split('.')
-        let current = mapping.groups
-        let found = true
-
-        for (let i = 0; i < parts.length; i++) {
-            const part = parts[i]
-            if (i === 0 && part === 'gather') continue
-
-            if (current && current[part])
-                if (i < parts.length - 1 && current[part].groups)
-                    current = current[part].groups
-                else
-                    current = current[part]
-            else {
-                found = false
-                break
-            }
-        }
-
-        if (found && current && current.facets)
-            initialFilters[filterKey] = current
+        const filter = getMappedFilter(mapping, filterKey)
+        if (filter) initialFilters[filterKey] = filter
     })
 
     return initialFilters

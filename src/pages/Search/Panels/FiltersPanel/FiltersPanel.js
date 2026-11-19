@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
@@ -7,22 +7,20 @@ import {
     setModal,
     setFilterType,
     setWorkspace,
-    resetFilters,
     copyToClipboardAction,
 } from '../../../../core/redux/actions/actions.js'
 
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import Tooltip from '@mui/material/Tooltip'
 
 import AddIcon from '@mui/icons-material/Add'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
-import RefreshIcon from '@mui/icons-material/Refresh'
 import CloseIcon from '@mui/icons-material/Close'
 
 import FilterList from './subcomponents/FilterList/FilterList'
 import AdvancedFilter from './subcomponents/AdvancedFilter/AdvancedFilter'
+import { PresetIndicator, PresetReset } from './PresetControls'
 
 import MenuButton from '../../../../components/MenuButton/MenuButton'
 
@@ -65,14 +63,6 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         alignItems: 'center',
         minWidth: 0,
-    },
-    resetFilters: {
-        'color': theme.palette.swatches.grey.grey600,
-        'marginLeft': theme.spacing(0.5),
-        '& svg': {
-            fontSize: '18px !important',
-            transform: 'rotateY(180deg)',
-        },
     },
     heading: {
         width: '100%',
@@ -120,7 +110,7 @@ const FILTER_TYPES = {
 }
 
 const FiltersPanel = (props) => {
-    const { mobile } = props
+    const { mobile, ready } = props
     const c = useStyles()
     const dispatch = useDispatch()
 
@@ -181,16 +171,7 @@ const FiltersPanel = (props) => {
                 <div className={c.heading}>
                     <div className={c.left}>
                         <div className={c.title}>{FILTER_TYPES[filterType]}</div>
-                        <Tooltip title="Reset Filters" arrow>
-                            <IconButton
-                                className={c.resetFilters}
-                                aria-label="reset filters"
-                                size="small"
-                                onClick={() => dispatch(resetFilters())}
-                            >
-                                <RefreshIcon fontSize="inherit" />
-                            </IconButton>
-                        </Tooltip>
+                        <PresetReset basic={filterType === 'basic'} disabled={!ready} />
                     </div>
                     <div className={c.right}>
                         {filterType === 'basic' && getAppConfig().enableAddFilters && (
@@ -233,6 +214,7 @@ const FiltersPanel = (props) => {
                         )}
                     </div>
                 </div>
+                {ready && filterType === 'basic' && <PresetIndicator />}
                 <div
                     className={c.content}
                     onScroll={(e) => {
@@ -267,7 +249,7 @@ const FiltersPanel = (props) => {
                         })
                     }}
                 >
-                    {filterType === 'advanced' ? <AdvancedFilter /> : <FilterList />}
+                    {ready && (filterType === 'advanced' ? <AdvancedFilter /> : <FilterList />)}
                 </div>
             </div>
         </div>

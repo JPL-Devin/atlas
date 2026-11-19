@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-
-import Url from 'url-parse'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import Filter from '../../../../../../components/Filter/Filter'
 import { HASH_PATHS } from '../../../../../../core/constants'
 import { setExpandedFilter } from '../../../../../../core/redux/actions/actions'
+import { PRESET_PARAM } from '../../../../../../config/filterPresets'
+import { hasFilterValue } from '../../../../../../core/searchPresetState'
+import { usePresetFilterKeys } from '../../PresetControls'
 import { makeStyles } from '@mui/styles'
 
 const useStyles = makeStyles((theme) => ({
@@ -58,23 +59,24 @@ const GROUP_ORDER = [
     'pds3_label',
 ]
 
-const getSearchURL = (activeFilters) => {
-    let params = []
+const getSearchURL = (activeFilters, presetId) => {
+    const params = presetId ? [`${PRESET_PARAM}=${encodeURIComponent(presetId)}`] : []
     Object.keys(activeFilters).forEach((filter) => {
         let values = []
         if (activeFilters[filter].facets) {
             activeFilters[filter].facets.forEach((f, idx) => {
                 switch (f.type) {
                     case 'query_string':
-                        if (f.state && f.state.input) values.push(`${encodeURI(f.state.input)}`)
+                        if (f.state && f.state.input) values.push(encodeURIComponent(f.state.input))
                         break
                     case 'text':
-                        if (f.state && f.state.text) values.push(`${encodeURI(f.state.text)}`)
+                        if (f.state && (f.state.input || f.state.text))
+                            values.push(encodeURIComponent(f.state.input || f.state.text))
                         break
                     case 'keyword':
                         if (f.state)
                             Object.keys(f.state).forEach((s) => {
-                                if (f.state[s] === true) values.push(`${encodeURI(s)}`)
+                                if (f.state[s] === true) values.push(encodeURIComponent(s))
                             })
                         break
                     case 'input_range':
@@ -87,7 +89,7 @@ const getSearchURL = (activeFilters) => {
                         ) {
                             const min = f.state.range[0] != null ? f.state.range[0] : ''
                             const max = f.state.range[1] != null ? f.state.range[1] : ''
-                            values.push(`${encodeURI(min)}_to_${encodeURI(max)}`)
+                            values.push(`${encodeURIComponent(min)}_to_${encodeURIComponent(max)}`)
                         }
                         break
                     case 'date_range':
@@ -98,7 +100,7 @@ const getSearchURL = (activeFilters) => {
                         ) {
                             const start = f.state.daterange.start || ''
                             const end = f.state.daterange.end || ''
-                            values.push(`${encodeURI(start)}_to_${encodeURI(end)}`)
+                            values.push(`${encodeURIComponent(start)}_to_${encodeURIComponent(end)}`)
                         }
                         break
                     default:
@@ -119,19 +121,21 @@ const FilterList = (props) => {
     const c = useStyles()
 
     const navigate = useNavigate()
+    const location = useLocation()
 
     const dispatch = useDispatch()
+    const presetId = useSelector((state) => state.get('searchPresetId'))
+    const { preset, keys: presetKeys } = usePresetFilterKeys()
     const expandedFilter = useSelector((state) => state.get('expandedFilter'))
     const activeFilters = useSelector((state) => {
         return state.getIn(['activeFilters'])
     }).toJS()
+    const desiredSearchUrl = getSearchURL(activeFilters, presetId)
     useEffect(() => {
-        const currentURL = new Url(window.location)
-        const desiredSearchUrl = getSearchURL(activeFilters)
-        if (currentURL.pathname + currentURL.query !== desiredSearchUrl) {
+        if (location.pathname + location.search !== desiredSearchUrl || location.state?.fromHome) {
             navigate(desiredSearchUrl, { replace: true })
         }
-    }, [JSON.stringify(activeFilters)])
+    }, [desiredSearchUrl, location.pathname, location.search, location.state, navigate])
 
     const sortedActiveFilterKeys = Object.keys(activeFilters).sort((a, b) => {
         return activeFilters[a].order - activeFilters[b].order
@@ -161,6 +165,8 @@ const FilterList = (props) => {
             key={filterKey}
             filterKey={filterKey}
             filter={activeFilters[filterKey]}
+            presetTag={preset?.add.includes(filterKey) ? 'In preset' :
+                preset && !presetKeys.includes(filterKey) && hasFilterValue(activeFilters[filterKey]) ? 'Kept · has value' : undefined}
             expanded={expandedFilter === filterKey}
             onExpand={() => {
                 dispatch(setExpandedFilter(expandedFilter === filterKey ? null : filterKey))

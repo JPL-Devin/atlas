@@ -23,6 +23,10 @@ import Highlighter from 'react-highlight-words'
 
 import { isObject } from '../../../../../../core/utils'
 import FilterHelp from '../../../../../../components/FilterHelp/FilterHelp'
+import { Box, Checkbox as SectionCheckbox, FormControlLabel, Typography } from '@mui/material'
+import fields from '../../../../../../config/fields.json'
+import { getInitialActiveFilters } from '../../../../../../facets/FacetBuilder'
+import { usePresetFilterKeys } from '../../../../Panels/FiltersPanel/PresetControls'
 
 function TransitionComponent(props) {
     const style = useSpring({
@@ -160,7 +164,8 @@ const makeTree = (
     addStagedFilter,
     removeStagedFilter,
     setSelected,
-    toggleExpanded
+    toggleExpanded,
+    excluded
 ) => {
     // We'll search with a lowercase string
     filterString = filterString.toLowerCase()
@@ -253,6 +258,7 @@ const makeTree = (
             }
 
             if (node[iter[i]].facets != null) {
+                if (excluded.has(nextPath)) continue
                 keyI++
                 tree.push(
                     <StyledTreeItem
@@ -286,12 +292,18 @@ const makeTree = (
                     />
                 )
             } else if (type === 'groups') {
-                keyI++
-                if (shown.shown) groupIds.push(keyI + '')
+                const itemId = String(++keyI)
+                const children = depthTraversal(
+                    node[iter[i]], 'group', depth + 1, nextPath, shown.shown && !shown.fromNesting
+                )
+                if (!children.length && excluded.size > 0) {
+                    continue
+                }
+                if (shown.shown) groupIds.push(itemId)
                 tree.push(
                     <StyledTreeGroup
-                        itemId={`${keyI}`}
-                        key={keyI}
+                        itemId={itemId}
+                        key={itemId}
                         label={
                             <Highlighter
                                 searchWords={[filterString]}
@@ -303,30 +315,16 @@ const makeTree = (
                             groupTransition: TransitionComponent,
                         }}
                         style={{ display: shown.shown ? 'inherit' : 'none' }}
-                        onClick={(function (kI) {
-                            return function () {
-                                toggleExpanded(kI)
-                            }
-                        })(keyI)}
+                        onClick={() => toggleExpanded(Number(itemId))}
                     >
-                        {depthTraversal(
-                            node[iter[i]],
-                            'group',
-                            depth + 1,
-                            nextPath,
-                            shown.shown && !shown.fromNesting
-                        )}
+                        {children}
                     </StyledTreeGroup>
                 )
             } else if (type === 'group') {
                 if (iter[i] === 'groups') {
-                    tree.push(
-                        depthTraversal(node[iter[i]], 'groups', depth + 1, nextPath, forceShown)
-                    )
+                    tree.push(...depthTraversal(node[iter[i]], 'groups', depth + 1, nextPath, forceShown))
                 } else if (iter[i] === 'filters') {
-                    tree.push(
-                        depthTraversal(node[iter[i]], 'filters', depth + 1, nextPath, forceShown)
-                    )
+                    tree.push(...depthTraversal(node[iter[i]], 'filters', depth + 1, nextPath, forceShown))
                 }
             }
         }
@@ -424,6 +422,28 @@ const FilterTree = (props) => {
     const atlasMapping = useSelector((state) => {
         return state.getIn(['mappings', 'atlas'])
     })
+    const { preset, keys } = usePresetFilterKeys()
+    const recommended = preset?.recommended.filter((key) => !keys.includes(key)) || []
+    const featured = preset ? getInitialActiveFilters(atlasMapping, [...keys, ...recommended]) : {}
+    const excluded = new Set(Object.keys(featured))
+    const renderSection = (title, ids) => {
+        const rows = ids.filter((key) => featured[key] &&
+            `${fields[key]?.label || featured[key].display_name} ${key}`.toLowerCase().includes(filterString.toLowerCase()))
+        if (rows.length === 0) return null
+        return (
+            <Box sx={{ px: 1.5, py: 0.75 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{title}</Typography>
+                {rows.map((key) => (
+                    <FormControlLabel key={key} sx={{ display: 'flex', mx: 0 }}
+                        control={<SectionCheckbox size="small" checked={activeFilterIds.includes(key)}
+                            sx={{ p: 0.5, mr: 0.75, color: '#656666', '&.Mui-checked': { color: '#1c67e3' } }}
+                            onChange={(event) => event.target.checked
+                                ? addStagedFilter(key, featured[key]) : removeStagedFilter(key)} />}
+                        label={fields[key]?.label || featured[key].display_name.replaceAll('_', ' ')} />
+                ))}
+            </Box>
+        )
+    }
 
     const [selected, setSelected] = useState({
         filter: null,
@@ -489,6 +509,11 @@ const FilterTree = (props) => {
                         Clear
                     </Button>
                 </div>
+                {preset && <>
+                    {renderSection('In this preset', keys)}
+                    {renderSection(`Recommended for ${preset.label}`, recommended)}
+                    <Typography variant="subtitle2" sx={{ px: 1.5, py: 0.75, fontWeight: 700 }}>All fields</Typography>
+                </>}
                 <SimpleTreeView className={c.tree} expanded={finalExpandeds}>
                     {makeTree(
                         atlasMapping,
@@ -497,7 +522,8 @@ const FilterTree = (props) => {
                         addStagedFilter,
                         removeStagedFilter,
                         setSelected,
-                        toggleExpanded
+                        toggleExpanded,
+                        excluded
                     )}
                 </SimpleTreeView>
             </div>
