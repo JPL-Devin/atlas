@@ -27,7 +27,14 @@ const mockAtlas = async (page) => {
         const dsl = route.request().postDataJSON() || {}
         requests.push(dsl)
         const buckets = [{ key: 'mars_2020', doc_count: 4 }, { key: 'cas', doc_count: 3 }]
-        const aggs = Object.fromEntries(Object.keys(dsl.aggs || {}).map((key) => [key, { buckets }]))
+        const rawsBuckets = {
+            'gather.common.mission': [{ key: 'm20', doc_count: 4 }, { key: 'cassini', doc_count: 3 }],
+            'gather.common.spacecraft': [{ key: 'perseverance', doc_count: 3 }, { key: 'ingenuity', doc_count: 1 }],
+        }
+        const isRaws = new URL(route.request().url()).pathname.endsWith('/raws-test/_search')
+        const aggs = Object.fromEntries(Object.entries(dsl.aggs || {}).map(([key, agg]) => [
+            key, { buckets: isRaws ? (rawsBuckets[agg.terms?.field] ?? []) : buckets },
+        ]))
         return route.fulfill({ json: {
             took: 1, hits: { total: { value: 0, relation: 'eq' }, hits: [] }, aggregations: aggs,
         } })
@@ -467,22 +474,22 @@ test('Atlas shows inline kept-filter choices on mobile', async ({ page }) => {
 
 test('Planetary Raws home opens its curated preset without exposing Atlas-only actions', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1440 })
-    await mockAtlas(page)
+    const requests = await mockAtlas(page)
     await mockRawsInstance(page, '**/')
     await page.goto('/')
     await expect(page.getByRole('main').getByRole('heading', { name: 'Planetary Raws', exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Explore Missions' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Browse Planetary Raws', exact: true })).toHaveAttribute('href', '/search')
     await expect(page.getByRole('link', { name: /Archive Explorer/ })).toHaveCount(0)
-    for (const [title, id] of [
-        ['Mars 2020 · Perseverance', 'mars_2020'],
-        ['Mars Science Laboratory · Curiosity', 'msl'],
-        ['InSight', 'nsyt'],
-        ['Cassini', 'cas'],
-        ['Psyche', 'psyche'],
+    for (const [title, id, spacecraft] of [
+        ['Mars 2020 · Perseverance', 'm20', 'perseverance'],
+        ['Mars Science Laboratory · Curiosity', 'msl', 'curiosity'],
+        ['InSight', 'insight', 'insight'],
+        ['Cassini', 'cassini', 'cassini'],
+        ['Psyche', 'psyche', 'psyche'],
     ]) {
         const card = page.getByRole('article').filter({ has: page.getByRole('heading', { name: title, exact: true }) })
-        const href = new RegExp(`[?&]gather\\.common\\.mission=${id}$`)
+        const href = new RegExp(`[?&]gather\\.common\\.mission=${id}&gather\\.common\\.spacecraft=${spacecraft}$`)
         await expect(card.getByRole('link', { name: title, exact: true })).toHaveAttribute('href', href)
         await expect(card.getByRole('link', { name: `Browse ${title} using the mission image` })).toHaveAttribute('href', href)
         await expect(card.getByRole('link', { name: `Browse ${title}`, exact: true })).toHaveAttribute('href', href)
@@ -490,10 +497,16 @@ test('Planetary Raws home opens its curated preset without exposing Atlas-only a
     await expect(page.getByRole('article')).toHaveCount(5)
     await expectHomeLaunchActions(page, 'raws-home', ['Browse Planetary Raws'])
     await page.getByRole('link', { name: 'Browse Mars 2020 · Perseverance', exact: true }).click()
-    await expect(page).toHaveURL(/_preset=mars-2020.*mission=mars_2020/)
+    await expect(page).toHaveURL(/_preset=mars-2020.*mission=m20/)
+    await expect(page).toHaveURL(/spacecraft=perseverance/)
+    await expect.poll(() => requests.some(({ query }) => {
+        const body = JSON.stringify(query || {})
+        return body.includes('"m20"') && body.includes('"perseverance"')
+    })).toBe(true)
     const subtitle = page.getByRole('group', { name: 'Filter preset' })
     const trigger = subtitle.getByRole('button', { name: 'Preset: Mars 2020', exact: true })
     await expect(trigger).toBeVisible()
+    await expect(page.getByRole('button', { name: 'information about spacecraft filter', exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'add filter', exact: true })).toHaveCount(0)
     await capture(page, 'raws-preset')
     await page.setViewportSize({ width: 1440, height: 900 })
@@ -532,11 +545,13 @@ for (const mobile of [false, true]) {
         await search.press('Escape')
         await expect(standardTrigger).toBeFocused()
 
-        await page.goto('/search?_preset=mars-2020&gather.common.mission=mars_2020&gather.landed_missions.planet_day_number=42_to_44')
+        const spacecraftId = mobile ? 'ingenuity' : 'perseverance'
+        const spacecraftParam = new RegExp(`spacecraft=${spacecraftId}`)
+        await page.goto(`/search?_preset=mars-2020&gather.common.mission=m20&gather.common.spacecraft=${spacecraftId}&gather.landed_missions.planet_day_number=42_to_44`)
         await openMobileFilters()
         const marsTrigger = page.getByRole('button', { name: 'Preset: Mars 2020', exact: true })
         const spacecraft = page.getByRole('button', { name: 'information about spacecraft filter', exact: true })
-        await expect(spacecraft).toHaveCount(0)
+        await expect(spacecraft).toBeVisible()
         await expect(page).toHaveURL(/planet_day_number=42_to_44/)
         const panel = await page.getByRole('group', { name: 'Filter controls' }).evaluate((group) => {
             const { left, right, width } = group.parentElement.parentElement.getBoundingClientRect()
@@ -574,15 +589,17 @@ for (const mobile of [false, true]) {
         await expect(picker).toBeHidden()
         await expect(standardTrigger).toBeVisible()
         await expect(page).not.toHaveURL(/_preset=/)
-        await expect(page).toHaveURL(/mission=mars_2020/)
+        await expect(page).toHaveURL(/mission=m20/)
+        await expect(page).toHaveURL(spacecraftParam)
         await expect(page).toHaveURL(/planet_day_number=42_to_44/)
         await expect(spacecraft).toBeVisible()
         await expect(page.getByText('Preset changed to Standard Planetary Raws', { exact: true })).toBeVisible()
         await page.getByRole('button', { name: 'Undo', exact: true }).click()
         await expect(marsTrigger).toBeVisible()
         await expect(page).toHaveURL(/_preset=mars-2020/)
-        await expect(page).toHaveURL(/mission=mars_2020/)
+        await expect(page).toHaveURL(/mission=m20/)
+        await expect(page).toHaveURL(spacecraftParam)
         await expect(page).toHaveURL(/planet_day_number=42_to_44/)
-        await expect(spacecraft).toHaveCount(0)
+        await expect(spacecraft).toBeVisible()
     })
 }

@@ -63,9 +63,9 @@ const presets = {
         {
             id: 'mars-2020',
             label: 'Mars 2020',
-            description: 'Explore Perseverance images by Martian day.',
+            description: 'Explore Mars 2020 images by Martian day.',
             add: ['gather.landed_missions.planet_day_number'],
-            remove: [SPACECRAFT],
+            remove: [],
             recommended: [],
         },
     ],

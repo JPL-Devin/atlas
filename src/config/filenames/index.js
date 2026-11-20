@@ -42,4 +42,7 @@ export const filenameSpecs = {
     ody,
     phx,
     scalpss,
+    'm20.raws': mars_2020,
+    'insight.raws': nsyt,
+    'cassini.raws': cas,
 }

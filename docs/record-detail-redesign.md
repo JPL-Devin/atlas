@@ -1451,10 +1451,11 @@ separate app instances (`src/core/appConfig.js`, `getAppInstanceKey()`), and
 RAWS needs a different M20 Navcam tile list and caption than Atlas without
 forking the shared mission profiles.
 
-`instances/raws.json` is the single worked example: `mars_2020` with
-`NAVCAM_LEFT` / `NAVCAM_RIGHT` overrides. It is intentionally the only instance
-file — RAWS has no data in this index yet, so it exists to pin the mechanism,
-not to serve traffic.
+`instances/raws.json` keys the `NAVCAM_LEFT` / `NAVCAM_RIGHT` overrides by
+the Raws mission ID `m20`. The shared mission keys let Raws reuse base profiles
+and related SIS documents under the corresponding Atlas keys
+(`m20` → `mars_2020`, `cassini` → `cas`, `insight` → `nsyt`) without
+changing the values sent to Search.
 
 Note the asymmetry: the mission layer exists because field *availability*
 differs, the instance/instrument layer exists because *editorial preference*

@@ -7,6 +7,7 @@ import { applyBasicSearchParams, getPresetFilterKeys, getPresetFilterSummary, ge
 import { formatMappings } from '../../src/facets/FacetBuilder'
 
 const MISSION = 'gather.common.mission'
+const SPACECRAFT = 'gather.common.spacecraft'
 const PHASE = 'gather.common.mission_phase_name'
 const mapping = formatMappings({ mappings: { properties: {
     gather: { properties: {
@@ -29,11 +30,16 @@ test('home defines valid instance-local preset IDs and destination-specific quer
                 expect(getHomeDestination('archive', card)).toBeNull()
             } else {
                 expect(getHomeDestination('archive', card)).toBe(`/archive-explorer?mission=${card.id}`)
+                expect(search.searchParams.has(SPACECRAFT)).toBe(false)
             }
         }
     }
-    expect(getHomeConfig('raws').cards.map(({ id }) => id)).toEqual([
-        'mars_2020', 'msl', 'nsyt', 'cas', 'psyche',
+    expect(getHomeConfig('raws').cards.map((card) => {
+        const { searchParams } = new URL(getHomeDestination('search', card), 'http://localhost')
+        return [searchParams.get(MISSION), searchParams.get(SPACECRAFT)]
+    })).toEqual([
+        ['m20', 'perseverance'], ['msl', 'curiosity'], ['insight', 'insight'],
+        ['cassini', 'cassini'], ['psyche', 'psyche'],
     ])
     expect(getHomeDestination('search', {
         query: { 'gather.common.target': ['Mars & Phobos', 'Deimos'] },
@@ -47,6 +53,7 @@ test('Standard Planetary Raws matches the instance defaults', () => {
     const presets = getFilterPresets('raws')
     expect(presets.map(({ id }) => id)).toEqual(['all', 'mars-2020'])
     expect(getPresetFilterKeys(presets[0], defaultFilters)).toEqual(defaultFilters)
+    expect(getPresetFilterKeys(presets[1], defaultFilters)).toContain(SPACECRAFT)
 })
 
 test('Artemis II does not duplicate Flight Day or alter instance defaults', () => {
@@ -66,8 +73,8 @@ test('preset descriptions and summaries distinguish featured fields from new and
     expect(getPresetFilterSummary(atlas.find(({ id }) => id === 'artemis-ii'), [
         FLIGHT_DAY, MISSION, 'archive.bundle_id',
     ])).toEqual({ featured: [FLIGHT_DAY], added: [], hidden: ['archive.bundle_id'] })
-    expect(getPresetFilterSummary(raws.find(({ id }) => id === 'mars-2020'), [MISSION, 'gather.common.spacecraft'])).toEqual({
-        featured: [], added: ['gather.landed_missions.planet_day_number'], hidden: ['gather.common.spacecraft'],
+    expect(getPresetFilterSummary(raws.find(({ id }) => id === 'mars-2020'), [MISSION, SPACECRAFT])).toEqual({
+        featured: [], added: ['gather.landed_missions.planet_day_number'], hidden: [],
     })
 })
 

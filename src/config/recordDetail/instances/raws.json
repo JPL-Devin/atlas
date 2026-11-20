@@ -1,7 +1,12 @@
 {
     "instance": "raws",
+    "sharedMissionKeys": {
+        "m20": "mars_2020",
+        "insight": "nsyt",
+        "cassini": "cas"
+    },
     "missions": {
-        "mars_2020": {
+        "m20": {
             "tiles": [
                 {
                     "path": "gather.landed_missions.planet_day_number",

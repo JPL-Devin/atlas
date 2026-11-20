@@ -9,6 +9,7 @@ import {
     getSisGap,
 } from '../../src/core/sis'
 import { filenameSpecs } from '../../src/config/filenames'
+import { getSharedMissionKey } from '../../src/config/recordDetail'
 import sisConfig from '../../src/config/sis.json'
 
 const variantsOf = (spec) => (Array.isArray(spec) ? spec : [spec])
@@ -90,6 +91,15 @@ test.describe('getSisForInstrument', () => {
         expect(getSisForInstrument('msl').map((d) => d.id)).toEqual(['msl_camera', 'msl_mmm'])
         expect(getSisForInstrument(null)).toEqual([])
         expect(getSisForInstrument('vgr')).toEqual([])
+    })
+
+    test('Raws records retain their shared mission documentation', () => {
+        for (const [mission, atlasMission] of [['m20', 'mars_2020'], ['insight', 'nsyt'], ['cassini', 'cas']]) {
+            const documents = getSisForInstrument(getSharedMissionKey(mission, 'raws'))
+            expect(documents.length).toBeGreaterThan(0)
+            expect(documents).toEqual(getSisForInstrument(atlasMission))
+            expect(getSharedMissionKey(mission, 'atlas')).toBe(mission)
+        }
     })
 })
 
