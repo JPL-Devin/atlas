@@ -171,7 +171,7 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await expect(mars).toBeFocused()
     await mars.press('Enter')
     await expect(mars).toHaveAttribute('aria-pressed', 'true')
-    await picker.getByRole('button', { name: 'Apply and keep all', exact: true }).click()
+    await picker.getByRole('button', { name: 'Apply and keep filters', exact: true }).click()
     await expect(page.getByRole('dialog')).not.toBeVisible()
     await expect(page).toHaveURL(/_preset=mars-2020.*mission=artemis2/)
     await expect(page.getByText('Kept because it has a value', { exact: true })).toHaveCount(0)
@@ -227,7 +227,7 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await trigger.click()
     const all = picker.getByRole('button', { name: /^Standard Atlas/ })
     await all.click()
-    await picker.getByRole('button', { name: 'Apply and keep all', exact: true }).click()
+    await picker.getByRole('button', { name: 'Apply and keep filters', exact: true }).click()
     await expect(page).not.toHaveURL(/_preset=/)
     await expect(page).toHaveURL(/mission=artemis2/)
     await expect(page.getByText('Preset changed to Standard Atlas', { exact: true })).toBeVisible()
@@ -270,7 +270,7 @@ test('Atlas preset picker stays usable on a narrow screen without the side previ
     await search.fill('planetary')
     await picker.getByRole('button', { name: /^Planetary imaging/ }).click()
     await expect(picker.getByRole('group', { name: 'Kept filters for Planetary imaging' })).toBeVisible()
-    await picker.getByRole('button', { name: 'Apply and keep all', exact: true }).click()
+    await picker.getByRole('button', { name: 'Apply and keep filters', exact: true }).click()
     await expect(page.getByRole('dialog')).not.toBeVisible()
     await expect(page).toHaveURL(/_preset=planetary-imaging.*mission=artemis2/)
     await page.getByRole('button', { name: 'Undo' }).click()
@@ -308,17 +308,19 @@ test('Atlas chooses kept filters in a pinned preview and undoes each switch', as
         await ml.press('Tab')
         await expect(phase.getByRole('button', { name: 'Keep' })).toBeFocused()
         await expect(phase.getByRole('button', { name: 'Keep' })).toHaveAttribute('aria-pressed', 'true')
-        if (keepPhase && !keepFlight) {
-            await flight.getByRole('button', { name: 'Clear' }).click()
-            await expect(flight.getByRole('button', { name: 'Clear' })).toHaveAttribute('aria-pressed', 'true')
-        } else {
-            await picker.getByRole('button', { name: 'Clear all kept' }).click()
-            if (keepPhase) {
-                await picker.getByRole('button', { name: 'Keep all' }).click()
-            }
+        await expect(picker.getByRole('button', { name: 'Apply and keep filters', exact: true })).toBeVisible()
+        await expect(picker.getByRole('button', { name: /^(Keep all|Clear all kept)$/ })).toHaveCount(0)
+        await flight.getByRole('button', { name: 'Clear' }).click()
+        await expect(flight.getByRole('button', { name: 'Clear' })).toHaveAttribute('aria-pressed', 'true')
+        await expect(picker.getByRole('button', { name: 'Apply and keep 1 filter', exact: true })).toBeVisible()
+        if (keepFlight) {
+            await flight.getByRole('button', { name: 'Keep' }).click()
+        }
+        if (!keepPhase) {
+            await phase.getByRole('button', { name: 'Clear' }).click()
         }
         const apply = picker.getByRole('button', {
-            name: `Apply and keep ${keepFlight ? 'all' : keepPhase ? '1' : 'none'}`,
+            name: `Apply and keep ${keepFlight ? 'filters' : keepPhase ? '1 filter' : '0 filters'}`,
             exact: true,
         })
         await expect(apply).toBeVisible()
@@ -363,7 +365,7 @@ test('Atlas chooses kept filters in a pinned preview and undoes each switch', as
     await picker.getByRole('button', { name: /^Artemis II/ }).hover()
     await expect(preview.getByRole('heading', { name: 'Artemis II' })).toBeVisible()
     await picker.getByRole('button', { name: /^Artemis II/ }).click()
-    await picker.getByRole('button', { name: 'Apply and keep all', exact: true }).click()
+    await picker.getByRole('button', { name: 'Apply and keep filters', exact: true }).click()
     await expect(page.getByRole('button', { name: 'Preset: Artemis II', exact: true })).toBeVisible()
     await page.getByRole('button', { name: 'Undo' }).click()
     await expect(trigger).toBeVisible()
@@ -406,7 +408,7 @@ test('Atlas shows inline kept-filter choices on mobile', async ({ page }) => {
     const inline = picker.getByRole('group', { name: 'Kept filters for ML-classified datasets' })
     await inline.getByRole('group', { name: 'Keep or clear Flight Day Number' }).getByRole('button', { name: 'Clear' }).click()
     await expect(page).toHaveURL(/_preset=mars-2020/)
-    const apply = picker.getByRole('button', { name: 'Apply and keep 1', exact: true })
+    const apply = picker.getByRole('button', { name: 'Apply and keep 1 filter', exact: true })
     await expect(apply).toBeInViewport()
     await capture(page, 'apply-button-mobile')
     await apply.click()

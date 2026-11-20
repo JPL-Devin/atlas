@@ -29,14 +29,6 @@ const getPresetChips = (preset) => {
 
 const chipStyle = { borderRadius: '4px', px: 0.625, py: 0.25, fontSize: 10, fontWeight: 650 }
 const warningStyle = { color: '#614307', bgcolor: '#fff4da', fontSize: 12, alignItems: 'center' }
-const actionStyle = {
-    borderRadius: '5px', px: 1.125, minHeight: { xs: 36, md: 32 },
-    fontSize: 12, fontWeight: 650, lineHeight: 1.25, textTransform: 'none', whiteSpace: 'nowrap',
-}
-const quickActionStyle = {
-    ...actionStyle, color: '#1559bf', borderColor: '#9dbbe3', bgcolor: '#fff',
-    '&:hover': { borderColor: '#1559bf', bgcolor: '#edf4ff' },
-}
 const presetExplanation = 'Presets change which filters are shown. Switching keeps your selected values, including Mission.'
 const keptExplanation = 'Choose which extra filters to keep or clear. Mission and other selected values stay.'
 const pickerInset = 8
@@ -69,7 +61,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
     const canApply = Boolean(pinned && pinnedId !== activeId)
     const keepCount = keptRows.filter(({ key }) => !clearKeys.includes(key)).length
     const applyLabel = hasKeptRows
-        ? `Apply and keep ${keepCount === keptRows.length ? 'all' : keepCount || 'none'}`
+        ? `Apply and keep ${keepCount === keptRows.length ? 'filters' : `${keepCount} ${keepCount === 1 ? 'filter' : 'filters'}`}`
         : 'Apply'
 
     const selectPreset = (preset) => {
@@ -350,16 +342,14 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                         {hasKeptRows ? 'Clear removes the filter and its value.' : 'You can undo this change.'}
                     </> : 'Select a different preset, then choose Apply.'}
                 </Box>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 0.625, ml: 'auto' }}>
-                    {hasKeptRows && <>
-                        <Button size="small" variant="outlined" sx={quickActionStyle} onClick={() => setClearKeys([])}>Keep all</Button>
-                        <Button size="small" variant="outlined" sx={quickActionStyle} onClick={() => setClearKeys(keptRows.map(({ key }) => key))}>Clear all kept</Button>
-                    </>}
-                    <Button size="small" variant="contained" disableElevation disabled={!canApply}
-                        sx={{ ...actionStyle, bgcolor: '#1559bf', px: 1.375, '&:hover': { bgcolor: '#12499d' } }}
-                        onClick={() => onApply(pinned, clearKeys)}
-                    >{applyLabel}</Button>
-                </Box>
+                <Button size="small" variant="contained" disableElevation disabled={!canApply}
+                    sx={{
+                        ml: 'auto', borderRadius: '5px', px: 1.375, minHeight: { xs: 36, md: 32 },
+                        fontSize: 12, fontWeight: 650, lineHeight: 1.25, textTransform: 'none', whiteSpace: 'nowrap',
+                        bgcolor: '#1559bf', '&:hover': { bgcolor: '#12499d' },
+                    }}
+                    onClick={() => onApply(pinned, clearKeys)}
+                >{applyLabel}</Button>
             </Box>
         </Popover>
     )
