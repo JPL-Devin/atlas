@@ -505,7 +505,7 @@ test('Planetary Raws home opens its curated preset without exposing Atlas-only a
 })
 
 for (const mobile of [false, true]) {
-    test(`Planetary Raws selects and applies a simple preset on ${mobile ? 'mobile' : 'desktop'}`, async ({ page }) => {
+    test(`Planetary Raws applies a preset immediately on ${mobile ? 'mobile' : 'desktop'}`, async ({ page }, testInfo) => {
         if (mobile) {
             await page.setViewportSize({ width: 375, height: 667 })
         }
@@ -528,7 +528,7 @@ for (const mobile of [false, true]) {
         await expect(standard).toHaveAttribute('aria-current', 'true')
         await expect(mars).toBeVisible()
         await expect(search).toBeFocused()
-        await expect(apply).toBeDisabled()
+        await expect(apply).toHaveCount(0)
         await search.press('Escape')
         await expect(standardTrigger).toBeFocused()
 
@@ -538,32 +538,40 @@ for (const mobile of [false, true]) {
         const spacecraft = page.getByRole('button', { name: 'information about spacecraft filter', exact: true })
         await expect(spacecraft).toHaveCount(0)
         await expect(page).toHaveURL(/planet_day_number=42_to_44/)
+        const panel = await page.getByRole('group', { name: 'Filter controls' }).evaluate((group) => {
+            const { left, right, width } = group.parentElement.parentElement.getBoundingClientRect()
+            return { left, right, width }
+        })
         await marsTrigger.click()
         await expect(mars).toHaveAttribute('aria-current', 'true')
         await expect(search).toBeFocused()
-        await expect(apply).toBeDisabled()
+        await expect(apply).toHaveCount(0)
         await expect(picker.getByRole('complementary')).toHaveCount(0)
         await expect(picker.getByRole('group', { name: /Keep or clear/ })).toHaveCount(0)
-        await search.press('ArrowDown')
-        await expect(standard).toBeFocused()
-        await standard.press('Enter')
-        await expect(standard).toHaveAttribute('aria-pressed', 'true')
-        await expect(mars).toHaveAttribute('aria-current', 'true')
-        await expect(page).toHaveURL(/_preset=mars-2020/)
-        await standard.press('Escape')
-        await expect(marsTrigger).toBeFocused()
-        await marsTrigger.click()
-        await standard.click()
         await picker.getByRole('button', { name: 'Close preset picker', exact: true }).click()
         await expect(marsTrigger).toBeFocused()
         await expect(page).toHaveURL(/_preset=mars-2020/)
         await marsTrigger.click()
-        await standard.click()
-        await expect(standard).toHaveAttribute('aria-pressed', 'true')
+        await expect(search).toBeFocused()
         await expect(standard.getByText('Use the standard Planetary Raws filters.')).toBeVisible()
-        await expect(apply).toBeInViewport({ ratio: 1 })
+        await expect(picker).toBeInViewport({ ratio: 1 })
+        const popover = await picker.boundingBox()
+        const leftInset = popover.x - panel.left
+        const rightInset = panel.right - (popover.x + popover.width)
+        expect(leftInset).toBeGreaterThanOrEqual(0)
+        expect(rightInset).toBeGreaterThanOrEqual(0)
+        expect(popover.width).toBeLessThanOrEqual(panel.width)
+        expect(Math.abs(leftInset - rightInset)).toBeLessThanOrEqual(1)
+        testInfo.annotations.push({ type: 'widths', description: `popover ${popover.width}px; panel ${panel.width}px` })
         await capture(page, mobile ? 'raws-simple-mobile' : 'raws-simple')
-        await apply.click()
+        if (mobile) {
+            await standard.click()
+        } else {
+            await search.press('ArrowDown')
+            await expect(standard).toBeFocused()
+            await standard.press('Enter')
+        }
+        await expect(picker).toBeHidden()
         await expect(standardTrigger).toBeVisible()
         await expect(page).not.toHaveURL(/_preset=/)
         await expect(page).toHaveURL(/mission=mars_2020/)

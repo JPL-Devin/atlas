@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Alert, Box, Button, ButtonBase, InputAdornment, Popover, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
@@ -46,8 +46,19 @@ const PresetPicker = ({ id, anchor, presets, activeId, simple, getPreview, onClo
     const [pinnedId, setPinnedId] = useState(null)
     const [hoverId, setHoverId] = useState(null)
     const [clearKeys, setClearKeys] = useState([])
+    const [anchorWidth, setAnchorWidth] = useState(() => anchor.offsetWidth)
     const searchInput = useRef(null)
     const list = useRef(null)
+
+    useEffect(() => {
+        if (!simple) {
+            return
+        }
+        const observer = new ResizeObserver(() => setAnchorWidth(anchor.offsetWidth))
+        observer.observe(anchor)
+        return () => observer.disconnect()
+    }, [anchor, simple])
+
     const term = search.trim().toLowerCase()
     const matches = presets.filter(({ label, description }) =>
         [label, description].some((text) => text.toLowerCase().includes(term)))
@@ -66,6 +77,10 @@ const PresetPicker = ({ id, anchor, presets, activeId, simple, getPreview, onClo
         : 'Apply'
 
     const selectPreset = (preset) => {
+        if (simple) {
+            onApply(preset, [])
+            return
+        }
         if (pinnedId !== preset.id) {
             setClearKeys([])
         }
@@ -167,10 +182,12 @@ const PresetPicker = ({ id, anchor, presets, activeId, simple, getPreview, onClo
                 'aria-labelledby': `${id}-title`,
                 onKeyDown: handleKeys,
                 sx: {
-                    width: {
+                    width: simple ? Math.max(0, anchorWidth - pickerInset * 2) : {
                         xs: anchor.offsetWidth - pickerInset * 2,
-                        md: `min(${simple ? 404 : 680}px, calc(100vw - ${pickerInset * 2}px))`,
+                        md: `min(680px, calc(100vw - ${pickerInset * 2}px))`,
                     },
+                    maxWidth: simple ? `calc(100% - ${pickerInset * 2}px)` : undefined,
+                    boxSizing: simple ? 'border-box' : undefined,
                     maxHeight: {
                         xs: `calc(100dvh - ${Math.ceil(anchor.getBoundingClientRect().bottom) + pickerInset + 1}px)`,
                         md: `calc(100% - ${pickerInset * 2}px)`,
@@ -250,7 +267,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, simple, getPreview, onClo
                         return (
                             <React.Fragment key={preset.id}>
                             <ButtonBase aria-current={selected ? 'true' : undefined} data-preset-option
-                                aria-pressed={isPinned} tabIndex={pinned && !isPinned ? -1 : 0}
+                                aria-pressed={simple ? undefined : isPinned} tabIndex={pinned && !isPinned ? -1 : 0}
                                 onClick={() => selectPreset(preset)}
                                 onPointerEnter={(event) => {
                                     if (simple || event.pointerType !== 'mouse') {
@@ -338,7 +355,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, simple, getPreview, onClo
                     </> : <Typography sx={{ mt: 1, fontSize: 12, color: '#4c5b70' }}>No preset to preview.</Typography>}
                 </Box>}
             </Box>
-            <Box sx={{
+            {!simple && <Box sx={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', flexShrink: 0, gap: '6px 12px',
                 px: contentInset, py: 2, bgcolor: '#f8fafd', borderTop: '1px solid #dde5ef', fontSize: 11, color: '#4d5f76',
             }}>
@@ -356,7 +373,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, simple, getPreview, onClo
                     }}
                     onClick={() => onApply(pinned, clearKeys)}
                 >{applyLabel}</Button>
-            </Box>
+            </Box>}
         </Popover>
     )
 }
