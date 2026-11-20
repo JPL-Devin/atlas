@@ -29,7 +29,14 @@ const getPresetChips = (preset) => {
 
 const chipStyle = { borderRadius: '4px', px: 0.625, py: 0.25, fontSize: 10, fontWeight: 650 }
 const warningStyle = { color: '#614307', bgcolor: '#fff4da', fontSize: 12, alignItems: 'center' }
-const quickActionStyle = { color: '#1559bf', textTransform: 'none' }
+const actionStyle = {
+    borderRadius: '5px', px: 1.125, minHeight: { xs: 36, md: 32 },
+    fontSize: 12, fontWeight: 650, lineHeight: 1.25, textTransform: 'none', whiteSpace: 'nowrap',
+}
+const quickActionStyle = {
+    ...actionStyle, color: '#1559bf', borderColor: '#9dbbe3', bgcolor: '#fff',
+    '&:hover': { borderColor: '#1559bf', bgcolor: '#edf4ff' },
+}
 const presetExplanation = 'Presets change which filters are shown. Switching keeps your selected values, including Mission.'
 const keptExplanation = 'Choose which extra filters to keep or clear. Mission and other selected values stay.'
 const pickerInset = 8
@@ -40,7 +47,7 @@ const diffStyles = {
     unchanged: { symbol: '=', label: 'Unchanged', countLabel: 'unchanged', color: '#405571', bgcolor: '#f5f8fc' },
 }
 
-const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSelect }) => {
+const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onApply }) => {
     const [search, setSearch] = useState('')
     const [previewId, setPreviewId] = useState(null)
     const [pinnedId, setPinnedId] = useState(null)
@@ -57,16 +64,15 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
     const layout = preview && getPreview(preview)
     const pinnedLayout = pinned && (pinnedId === preview.id ? layout : getPreview(pinned))
     const keptRows = pinnedLayout?.rows.filter((row) => row.status === 'kept') || []
-    const deciding = pinned && pinnedId === preview.id
-    const clearCount = keptRows.filter(({ key }) => clearKeys.includes(key)).length
-    const keepCount = keptRows.length - clearCount
-    const applyLabel = `Apply · ${[keepCount && `keep ${keepCount}`, clearCount && `clear ${clearCount}`].filter(Boolean).join(', ')}`
+    const hasKeptRows = keptRows.length > 0
+    const deciding = hasKeptRows && pinnedId === preview.id
+    const canApply = Boolean(pinned && pinnedId !== activeId)
+    const keepCount = keptRows.filter(({ key }) => !clearKeys.includes(key)).length
+    const applyLabel = hasKeptRows
+        ? `Apply and keep ${keepCount === keptRows.length ? 'all' : keepCount || 'none'}`
+        : 'Apply'
 
     const selectPreset = (preset) => {
-        if (!getPreview(preset).rows.some(({ status }) => status === 'kept')) {
-            onSelect(preset)
-            return
-        }
         if (pinnedId !== preset.id) {
             setClearKeys([])
         }
@@ -108,11 +114,14 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                 return (
                     <Box component="li" key={key} sx={{
                         display: 'grid', gridTemplateColumns: '13px minmax(0, 1fr) auto', alignItems: 'center',
-                        gap: 0.75, px: 0.75, py: 0.25, minHeight: 21, fontSize: 12, color, bgcolor,
+                        gap: 0.75, px: 0.75, py: canChoose ? 0.5 : 0.25, minHeight: 21, fontSize: 12, color, bgcolor,
                         borderBottom: '1px solid #dde5ef',
                     }}>
                         <Box component="span" aria-hidden="true" sx={{ textAlign: 'center', fontWeight: 800 }}>{symbol}</Box>
-                        <Box component="span" sx={{ overflowWrap: 'anywhere', textDecoration: status === 'removed' || clearing ? 'line-through' : undefined }}>
+                        <Box component="span" sx={{
+                            overflowWrap: 'anywhere', fontWeight: canChoose ? 600 : undefined,
+                            textDecoration: status === 'removed' || clearing ? 'line-through' : undefined,
+                        }}>
                             {name}
                         </Box>
                         {canChoose ? (
@@ -124,8 +133,19 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                                     }
                                 }}
                                 sx={{
-                                    '& .MuiToggleButton-root': { textTransform: 'none', px: 0.875, py: 0.25, minHeight: { xs: 36, md: 25 }, color: '#405571' },
-                                    '& .Mui-selected, & .Mui-selected:hover': { bgcolor: '#e3edfc', color: '#154986', fontWeight: 700 },
+                                    bgcolor: '#fff', borderRadius: '5px',
+                                    '&& .MuiToggleButton-root': {
+                                        borderColor: '#a8b8cb', borderRadius: '5px', px: 1, py: 0.25,
+                                        minWidth: 47, minHeight: { xs: 36, md: 26 },
+                                        color: '#405571', fontSize: 11, fontWeight: 600, textTransform: 'none',
+                                        '&:not(:last-of-type)': { borderTopRightRadius: 0, borderBottomRightRadius: 0 },
+                                        '&:not(:first-of-type)': { borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderLeft: '1px solid #a8b8cb' },
+                                        '&.Mui-focusVisible': { zIndex: 1, outline: '2px solid #1559bf' },
+                                        '&.Mui-selected, &.Mui-selected:hover': {
+                                            bgcolor: clearing ? '#f7e2df' : '#e2edff',
+                                            color: clearing ? '#8a302c' : '#154986', fontWeight: 750,
+                                        },
+                                    },
                                 }}
                             >
                                 <ToggleButton value="keep">Keep</ToggleButton>
@@ -135,16 +155,6 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                     </Box>
                 )
             })}
-        </Box>
-    )
-
-    const renderActions = () => (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.75 }}>
-            <Button size="small" sx={quickActionStyle} onClick={() => setClearKeys([])}>Keep all</Button>
-            <Button size="small" sx={quickActionStyle} onClick={() => setClearKeys(keptRows.map(({ key }) => key))}>Clear all kept</Button>
-            <Button size="small" variant="contained" disableElevation sx={{ ml: 'auto', textTransform: 'none' }}
-                onClick={() => onSelect(pinned, clearKeys)}
-            >{applyLabel}</Button>
         </Box>
     )
 
@@ -227,7 +237,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                 />
             </Box>
             <Alert severity="warning" role="note" sx={{ ...warningStyle, display: { xs: 'flex', md: 'none' }, borderRadius: 0 }}>
-                {pinned ? keptExplanation : presetExplanation}
+                {hasKeptRows ? keptExplanation : presetExplanation}
             </Alert>
             <Box sx={{
                 display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' },
@@ -242,7 +252,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                         return (
                             <React.Fragment key={preset.id}>
                             <ButtonBase aria-current={selected ? 'true' : undefined} data-preset-option
-                                aria-expanded={isPinned || undefined} tabIndex={pinned && !isPinned ? -1 : 0}
+                                aria-pressed={isPinned} tabIndex={pinned && !isPinned ? -1 : 0}
                                 onClick={() => selectPreset(preset)}
                                 onPointerEnter={(event) => {
                                     if (event.pointerType !== 'mouse') {
@@ -263,10 +273,12 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                                 sx={{
                                     display: 'block', width: '100%', textAlign: 'left', position: 'relative',
                                     px: 1.125, pr: selected ? 3.75 : 1.125, py: 1, borderRadius: '5px',
-                                    bgcolor: selected ? '#edf4ff' : { xs: 'transparent', md: inspecting ? '#f2f7ff' : 'transparent' },
+                                    bgcolor: isPinned ? '#dceaff' : selected ? '#edf4ff' : { xs: 'transparent', md: inspecting ? '#f2f7ff' : 'transparent' },
                                     border: '1px solid',
                                     borderColor: isPinned ? '#1559bf' : selected ? '#d2e2fb' : { xs: 'transparent', md: inspecting ? '#a9c8f6' : 'transparent' },
-                                    '&:hover, &.Mui-focusVisible': { bgcolor: '#f2f7ff', borderColor: '#709de0' },
+                                    boxShadow: isPinned ? 'inset 3px 0 #1559bf' : undefined,
+                                    '&:hover': isPinned ? {} : { bgcolor: '#f2f7ff', borderColor: '#709de0' },
+                                    '&.Mui-focusVisible': { outline: '2px solid #1559bf', outlineOffset: '-2px' },
                                 }}
                             >
                                 <Typography component="span" sx={{ display: 'block', fontSize: 13, fontWeight: 700 }}>
@@ -284,11 +296,10 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                                 </Typography>}
                                 {selected && <CheckIcon titleAccess="Active preset" sx={{ position: 'absolute', top: 8, right: 8, fontSize: 16, color: '#1559bf' }} />}
                             </ButtonBase>
-                            {isPinned && <Box role="group" aria-label={`Kept filters for ${preset.label}`} sx={{
+                            {isPinned && hasKeptRows && <Box role="group" aria-label={`Kept filters for ${preset.label}`} sx={{
                                 display: { xs: 'block', md: 'none' }, p: 0.75, bgcolor: '#f6f9fe', borderRadius: '5px',
                             }}>
                                 {renderRows(keptRows, true)}
-                                <Box sx={{ mt: 1 }}>{renderActions()}</Box>
                             </Box>}
                             </React.Fragment>
                         )
@@ -330,16 +341,25 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onSe
                 </Box>
             </Box>
             <Box sx={{
-                display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px 10px',
-                px: 1.625, py: 1, bgcolor: '#f8fafd', borderTop: '1px solid #dde5ef', fontSize: 11, color: '#4d5f76',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', flexShrink: 0, gap: '6px 12px',
+                px: 1.25, py: 1, bgcolor: '#f8fafd', borderTop: '1px solid #dde5ef', fontSize: 11, color: '#4d5f76',
             }}>
-                {pinned ? <>
-                    <span>Clearing a kept filter removes its control and value.</span>
-                    <Box sx={{ display: { xs: 'none', md: 'block' }, ml: 'auto' }}>{renderActions()}</Box>
-                </> : <>
-                    <span>Choose a preset to apply it or review kept filters. You can undo it.</span>
-                    <span><b>↑ ↓</b> Navigate · <b>Enter</b> Choose</span>
-                </>}
+                <Box sx={{ flex: { xs: '1 0 100%', md: '1 1 auto' }, lineHeight: 1.4 }}>
+                    {canApply ? <>
+                        <Box component="span" sx={{ display: 'block', color: '#233c5d', fontWeight: 700 }}>{pinned.label}</Box>
+                        {hasKeptRows ? 'Clear removes the filter and its value.' : 'You can undo this change.'}
+                    </> : 'Select a different preset, then choose Apply.'}
+                </Box>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 0.625, ml: 'auto' }}>
+                    {hasKeptRows && <>
+                        <Button size="small" variant="outlined" sx={quickActionStyle} onClick={() => setClearKeys([])}>Keep all</Button>
+                        <Button size="small" variant="outlined" sx={quickActionStyle} onClick={() => setClearKeys(keptRows.map(({ key }) => key))}>Clear all kept</Button>
+                    </>}
+                    <Button size="small" variant="contained" disableElevation disabled={!canApply}
+                        sx={{ ...actionStyle, bgcolor: '#1559bf', px: 1.375, '&:hover': { bgcolor: '#12499d' } }}
+                        onClick={() => onApply(pinned, clearKeys)}
+                    >{applyLabel}</Button>
+                </Box>
             </Box>
         </Popover>
     )
@@ -356,7 +376,7 @@ PresetPicker.propTypes = {
     activeId: PropTypes.string.isRequired,
     getPreview: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
-    onSelect: PropTypes.func.isRequired,
+    onApply: PropTypes.func.isRequired,
 }
 
 export default PresetPicker

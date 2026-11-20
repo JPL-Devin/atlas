@@ -94,7 +94,7 @@ export const PresetIndicator = () => {
             {anchor && <PresetPicker id={pickerId} anchor={anchor} presets={presets} activeId={activeId}
                 getPreview={getPreview}
                 onClose={() => setAnchor(null)}
-                onSelect={(item, clearKeys) => {
+                onApply={(item, clearKeys) => {
                     setAnchor(null)
                     if (item.id !== activeId) {
                         dispatch(changeSearchPreset(item.id, { clearKeys }))
