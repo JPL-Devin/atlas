@@ -35,6 +35,28 @@ const mockAtlas = async (page) => {
     return requests
 }
 
+const mockRawsInstance = (page, url) => page.route(url, async (route) => {
+    if (route.request().resourceType() !== 'document') {
+        return route.continue()
+    }
+    const response = await route.fetch()
+    const body = (await response.text()).replace(/"APP_INSTANCE"\s*:\s*"atlas"/, '"APP_INSTANCE":"raws"')
+    await route.fulfill({ response, body })
+})
+
+const mockSecondRawsPreset = (page) => page.route('**/static/js/index.*.js', async (route) => {
+    const response = await route.fetch()
+    const source = await response.text()
+    const cassini = {
+        id: 'cassini', label: 'Cassini', description: 'Find images by target and instrument.',
+        add: [], remove: ['gather.common.kind'], recommended: [],
+    }
+    // Extend the Raws registry in the served build only, not via a production test hook.
+    const body = source.replace(/(raws:\[\{id:"mars-2020",[^{}]+\})\]/, (_, firstPreset) =>
+        `${firstPreset},${JSON.stringify(cassini)}]`)
+    await route.fulfill({ response, body })
+})
+
 const capture = async (page, name) => {
     if (process.env.ATLAS_SCREENSHOT_DIR) {
         await page.screenshot({ path: path.join(process.env.ATLAS_SCREENSHOT_DIR, name + '.png'), animations: 'disabled' })
@@ -458,14 +480,7 @@ test('Atlas shows inline kept-filter choices on mobile', async ({ page }) => {
 test('Planetary Raws home opens its curated preset without exposing Atlas-only actions', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1440 })
     await mockAtlas(page)
-    await page.route('**/', async (route) => {
-        if (route.request().resourceType() !== 'document') {
-            return route.continue()
-        }
-        const response = await route.fetch()
-        const body = (await response.text()).replace(/"APP_INSTANCE"\s*:\s*"atlas"/, '"APP_INSTANCE":"raws"')
-        await route.fulfill({ response, body })
-    })
+    await mockRawsInstance(page, '**/')
     await page.goto('/')
     await expect(page.getByRole('main').getByRole('heading', { name: 'Planetary Raws', exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Explore Missions' })).toBeVisible()
@@ -496,3 +511,64 @@ test('Planetary Raws home opens its curated preset without exposing Atlas-only a
     await page.setViewportSize({ width: 1440, height: 900 })
     await capture(page, 'header-stacked-raws')
 })
+
+for (const mobile of [false, true]) {
+    test(`Planetary Raws selects and applies a simple preset on ${mobile ? 'mobile' : 'desktop'}`, async ({ page }) => {
+        if (mobile) {
+            await page.setViewportSize({ width: 375, height: 667 })
+        }
+        await mockAtlas(page)
+        await mockRawsInstance(page, /\/search(?:\?|$)/)
+        await mockSecondRawsPreset(page)
+        await page.goto('/search?_preset=mars-2020&gather.common.mission=mars_2020&gather.landed_missions.planet_day_number=42_to_44')
+        if (mobile) {
+            await page.getByRole('button', { name: 'filters view', exact: true }).click()
+        }
+        const marsTrigger = page.getByRole('button', { name: 'Preset: Mars 2020', exact: true })
+        const picker = page.getByRole('dialog', { name: 'Choose a filter preset' })
+        const mars = picker.getByRole('radio', { name: /^Mars 2020/ })
+        const cassini = picker.getByRole('radio', { name: /^Cassini/ })
+        const apply = picker.getByRole('button', { name: 'Apply', exact: true })
+        const kind = page.getByRole('button', { name: 'information about kind filter', exact: true })
+        await expect(kind).toBeVisible()
+        await expect(page).toHaveURL(/planet_day_number=42_to_44/)
+        await marsTrigger.click()
+        await expect(mars).toBeChecked()
+        await expect(mars).toBeFocused()
+        await expect(apply).toBeDisabled()
+        await expect(picker.getByRole('searchbox')).toHaveCount(0)
+        await expect(picker.getByRole('complementary')).toHaveCount(0)
+        await expect(picker.getByRole('group', { name: /Keep or clear/ })).toHaveCount(0)
+        await mars.press('ArrowDown')
+        await expect(cassini).toBeChecked()
+        await expect(mars).toHaveAttribute('aria-current', 'true')
+        await expect(page).toHaveURL(/_preset=mars-2020/)
+        await cassini.press('Escape')
+        await expect(marsTrigger).toBeFocused()
+        await marsTrigger.click()
+        await cassini.click()
+        await picker.getByRole('button', { name: 'Cancel', exact: true }).click()
+        await expect(marsTrigger).toBeFocused()
+        await expect(page).toHaveURL(/_preset=mars-2020/)
+        await marsTrigger.click()
+        await cassini.click()
+        await expect(cassini).toBeChecked()
+        await expect(cassini.getByText('Find images by target and instrument.')).toBeVisible()
+        await expect(apply).toBeInViewport({ ratio: 1 })
+        await capture(page, mobile ? 'raws-simple-mobile' : 'raws-simple')
+        await apply.click()
+        const cassiniTrigger = page.getByRole('button', { name: 'Preset: Cassini', exact: true })
+        await expect(cassiniTrigger).toBeVisible()
+        await expect(page).toHaveURL(/_preset=cassini/)
+        await expect(page).toHaveURL(/mission=mars_2020/)
+        await expect(page).toHaveURL(/planet_day_number=42_to_44/)
+        await expect(kind).toHaveCount(0)
+        await expect(page.getByText('Preset changed to Cassini', { exact: true })).toBeVisible()
+        await page.getByRole('button', { name: 'Undo', exact: true }).click()
+        await expect(marsTrigger).toBeVisible()
+        await expect(page).toHaveURL(/_preset=mars-2020/)
+        await expect(page).toHaveURL(/mission=mars_2020/)
+        await expect(page).toHaveURL(/planet_day_number=42_to_44/)
+        await expect(kind).toBeVisible()
+    })
+}

@@ -9,6 +9,8 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 
 import { getFilterPreset, getFilterPresets } from '../../../../config/filterPresets'
 import PresetPicker from './PresetPicker'
+import SimplePresetPicker from './SimplePresetPicker'
+import { getAppConfig } from '../../../../core/appConfig'
 import { getPresetFilterKeys, getPresetPreview, makePresetFilters, sameFilterLayout } from '../../../../core/searchPresetState'
 import { changeSearchPreset, dismissSearchPresetChange, resetFilters, undoSearchPresetChange } from '../../../../core/redux/actions/actions'
 
@@ -56,6 +58,7 @@ export const PresetIndicator = () => {
     const [anchor, setAnchor] = useState(null)
     const presets = getFilterPresets()
     const preset = getFilterPreset(presetId)
+    const simple = getAppConfig().presetPickerMode === 'simple'
     const selectable = presets.length > 1
     if (!preset && !selectable) {
         return null
@@ -66,10 +69,11 @@ export const PresetIndicator = () => {
     const activeId = presetId || 'all'
     const label = <>
         <Box component="span" sx={{ color: '#465671', fontWeight: 400 }}>Preset:</Box>{' '}
-        <Box component="span" sx={{ color: '#1559bf', fontWeight: 700 }}>{preset?.label || getFilterPreset('all')?.label}</Box>
+        <Box component="span" sx={{ color: '#1559bf', fontWeight: 700 }}>{preset?.label || getFilterPreset('all')?.label || 'Default'}</Box>
         {modified && <>{' '}<Box component="span" sx={{ color: '#725013', fontSize: 11, fontWeight: 500 }}>(modified)</Box></>}
     </>
     const getPreview = (item) => getPresetPreview(current, makePresetFilters(mapping, item), item.id === activeId)
+    const Picker = simple ? SimplePresetPicker : PresetPicker
 
     return (
         <>
@@ -91,8 +95,8 @@ export const PresetIndicator = () => {
                     </Button>
                 ) : <Typography variant="body2" sx={{ fontSize: 13 }}>{label}</Typography>}
             </Box>
-            {anchor && <PresetPicker id={pickerId} anchor={anchor} presets={presets} activeId={activeId}
-                getPreview={getPreview}
+            {anchor && <Picker id={pickerId} anchor={anchor} presets={presets} activeId={activeId}
+                {...(!simple && { getPreview })}
                 onClose={() => setAnchor(null)}
                 onApply={(item, clearKeys) => {
                     setAnchor(null)
