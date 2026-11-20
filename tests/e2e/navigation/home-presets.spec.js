@@ -41,6 +41,20 @@ const capture = async (page, name) => {
     }
 }
 
+const expectHomeLaunchActions = async (page, screenshot, names) => {
+    const viewport = page.viewportSize()
+    for (const [width, height, suffix] of [[viewport.width, viewport.height, ''], [375, 667, '-mobile']]) {
+        await page.setViewportSize({ width, height })
+        for (const name of names) {
+            const link = page.getByRole('link', { name, exact: true })
+            await expect(link).toHaveCSS('font-size', '15px')
+            await expect(link).toBeInViewport({ ratio: 1 })
+        }
+        await capture(page, screenshot + suffix)
+    }
+    await page.setViewportSize(viewport)
+}
+
 test.use({ viewport: { width: 1440, height: 900 } })
 
 const expectStackedHeader = async (header, mobile = false) => {
@@ -71,7 +85,7 @@ test('Atlas homepage repeatedly opens distinct Search and Archive Explorer entri
     await expect(page.getByRole('link', { name: 'Search Atlas', exact: true })).toHaveAttribute('href', '/search')
     await expect(page.getByRole('link', { name: 'Browse Archive Explorer' })).toHaveAttribute('href', '/archive-explorer')
     await expect(page.getByRole('link', { name: /using the mission image/ })).toHaveCount(6)
-    await capture(page, 'atlas-home')
+    await expectHomeLaunchActions(page, 'atlas-home', ['Search Atlas', 'Browse Archive Explorer'])
 
     const home = async () => {
         await page.getByRole('button', { name: 'navigation', exact: true }).click()
@@ -471,7 +485,7 @@ test('Planetary Raws home opens its curated preset without exposing Atlas-only a
         await expect(card.getByRole('link', { name: `Browse ${title}`, exact: true })).toHaveAttribute('href', href)
     }
     await expect(page.getByRole('article')).toHaveCount(5)
-    await capture(page, 'raws-home')
+    await expectHomeLaunchActions(page, 'raws-home', ['Browse Planetary Raws'])
     await page.getByRole('link', { name: 'Browse Mars 2020 · Perseverance', exact: true }).click()
     await expect(page).toHaveURL(/_preset=mars-2020.*mission=mars_2020/)
     const subtitle = page.getByRole('group', { name: 'Filter preset' })

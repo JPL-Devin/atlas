@@ -10,7 +10,8 @@
 .atlas-home .home-action.MuiButton-contained:hover { background: #1459c7; }
 .atlas-home .home-action.MuiButton-outlined { color: #0b3d91; border-color: #bacbe5; background: #fff; }
 .atlas-home .home-action.MuiButton-outlined:hover { background: #edf4ff; }
-.home-intro .home-action { min-height: 44px; padding-inline: 16px; }
+.home-intro .home-action { font-size: 15px; min-height: 46px; padding-inline: 18px; }
+.home-intro .home-action .MuiButton-endIcon > svg { font-size: 22px; }
 .home-missions { padding-block: 32px 42px; }
 .home-section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 24px; }
 .home-section-head h2 { margin: 0; font-size: clamp(27px, 3vw, 36px); letter-spacing: -.035em; }
