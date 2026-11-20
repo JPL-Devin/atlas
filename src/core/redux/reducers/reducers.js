@@ -19,7 +19,6 @@ const reducerFuncs = {
     UPDATE_ACTIVE_FILTERS: updateActiveFilters,
     SET_SEARCH_PRESET_STATE: setSearchPresetState,
     SET_INITIALIZED_SEARCH_ENTRY: (state, key) => state.set('initializedSearchEntry', key),
-    DISMISS_SEARCH_PRESET_CHANGE: dismissSearchPresetChange,
     REMOVE_ACTIVE_FILTERS: removeActiveFilters,
     CLEAR_ACTIVE_FILTERS: clearActiveFilters,
     UPDATE_ACTIVE_MISSIONS: updateActiveMissions,
@@ -128,7 +127,8 @@ function setModal(state, payload) {
 function setFilterType(state, payload) {
     let type = payload.type
     if (!['basic', 'advanced'].includes(type)) type = 'basic'
-    return state.setIn(['filterType'], type)
+    const next = state.setIn(['filterType'], type)
+    return type === 'advanced' ? next.set('searchPresetUndo', null) : next
 }
 
 /**
@@ -221,10 +221,10 @@ function removeActiveFilters(state, payload) {
  */
 function clearActiveFilters(state, payload) {
     const initialActiveFilters = state.get('initialActiveFilters')
-    return state.setIn(['activeFilters'], initialActiveFilters).set('searchPresetRetainedKeys', [])
+    return state.setIn(['activeFilters'], initialActiveFilters).set('searchPresetRetainedKeys', []).set('searchPresetUndo', null)
 }
 
-function setSearchPresetState(state, { filters, presetId, entry, undo, notification, retainedKeys = [] }) {
+function setSearchPresetState(state, { filters, presetId, entry, undo, retainedKeys = [] }) {
     const ordered = Object.fromEntries(Object.entries(filters).map(([key, filter]) => [
         key, { ...filter, order: getFilterOrderValue(key) },
     ]))
@@ -236,12 +236,7 @@ function setSearchPresetState(state, { filters, presetId, entry, undo, notificat
         searchPresetRetainedKeys: retainedKeys,
         searchPresetEntry: entry,
         searchPresetUndo: undo,
-        searchPresetNotification: notification,
     })
-}
-
-function dismissSearchPresetChange(state) {
-    return state.set('searchPresetUndo', null).set('searchPresetNotification', null)
 }
 
 /**

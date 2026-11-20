@@ -92,7 +92,6 @@ let flatActions = [
     'UPDATE_ACTIVE_FILTERS',
     'SET_SEARCH_PRESET_STATE',
     'SET_INITIALIZED_SEARCH_ENTRY',
-    'DISMISS_SEARCH_PRESET_CHANGE',
     'REMOVE_ACTIVE_FILTERS',
     'CLEAR_ACTIVE_FILTERS',
     'UPDATE_ACTIVE_MISSIONS',
@@ -414,7 +413,6 @@ export const initializeSearchEntry = ({ key, query, fromHome }) => (dispatch, ge
             presetId, filters,
             entry: presetId ? { presetId, query: { ...query } } : null,
             undo: null,
-            notification: null,
         }))
         dispatch(search(0, true))
     } else {
@@ -434,12 +432,8 @@ export const changeSearchPreset = (id, { reset = false, clearKeys = [] } = {}) =
     const { filters, kept: retainedKeys } = reset
         ? { filters: applyBasicSearchParams(entry?.presetId === presetId ? entry.query : {}, defaults, mapping), kept: [] }
         : planPresetSwitch(current, defaults, clearKeys)
-    const label = preset?.label || getAppConfig().appTitle
-    const notification = reset
-        ? (entry?.presetId === presetId ? `Restored preset filters and starting values for ${label}` : `Restored preset filters and default values for ${label}`)
-        : `Preset changed to ${label}`
     dispatch(setPresetState({
-        filters, presetId, entry, notification, retainedKeys,
+        filters, presetId, entry, retainedKeys,
         undo: { filters: current, presetId: state.get('searchPresetId') || null, retainedKeys: state.get('searchPresetRetainedKeys') },
     }))
     dispatch(clearResults())
@@ -451,13 +445,11 @@ export const undoSearchPresetChange = () => (dispatch, getState) => {
     const undo = state.get('searchPresetUndo')
     if (!undo) return
     dispatch(setPresetState({
-        ...undo, entry: state.get('searchPresetEntry'), undo: null, notification: null,
+        ...undo, entry: state.get('searchPresetEntry'), undo: null,
     }))
     dispatch(clearResults())
     dispatch(search(0, true))
 }
-
-export const dismissSearchPresetChange = () => ({ type: ACTIONS.DISMISS_SEARCH_PRESET_CHANGE })
 
 /**
  * Updates active missions

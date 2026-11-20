@@ -73,21 +73,26 @@ const expectHomeLaunchActions = async (page, screenshot, names) => {
 
 test.use({ viewport: { width: 1440, height: 900 } })
 
-const expectStackedHeader = async (header, mobile = false) => {
+const expectStackedHeader = async (header, mobile = false, undoLabel) => {
     const title = header.getByRole('heading', { name: 'Filters', exact: true })
     const subtitle = header.getByRole('group', { name: 'Filter preset' })
     await expect(subtitle).toBeVisible()
     const titleBox = await title.boundingBox()
     const subtitleBox = await subtitle.boundingBox()
-    for (const name of ['reset filters', 'add filter', 'menu', ...(mobile ? ['close filters'] : [])]) {
+    for (const name of ['reset filters', 'add filter', 'menu', ...(mobile ? ['close filters'] : []), ...(undoLabel ? [undoLabel] : [])]) {
         const action = header.getByRole('button', { name, exact: true })
-        await expect(action).toBeVisible()
+        await expect(action).toBeInViewport({ ratio: 1 })
         const box = await action.boundingBox()
         expect(Math.abs(box.y + box.height / 2 - titleBox.y - titleBox.height / 2)).toBeLessThan(2)
         if (name === 'close filters') {
             expect(box.width).toBeGreaterThanOrEqual(40)
             expect(box.height).toBeGreaterThanOrEqual(40)
             expect(box.x + box.width).toBeLessThan(titleBox.x)
+        }
+        if (name === undoLabel) {
+            const resetBox = await header.getByRole('button', { name: 'reset filters', exact: true }).boundingBox()
+            expect(box.x).toBeGreaterThan(titleBox.x + titleBox.width)
+            expect(box.x + box.width).toBeLessThanOrEqual(resetBox.x)
         }
     }
     expect(subtitleBox.y).toBeGreaterThan(titleBox.y + titleBox.height / 2)
@@ -134,6 +139,7 @@ test('Atlas homepage repeatedly opens distinct Search and Archive Explorer entri
 })
 
 test('Search presets retain selected criteria, warn on removal, and support Undo and Reset', async ({ page }) => {
+    await page.clock.install()
     await mockAtlas(page)
     await page.goto('/search?_preset=artemis-ii&gather.common.mission=artemis2&gather.flyby_missions.flight_day_number=4_to_6&gather.common.mission_phase_name=FLYBY')
     await expect(page.getByRole('button', { name: 'remove flight_day_number filter', exact: true })).toBeVisible()
@@ -143,6 +149,9 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await capture(page, 'preset-artemis')
     await capture(page, 'preset-row')
     const header = page.getByRole('group', { name: 'Filter controls' })
+    const undoLabel = 'Undo preset change: restore Artemis II'
+    const undo = header.getByRole('button', { name: undoLabel, exact: true })
+    await expect(undo).toHaveCount(0)
     const trigger = header.getByRole('button', { name: 'Preset: Artemis II (modified)' })
     await expectStackedHeader(header)
     await expect(trigger).toHaveText('Preset: Artemis II (modified)')
@@ -205,7 +214,13 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await expect(page.getByRole('dialog')).not.toBeVisible()
     await expect(page).toHaveURL(/_preset=mars-2020.*mission=artemis2/)
     await expect(page.getByText('Kept because it has a value', { exact: true })).toHaveCount(0)
-    await expect(page.getByText('Preset changed to Mars 2020', { exact: true })).toBeVisible()
+    await expect(page.getByText('Preset changed to Mars 2020', { exact: true })).toHaveCount(0)
+    await expectStackedHeader(header, false, undoLabel)
+    await undo.hover()
+    await expect(page.getByRole('tooltip', { name: undoLabel })).toBeVisible()
+    await capture(page, 'undo-desktop')
+    await page.clock.fastForward(7000)
+    await expect(undo).toBeVisible()
     await capture(page, 'preset-switched')
     await header.getByRole('button', { name: 'Preset: Mars 2020', exact: true }).click()
     await picker.getByRole('button', { name: /^ML-classified datasets/ }).hover()
@@ -226,7 +241,10 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     const remove = page.getByRole('dialog', { name: /remove mission phase name/i })
     await expect(remove.getByText(/clears its selected values/)).toBeVisible()
     await remove.getByRole('button', { name: 'Cancel' }).click()
-    await page.getByRole('button', { name: 'Undo' }).click()
+    await page.getByRole('button', { name: 'Mission: artemis2', exact: true }).press('Delete')
+    await expect(page).not.toHaveURL(/gather\.common\.mission=/)
+    await undo.click()
+    await expect(undo).toHaveCount(0)
     await expect(page).toHaveURL(/_preset=artemis-ii/)
     await expect(page).toHaveURL(/mission=artemis2.*flight_day_number=4_to_6/)
 
@@ -253,7 +271,7 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await expect(page.getByRole('menuitem', { name: /reset to|clear preset/i })).toHaveCount(0)
     await expect(page).toHaveURL(/_preset=artemis-ii.*mission=artemis2/)
     await expect(bundleFilter).toHaveCount(0)
-    await expect(page.getByText('Restored preset filters and starting values for Artemis II')).toBeVisible()
+    await expect(header.getByRole('button', { name: 'Undo preset reset: restore previous Artemis II filters' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Clear preset', exact: true })).toHaveCount(0)
     await trigger.click()
     const all = picker.getByRole('button', { name: /^Standard Atlas/ })
@@ -261,12 +279,15 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await picker.getByRole('button', { name: 'Apply and keep filters', exact: true }).click()
     await expect(page).not.toHaveURL(/_preset=/)
     await expect(page).toHaveURL(/mission=artemis2/)
-    await expect(page.getByText('Preset changed to Standard Atlas', { exact: true })).toBeVisible()
+    await expect(undo).toBeVisible()
     await expect(bundleFilter).toBeVisible()
     await reset.hover()
     await expect(page.getByRole('tooltip', { name: 'Restore standard Atlas filters and default values' })).toBeVisible()
     await header.getByRole('button', { name: 'Preset: Standard Atlas' }).click()
     await expect(all).toHaveAttribute('aria-current', 'true')
+    await search.press('Escape')
+    await reset.click()
+    await expect(undo).toHaveCount(0)
 })
 
 test('Atlas preset picker stays usable on a narrow screen without the side preview', async ({ page }) => {
@@ -304,7 +325,10 @@ test('Atlas preset picker stays usable on a narrow screen without the side previ
     await picker.getByRole('button', { name: 'Apply and keep filters', exact: true }).click()
     await expect(page.getByRole('dialog')).not.toBeVisible()
     await expect(page).toHaveURL(/_preset=planetary-imaging.*mission=artemis2/)
-    await page.getByRole('button', { name: 'Undo' }).click()
+    const undoLabel = 'Undo preset change: restore Artemis II'
+    await expectStackedHeader(header, true, undoLabel)
+    await capture(page, 'undo-mobile')
+    await header.getByRole('button', { name: undoLabel, exact: true }).click()
     await expect(page).toHaveURL(/_preset=artemis-ii.*mission=artemis2/)
     await header.getByRole('button', { name: 'close filters', exact: true }).click()
     await expect(header).toHaveCount(0)
@@ -385,7 +409,7 @@ test('Atlas chooses kept filters in a pinned preview and undoes each switch', as
         } else {
             await expect(page).not.toHaveURL(/flight_day_number=/)
         }
-        await page.getByRole('button', { name: 'Undo' }).click()
+        await page.getByRole('button', { name: 'Undo preset change: restore Mars 2020', exact: true }).click()
         await expect(trigger).toBeVisible()
         await expect(page).toHaveURL(/_preset=mars-2020.*mission=artemis2/)
         await expect(page).toHaveURL(/mission_phase_name=FLYBY/)
@@ -409,7 +433,7 @@ test('Atlas chooses kept filters in a pinned preview and undoes each switch', as
     await picker.getByRole('button', { name: /^Artemis II/ }).click()
     await picker.getByRole('button', { name: 'Apply and keep filters', exact: true }).click()
     await expect(page.getByRole('button', { name: 'Preset: Artemis II', exact: true })).toBeVisible()
-    await page.getByRole('button', { name: 'Undo' }).click()
+    await page.getByRole('button', { name: 'Undo preset change: restore Mars 2020', exact: true }).click()
     await expect(trigger).toBeVisible()
     await page.goto('/search?_preset=mars-2020&gather.common.mission=artemis2')
     await page.getByRole('button', { name: 'Preset: Mars 2020', exact: true }).click()
@@ -609,8 +633,11 @@ for (const mobile of [false, true]) {
         await expect(page).toHaveURL(spacecraftParam)
         await expect(page).toHaveURL(/planet_day_number=42_to_44/)
         await expect(spacecraft).toBeVisible()
-        await expect(page.getByText('Preset changed to Standard Planetary Raws', { exact: true })).toBeVisible()
-        await page.getByRole('button', { name: 'Undo', exact: true }).click()
+        await expect(page.getByText('Preset changed to Standard Planetary Raws', { exact: true })).toHaveCount(0)
+        const undo = page.getByRole('group', { name: 'Filter controls' })
+            .getByRole('button', { name: 'Undo preset change: restore Mars 2020', exact: true })
+        await undo.click()
+        await expect(undo).toHaveCount(0)
         await expect(marsTrigger).toBeVisible()
         await expect(page).toHaveURL(/_preset=mars-2020/)
         await expect(page).toHaveURL(/mission=m20/)

@@ -8,7 +8,6 @@ import { useTheme } from '@mui/material/styles'
 
 import FiltersPanel from './Panels/FiltersPanel/FiltersPanel'
 import ResultsPanel from './Panels/ResultsPanel/ResultsPanel'
-import { PresetNotification } from './Panels/FiltersPanel/PresetControls'
 
 import AddFilterModal from './Modals/AddFilterModal/AddFilterModal'
 import FilterHelpModal from './Modals/FilterHelpModal/FilterHelpModal'
@@ -79,7 +78,6 @@ const Search = () => {
             <EditColumnsModal />
             <AdvancedFilterModal />
             <AdvancedFilterReturnModal />
-            <PresetNotification />
         </div>
     )
 }

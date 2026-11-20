@@ -20,7 +20,7 @@ import CloseIcon from '@mui/icons-material/Close'
 
 import FilterList from './subcomponents/FilterList/FilterList'
 import AdvancedFilter from './subcomponents/AdvancedFilter/AdvancedFilter'
-import { PresetIndicator, PresetReset } from './PresetControls'
+import { PresetIndicator, PresetReset, PresetUndo } from './PresetControls'
 
 import MenuButton from '../../../../components/MenuButton/MenuButton'
 
@@ -205,6 +205,7 @@ const FiltersPanel = (props) => {
                             <h2 className={c.title}>{filterType === 'basic' ? 'Filters' : FILTER_TYPES[filterType]}</h2>
                         </div>
                         <div className={c.right}>
+                            {ready && filterType === 'basic' && <PresetUndo />}
                             <PresetReset disabled={!ready} />
                             {filterType === 'basic' && getAppConfig().enableAddFilters && (
                                 <Button

@@ -2,16 +2,41 @@ import React, { useId, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-    Box, Button, IconButton, Snackbar, Tooltip,
+    Box, Button, IconButton, Tooltip,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import UndoIcon from '@mui/icons-material/Undo'
 
 import { getFilterPreset, getFilterPresets } from '../../../../config/filterPresets'
 import PresetPicker from './PresetPicker'
 import { getAppConfig } from '../../../../core/appConfig'
 import { getPresetFilterKeys, getPresetPreview, makePresetFilters, sameFilterLayout } from '../../../../core/searchPresetState'
-import { changeSearchPreset, dismissSearchPresetChange, resetFilters, undoSearchPresetChange } from '../../../../core/redux/actions/actions'
+import { changeSearchPreset, resetFilters, undoSearchPresetChange } from '../../../../core/redux/actions/actions'
+
+export const PresetUndo = () => {
+    const dispatch = useDispatch()
+    const undo = useSelector((state) => state.get('searchPresetUndo'))
+    const activeId = useSelector((state) => state.get('searchPresetId'))
+    if (!undo) {
+        return null
+    }
+
+    const previous = getFilterPreset(undo.presetId || 'all')?.label || getAppConfig().appTitle
+    const title = undo.presetId === activeId
+        ? `Undo preset reset: restore previous ${previous} filters`
+        : `Undo preset change: restore ${previous}`
+
+    return (
+        <Tooltip title={title} arrow>
+            <IconButton aria-label={title} onClick={() => dispatch(undoSearchPresetChange())}
+                sx={{ color: '#656666', '& svg': { fontSize: 18 } }}
+            >
+                <UndoIcon />
+            </IconButton>
+        </Tooltip>
+    )
+}
 
 export const PresetReset = ({ disabled }) => {
     const dispatch = useDispatch()
@@ -102,19 +127,6 @@ export const PresetIndicator = () => {
             />}
         </>
     )
-}
-
-export const PresetNotification = () => {
-    const dispatch = useDispatch()
-    const message = useSelector((state) => state.get('searchPresetNotification'))
-    return <Snackbar open={Boolean(message)} message={message} autoHideDuration={6500}
-        onClose={(_, reason) => {
-            if (reason !== 'clickaway') {
-                dispatch(dismissSearchPresetChange())
-            }
-        }}
-        action={<Button size="small" sx={{ color: '#b6d2ff' }}
-            onClick={() => dispatch(undoSearchPresetChange())}>Undo</Button>} />
 }
 
 export const usePresetFilterKeys = () => {
