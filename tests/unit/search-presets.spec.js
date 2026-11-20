@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { getAppConfig } from '../../src/core/appConfig'
+import { getAllInstances, getAppConfig } from '../../src/core/appConfig'
 import { FLIGHT_DAY, getFilterPresets } from '../../src/config/filterPresets'
 import { getHomeConfig } from '../../src/config/home'
 import { getHomeDestination } from '../../src/pages/Home/homeLinks'
@@ -42,6 +42,13 @@ test('home defines valid instance-local preset IDs and destination-specific quer
     expect(getHomeDestination('search')).toBe('/search')
 })
 
+test('Standard Planetary Raws matches the instance defaults', () => {
+    const { defaultFilters } = getAllInstances().raws
+    const presets = getFilterPresets('raws')
+    expect(presets.map(({ id }) => id)).toEqual(['all', 'mars-2020'])
+    expect(getPresetFilterKeys(presets[0], defaultFilters)).toEqual(defaultFilters)
+})
+
 test('Artemis II does not duplicate Flight Day or alter instance defaults', () => {
     const defaults = getAppConfig().defaultFilters
     const artemis = getFilterPresets('atlas').find(({ id }) => id === 'artemis-ii')
@@ -59,7 +66,7 @@ test('preset descriptions and summaries distinguish featured fields from new and
     expect(getPresetFilterSummary(atlas.find(({ id }) => id === 'artemis-ii'), [
         FLIGHT_DAY, MISSION, 'archive.bundle_id',
     ])).toEqual({ featured: [FLIGHT_DAY], added: [], hidden: ['archive.bundle_id'] })
-    expect(getPresetFilterSummary(raws[0], [MISSION, 'gather.common.spacecraft'])).toEqual({
+    expect(getPresetFilterSummary(raws.find(({ id }) => id === 'mars-2020'), [MISSION, 'gather.common.spacecraft'])).toEqual({
         featured: [], added: ['gather.landed_missions.planet_day_number'], hidden: ['gather.common.spacecraft'],
     })
 })

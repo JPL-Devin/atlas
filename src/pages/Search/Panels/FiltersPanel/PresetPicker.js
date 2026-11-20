@@ -40,7 +40,7 @@ const diffStyles = {
     unchanged: { symbol: '=', label: 'Unchanged', countLabel: 'unchanged', color: '#405571', bgcolor: '#f5f8fc' },
 }
 
-const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onApply }) => {
+const PresetPicker = ({ id, anchor, presets, activeId, simple, getPreview, onClose, onApply }) => {
     const [search, setSearch] = useState('')
     const [previewId, setPreviewId] = useState(null)
     const [pinnedId, setPinnedId] = useState(null)
@@ -52,10 +52,10 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
     const matches = presets.filter(({ label, description }) =>
         [label, description].some((text) => text.toLowerCase().includes(term)))
     const pinned = matches.find((preset) => preset.id === pinnedId)
-    const preview = matches.find((preset) => preset.id === (pinned ? hoverId || pinnedId : previewId))
+    const preview = simple ? undefined : matches.find((preset) => preset.id === (pinned ? hoverId || pinnedId : previewId))
         || matches.find((preset) => preset.id === activeId) || matches[0]
     const layout = preview && getPreview(preview)
-    const pinnedLayout = pinned && (pinnedId === preview.id ? layout : getPreview(pinned))
+    const pinnedLayout = layout && pinned && (pinnedId === preview.id ? layout : getPreview(pinned))
     const keptRows = pinnedLayout?.rows.filter((row) => row.status === 'kept') || []
     const hasKeptRows = keptRows.length > 0
     const deciding = hasKeptRows && pinnedId === preview.id
@@ -169,7 +169,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                 sx: {
                     width: {
                         xs: anchor.offsetWidth - pickerInset * 2,
-                        md: `min(680px, calc(100vw - ${pickerInset * 2}px))`,
+                        md: `min(${simple ? 404 : 680}px, calc(100vw - ${pickerInset * 2}px))`,
                     },
                     maxHeight: {
                         xs: `calc(100dvh - ${Math.ceil(anchor.getBoundingClientRect().bottom) + pickerInset + 1}px)`,
@@ -196,9 +196,11 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                     }}>Esc</ButtonBase>
                 </Box>
                 <Typography component="p" sx={{ mt: 0.25, mb: 1.25, fontSize: 12, color: '#4c5b70' }}>
-                    Labels under each preset describe how it differs from the standard Atlas filters.<Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>
-                        {' '}Hover or focus a preset to preview changes from your current filters.
-                    </Box>
+                    {simple ? 'Presets change which filters are shown. Your selections stay.' : <>
+                        Labels under each preset describe how it differs from the standard Atlas filters.<Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>
+                            {' '}Hover or focus a preset to preview changes from your current filters.
+                        </Box>
+                    </>}
                 </Typography>
                 <TextField
                     inputRef={searchInput}
@@ -229,11 +231,11 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                     }}
                 />
             </Box>
-            <Alert severity="warning" role="note" sx={{ ...warningStyle, display: { xs: 'flex', md: 'none' }, borderRadius: 0 }}>
+            {!simple && <Alert severity="warning" role="note" sx={{ ...warningStyle, display: { xs: 'flex', md: 'none' }, borderRadius: 0 }}>
                 {hasKeptRows ? keptExplanation : presetExplanation}
-            </Alert>
+            </Alert>}
             <Box sx={{
-                display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' },
+                display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: simple ? 'minmax(0, 1fr)' : 'repeat(2, minmax(0, 1fr))' },
                 minHeight: 0,
             }}>
                 <Box ref={list} sx={{
@@ -244,14 +246,14 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                         const selected = preset.id === activeId
                         const isPinned = preset.id === pinnedId
                         const inspecting = preset.id === preview?.id
-                        const chips = getPresetChips(preset)
+                        const chips = simple ? [] : getPresetChips(preset)
                         return (
                             <React.Fragment key={preset.id}>
                             <ButtonBase aria-current={selected ? 'true' : undefined} data-preset-option
                                 aria-pressed={isPinned} tabIndex={pinned && !isPinned ? -1 : 0}
                                 onClick={() => selectPreset(preset)}
                                 onPointerEnter={(event) => {
-                                    if (event.pointerType !== 'mouse') {
+                                    if (simple || event.pointerType !== 'mouse') {
                                         return
                                     }
                                     if (pinned) {
@@ -262,7 +264,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                                 }}
                                 onPointerLeave={() => setHoverId(null)}
                                 onFocus={() => {
-                                    if (!pinned) {
+                                    if (!simple && !pinned) {
                                         setPreviewId(preset.id)
                                     }
                                 }}
@@ -283,13 +285,13 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                                 <Typography component="span" sx={{ display: 'block', mt: 0.5, fontSize: 12, color: '#4c5b70' }}>
                                     {preset.description}
                                 </Typography>
-                                {chips.length ? <Box component="span" sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1.5 }}>
+                                {!simple && (chips.length ? <Box component="span" sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1.5 }}>
                                     {chips.map(([label, hidden]) => <Box key={label} component="span" sx={{
                                         ...chipStyle, bgcolor: hidden ? '#eff1f5' : '#eaf1ff', color: hidden ? '#4c5664' : '#264e83',
                                     }}>{label}</Box>)}
                                 </Box> : <Typography component="span" sx={{ display: 'block', mt: 1.5, fontSize: 11, fontWeight: 600, color: '#285885' }}>
                                     Standard Atlas filters
-                                </Typography>}
+                                </Typography>)}
                                 {selected && <CheckIcon titleAccess="Active preset" sx={{ position: 'absolute', top: 10, right: 12, fontSize: 16, color: '#1559bf' }} />}
                             </ButtonBase>
                             {isPinned && hasKeptRows && <Box role="group" aria-label={`Kept filters for ${preset.label}`} sx={{
@@ -304,7 +306,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                         No matching presets
                     </Typography>}
                 </Box>
-                <Box component="aside" aria-label="Filter changes" sx={{
+                {!simple && <Box component="aside" aria-label="Filter changes" sx={{
                     display: { xs: 'none', md: 'block' }, overflowY: 'auto', px: contentInset, py: 2,
                     bgcolor: '#f6f9fe', borderLeft: '1px solid #dde5ef',
                 }}>
@@ -334,7 +336,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                         )}
                         {renderRows(layout.rows, deciding)}
                     </> : <Typography sx={{ mt: 1, fontSize: 12, color: '#4c5b70' }}>No preset to preview.</Typography>}
-                </Box>
+                </Box>}
             </Box>
             <Box sx={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', flexShrink: 0, gap: '6px 12px',
@@ -368,6 +370,7 @@ PresetPicker.propTypes = {
         description: PropTypes.string.isRequired,
     })).isRequired,
     activeId: PropTypes.string.isRequired,
+    simple: PropTypes.bool,
     getPreview: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
     onApply: PropTypes.func.isRequired,

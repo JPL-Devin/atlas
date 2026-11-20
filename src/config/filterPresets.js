@@ -53,6 +53,14 @@ const presets = {
     ],
     raws: [
         {
+            id: 'all',
+            label: 'Standard Planetary Raws',
+            description: 'Use the standard Planetary Raws filters.',
+            add: [],
+            remove: [],
+            recommended: [],
+        },
+        {
             id: 'mars-2020',
             label: 'Mars 2020',
             description: 'Explore Perseverance images by Martian day.',

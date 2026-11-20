@@ -2,14 +2,13 @@ import React, { useId, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-    Box, Button, IconButton, Snackbar, Tooltip, Typography,
+    Box, Button, IconButton, Snackbar, Tooltip,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import RefreshIcon from '@mui/icons-material/Refresh'
 
 import { getFilterPreset, getFilterPresets } from '../../../../config/filterPresets'
 import PresetPicker from './PresetPicker'
-import SimplePresetPicker from './SimplePresetPicker'
 import { getAppConfig } from '../../../../core/appConfig'
 import { getPresetFilterKeys, getPresetPreview, makePresetFilters, sameFilterLayout } from '../../../../core/searchPresetState'
 import { changeSearchPreset, dismissSearchPresetChange, resetFilters, undoSearchPresetChange } from '../../../../core/redux/actions/actions'
@@ -22,7 +21,7 @@ export const PresetReset = ({ disabled }) => {
             return 'Restore default filters and values'
         }
         if (!id) {
-            return getFilterPreset('all') ? 'Restore standard Atlas filters and default values' : 'Restore default filters and values'
+            return getFilterPreset('all') ? `Restore standard ${getAppConfig().appTitle} filters and default values` : 'Restore default filters and values'
         }
         return state.get('searchPresetEntry')?.presetId === id
             ? 'Restore preset filters and starting values' : 'Restore preset filters and default values'
@@ -59,8 +58,7 @@ export const PresetIndicator = () => {
     const presets = getFilterPresets()
     const preset = getFilterPreset(presetId)
     const simple = getAppConfig().presetPickerMode === 'simple'
-    const selectable = presets.length > 1
-    if (!preset && !selectable) {
+    if (!presets.length) {
         return null
     }
 
@@ -73,30 +71,27 @@ export const PresetIndicator = () => {
         {modified && <>{' '}<Box component="span" sx={{ color: '#725013', fontSize: 11, fontWeight: 500 }}>(modified)</Box></>}
     </>
     const getPreview = (item) => getPresetPreview(current, makePresetFilters(mapping, item), item.id === activeId)
-    const Picker = simple ? SimplePresetPicker : PresetPicker
 
     return (
         <>
             <Box ref={presetRow} role="group" aria-label="Filter preset" sx={{ px: 3, pb: 2, minWidth: 0 }}>
-                {selectable ? (
-                    <Button size="small" variant="outlined" fullWidth
-                        onClick={() => setAnchor(presetRow.current)} aria-haspopup="dialog"
-                        aria-expanded={Boolean(anchor)} aria-controls={anchor ? pickerId : undefined}
-                        sx={{
-                            minHeight: { xs: 40, md: 34 }, minWidth: 0, gap: 1.5, px: 2,
-                            justifyContent: 'space-between', textAlign: 'left', textTransform: 'none',
-                            fontSize: 13, color: '#1559bf', borderColor: '#81a5dd',
-                            bgcolor: anchor ? '#dae9ff' : '#fff',
-                            '&:hover': { bgcolor: '#e1edfc' },
-                        }}
-                    >
-                        <Box component="span" sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>{label}</Box>
-                        <ExpandMoreIcon sx={{ fontSize: 16, flexShrink: 0 }} />
-                    </Button>
-                ) : <Typography variant="body2" sx={{ fontSize: 13 }}>{label}</Typography>}
+                <Button size="small" variant="outlined" fullWidth
+                    onClick={() => setAnchor(presetRow.current)} aria-haspopup="dialog"
+                    aria-expanded={Boolean(anchor)} aria-controls={anchor ? pickerId : undefined}
+                    sx={{
+                        minHeight: { xs: 40, md: 34 }, minWidth: 0, gap: 1.5, px: 2,
+                        justifyContent: 'space-between', textAlign: 'left', textTransform: 'none',
+                        fontSize: 13, color: '#1559bf', borderColor: '#81a5dd',
+                        bgcolor: anchor ? '#dae9ff' : '#fff',
+                        '&:hover': { bgcolor: '#e1edfc' },
+                    }}
+                >
+                    <Box component="span" sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>{label}</Box>
+                    <ExpandMoreIcon sx={{ fontSize: 16, flexShrink: 0 }} />
+                </Button>
             </Box>
-            {anchor && <Picker id={pickerId} anchor={anchor} presets={presets} activeId={activeId}
-                {...(!simple && { getPreview })}
+            {anchor && <PresetPicker id={pickerId} anchor={anchor} presets={presets} activeId={activeId}
+                simple={simple} getPreview={getPreview}
                 onClose={() => setAnchor(null)}
                 onApply={(item, clearKeys) => {
                     setAnchor(null)
