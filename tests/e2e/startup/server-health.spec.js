@@ -26,11 +26,11 @@ test.describe('Atlas Server Startup', () => {
         expect(text).toContain('Allow: /')
     })
 
-    test('root / redirects to /search with 307', async ({ request }) => {
+    test('root / serves the SPA HTML without a redirect', async ({ request }) => {
         const res = await request.get('/', { maxRedirects: 0 })
-        expect(res.status()).toBe(307)
-        const location = res.headers()['location']
-        expect(location).toContain('/search')
+        expect(res.status()).toBe(200)
+        expect(res.headers()['content-type']).toContain('text/html')
+        expect(res.headers()['location']).toBeUndefined()
     })
 
     test('no critical errors during startup', async ({ request }) => {

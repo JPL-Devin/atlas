@@ -12,6 +12,12 @@ import mgsMoc from '../fixtures/records/mgs-moc.json'
 import mslPds3 from '../fixtures/records/msl-pds3-mastcam.json'
 import mslPds4 from '../fixtures/records/msl-pds4.json'
 
+const rawsNavcam = { ...mars2020Navcam, gather: {
+    ...mars2020Navcam.gather,
+    common: { ...mars2020Navcam.gather.common, mission: 'm20' },
+    pds_archive: { ...mars2020Navcam.gather.pds_archive, pds_standard: 'raws' },
+} }
+
 const labels = (presentation) => presentation.tiles.map((t) => t.label)
 const tileOf = (presentation, label) => presentation.tiles.find((t) => t.label === label)
 const valueOf = (presentation, label) => {
@@ -72,7 +78,7 @@ test.describe('resolvePresentation', () => {
 
     test('raws overrides mars 2020 navcam without touching the shared profile', () => {
         const atlas = resolvePresentation(mars2020Navcam)
-        const raws = resolvePresentation(mars2020Navcam, { instance: 'raws' })
+        const raws = resolvePresentation(rawsNavcam, { instance: 'raws' })
         expect(raws.caption.startsWith('Navcam Right')).toBe(true)
         expect(atlas.caption.startsWith('Navcam Right')).toBe(false)
         expect(raws.tiles.length).toBe(6)
@@ -164,7 +170,7 @@ test.describe('resolvePresentation', () => {
     })
 
     test('resolved output never exposes paths or template source', () => {
-        const p = resolvePresentation(mars2020Navcam, { instance: 'raws' })
+        const p = resolvePresentation(rawsNavcam, { instance: 'raws' })
         const serialized = JSON.stringify(p)
         expect(serialized).not.toContain('gather.')
         expect(serialized).not.toContain('{{')

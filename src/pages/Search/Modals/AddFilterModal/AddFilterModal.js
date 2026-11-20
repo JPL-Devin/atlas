@@ -14,10 +14,11 @@ import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 import CloseSharpIcon from '@mui/icons-material/CloseSharp'
+import Alert from '@mui/material/Alert'
+import { hasFilterValue } from '../../../../core/searchPresetState'
 
 import { makeStyles } from '@mui/styles'
 import { useTheme } from '@mui/material/styles'
@@ -95,6 +96,9 @@ const AddFilterModal = (props) => {
 
     const [stagedFiltersToAdd, setStagedFiltersToAdd] = useState({})
     const [stagedFiltersToRemove, setStagedFiltersToRemove] = useState({})
+    const [confirmRemove, setConfirmRemove] = useState(false)
+    const presetId = useSelector((state) => state.get('searchPresetId'))
+    const populatedRemovals = Object.keys(stagedFiltersToRemove).filter((key) => hasFilterValue(activeFilters[key]))
 
     const addStagedFilter = (id, filter) => {
         // Remove from remove if it's there
@@ -133,8 +137,13 @@ const AddFilterModal = (props) => {
         // clear staged filters
         setStagedFiltersToAdd({})
         setStagedFiltersToRemove({})
+        setConfirmRemove(false)
     }
     const handleSubmit = () => {
+        if (populatedRemovals.length && !confirmRemove) {
+            setConfirmRemove(true)
+            return
+        }
         // submit staged filters
         dispatch(addActiveFilters(stagedFiltersToAdd))
         dispatch(removeActiveFilters(Object.keys(stagedFiltersToRemove)))
@@ -178,6 +187,10 @@ const AddFilterModal = (props) => {
                     removeStagedFilter={removeStagedFilter}
                 />
             </DialogContent>
+            {confirmRemove && <Alert severity="warning" onClose={() => setConfirmRemove(false)}>
+                Removing {populatedRemovals.map((key) => activeFilters[key].display_name.replaceAll('_', ' ')).join(', ')}
+                {' will also clear the selected values.'}
+            </Alert>}
             <DialogActions>
                 <Typography className={c.addCount}>{`${
                     Object.keys(stagedFiltersToAdd).length
@@ -185,7 +198,7 @@ const AddFilterModal = (props) => {
                     Object.keys(stagedFiltersToAdd).length === 1 ? '' : 's'
                 } selected`}</Typography>
                 <Button className={c.addSelected} variant="contained" onClick={handleSubmit}>
-                    Add Selected Filters
+                    {confirmRemove ? 'Apply and clear values' : presetId ? 'Apply filters' : 'Add Selected Filters'}
                 </Button>
             </DialogActions>
         </Dialog>

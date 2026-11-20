@@ -40,6 +40,11 @@ export const instanceProfiles = {
     raws,
 }
 
+export const getSharedMissionKey = (mission, instance) => {
+    const keys = instanceProfiles[instance]?.sharedMissionKeys
+    return keys && Object.hasOwn(keys, mission) ? keys[mission] : mission
+}
+
 export const defaultProfile = _default
 
 export { emptyStates, otherFields, sections, validity }

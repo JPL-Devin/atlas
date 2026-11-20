@@ -167,14 +167,7 @@ app.get(['/streamsaver/ping.html', pingPath], (req, res) => {
 // Pug is used to render atlas pages.
 app.set('view engine', 'pug')
 
-// Redirect root to /search
 const rootPath = runtimeConfig.PUBLIC_URL || '/'
-app.get(rootPath, (req, res) => {
-    const searchRedirectPath = runtimeConfig.PUBLIC_URL
-        ? `${runtimeConfig.PUBLIC_URL}/search`
-        : '/search'
-    res.redirect(307, searchRedirectPath)
-})
 
 // Build route array with PUBLIC_URL prefix (excluding root)
 const baseRoutes = [
@@ -187,7 +180,7 @@ const appRoutes = runtimeConfig.PUBLIC_URL
     ? [...baseRoutes, ...baseRoutes.map((route) => `${runtimeConfig.PUBLIC_URL}${route}`)]
     : baseRoutes
 
-app.get(appRoutes, (req, res) => {
+app.get([rootPath, ...appRoutes], (req, res) => {
     res.setHeader('Cache-Control', 'no-cache')
     res.render(path.join(paths.appBuild, 'index.pug'), {
         nonce: res.locals.nonce,

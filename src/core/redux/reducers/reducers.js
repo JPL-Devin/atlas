@@ -17,6 +17,8 @@ const reducerFuncs = {
     SET_INITIAL_ACTIVE_FILTERS: setInitialActiveFilters,
     ADD_ACTIVE_FILTERS: addActiveFilters,
     UPDATE_ACTIVE_FILTERS: updateActiveFilters,
+    SET_SEARCH_PRESET_STATE: setSearchPresetState,
+    SET_INITIALIZED_SEARCH_ENTRY: (state, key) => state.set('initializedSearchEntry', key),
     REMOVE_ACTIVE_FILTERS: removeActiveFilters,
     CLEAR_ACTIVE_FILTERS: clearActiveFilters,
     UPDATE_ACTIVE_MISSIONS: updateActiveMissions,
@@ -125,7 +127,8 @@ function setModal(state, payload) {
 function setFilterType(state, payload) {
     let type = payload.type
     if (!['basic', 'advanced'].includes(type)) type = 'basic'
-    return state.setIn(['filterType'], type)
+    const next = state.setIn(['filterType'], type)
+    return type === 'advanced' ? next.set('searchPresetUndo', null) : next
 }
 
 /**
@@ -206,6 +209,7 @@ function removeActiveFilters(state, payload) {
     return state
         .setIn(['activeFilters'], fromJS(nextActiveFilters))
         .updateIn(['facetsStatus'], (facetsStatus) => facetsStatus.deleteAll(ids))
+        .update('searchPresetRetainedKeys', [], (keys) => keys.filter((key) => !ids.includes(key)))
 }
 
 /**
@@ -217,7 +221,22 @@ function removeActiveFilters(state, payload) {
  */
 function clearActiveFilters(state, payload) {
     const initialActiveFilters = state.get('initialActiveFilters')
-    return state.setIn(['activeFilters'], initialActiveFilters)
+    return state.setIn(['activeFilters'], initialActiveFilters).set('searchPresetRetainedKeys', []).set('searchPresetUndo', null)
+}
+
+function setSearchPresetState(state, { filters, presetId, entry, undo, retainedKeys = [] }) {
+    const ordered = Object.fromEntries(Object.entries(filters).map(([key, filter]) => [
+        key, { ...filter, order: getFilterOrderValue(key) },
+    ]))
+    return state.merge({
+        activeFilters: fromJS(ordered),
+        expandedFilter: ordered[state.get('expandedFilter')] ? state.get('expandedFilter') : null,
+        facetsStatus: fromJS({}),
+        searchPresetId: presetId,
+        searchPresetRetainedKeys: retainedKeys,
+        searchPresetEntry: entry,
+        searchPresetUndo: undo,
+    })
 }
 
 /**

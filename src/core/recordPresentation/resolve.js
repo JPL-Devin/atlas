@@ -1,6 +1,7 @@
 import fields from '../../config/fields.json'
 import {
     defaultProfile,
+    getSharedMissionKey,
     instanceProfiles,
     profiles,
     sections as sectionGroups,
@@ -41,10 +42,11 @@ export const resolveProfile = ({ mission, pds_standard, instrument, instance } =
     let profile = mergeLayer({}, defaultProfile)
 
     if (mission) {
-        profile = mergeLayer(profile, profiles[mission])
-        if (pds_standard) profile = mergeLayer(profile, profiles[`${mission}.${pds_standard}`])
-
         const instanceProfile = instance ? instanceProfiles[instance] : null
+        const sharedMission = getSharedMissionKey(mission, instance)
+        profile = mergeLayer(profile, profiles[sharedMission])
+        if (pds_standard) profile = mergeLayer(profile, profiles[`${sharedMission}.${pds_standard}`])
+
         const instanceMission = instanceProfile
             ? getIn(instanceProfile, ['missions', mission])
             : null

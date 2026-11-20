@@ -13,6 +13,7 @@ import {
     loadFilterFacets,
 } from '../../core/redux/actions/actions.js'
 import { facetsStatuses } from '../../core/constants.js'
+import { hasFilterValue } from '../../core/searchPresetState'
 
 import MuiAccordion from '@mui/material/Accordion'
 import MuiAccordionSummary from '@mui/material/AccordionSummary'
@@ -25,6 +26,7 @@ import Button from '@mui/material/Button'
 import Badge from '@mui/material/Badge'
 import TextField from '@mui/material/TextField'
 import InputAdornment from '@mui/material/InputAdornment'
+import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -441,6 +443,7 @@ const Filter = (props) => {
     const [isFilterDownOpen, setIsFilterDownOpen] = useState(false)
     const [filterDownValue, setFilterDownValue] = useState('')
     const [maxFieldsCount, setMaxFieldsCount] = useState(0)
+    const [confirmRemove, setConfirmRemove] = useState(false)
 
     const subFilters = getSubFilters(filter, filterKey, settingsActive)
     const facetsStatus = useSelector((state) => state.getIn(['facetsStatus', filterKey]))
@@ -506,13 +509,20 @@ const Filter = (props) => {
             })
         )
     }
-    const handleRemove = (e) => {
-        // stop expand/collapse
-        e.stopPropagation()
-
+    const remove = () => {
+        setConfirmRemove(false)
         dispatch(removeActiveFilters(filterKey))
         dispatch(clearResults())
         dispatch(search(0, true))
+    }
+
+    const handleRemove = (e) => {
+        e.stopPropagation()
+        if (hasFilterValue(filter)) {
+            setConfirmRemove(true)
+        } else {
+            remove()
+        }
     }
 
     const handleClearSelections = (e) => {
@@ -741,6 +751,14 @@ const Filter = (props) => {
                     {subFilters}
                 </AccordionDetails>
             </Accordion>
+            {confirmRemove && <Dialog open onClose={() => setConfirmRemove(false)} aria-labelledby="remove-filter-title">
+                <DialogTitle id="remove-filter-title">Remove {friendlyFilterName}?</DialogTitle>
+                <DialogContent>This also clears its selected values from the search.</DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setConfirmRemove(false)}>Cancel</Button>
+                    <Button color="secondary" onClick={remove}>Remove filter</Button>
+                </DialogActions>
+            </Dialog>}
         </div>
     )
 }

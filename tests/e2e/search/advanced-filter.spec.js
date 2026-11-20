@@ -21,7 +21,7 @@ test.describe('FiltersPanel - mode toggling', () => {
         await page.goto('/search', { waitUntil: 'domcontentloaded' })
         await waitForAppReady(page)
 
-        await expect(page.getByText('Basic Filters', { exact: true })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Filters', exact: true })).toBeVisible()
     })
 
     test('switching to Advanced Filters via the menu flips the panel title', async ({
@@ -50,7 +50,7 @@ test.describe('FiltersPanel - mode toggling', () => {
         // Dismiss the menu popper so it doesn't double-match the title text.
         await page.keyboard.press('Escape')
 
-        // Title flips from "Basic Filters" to "Advanced Filters". Use
+        // Title flips from "Filters" to "Advanced Filters". Use
         // `.first()` to avoid a strict-mode collision with any lingering
         // "Advanced Filters" menu item that may still be in the DOM.
         await expect(page.getByText('Advanced Filters', { exact: true }).first()).toBeVisible({

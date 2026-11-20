@@ -24,6 +24,8 @@ import {
 import { getSortField } from '../../sortFields'
 
 import { formatMappings, getInitialActiveFilters } from '../../../facets/FacetBuilder'
+import { getFilterPreset, PRESET_PARAM } from '../../../config/filterPresets'
+import { applyBasicSearchParams, makePresetFilters, planPresetSwitch } from '../../searchPresetState'
 
 // Just a quick way to remember
 let lastDSL = {}
@@ -88,6 +90,8 @@ let flatActions = [
     'SET_INITIAL_ACTIVE_FILTERS',
     'ADD_ACTIVE_FILTERS',
     'UPDATE_ACTIVE_FILTERS',
+    'SET_SEARCH_PRESET_STATE',
+    'SET_INITIALIZED_SEARCH_ENTRY',
     'REMOVE_ACTIVE_FILTERS',
     'CLEAR_ACTIVE_FILTERS',
     'UPDATE_ACTIVE_MISSIONS',
@@ -366,6 +370,13 @@ export const clearActiveFilters = () => {
 
 export const resetFilters = () => {
     return (dispatch, getState) => {
+        const state = getState()
+        const presetId = state.get('searchPresetId')
+        if (presetId && state.get('filterType') === 'basic') {
+            dispatch(setAdvancedFilters(null, true))
+            dispatch(changeSearchPreset(presetId, { reset: true }))
+            return
+        }
         dispatch(clearActiveFilters())
 
         const defaultFilterValues = getAppConfig().defaultFilterValues
@@ -380,6 +391,64 @@ export const resetFilters = () => {
         dispatch(clearResults())
         dispatch(search(0, true))
     }
+}
+
+const setPresetState = (payload) => ({ type: ACTIONS.SET_SEARCH_PRESET_STATE, payload })
+
+export const initializeSearchEntry = ({ key, query, fromHome }) => (dispatch, getState) => {
+    const state = getState()
+    const initialized = state.get('initializedSearchEntry')
+    if (initialized != null && (!fromHome || initialized === key)) {
+        return
+    }
+    const mapping = state.getIn(['mappings', 'atlas'])
+    const preset = getFilterPreset(query[PRESET_PARAM])
+    if (fromHome || Object.hasOwn(query, PRESET_PARAM)) {
+        const presetId = preset && preset.id !== 'all' ? preset.id : null
+        const defaults = makePresetFilters(mapping, preset)
+        const filters = query._adv ? defaults : applyBasicSearchParams(query, defaults, mapping)
+        dispatch(setFilterType(query._adv ? 'advanced' : 'basic', true))
+        dispatch(setAdvancedFilters(query._adv || null, true))
+        dispatch(setPresetState({
+            presetId, filters,
+            entry: presetId ? { presetId, query: { ...query } } : null,
+            undo: null,
+        }))
+        dispatch(search(0, true))
+    } else {
+        dispatch(search(0, true, null, { query }))
+    }
+    dispatch({ type: ACTIONS.SET_INITIALIZED_SEARCH_ENTRY, payload: key })
+}
+
+export const changeSearchPreset = (id, { reset = false, clearKeys = [] } = {}) => (dispatch, getState) => {
+    const state = getState()
+    const current = state.get('activeFilters').toJS()
+    const mapping = state.getIn(['mappings', 'atlas'])
+    const preset = getFilterPreset(id)
+    const presetId = preset && preset.id !== 'all' ? preset.id : null
+    const entry = state.get('searchPresetEntry')
+    const defaults = makePresetFilters(mapping, preset)
+    const { filters, kept: retainedKeys } = reset
+        ? { filters: applyBasicSearchParams(entry?.presetId === presetId ? entry.query : {}, defaults, mapping), kept: [] }
+        : planPresetSwitch(current, defaults, clearKeys)
+    dispatch(setPresetState({
+        filters, presetId, entry, retainedKeys,
+        undo: { filters: current, presetId: state.get('searchPresetId') || null, retainedKeys: state.get('searchPresetRetainedKeys') },
+    }))
+    dispatch(clearResults())
+    dispatch(search(0, true))
+}
+
+export const undoSearchPresetChange = () => (dispatch, getState) => {
+    const state = getState()
+    const undo = state.get('searchPresetUndo')
+    if (!undo) return
+    dispatch(setPresetState({
+        ...undo, entry: state.get('searchPresetEntry'), undo: null,
+    }))
+    dispatch(clearResults())
+    dispatch(search(0, true))
 }
 
 /**
@@ -625,67 +694,12 @@ const applyFacetsResponse = (dispatch, getState, aggs, filterKeys) => {
  * @return {Object} nextActiveFilters
  */
 const applyUrlQuery = (dispatch, url, nextActiveFilters, atlasMapping) => {
-    let isAdvancedFilter = false
-    Object.keys(url.query).forEach((q) => {
-        // In case coming from record page
-        if (q === 'id') return
-        // skip the rest if the url is advanced
-        if (isAdvancedFilter) return
-        if (q === '_adv') {
-            isAdvancedFilter = true
-            dispatch(setAdvancedFilters(decodeURI(url.query[q]), true))
-            dispatch(setFilterType('advanced'))
-        } else {
-            let qSplit = q.split('.')
-            const q2 = qSplit[qSplit.length - 1].split('-')
-            const qMain = q
-            const qIdx = parseInt(q2[1] || '0')
-            qSplit = qSplit.join('..groups..').split('..')
-            if (qSplit.length === 2) qSplit.unshift('default')
-            const addFilter = getIn(atlasMapping.groups, qSplit) || {}
-
-            let filterState = {}
-            if (q[0] === '_') {
-                filterState.input = url.query[q]
-            } else {
-                url.query[q].split(',').forEach((v) => {
-                    // Check if this is a range parameter (contains _to_)
-                    if (v.includes('_to_')) {
-                        const [min, max] = v.split('_to_').map(decodeURI)
-                        const filter = nextActiveFilters?.[qMain] || addFilter
-                        const facet = filter?.facets?.[qIdx]
-
-                        if (facet?.component === 'date_range') {
-                            // Date range format
-                            filterState.daterange = {
-                                start: min || '',
-                                end: max || '',
-                            }
-                        } else if (
-                            facet?.component === 'input_range' ||
-                            facet?.component === 'slider_range'
-                        ) {
-                            // Numeric range format
-                            filterState.range = [
-                                min !== '' ? parseFloat(min) : null,
-                                max !== '' ? parseFloat(max) : null,
-                            ]
-                        }
-                    } else {
-                        // Regular keyword filter
-                        filterState[v] = true
-                    }
-                })
-            }
-            if (nextActiveFilters[qMain] == null && addFilter?.facets?.[qIdx] != null) {
-                addFilter.facets[qIdx].state = filterState
-                nextActiveFilters[qMain] = addFilter
-            } else if (nextActiveFilters?.[qMain]?.facets?.[qIdx] != null) {
-                nextActiveFilters[qMain].facets[qIdx].state = filterState
-            }
-        }
-    })
-    return nextActiveFilters
+    if (url.query._adv) {
+        dispatch(setAdvancedFilters(url.query._adv, true))
+        dispatch(setFilterType('advanced', true))
+        return nextActiveFilters
+    }
+    return applyBasicSearchParams(url.query, nextActiveFilters, atlasMapping)
 }
 
 const getSecondaryAggs = () => {
@@ -2509,14 +2523,18 @@ export const getArchiveExplorerPath = (uri) => {
  * @param {string} uri
  * @param {function} navigate - react-router navigate
  */
+export const resetArchiveExplorer = () => (dispatch) => {
+    usedURLState = false
+    dispatch(removeFilexColumn(0))
+    dispatch(setFilexPreview({}))
+    dispatch({ type: ACTIONS.SET_LAST_FILEX_FILTER_DOC, payload: null })
+}
+
 export const openInArchiveExplorer = (uri, navigate) => {
     return (dispatch) => {
         const path = getArchiveExplorerPath(uri)
         if (path == null) return
-        usedURLState = false
-        dispatch(removeFilexColumn(0))
-        dispatch(setFilexPreview({}))
-        dispatch({ type: ACTIONS.SET_LAST_FILEX_FILTER_DOC, payload: null })
+        dispatch(resetArchiveExplorer())
         navigate(path)
     }
 }
