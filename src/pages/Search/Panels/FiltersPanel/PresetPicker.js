@@ -107,7 +107,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                 return (
                     <Box component="li" key={key} sx={{
                         display: 'grid', gridTemplateColumns: '13px minmax(0, 1fr) auto', alignItems: 'center',
-                        gap: 0.75, px: 0.75, py: canChoose ? 0.5 : 0.25, minHeight: 21, fontSize: 12, color, bgcolor,
+                        gap: 0.75, px: 0.75, height: 36, boxSizing: 'border-box', fontSize: 12, lineHeight: 1.25, color, bgcolor,
                         borderBottom: '1px solid #dde5ef',
                     }}>
                         <Box component="span" aria-hidden="true" sx={{ textAlign: 'center', fontWeight: 800 }}>{symbol}</Box>
@@ -128,8 +128,8 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                                 sx={{
                                     bgcolor: '#fff', borderRadius: '5px',
                                     '&& .MuiToggleButton-root': {
-                                        borderColor: '#a8b8cb', borderRadius: '5px', px: 1, py: 0.25,
-                                        minWidth: 47, minHeight: { xs: 36, md: 26 },
+                                        borderColor: '#a8b8cb', borderRadius: '5px', px: 1, py: 0,
+                                        minWidth: 47, height: { xs: 32, md: 26 },
                                         color: '#405571', fontSize: 11, fontWeight: 600, textTransform: 'none',
                                         '&:not(:last-of-type)': { borderTopRightRadius: 0, borderBottomRightRadius: 0 },
                                         '&:not(:first-of-type)': { borderTopLeftRadius: 0, borderBottomLeftRadius: 0, borderLeft: '1px solid #a8b8cb' },

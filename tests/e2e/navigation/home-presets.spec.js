@@ -331,6 +331,11 @@ test('Atlas chooses kept filters in a pinned preview and undoes each switch', as
             const applyBox = await apply.boundingBox()
             expect(optionBox.x).toBeCloseTo(searchBox.x, 0)
             expect(applyBox.x + applyBox.width).toBeCloseTo(previewRow.x + previewRow.width, 0)
+            const rowHeights = await preview.getByRole('listitem').evaluateAll((rows) =>
+                rows.map((row) => row.getBoundingClientRect().height))
+            expect(new Set(rowHeights)).toEqual(new Set([36]))
+            const keepButton = await phase.getByRole('button', { name: 'Keep' }).boundingBox()
+            expect(keepButton.height).toBe(26)
             await capture(page, 'apply-button')
         }
         await apply.click()
@@ -423,6 +428,11 @@ test('Atlas shows inline kept-filter choices on mobile', async ({ page }) => {
     expect(optionBox.width).toBeCloseTo(searchBox.width, 0)
     expect(applyBox.x).toBeCloseTo(searchBox.x, 0)
     expect(applyBox.width).toBeCloseTo(searchBox.width, 0)
+    const rowHeights = await inline.getByRole('listitem').evaluateAll((rows) =>
+        rows.map((row) => row.getBoundingClientRect().height))
+    expect(rowHeights).toEqual([36, 36])
+    const keepButton = await inline.getByRole('button', { name: 'Keep' }).first().boundingBox()
+    expect(keepButton.height).toBe(32)
     await capture(page, 'apply-button-mobile')
     await apply.click()
     await expect(picker).not.toBeVisible()
