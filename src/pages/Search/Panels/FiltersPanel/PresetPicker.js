@@ -32,6 +32,7 @@ const warningStyle = { color: '#614307', bgcolor: '#fff4da', fontSize: 12, align
 const presetExplanation = 'Presets change which filters are shown. Switching keeps your selected values, including Mission.'
 const keptExplanation = 'Choose which extra filters to keep or clear. Mission and other selected values stay.'
 const pickerInset = 8
+const contentInset = { xs: 3, md: 4 }
 const diffStyles = {
     added: { symbol: '+', label: 'Added', countLabel: 'added', color: '#165839', bgcolor: '#e7f4eb' },
     removed: { symbol: '−', label: 'Removed', countLabel: 'removed', color: '#8a302c', bgcolor: '#faecea' },
@@ -183,7 +184,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                 },
             }}
         >
-            <Box sx={{ px: 1.75, pt: 1.5, pb: 1.25, borderBottom: '1px solid #dde5ef' }}>
+            <Box sx={{ px: contentInset, pt: 1.5, pb: 1.25, borderBottom: '1px solid #dde5ef' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
                     <Typography id={`${id}-title`} component="h2" sx={{ fontSize: 16, fontWeight: 700 }}>
                         Choose a filter preset
@@ -235,7 +236,10 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                 display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' },
                 minHeight: 0,
             }}>
-                <Box ref={list} sx={{ p: 0.75, overflowY: 'auto' }}>
+                <Box ref={list} sx={{
+                    display: 'grid', alignContent: 'start', gap: 1, minWidth: 0,
+                    px: contentInset, py: 2, overflowY: 'auto',
+                }}>
                     {matches.map((preset) => {
                         const selected = preset.id === activeId
                         const isPinned = preset.id === pinnedId
@@ -264,7 +268,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                                 }}
                                 sx={{
                                     display: 'block', width: '100%', textAlign: 'left', position: 'relative',
-                                    px: 1.125, pr: selected ? 3.75 : 1.125, py: 1, borderRadius: '5px',
+                                    px: 3, pr: selected ? 9 : 3, py: 2, borderRadius: '5px',
                                     bgcolor: isPinned ? '#dceaff' : selected ? '#edf4ff' : { xs: 'transparent', md: inspecting ? '#f2f7ff' : 'transparent' },
                                     border: '1px solid',
                                     borderColor: isPinned ? '#1559bf' : selected ? '#d2e2fb' : { xs: 'transparent', md: inspecting ? '#a9c8f6' : 'transparent' },
@@ -276,17 +280,17 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                                 <Typography component="span" sx={{ display: 'block', fontSize: 13, fontWeight: 700 }}>
                                     {preset.label}
                                 </Typography>
-                                <Typography component="span" sx={{ display: 'block', fontSize: 12, color: '#4c5b70' }}>
+                                <Typography component="span" sx={{ display: 'block', mt: 0.5, fontSize: 12, color: '#4c5b70' }}>
                                     {preset.description}
                                 </Typography>
-                                {chips.length ? <Box component="span" sx={{ display: 'flex', flexWrap: 'wrap', gap: '4px', mt: 0.625 }}>
+                                {chips.length ? <Box component="span" sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1.5 }}>
                                     {chips.map(([label, hidden]) => <Box key={label} component="span" sx={{
                                         ...chipStyle, bgcolor: hidden ? '#eff1f5' : '#eaf1ff', color: hidden ? '#4c5664' : '#264e83',
                                     }}>{label}</Box>)}
-                                </Box> : <Typography component="span" sx={{ display: 'block', mt: 0.5, fontSize: 11, fontWeight: 600, color: '#285885' }}>
+                                </Box> : <Typography component="span" sx={{ display: 'block', mt: 1.5, fontSize: 11, fontWeight: 600, color: '#285885' }}>
                                     Standard Atlas filters
                                 </Typography>}
-                                {selected && <CheckIcon titleAccess="Active preset" sx={{ position: 'absolute', top: 8, right: 8, fontSize: 16, color: '#1559bf' }} />}
+                                {selected && <CheckIcon titleAccess="Active preset" sx={{ position: 'absolute', top: 10, right: 12, fontSize: 16, color: '#1559bf' }} />}
                             </ButtonBase>
                             {isPinned && hasKeptRows && <Box role="group" aria-label={`Kept filters for ${preset.label}`} sx={{
                                 display: { xs: 'block', md: 'none' }, p: 0.75, bgcolor: '#f6f9fe', borderRadius: '5px',
@@ -301,7 +305,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                     </Typography>}
                 </Box>
                 <Box component="aside" aria-label="Filter changes" sx={{
-                    display: { xs: 'none', md: 'block' }, overflowY: 'auto', p: 2,
+                    display: { xs: 'none', md: 'block' }, overflowY: 'auto', px: contentInset, py: 2,
                     bgcolor: '#f6f9fe', borderLeft: '1px solid #dde5ef',
                 }}>
                     <Typography sx={{ fontSize: 10, fontWeight: 750, letterSpacing: '.1em', color: '#436282' }}>
@@ -334,7 +338,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
             </Box>
             <Box sx={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', flexShrink: 0, gap: '6px 12px',
-                px: 1.25, py: 1, bgcolor: '#f8fafd', borderTop: '1px solid #dde5ef', fontSize: 11, color: '#4d5f76',
+                px: contentInset, py: 2, bgcolor: '#f8fafd', borderTop: '1px solid #dde5ef', fontSize: 11, color: '#4d5f76',
             }}>
                 <Box sx={{ flex: { xs: '1 0 100%', md: '1 1 auto' }, lineHeight: 1.4 }}>
                     {canApply ? <>
@@ -344,7 +348,7 @@ const PresetPicker = ({ id, anchor, presets, activeId, getPreview, onClose, onAp
                 </Box>
                 <Button size="small" variant="contained" disableElevation disabled={!canApply}
                     sx={{
-                        ml: 'auto', borderRadius: '5px', px: 1.375, minHeight: { xs: 36, md: 32 },
+                        ml: 'auto', width: { xs: '100%', md: 'auto' }, borderRadius: '5px', px: 3, minHeight: { xs: 36, md: 32 },
                         fontSize: 12, fontWeight: 650, lineHeight: 1.25, textTransform: 'none', whiteSpace: 'nowrap',
                         bgcolor: '#1559bf', '&:hover': { bgcolor: '#12499d' },
                     }}
