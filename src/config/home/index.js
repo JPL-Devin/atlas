@@ -10,9 +10,9 @@ const atlasMission = (id, title, target, description, photo, preset = 'planetary
     query: { [MISSION]: [id] },
     destinations: { search: {}, archive: { query: { mission: [id] } } },
 })
-const rawsMission = (id, spacecraft, title, target, description, photo, preset) => ({
-    id, title, target, description, image: photo, preset,
-    query: { [MISSION]: [id], [SPACECRAFT]: [spacecraft] },
+const rawsMission = (mission, spacecraft, title, target, description, photo, preset) => ({
+    id: `${mission}:${spacecraft}`, title, target, description, image: photo, preset,
+    query: { [MISSION]: [mission], [SPACECRAFT]: [spacecraft] },
     destinations: { search: {} },
 })
 
@@ -60,18 +60,21 @@ const home = {
             rawsMission('m20', 'perseverance', 'Mars 2020 · Perseverance', 'Mars',
                 'Browse raw rover images from the drive across Jezero Crater.',
                 image('rover', 'Perseverance on a rocky Martian slope', '68% 52%'), 'mars-2020'),
+            rawsMission('m20', 'ingenuity', 'Mars 2020 · Ingenuity', 'Mars',
+                'See Jezero Crater from above in raw images from the first helicopter to fly on Mars.',
+                image('ingenuity', 'Ingenuity resting on the Martian surface', '50% 50%', 'NASA/JPL-Caltech/ASU/MSSS'), 'mars-2020'),
             rawsMission('msl', 'curiosity', 'Mars Science Laboratory · Curiosity', 'Mars',
                 'Look through raw images from Curiosity’s traverse across Gale Crater and up Mount Sharp.',
-                image('curiosity', 'Curiosity on the surface of Mars', '50% 51%')),
+                image('curiosity', 'Curiosity on the surface of Mars', '50% 51%'), 'msl'),
             rawsMission('insight', 'insight', 'InSight', 'Mars',
                 'See raw views of the lander’s deck, instruments, and landing site on Elysium Planitia.',
-                image('insight', 'Illustration of InSight on Elysium Planitia', '50% 52%')),
+                image('insight', 'Illustration of InSight on Elysium Planitia', '50% 52%'), 'insight'),
             rawsMission('cassini', 'cassini', 'Cassini', 'Saturn',
                 'Explore raw images from Cassini’s passes by Saturn, its rings, and its moons.',
-                image('saturn', 'Backlit Saturn and its rings', '50% 50%', 'NASA/JPL-Caltech/Space Science Institute')),
+                image('saturn', 'Backlit Saturn and its rings', '50% 50%', 'NASA/JPL-Caltech/Space Science Institute'), 'cassini'),
             rawsMission('psyche', 'psyche', 'Psyche', 'Asteroid belt',
                 'Find raw imagery from NASA’s mission to study the metal-rich asteroid Psyche.',
-                image('psyche', 'Illustration of the asteroid Psyche', '50% 49%')),
+                image('psyche', 'Illustration of the asteroid Psyche', '50% 49%'), 'psyche'),
         ],
     },
 }

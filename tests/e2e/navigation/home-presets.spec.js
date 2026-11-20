@@ -481,20 +481,24 @@ test('Planetary Raws home opens its curated preset without exposing Atlas-only a
     await expect(page.getByRole('heading', { name: 'Explore Missions' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Browse Planetary Raws', exact: true })).toHaveAttribute('href', '/search')
     await expect(page.getByRole('link', { name: /Archive Explorer/ })).toHaveCount(0)
-    for (const [title, id, spacecraft] of [
-        ['Mars 2020 · Perseverance', 'm20', 'perseverance'],
-        ['Mars Science Laboratory · Curiosity', 'msl', 'curiosity'],
-        ['InSight', 'insight', 'insight'],
-        ['Cassini', 'cassini', 'cassini'],
-        ['Psyche', 'psyche', 'psyche'],
+    for (const [title, id, spacecraft, preset] of [
+        ['Mars 2020 · Perseverance', 'm20', 'perseverance', 'mars-2020'],
+        ['Mars 2020 · Ingenuity', 'm20', 'ingenuity', 'mars-2020'],
+        ['Mars Science Laboratory · Curiosity', 'msl', 'curiosity', 'msl'],
+        ['InSight', 'insight', 'insight', 'insight'],
+        ['Cassini', 'cassini', 'cassini', 'cassini'],
+        ['Psyche', 'psyche', 'psyche', 'psyche'],
     ]) {
         const card = page.getByRole('article').filter({ has: page.getByRole('heading', { name: title, exact: true }) })
-        const href = new RegExp(`[?&]gather\\.common\\.mission=${id}&gather\\.common\\.spacecraft=${spacecraft}$`)
+        const href = `/search?_preset=${preset}&gather.common.mission=${id}&gather.common.spacecraft=${spacecraft}`
         await expect(card.getByRole('link', { name: title, exact: true })).toHaveAttribute('href', href)
         await expect(card.getByRole('link', { name: `Browse ${title} using the mission image` })).toHaveAttribute('href', href)
         await expect(card.getByRole('link', { name: `Browse ${title}`, exact: true })).toHaveAttribute('href', href)
     }
-    await expect(page.getByRole('article')).toHaveCount(5)
+    await expect(page.getByRole('article')).toHaveCount(6)
+    const ingenuityImage = page.getByRole('img', { name: 'Ingenuity resting on the Martian surface', exact: true })
+    await expect(ingenuityImage).toHaveAttribute('src', /\/images\/missions\/ingenuity\.webp$/)
+    await expect.poll(() => ingenuityImage.evaluate((img) => img.naturalWidth)).toBeGreaterThan(0)
     await expectHomeLaunchActions(page, 'raws-home', ['Browse Planetary Raws'])
     await page.getByRole('link', { name: 'Browse Mars 2020 · Perseverance', exact: true }).click()
     await expect(page).toHaveURL(/_preset=mars-2020.*mission=m20/)
@@ -515,6 +519,18 @@ test('Planetary Raws home opens its curated preset without exposing Atlas-only a
     const picker = page.getByRole('dialog', { name: 'Choose a filter preset' })
     await expect(picker.getByRole('button', { name: /^Standard Planetary Raws/ })).toBeVisible()
     await expect(picker.getByRole('button', { name: /^Mars 2020/ })).toHaveAttribute('aria-current', 'true')
+    for (const name of ['Mars Science Laboratory', 'InSight', 'Cassini', 'Psyche']) {
+        await expect(picker.getByRole('button', { name: new RegExp(`^${name}`) })).toBeVisible()
+    }
+
+    await page.goto('/')
+    await page.getByRole('link', { name: 'Browse Mars 2020 · Ingenuity', exact: true }).click()
+    await expect(page).toHaveURL(/_preset=mars-2020.*mission=m20.*spacecraft=ingenuity/)
+    await expect(trigger).toBeVisible()
+    await expect.poll(() => requests.some(({ query }) => {
+        const body = JSON.stringify(query || {})
+        return body.includes('"m20"') && body.includes('"ingenuity"')
+    })).toBe(true)
 })
 
 for (const mobile of [false, true]) {
@@ -601,5 +617,20 @@ for (const mobile of [false, true]) {
         await expect(page).toHaveURL(spacecraftParam)
         await expect(page).toHaveURL(/planet_day_number=42_to_44/)
         await expect(spacecraft).toBeVisible()
+        await marsTrigger.click()
+        const psyche = picker.getByRole('button', { name: /^Psyche/ })
+        if (mobile) {
+            await expect(search).toBeFocused()
+            await search.press('ArrowUp')
+            await expect(psyche).toBeFocused()
+        } else {
+            await search.fill('Psyche')
+        }
+        await expect(psyche).toBeInViewport()
+        await psyche.click()
+        await expect(page.getByRole('button', { name: 'Preset: Psyche', exact: true })).toBeVisible()
+        await expect(page).toHaveURL(/_preset=psyche/)
+        await expect(page).toHaveURL(/mission=m20/)
+        await expect(page).toHaveURL(spacecraftParam)
     })
 }

@@ -5,6 +5,7 @@ export const FLIGHT_DAY = 'gather.flyby_missions.flight_day_number'
 const ML_CLASS = 'gather.machine_learning.classification.classifications.class'
 const ML_CONFIDENCE = 'gather.machine_learning.classification.classifications.confidence'
 const SPACECRAFT = 'gather.common.spacecraft'
+const PLANET_DAY = 'gather.landed_missions.planet_day_number'
 const KIND = 'gather.common.kind'
 const BUNDLE = 'archive.bundle_id'
 
@@ -64,7 +65,39 @@ const presets = {
             id: 'mars-2020',
             label: 'Mars 2020',
             description: 'Explore Mars 2020 images by Martian day.',
-            add: ['gather.landed_missions.planet_day_number'],
+            add: [PLANET_DAY],
+            remove: [],
+            recommended: [],
+        },
+        {
+            id: 'msl',
+            label: 'Mars Science Laboratory',
+            description: 'Explore Curiosity images by Martian day.',
+            add: [PLANET_DAY],
+            remove: [],
+            recommended: [],
+        },
+        {
+            id: 'insight',
+            label: 'InSight',
+            description: 'Browse InSight lander images by Martian day.',
+            add: [PLANET_DAY],
+            remove: [],
+            recommended: [],
+        },
+        {
+            id: 'cassini',
+            label: 'Cassini',
+            description: 'Use standard filters for Cassini’s views of Saturn, its rings, and moons.',
+            add: [],
+            remove: [],
+            recommended: [],
+        },
+        {
+            id: 'psyche',
+            label: 'Psyche',
+            description: 'Use standard filters for imagery from the Psyche mission.',
+            add: [],
             remove: [],
             recommended: [],
         },

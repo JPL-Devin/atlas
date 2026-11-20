@@ -22,24 +22,27 @@ test('home defines valid instance-local preset IDs and destination-specific quer
         for (const card of getHomeConfig(instance).cards) {
             const search = new URL(getHomeDestination('search', card), 'http://localhost')
             expect(search.searchParams.get('_preset')).toBe(card.preset ?? null)
-            expect(search.searchParams.get(MISSION)).toBe(card.id)
             if (card.preset) {
                 expect(presets.some(({ id }) => id === card.preset)).toBe(true)
             }
             if (instance === 'raws') {
                 expect(getHomeDestination('archive', card)).toBeNull()
             } else {
+                expect(search.searchParams.get(MISSION)).toBe(card.id)
                 expect(getHomeDestination('archive', card)).toBe(`/archive-explorer?mission=${card.id}`)
                 expect(search.searchParams.has(SPACECRAFT)).toBe(false)
             }
         }
     }
-    expect(getHomeConfig('raws').cards.map((card) => {
+    const rawsCards = getHomeConfig('raws').cards
+    expect(new Set(rawsCards.map(({ id }) => id)).size).toBe(rawsCards.length)
+    expect(rawsCards.map((card) => {
         const { searchParams } = new URL(getHomeDestination('search', card), 'http://localhost')
-        return [searchParams.get(MISSION), searchParams.get(SPACECRAFT)]
+        return [searchParams.get(MISSION), searchParams.get(SPACECRAFT), searchParams.get('_preset')]
     })).toEqual([
-        ['m20', 'perseverance'], ['msl', 'curiosity'], ['insight', 'insight'],
-        ['cassini', 'cassini'], ['psyche', 'psyche'],
+        ['m20', 'perseverance', 'mars-2020'], ['m20', 'ingenuity', 'mars-2020'],
+        ['msl', 'curiosity', 'msl'], ['insight', 'insight', 'insight'],
+        ['cassini', 'cassini', 'cassini'], ['psyche', 'psyche', 'psyche'],
     ])
     expect(getHomeDestination('search', {
         query: { 'gather.common.target': ['Mars & Phobos', 'Deimos'] },
@@ -48,12 +51,20 @@ test('home defines valid instance-local preset IDs and destination-specific quer
     expect(getHomeDestination('search')).toBe('/search')
 })
 
-test('Standard Planetary Raws matches the instance defaults', () => {
+test('Raws presets keep standard controls and add Planet Day only for landed missions', () => {
     const { defaultFilters } = getAllInstances().raws
     const presets = getFilterPresets('raws')
-    expect(presets.map(({ id }) => id)).toEqual(['all', 'mars-2020'])
-    expect(getPresetFilterKeys(presets[0], defaultFilters)).toEqual(defaultFilters)
-    expect(getPresetFilterKeys(presets[1], defaultFilters)).toContain(SPACECRAFT)
+    expect(presets.map(({ id, label }) => [id, label])).toEqual([
+        ['all', 'Standard Planetary Raws'], ['mars-2020', 'Mars 2020'], ['msl', 'Mars Science Laboratory'],
+        ['insight', 'InSight'], ['cassini', 'Cassini'], ['psyche', 'Psyche'],
+    ])
+    expect(defaultFilters).toContain(SPACECRAFT)
+    for (const preset of presets) {
+        const landed = ['mars-2020', 'msl', 'insight'].includes(preset.id)
+        expect(getPresetFilterKeys(preset, defaultFilters)).toEqual(landed
+            ? [...defaultFilters, 'gather.landed_missions.planet_day_number']
+            : defaultFilters)
+    }
 })
 
 test('Artemis II does not duplicate Flight Day or alter instance defaults', () => {
