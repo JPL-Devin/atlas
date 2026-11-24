@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import PropTypes from 'prop-types'
-import Url from 'url-parse'
 import clsx from 'clsx'
 
 import { makeStyles, withStyles } from '@mui/styles'
@@ -23,7 +22,7 @@ import FilterListIcon from '@mui/icons-material/FilterList'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import PublicIcon from '@mui/icons-material/Public'
 
-import { search, setWorkspace } from '../../../../core/redux/actions/actions.js'
+import { setWorkspace } from '../../../../core/redux/actions/actions.js'
 import { abbreviateNumber } from '../../../../core/utils.js'
 import { getAppConfig } from '../../../../core/appConfig'
 
@@ -200,9 +199,6 @@ const StyledTab = withStyles((theme) => ({
     },
 }))((props) => <Tab disableRipple {...props} />)
 
-// Don't rerender for this change
-let firstSearch = false
-
 const ResultsPanel = (props) => {
     const { mobile } = props
 
@@ -215,21 +211,6 @@ const ResultsPanel = (props) => {
         mapEnabled && !mobile ? ['Grid', 'List', 'Table', 'Map'] : ['Grid', 'List', 'Table']
     const [split, setSplit] = useState(false)
     const [mobileMap, setMobileMap] = useState(false)
-    // Read during render, before FilterList's effect syncs the URL to the store
-    const [initialUrl] = useState(() => new Url(window.location, true))
-
-    const atlasMapping = useSelector((state) => {
-        return state.getIn(['mappings', 'atlas'])
-    })
-
-    useEffect(() => {
-        // Runs after the first render() lifecycle
-        if (!firstSearch && atlasMapping?.groups) {
-            dispatch(search(null, true, null, initialUrl))
-            firstSearch = true
-        }
-    }, [atlasMapping, dispatch, initialUrl])
-
     const w = useSelector((state) => {
         return state.getIn(['workspace', 'main'])
     }).toJS()

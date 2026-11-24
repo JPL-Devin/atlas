@@ -1,4 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useLocation } from 'react-router-dom'
 
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { makeStyles } from '@mui/styles'
@@ -14,6 +16,7 @@ import AdvancedFilterModal from './Modals/AdvancedFilterModal/AdvancedFilterModa
 import AdvancedFilterReturnModal from './Modals/AdvancedFilterReturnModal/AdvancedFilterReturnModal'
 
 import { getAppConfig } from '../../core/appConfig'
+import { initializeSearchEntry } from '../../core/redux/actions/actions'
 
 const useStyles = makeStyles((theme) => ({
     Search: {
@@ -38,6 +41,23 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const Search = () => {
+    const location = useLocation()
+    const dispatch = useDispatch()
+    const mappingReady = useSelector((state) => Boolean(state.getIn(['mappings', 'atlas'])?.groups))
+    const initializedEntry = useSelector((state) => state.get('initializedSearchEntry'))
+    const [entry] = useState(() => ({
+        key: location.key,
+        query: Object.fromEntries(new URLSearchParams(location.search)),
+        fromHome: location.state?.fromHome === true,
+    }))
+    const ready = initializedEntry != null && (!entry.fromHome || initializedEntry === entry.key)
+
+    useEffect(() => {
+        if (mappingReady && !ready) {
+            dispatch(initializeSearchEntry(entry))
+        }
+    }, [dispatch, entry, mappingReady, ready])
+
     useEffect(() => {
         document.title = `${getAppConfig().appTitle} - Search | PDS-IMG`
     }, [])
@@ -50,7 +70,7 @@ const Search = () => {
     return (
         <div className={c.Search}>
             <div className={`${c.mainWorkspace} ${c.workspace}`}>
-                <FiltersPanel mobile={isMobile} />
+                <FiltersPanel mobile={isMobile} ready={ready} />
                 <ResultsPanel mobile={isMobile} />
             </div>
             <AddFilterModal />

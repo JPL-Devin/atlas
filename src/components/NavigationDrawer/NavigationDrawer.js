@@ -152,6 +152,9 @@ const buildDrawerItems = () => {
         if (instance.showInDrawer === false && !isCurrent) return
 
         items.push({ name: instance.drawerLabel, isHeader: true })
+        if (isCurrent) {
+            items.push({ name: `${instance.appTitle} Home`, path: HASH_PATHS.root, isAtlas: true })
+        }
 
         if (isCurrent) items.push({ name: 'Search Images', path: '/search', isAtlas: true })
         else
@@ -272,7 +275,7 @@ const NavigationDrawer = ({ open, onClose }) => {
                                     !item.openInNewTab &&
                                     (item.path === pathRoot ||
                                         (item.path &&
-                                            item.name != 'Home' &&
+                                            item.path !== HASH_PATHS.root &&
                                             pathRoot.indexOf(item.path) === 0)),
                             })}
                             onClick={(e) => {
@@ -296,7 +299,7 @@ const NavigationDrawer = ({ open, onClose }) => {
                             }}
                             target={item.openInNewTab ? '_blank' : '__blank'}
                             href={
-                                item.isAtlas && item.openInNewTab && !item.isCrossInstance
+                                item.isAtlas && !item.isCrossInstance
                                     ? `${publicUrl}${item.path}`
                                     : item.path
                             }

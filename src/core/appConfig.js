@@ -3,6 +3,7 @@ import { buildEnv } from './runtimeConfig'
 const instances = {
     atlas: {
         appTitle: 'Atlas',
+        presetPickerMode: 'advanced',
         enableCart: true,
         enableArchiveExplorer: true,
         enableMap: true,
@@ -43,6 +44,7 @@ const instances = {
     },
     raws: {
         appTitle: 'Planetary Raws',
+        presetPickerMode: 'simple',
         enableCart: false,
         enableArchiveExplorer: false,
         enableMap: false,

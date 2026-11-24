@@ -33,6 +33,13 @@ test.describe('resolveFilenameSpec', () => {
         expect(resolveFilenameSpec({ mission: 'vgr', pds_standard: 'pds3' })).toBe(null)
         expect(resolveFilenameSpec({})).toBe(null)
     })
+
+    test('Raws mission IDs reuse the matching filename conventions', () => {
+        for (const [mission, atlasMission] of [['m20', 'mars_2020'], ['insight', 'nsyt'], ['cassini', 'cas']]) {
+            expect(resolveFilenameSpec({ mission, pds_standard: 'raws' })).toBe(filenameSpecs[atlasMission])
+            expect(resolveFilenameSpec({ mission, pds_standard: 'pds4' })).toBe(null)
+        }
+    })
 })
 
 test.describe('parseFilename', () => {
