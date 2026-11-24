@@ -28,7 +28,7 @@ const rawsMission = (mission, spacecraft, title, target, description, photo, pre
 const home = {
     atlas: {
         heading: 'Featured Missions',
-        description: 'Search and browse imagery from the PDS Cartography and Imaging Sciences Node (IMG) by mission, instrument and date.',
+        description: 'Search data products from the PDS Cartography and Imaging Sciences Node (IMG) with detailed metadata filters, or browse the archive’s bundles, directories and files, including images, labels and 3D models.',
         labels: {
             launchSearch: 'Search Atlas',
             launchArchive: 'Browse Archive Explorer',
