@@ -73,6 +73,17 @@ const expectHomeLaunchActions = async (page, screenshot, names) => {
 
 test.use({ viewport: { width: 1440, height: 900 } })
 
+const expectLocalMissionImages = async (page) => {
+    const images = page.getByRole('article').getByRole('img')
+    await expect(images).toHaveCount(6)
+    for (const image of await images.all()) {
+        await expect(image).toHaveAttribute('src', /^\/images\/missions\/[a-z0-9-]+-pia\d{5}\.webp$/)
+        await expect(image).toHaveAttribute('title', / · PIA\d{5}$/)
+        await expect.poll(() => image.evaluate(({ naturalWidth, naturalHeight }) => [naturalWidth, naturalHeight]))
+            .toEqual([800, 450])
+    }
+}
+
 const expectStackedHeader = async (header, mobile = false) => {
     const title = header.getByRole('heading', { name: 'Filters', exact: true })
     const subtitle = header.getByRole('group', { name: 'Filter preset' })
@@ -117,6 +128,7 @@ test('Atlas homepage repeatedly opens distinct Search and Archive Explorer entri
     await expect(page.getByRole('link', { name: 'Search Atlas', exact: true })).toHaveAttribute('href', '/search')
     await expect(page.getByRole('link', { name: 'Browse Archive Explorer' })).toHaveAttribute('href', '/archive-explorer')
     await expect(page.getByRole('link', { name: /using the mission image/ })).toHaveCount(6)
+    await expectLocalMissionImages(page)
     await expectHomeLaunchActions(page, 'atlas-home', ['Search Atlas', 'Browse Archive Explorer'])
 
     const home = async () => {
@@ -542,8 +554,9 @@ test('Planetary Raws home opens its curated preset without exposing Atlas-only a
     }
     await expect(page.getByRole('article')).toHaveCount(6)
     const ingenuityImage = page.getByRole('img', { name: 'Ingenuity resting on the Martian surface', exact: true })
-    await expect(ingenuityImage).toHaveAttribute('src', /\/images\/missions\/ingenuity\.webp$/)
+    await expect(ingenuityImage).toHaveAttribute('src', /\/images\/missions\/ingenuity-pia25881\.webp$/)
     await expect.poll(() => ingenuityImage.evaluate((img) => img.naturalWidth)).toBeGreaterThan(0)
+    await expectLocalMissionImages(page)
     await expectHomeLaunchActions(page, 'raws-home', ['Browse Planetary Raws'])
     await page.getByRole('link', { name: 'Browse Mars 2020 · Perseverance', exact: true }).click()
     await expect(page).toHaveURL(/_preset=mars-2020.*mission=m20/)

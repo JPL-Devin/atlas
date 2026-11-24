@@ -51,6 +51,20 @@ test('home defines valid instance-local preset IDs and destination-specific quer
     expect(getHomeDestination('search')).toBe('/search')
 })
 
+test('home card images identify their NASA Photojournal sources and credits', () => {
+    for (const instance of ['atlas', 'raws']) {
+        const images = getHomeConfig(instance).cards.map(({ image }) => image)
+        expect(new Set(images.map(({ piaId }) => piaId)).size).toBe(images.length)
+        for (const { file, piaId, source, alt, credit } of images) {
+            expect(piaId).toMatch(/^PIA\d{5}$/)
+            expect(file).toMatch(new RegExp(`^[a-z0-9-]+-${piaId.toLowerCase()}\\.webp$`))
+            expect(source).toMatch(/^https:\/\/science\.nasa\.gov\/photojournal\/[a-z0-9-]+\/$/)
+            expect(alt).toBeTruthy()
+            expect(credit).toBeTruthy()
+        }
+    }
+})
+
 test('Raws presets keep standard controls and add Planet Day only for landed missions', () => {
     const { defaultFilters } = getAllInstances().raws
     const presets = getFilterPresets('raws')

@@ -55,8 +55,7 @@ const CuratedCard = ({ card, labels, archiveEnabled }) => {
             {search && <Link to={search} state={fromHome} className="home-photo"
                 aria-label={`${labels.cardSearch} ${card.title} using the mission image`}>
                 <img src={`${getPublicUrl()}/images/missions/${card.image.file}`}
-                    alt={card.image.alt} title={card.image.credit}
-                    style={{ objectPosition: card.image.position }} />
+                    alt={card.image.alt} title={`${card.image.credit} · ${card.image.piaId}`} />
             </Link>}
             <div className="home-card-copy">
                 <p className="home-target">{card.target}</p>
@@ -80,7 +79,7 @@ CuratedCard.propTypes = {
             file: PropTypes.string.isRequired,
             alt: PropTypes.string.isRequired,
             credit: PropTypes.string.isRequired,
-            position: PropTypes.string,
+        piaId: PropTypes.string.isRequired,
         }).isRequired,
     }).isRequired,
     labels: PropTypes.shape({
