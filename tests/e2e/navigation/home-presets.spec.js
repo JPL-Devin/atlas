@@ -73,13 +73,13 @@ const expectHomeLaunchActions = async (page, screenshot, names) => {
 
 test.use({ viewport: { width: 1440, height: 900 } })
 
-const expectStackedHeader = async (header, mobile = false, undoLabel) => {
+const expectStackedHeader = async (header, mobile = false) => {
     const title = header.getByRole('heading', { name: 'Filters', exact: true })
     const subtitle = header.getByRole('group', { name: 'Filter preset' })
     await expect(subtitle).toBeVisible()
     const titleBox = await title.boundingBox()
     const subtitleBox = await subtitle.boundingBox()
-    for (const name of ['reset filters', 'add filter', 'menu', ...(mobile ? ['close filters'] : []), ...(undoLabel ? [undoLabel] : [])]) {
+    for (const name of ['reset filters', 'add filter', 'menu', ...(mobile ? ['close filters'] : [])]) {
         const action = header.getByRole('button', { name, exact: true })
         await expect(action).toBeInViewport({ ratio: 1 })
         const box = await action.boundingBox()
@@ -89,13 +89,24 @@ const expectStackedHeader = async (header, mobile = false, undoLabel) => {
             expect(box.height).toBeGreaterThanOrEqual(40)
             expect(box.x + box.width).toBeLessThan(titleBox.x)
         }
-        if (name === undoLabel) {
-            const resetBox = await header.getByRole('button', { name: 'reset filters', exact: true }).boundingBox()
-            expect(box.x).toBeGreaterThan(titleBox.x + titleBox.width)
-            expect(box.x + box.width).toBeLessThanOrEqual(resetBox.x)
-        }
     }
     expect(subtitleBox.y).toBeGreaterThan(titleBox.y + titleBox.height / 2)
+}
+
+const expectJoinedPresetControl = async (group, undo, mobile = false) => {
+    const trigger = group.getByRole('button', { name: /^Preset:/ })
+    await expect(undo).toBeInViewport({ ratio: 1 })
+    await expect(trigger).toBeInViewport({ ratio: 1 })
+    const [row, left, right] = await Promise.all([group.boundingBox(), undo.boundingBox(), trigger.boundingBox()])
+    expect(left.x + left.width).toBeCloseTo(right.x, 0)
+    expect(left.y).toBe(right.y)
+    expect(left.height).toBe(right.height)
+    expect(left.x).toBeGreaterThan(row.x)
+    expect(right.x + right.width).toBeLessThan(row.x + row.width)
+    if (mobile) {
+        expect(left.width).toBeGreaterThanOrEqual(40)
+        expect(left.height).toBeGreaterThanOrEqual(40)
+    }
 }
 
 test('Atlas homepage repeatedly opens distinct Search and Archive Explorer entries', async ({ page }) => {
@@ -149,9 +160,13 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await capture(page, 'preset-artemis')
     await capture(page, 'preset-row')
     const header = page.getByRole('group', { name: 'Filter controls' })
+    const presetControl = header.getByRole('group', { name: 'Filter preset' })
     const undoLabel = 'Undo preset change: restore Artemis II'
-    const undo = header.getByRole('button', { name: undoLabel, exact: true })
-    await expect(undo).toHaveCount(0)
+    const undo = presetControl.getByRole('button', { name: undoLabel, exact: true })
+    const disabledUndo = presetControl.getByRole('button', { name: 'Undo preset change', exact: true })
+    await expect(disabledUndo).toBeDisabled()
+    await expectJoinedPresetControl(presetControl, disabledUndo)
+    await capture(page, 'undo-desktop-disabled')
     const trigger = header.getByRole('button', { name: 'Preset: Artemis II (modified)' })
     await expectStackedHeader(header)
     await expect(trigger).toHaveText('Preset: Artemis II (modified)')
@@ -215,7 +230,8 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await expect(page).toHaveURL(/_preset=mars-2020.*mission=artemis2/)
     await expect(page.getByText('Kept because it has a value', { exact: true })).toHaveCount(0)
     await expect(page.getByText('Preset changed to Mars 2020', { exact: true })).toHaveCount(0)
-    await expectStackedHeader(header, false, undoLabel)
+    await expect(undo).toBeEnabled()
+    await expectJoinedPresetControl(presetControl, undo)
     await undo.hover()
     await expect(page.getByRole('tooltip', { name: undoLabel })).toBeVisible()
     await capture(page, 'undo-desktop')
@@ -245,6 +261,8 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await expect(page).not.toHaveURL(/gather\.common\.mission=/)
     await undo.click()
     await expect(undo).toHaveCount(0)
+    await expect(disabledUndo).toBeDisabled()
+    await expect(picker).toBeHidden()
     await expect(page).toHaveURL(/_preset=artemis-ii/)
     await expect(page).toHaveURL(/mission=artemis2.*flight_day_number=4_to_6/)
 
@@ -288,6 +306,7 @@ test('Search presets retain selected criteria, warn on removal, and support Undo
     await search.press('Escape')
     await reset.click()
     await expect(undo).toHaveCount(0)
+    await expect(disabledUndo).toBeDisabled()
 })
 
 test('Atlas preset picker stays usable on a narrow screen without the side preview', async ({ page }) => {
@@ -326,9 +345,11 @@ test('Atlas preset picker stays usable on a narrow screen without the side previ
     await expect(page.getByRole('dialog')).not.toBeVisible()
     await expect(page).toHaveURL(/_preset=planetary-imaging.*mission=artemis2/)
     const undoLabel = 'Undo preset change: restore Artemis II'
-    await expectStackedHeader(header, true, undoLabel)
+    const presetControl = header.getByRole('group', { name: 'Filter preset' })
+    const undo = presetControl.getByRole('button', { name: undoLabel, exact: true })
+    await expectJoinedPresetControl(presetControl, undo, true)
     await capture(page, 'undo-mobile')
-    await header.getByRole('button', { name: undoLabel, exact: true }).click()
+    await undo.click()
     await expect(page).toHaveURL(/_preset=artemis-ii.*mission=artemis2/)
     await header.getByRole('button', { name: 'close filters', exact: true }).click()
     await expect(header).toHaveCount(0)
@@ -634,10 +655,13 @@ for (const mobile of [false, true]) {
         await expect(page).toHaveURL(/planet_day_number=42_to_44/)
         await expect(spacecraft).toBeVisible()
         await expect(page.getByText('Preset changed to Standard Planetary Raws', { exact: true })).toHaveCount(0)
-        const undo = page.getByRole('group', { name: 'Filter controls' })
-            .getByRole('button', { name: 'Undo preset change: restore Mars 2020', exact: true })
+        const presetControl = page.getByRole('group', { name: 'Filter preset' })
+        const undo = presetControl.getByRole('button', { name: 'Undo preset change: restore Mars 2020', exact: true })
+        await expectJoinedPresetControl(presetControl, undo, mobile)
         await undo.click()
         await expect(undo).toHaveCount(0)
+        await expect(presetControl.getByRole('button', { name: 'Undo preset change', exact: true })).toBeDisabled()
+        await expect(picker).toBeHidden()
         await expect(marsTrigger).toBeVisible()
         await expect(page).toHaveURL(/_preset=mars-2020/)
         await expect(page).toHaveURL(/mission=m20/)
